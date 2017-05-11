@@ -3,9 +3,12 @@
 
 @author: Camille Maumet <c.m.j.maumet@warwick.ac.uk>
 @copyright: University of Warwick 2014
+@author: David Keator <dbkeator@uci.edu>
+    Added Python provtoolbox  support
 '''
 
 from rdflib import Namespace, Graph
+from prov.model import ProvDocument
 
 PROV = Namespace('http://www.w3.org/ns/prov#')
 NIDM_URL = 'http://purl.org/nidash/nidm#'
@@ -64,6 +67,12 @@ namespaces = {
 q_graph = Graph()
 for name, namespace in namespaces.items():
     q_graph.bind(name, namespace)
+
+# DBK Added - Empty graph using provtoolbox used to compute qnames
+p_graph = ProvDocument()
+for name, namespace in namespaces.items():
+    p_graph.add_namespace(name, namespace)
+
 
 # NIDM constants
 FSL_GAMMAHRF = FSL['FSL_0000007']

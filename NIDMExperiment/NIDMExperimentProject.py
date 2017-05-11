@@ -1,5 +1,6 @@
 import rdflib as rdf
 import os, sys
+from prov.model import *
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from Common import Constants
@@ -57,14 +58,13 @@ class NIDMExperimentProject(NIDMExperimentCore):
         #create unique ID
         self.uuid = self.getUUID()
         #add to graph
-        self.graph.add((self.namespaces["nidm"][self.uuid], rdf.RDF.type, self.namespaces["dctypes"]["Dataset"]))
-        #self.graph.add((self.namespaces["nidm"][self.uuid], rdf.RDF.type, self.namespaces["nidm"]["Investigation"]))
-        self.graph.add((self.namespaces["nidm"][self.uuid], rdf.RDF.type, Constants.NIDM_PROJECT))
-        self.graph.add((self.namespaces["nidm"][self.uuid], rdf.RDF.type, self.namespaces["prov"]["Activity"]))
-        self.graph.add((self.namespaces["nidm"][self.uuid], self.namespaces["ncit"]["Identifier"], rdf.Literal(inv_id)))
-        self.graph.add((self.namespaces["nidm"][self.uuid], self.namespaces["dct"]["title"], rdf.Literal(inv_name, datatype=rdf.XSD.String)))
-        self.graph.add((self.namespaces["nidm"][self.uuid], self.namespaces["dct"]["description"], rdf.Literal(inv_description, lang=self.language)))
-        return self.namespaces["nidm"][self.uuid]
+        a1=self.graph.activity(self.namespaces["nidm"][self.uuid],None,None,{PROV_TYPE: self.namespaces["dctypes"]["Dataset"], \
+                                                                          self.namespaces["ncit"]["Identifier"]: Literal(inv_id, datatype=XSD_STRING), \
+                                                                          self.namespaces["dct"]["title"]: Literal(inv_name, datatype=XSD_STRING), \
+                                                                          self.namespaces["dct"]["description"]: Literal(inv_description,datatype=XSD_STRING, langtag="en")})
+        a1.add_attributes({PROV_TYPE: Constants.NIDM_PROJECT})
+        #return self.namespaces["nidm"][self.uuid]
+        return a1
 
     def addProjectPI(self,inv_id,family_name, given_name):
         """
@@ -76,10 +76,13 @@ class NIDMExperimentProject(NIDMExperimentCore):
         """
         #Get unique ID
         uuid = self.addPerson()
-        self.graph.add((uuid, self.namespaces["foaf"]["familyName"], rdf.Literal(family_name, datatype=rdf.XSD.String)))
-        self.graph.add((uuid, self.namespaces["foaf"]["givenName"], rdf.Literal(given_name, datatype=rdf.XSD.String)))
-        self.graph.add((uuid, self.namespaces["prov"]["hadRole"], self.namespaces["nidm"]["PI"]))
-        self.graph.add((uuid, self.namespaces["prov"]["wasAssociatedWith"], inv_id))
+        uuid.add_attributes({PROV_TYPE: PROV['Person'], \
+                             self.namespaces["foaf"]["familyName"]:Literal(family_name, datatype=XSD_STRING), \
+                             self.namespaces["foaf"]["givenName"]:Literal(given_name, datatype=XSD_STRING), \
+                             PROV_ROLE:self.namespaces["nidm"]["PI"]})
+        self.graph.wasAssociatedWith(uuid,inv_id)
+
+
         return uuid
 
 
