@@ -6,7 +6,7 @@ from types import *
 from prov.model import ProvDocument
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from Common import Constants
+from core import Constants
 
 from prov.model import *
 

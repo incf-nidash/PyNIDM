@@ -1,6 +1,7 @@
 import os,sys
 
-from NIDMExperiment import NIDMExperimentProject
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+from experiment import NIDMExperimentProject
 
 nidm_doc = NIDMExperimentProject()
 inv = nidm_doc.addProject("FBIRN_PhaseII","9610","Test investigation")
