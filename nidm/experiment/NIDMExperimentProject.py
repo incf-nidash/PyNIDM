@@ -3,7 +3,7 @@ import os, sys
 from prov.model import *
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from Common import Constants
+from core import Constants
 
 #import NIDMExperimentCore
 from NIDMExperimentCore import NIDMExperimentCore

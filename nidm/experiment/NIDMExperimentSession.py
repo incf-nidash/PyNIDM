@@ -2,10 +2,8 @@ import rdflib as rdf
 import os, sys
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from Common import Constants
-
-
-from NIDMExperiment import NIDMExperimentCore
+from core import Constants
+from experiment import NIDMExperimentCore
 
 
 class NIDMExperimentSession(NIDMExperimentCore):
