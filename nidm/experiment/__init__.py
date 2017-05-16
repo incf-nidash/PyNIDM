@@ -1,5 +1,5 @@
-from NIDMExperimentCore import NIDMExperimentCore
-from NIDMExperimentProject import NIDMExperimentProject
-from NIDMExperimentSession import NIDMExperimentSession
-from NIDMExperimentAcquisitionObject import NIDMExperimentAcquisitionObject
+from .Core import Core
+from .Project import Project
+from .Session import Session
+from .AcquisitionObject import AcquisitionObject
 
