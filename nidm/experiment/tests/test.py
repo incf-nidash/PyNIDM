@@ -23,5 +23,3 @@ project_PI = nidm_doc.addProjectPI(nidm_doc.getProject(),"Keator", "David")
 
 
 print (nidm_doc.serializeTurtle())
-print (nidm_doc.serializeJSONLD())
-#print nidm_doc.serializeJSONLD()
