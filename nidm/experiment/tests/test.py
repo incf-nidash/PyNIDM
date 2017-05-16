@@ -18,7 +18,7 @@ nidm_doc.addAttributes(nidm_doc.getProject(),[{"prefix":"nidm", "uri":nidm_doc.n
                                               {"prefix":"dave", "uri":"http://www.davidkeator.com/", "term":"isAwesome", "value":"15"}, \
                                               {"prefix":"nidm", "uri":nidm_doc.namespaces["nidm"], "term":"value", "value":float(2.34)}])
 #test add PI to investigation
-project_PI = nidm_doc.addProjectPI(nidm_doc.getProject(),"Keator", "David")
+project_PI = nidm_doc.addProjectPI("Keator", "David")
 
 
 
