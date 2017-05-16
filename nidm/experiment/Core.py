@@ -1,16 +1,15 @@
 import os,sys
 import uuid
+from rdflib import Namespace
 from rdflib.namespace import XSD
 from types import *
-#import rdflib as rdf
-from prov.model import ProvDocument
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from core import Constants
+#sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from nidm.core import Constants
 
 from prov.model import *
 
-class NIDMExperimentCore(object):
+class Core(object):
     """Base-class for NIDM-Experimenent
 
     Typically this class is not instantiated directly.  Instantiate one of the child classes such as
@@ -62,7 +61,6 @@ class NIDMExperimentCore(object):
         #bind namespaces to self.graph
         for name, namespace in self.namespaces.items():
             self.graph.add_namespace(name, namespace)
-
     def getGraph(self):
         """
         Returns rdflib.Graph object
@@ -82,7 +80,21 @@ class NIDMExperimentCore(object):
         :param namespace: namespace URL
         :return: none
         """
-        self.graph.add_namespace(prefix, namespace)
+        ns = Namespace(prefix,namespace)
+        self.namespaces[prefix]=ns
+
+    def checkNamespacePrefix(self, prefix):
+        """
+        Checks if namespace prefix already exists in self.graph
+        :param prefix: namespace identifier
+        :return: True if prefix exists, False if not
+        """
+        #check if prefix already exists
+        if prefix in self.namespaces:
+            #prefix already exists
+            return True
+        else:
+            return False
 
     def safe_string(self, string):
         return string.strip().replace(" ","_").replace("-", "_").replace(",", "_").replace("(", "_").replace(")","_")\
@@ -92,57 +104,77 @@ class NIDMExperimentCore(object):
         return str(uuid.uuid1())
 
     def getDataType(self,var):
-        if type(var) is IntType:
+        if type(var) is int:
             return XSD_INTEGER
-        elif type(var) is LongType:
-            return XSD_LONG
-        elif type(var) is FloatType:
+        elif type(var) is float:
             return XSD_FLOAT
-        elif (type(var) is StringType):
-            return XSD_STRING
-        elif (type(var) is UnicodeType):
+        elif (type(var) is str):
             return XSD_STRING
         elif (type(var) is list):
             return list
         else:
-            print "datatype not found..."
+            print("datatype not found...")
             return None
-    def addLiteralAttribute(self, id, pred_namespace, pred_term, object):
+    def addLiteralAttribute(self, id, namespace_prefix, term, object, namespace_uri=None):
         """
         Adds generic literal and inserts into the graph
         :param id: subject identifier/URI
-        :param pred_namespace: predicate namespace URL
+        :param namespace_prefix: namespace prefix
         :param pred_term: predidate term to associate with tuple
         :param object: literal to add as object of tuple
+        :param namespace_uri: If namespace_prefix isn't one already used then use this optional argument to define
         :return: none
         """
         #figure out datatype of literal
         datatype = self.getDataType(object)
-        #print "datatype = " + datatype
+        #check if namespace prefix already exists in graph
+        if not self.checkNamespacePrefix(namespace_prefix):
+            #if so, use URI
+            #namespace_uri = self.namespaces[namespace_prefix]
+        #else: #add namespace_uri + prefix to graph
+            if (namespace_uri == None):
+                raise TypeError("Namespace_uri argument must be defined for new namespaces")
+            else:
+                self.addNamespace(namespace_prefix,namespace_uri)
+
         #figure out if predicate namespace is defined, if not, return predicate namespace error
         try:
             if (datatype != None):
-                id.add_attributes({self.namespaces[pred_namespace][pred_term]: Literal(object, datatype=datatype)})
+                id.add_attributes({self.namespaces[namespace_prefix][term]: Literal(object, datatype=datatype)})
             else:
-                id.add_attributes({self.namespaces[pred_namespace][pred_term]: Literal(object)})
-        except (KeyError,),e:
-            print "\nPredicate namespace identifier \"" + str(e).split("'")[1] + "\" not found!"
-            print "Use addNamespace method to add namespace before adding literal attribute"
-            print "No attribute has been added \n"
-    def addListAttribute(self,id,pred_namespace,pred_term, object):
+                id.add_attributes({self.namespaces[namespace_prefix][term]: Literal(object)})
+        except KeyError as e:
+            print("\nPredicate namespace identifier \" %s \" not found! \n" % (str(e).split("'")[1]))
+            print("Use addNamespace method to add namespace before adding literal attribute \n")
+            print("No attribute has been added \n")
+    def addAttributes(self,id,attributes):
         """
-        Adds generic literal to subject [id] and inserts into the graph
+        Adds generic attributes in bulk to object [id] and inserts into the graph
+
         :param id: subject identifier/URI
-        :param pred_namespace: predicate namespace URL
-        :param pred_term: predidate term to associate with tuple
-        :param object: literal to add as object of tuple
-        :return: none
+        :param attributes: List of dictionaries with keys prefix, uri, term, value} \
+        example: [ {uri:"http://ncitt.ncit.nih.gov/", prefix:"ncit", term:"age", value:15},
+                   {uri:"http://ncitt.ncit.nih.gov/", prefix:"ncit", term:"gender", value:"M"}]
+        :return: TypeError if namespace prefix already exists in graph but URI is different
         """
-        #convert list to string
-        str1 = ''.join(object)
-        datatype = XSD.string
-        #self.graph.add((id, self.namespaces[pred_namespace][pred_term], rdf.Literal(str1, datatype=datatype)))
-        id.add_attributes({self.namespaces[pred_namespace][pred_term]: Literal(str1)})
+        #iterate through list of attributes
+        for tuple in attributes:
+            #check if namespace prefix already exists in graph
+            if self.checkNamespacePrefix(tuple['prefix']):
+                #checking if existing prefix maps to same namespaceURI, if so use it, if not then raise error
+                if (self.namespaces[tuple['prefix']] != tuple['uri']):
+                    raise TypeError("Namespace prefix: " + tuple['prefix'] + "already exists in document")
+
+            else: #add tuple to graph
+                self.addNamespace(tuple['prefix'], tuple['uri'])
+
+            #figure out datatype of literal
+            datatype = self.getDataType(tuple['value'])
+            if (datatype != None):
+                id.add_attributes({self.namespaces[tuple['prefix']][tuple['term']]:Literal(tuple['value'],datatype=datatype)})
+            else:
+                id.add_attributes({self.namespaces[tuple['prefix']][tuple['term']]:Literal(tuple['value'])})
+
     def addURIRef(self,id,pred_namespace,pred_term, object):
         """
         Adds URIRef attribute and inserts into the graph

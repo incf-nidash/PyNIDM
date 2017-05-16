@@ -1,12 +1,13 @@
 import rdflib as rdf
 import os, sys
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from core import Constants
-from experiment import NIDMExperimentCore
+#sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from nidm.core import Constants
+from nidm.experiment import *
+from prov.model import *
 
 
-class NIDMExperimentSession(NIDMExperimentCore):
+class Session(Core):
     """Class for NIDM-Experimenent Session-Level Objects.
 
     Default constructor uses empty graph with namespaces added from NIDM/Scripts/Constants.py.
@@ -18,16 +19,26 @@ class NIDMExperimentSession(NIDMExperimentCore):
 
     """
     #constructor
-    def __init__(self):
-        #execute default parent class constructor
-        NIDMExperimentCore.__init__(self)
+    def __init__(self, project):
+        """
+        Default contructor, creates a session activity and links to project object
+
+        :param project: a project object
+        :return: none
+
+        """
+        Core.__init__(self)
+        self.session = self.addSession(project)
+
+
+
 
     #constructor with user-supplied graph, namespaces come from base class import of Constants.py
     #note this sets the graph in the base class
     @classmethod
     def withGraph(self, graph):
         #execute default parent class constructor
-        NIDMExperimentCore.withGraph(self, graph)
+        Core.withGraph(self, graph)
 
     #constructor with user-supplied graph and namespaces
     #note this sets the graph in the base class
@@ -36,7 +47,7 @@ class NIDMExperimentSession(NIDMExperimentCore):
         #sets up empty dictionary to map object URIs to experiment names
         self.inv_object_dict={}
         #execute default parent class constructor
-        NIDMExperimentCore.withGraphAndNamespaces(self, graph, namespaces)
+        Core.withGraphAndNamespaces(self, graph, namespaces)
 
     def __str__(self):
         return "NIDM-Experiment Study Class"
@@ -47,13 +58,21 @@ class NIDMExperimentSession(NIDMExperimentCore):
         Add session activity to graph and associates with proj_id
 
         :param proj_id: URI of project to associate session
-        :return: URI identifier of this study
+        :return: activity object for this session
 
         """
         #create unique ID
         self.uuid = self.getUUID()
         #add to graph
-        self.graph.add((self.namespaces["nidm"][self.uuid], rdf.RDF.type, Constants.NIDM_SESSION))
-        self.graph.add((self.namespaces["nidm"][self.uuid], rdf.RDF.type, self.namespaces["prov"]["Activity"]))
-        self.graph.add((self.namespaces["nidm"][self.uuid], self.namespaces["dct"]["isPartOf"], proj_id))
-        return self.namespaces["nidm"][self.uuid]
+
+        a1=self.graph.activity(self.namespaces["nidm"][self.uuid],None,None,{PROV_TYPE: Constants.NIDM_SESSION})
+        a1.add_attributes({self.namespaces["dct"]["isPartOf"]:proj_id})
+        return a1
+    def getSession(self):
+        """
+        Returns session
+
+        :param: none
+        :return: session object
+        """
+        return self.session
