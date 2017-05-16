@@ -88,7 +88,7 @@ class Project(Core):
         a1.add_attributes({PROV_TYPE: Constants.NIDM_PROJECT})
         return a1
 
-    def addProjectPI(self,family_name, given_name):
+    def addProjectPI(self,family_name=None, given_name=None,id=None):
         """
         Add prov:Person with role of PI using first/last name
 
@@ -100,10 +100,17 @@ class Project(Core):
         person = self.addPerson()
         #create an activity for qualified association with person
         activity = self.graph.activity(self.namespaces["nidm"][self.getUUID()])
+
         #add minimal attributes to person
-        person.add_attributes({PROV_TYPE: PROV['Person'], \
-                             self.namespaces["foaf"]["familyName"]:Literal(family_name, datatype=XSD_STRING), \
-                             self.namespaces["foaf"]["givenName"]:Literal(given_name, datatype=XSD_STRING)})
+        person.add_attributes({PROV_TYPE: PROV['Person']})
+        #check if famile_name is given
+        if (family_name != None):
+            person.add_attributes({self.namespaces["foaf"]["familyName"]:Literal(family_name, datatype=XSD_STRING)})
+        if (given_name != None):
+            person.add_attributes({self.namespaces["foaf"]["givenName"]:Literal(given_name, datatype=XSD_STRING)})
+        if (id != None):
+            person.add_attributes({self.namespaces["ncit"]["subjectID"]:Literal(given_name, datatype=XSD_STRING)})
+
         #associate person with activity for qualified association
         assoc = self.graph.association(agent=person, activity=activity)
         #add role for qualified association
@@ -112,26 +119,3 @@ class Project(Core):
         self.graph.wasAssociatedWith(person,self.getProject())
 
         return {'agent':person, 'activity':activity, 'association':assoc}
-    def addProjectPI(self,id):
-        """
-        Add prov:Person with role of PI using person ID instead of names
-
-        :param id: encoded id of PI (instead of name)
-        :return: dictionary containing objects for agent, activity, and association between agent and role as PI
-        """
-        #Get unique ID for person
-        person = self.addPerson()
-        #create an activity for qualified association with person
-        activity = self.graph.activity(self.namespaces["nidm"][self.getUUID()])
-        #add minimal attributes to person
-        person.add_attributes({PROV_TYPE: PROV['Person'], \
-                             self.namespaces["ncit"]["subjectID"]:Literal(id, datatype=XSD_STRING)})
-        #associate person with activity for qualified association
-        assoc = self.graph.association(agent=person, activity=activity)
-        #add role for qualified association
-        assoc.add_attributes({PROV_ROLE:self.namespaces["nidm"]["PI"]})
-        #connect project to person serving as PI
-        self.graph.wasAssociatedWith(person,self.getProject())
-
-        return {'agent':person, 'activity':activity, 'association':assoc}
-
