@@ -8,7 +8,7 @@ from nidm.core import Constants
 #import NIDMExperimentCore
 from nidm.experiment.Core import Core
 
-class Project(Core):
+class Project(Core, ProvActivity):
     """Class for NIDM-Experiment Project-Level Objects.
 
     Default constructor uses empty graph with namespaces added from NIDM/Scripts/Constants.py.

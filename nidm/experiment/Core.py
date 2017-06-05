@@ -1,6 +1,6 @@
 import os,sys
 import uuid
-import validators
+#import validators
 from rdflib import Namespace
 from rdflib.namespace import XSD
 from types import *
@@ -188,25 +188,25 @@ class Core(object):
         #iterate through attributes
         for key in attributes.keys():
             #is the key already mapped to a URL (i.e. using one of the constants from Constants.py) or is it in prefix:term form?
-            if not validators.url(key):
+            #if not validators.url(key):
                 #check if namespace prefix already exists in graph or #if we're using a Constants reference
-                if (not self.checkNamespacePrefix(key.split(':')[0])):
-                    raise TypeError("Namespace prefix " + key + " not in graph, use addAttributesWithNamespaces or manually add!")
+            if (not self.checkNamespacePrefix(key.split(':')[0])):
+                raise TypeError("Namespace prefix " + key + " not in graph, use addAttributesWithNamespaces or manually add!")
             #figure out datatype of literal
             datatype = self.getDataType(attributes[key])
-            if (not validators.url(key)):
+            #if (not validators.url(key)):
                 #we must be using the prefix:term form instead of a constant directly
 
-                if (datatype != None):
-                    id.add_attributes({self.namespaces[key.split(':')[0]][key.split(':')[1]]:Literal(attributes[key],datatype=datatype)})
-                else:
-                    id.add_attributes({self.namespaces[key.split(':')[0]][key.split(':')[1]]:Literal(attributes[key])})
-            else:
+            #    if (datatype != None):
+            #        id.add_attributes({self.namespaces[key.split(':')[0]][key.split(':')[1]]:Literal(attributes[key],datatype=datatype)})
+            #    else:
+            #        id.add_attributes({self.namespaces[key.split(':')[0]][key.split(':')[1]]:Literal(attributes[key])})
+            #else:
                 #we're using the Constants form
-                if (datatype != None):
-                    id.add_attributes({key:Literal(attributes[key],datatype=datatype)})
-                else:
-                    id.add_attributes({key:Literal(attributes[key])})
+            if (datatype != None):
+                id.add_attributes({key:Literal(attributes[key],datatype=datatype)})
+            else:
+                id.add_attributes({key:Literal(attributes[key])})
 
     def addURIRef(self,id,pred_namespace,pred_term, object):
         """
