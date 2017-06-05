@@ -81,10 +81,10 @@ class Project(Core):
 
 
         #add to graph
-        a1=self.graph.activity(self.namespaces["nidm"][self.uuid],None,None,{PROV_TYPE: self.namespaces["dctypes"]["Dataset"], \
-                                                                          self.namespaces["ncit"]["Identifier"]: Literal(project_id, datatype=dt_id), \
-                                                                          self.namespaces["dct"]["title"]: Literal(project_name, datatype=dt_name), \
-                                                                          self.namespaces["dct"]["description"]: Literal(project_description,datatype=dt_desc)})
+        a1=self.graph.activity(self.namespaces["nidm"][self.uuid],None,None,{PROV_TYPE: Constants.NIDM_PROJECT_TYPE, \
+                                                                          Constants.NIDM_PROJECT_NAME: Literal(project_id, datatype=dt_id), \
+                                                                          Constants.NIDM_PROJECT_IDENTIFIER: Literal(project_name, datatype=dt_name), \
+                                                                          Constants.NIDM_PROJECT_DESCRIPTION: Literal(project_description,datatype=dt_desc)})
         a1.add_attributes({PROV_TYPE: Constants.NIDM_PROJECT})
         return a1
 
@@ -105,16 +105,16 @@ class Project(Core):
         person.add_attributes({PROV_TYPE: PROV['Person']})
         #check if famile_name is given
         if (family_name != None):
-            person.add_attributes({self.namespaces["foaf"]["familyName"]:Literal(family_name, datatype=XSD_STRING)})
+            person.add_attributes({Constants.NIDM_FAMILY_NAME:Literal(family_name, datatype=XSD_STRING)})
         if (given_name != None):
-            person.add_attributes({self.namespaces["foaf"]["givenName"]:Literal(given_name, datatype=XSD_STRING)})
+            person.add_attributes({Constants.NIDM_GIVEN_NAME:Literal(given_name, datatype=XSD_STRING)})
         if (id != None):
-            person.add_attributes({self.namespaces["ncit"]["subjectID"]:Literal(given_name, datatype=XSD_STRING)})
+            person.add_attributes({Constants.NIDM_SUBJECTID:Literal(given_name, datatype=XSD_STRING)})
 
         #associate person with activity for qualified association
         assoc = self.graph.association(agent=person, activity=activity)
         #add role for qualified association
-        assoc.add_attributes({PROV_ROLE:self.namespaces["nidm"]["PI"]})
+        assoc.add_attributes({PROV_ROLE:Constants.NIDM_PI})
         #connect project to person serving as PI
         self.graph.wasAssociatedWith(person,self.getProject())
 

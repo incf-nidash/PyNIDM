@@ -265,10 +265,21 @@ NIDM_CONTRAST_ESTIMATION = NIDM['NIDM_0000001']
 NIDM_CONTRAST_MAP = NIDM['NIDM_0000002']
 #NIDM-Experiment##############################################################
 NIDM_PROJECT = NIDM["Project"]
+NIDM_PROJECT_TYPE = DCTYPES["Dataset"]
+NIDM_PROJECT_NAME = NCIT["Identifier"]
+NIDM_PROJECT_IDENTIFIER = DCT["title"]
+NIDM_PROJECT_DESCRIPTION = DCT["description"]
+NIDM_PROJECT_LICENSE = DCAT["license"]
+NIDM_PROJECT_URL = DCAT["accessURL"]
+NIDM_PROJECT_REFERENCES = DCAT["creator"]
 NIDM_SESSION = NIDM["Session"]
-NIDM_ACQUISITION_OBJECT = NIDM["AcquisitionObject"]
+NIDM_ACQUISITION_ACTIVITY = NIDM["AcquisitionActivity"]
+NIDM_ACQUISITION_ENTITY = NIDM["AcquisitionEntity"]
 NIDM_PARTICIPANT = NIDM["Participant"]
-
+NIDM_FAMILY_NAME = FOAF["familyName"]
+NIDM_GIVEN_NAME = FOAF["givenName"]
+NIDM_SUBJECTID = NCIT["subjectID"]
+NIDM_PI = NIDM["PI"]
 ##############################################################################
 # OBO constants
 OBO_EXAMPLE = OBO['IAO_0000112']

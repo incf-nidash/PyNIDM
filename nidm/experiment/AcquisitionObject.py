@@ -49,30 +49,54 @@ class AcquisitionObject(Core):
 
     def __str__(self):
         return "NIDM-Experiment AcquisitionObject Class"
+    def getAcquisitionObjects(self):
+        """
+        Returns acquisition objects dictionary of entity,activity
 
-    def getAcquisition(self):
+        :param: none
+        :return: dictionary of entity and activity objects
+        """
+        return {'entity':self.getAcquisitionEntity(), 'activity':self.getAcquisitionActivity()}
+
+    def getAcquisitionEntity(self):
         """
         Returns acquisition object
 
         :param: none
         :return: acquisition object
         """
-        return self.acq
+        return self.acq_entity
+
+    def getAcquisitionActivity(self):
+        """
+        Returns acquisition object
+
+        :param: none
+        :return: acquisition object
+        """
+        return self.acq_activity
+
     #adds acquisition entity to to graph and stores URI
     def addAcquisition(self, session):
         """
-        Add acquisition object entity to graph and associates with session object
+        Add acquisition object entity + activity to graph and associates with session object
 
-        :param session: session object to associate acquisition objct
-        :return: URI identifier of this study
+        :param session: session object to associate acquisition object
+        :return: dictionary containing objects for entity, activity
 
         """
-        #create unique ID
-        self.uuid = self.getUUID()
-        a1=self.graph.entity(self.namespaces["nidm"][self.uuid],{PROV_TYPE: Constants.NIDM_ACQUISITION_OBJECT})
-        self.graph.wasGeneratedBy(a1,session.getSession())
-        self.acq = a1
-        return a1
+        #create acquisition activity
+        a2=self.graph.activity(self.namespaces["nidm"][self.getUUID()],None,None,{PROV_TYPE:Constants.NIDM_ACQUISITION_ACTIVITY})
+
+        #create acquisition entity
+        a1=self.graph.entity(self.namespaces["nidm"][self.getUUID()],{PROV_TYPE:Constants.NIDM_ACQUISITION_ENTITY})
+
+        self.graph.wasGeneratedBy(a1,a2)
+        a2.add_attributes({self.namespaces["dct"]["isPartOf"]:session.getSession()})
+
+        self.acq_entity = a1
+        self.acq_activity = a2
+        return {'entity':a1, 'activity':a2}
 
     def addParticipant(self,id):
         """
@@ -93,7 +117,8 @@ class AcquisitionObject(Core):
         #add role for qualified association
         assoc.add_attributes({PROV_ROLE:self.namespaces["nidm"]["Participant"]})
         #connect acquisition to person serving as participant
-        self.graph.wasAttributedTo(person,self.acq)
+        self.graph.wasAttributedTo(person,self.getAcquisitionEntity())
+        self.graph.wasAssociatedWith(self.getAcquisitionActivity(),person)
 
         return {'agent':person, 'activity':activity, 'association':assoc}
 
