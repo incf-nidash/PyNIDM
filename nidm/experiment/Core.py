@@ -74,15 +74,14 @@ class Core(object):
         """
         return self.namespaces
 
-    def addNamespace(self, prefix, namespace):
+    def addNamespace(self, prefix, uri):
         """
         Adds namespace to self.graph
-        :param prefix: namespace identifier
-        :param namespace: namespace URL
+        :param prefix: namespace prefix
+        :param uri: namespace URI
         :return: none
         """
-        ns = Namespace(prefix,namespace)
-        self.namespaces[prefix]=ns
+        self.graph.add_namespace(prefix,uri)
 
     def checkNamespacePrefix(self, prefix):
         """
@@ -91,7 +90,7 @@ class Core(object):
         :return: True if prefix exists, False if not
         """
         #check if prefix already exists
-        if prefix in self.namespaces:
+        if prefix in self.graph._namespaces.keys():
             #prefix already exists
             return True
         else:
@@ -116,10 +115,29 @@ class Core(object):
         else:
             print("datatype not found...")
             return None
-    def addLiteralAttribute(self, id, namespace_prefix, term, object, namespace_uri=None):
+    def add_person(self,role=None,attributes=None):
+
+        #add Person agent
+        person = self.graph.agent(Constants.namespaces["nidm"][self.getUUID()],other_attributes=attributes)
+
+        #create an activity for qualified association with person
+        activity = self.graph.activity(Constants.namespaces["nidm"][self.getUUID()])
+
+        #add minimal attributes to person
+        person.add_attributes({PROV_TYPE: PROV['Person']})
+
+        #associate person with activity for qualified association
+        assoc = self.graph.association(agent=person, activity=activity)
+        #add role for qualified association
+        assoc.add_attributes({PROV_ROLE:role})
+        #connect project to person serving as PI
+        self.wasAssociatedWith(person)
+
+
+
+    def addLiteralAttribute(self, namespace_prefix, term, object, namespace_uri=None):
         """
         Adds generic literal and inserts into the graph
-        :param id: subject identifier/URI
         :param namespace_prefix: namespace prefix
         :param pred_term: predidate term to associate with tuple
         :param object: literal to add as object of tuple
@@ -141,9 +159,9 @@ class Core(object):
         #figure out if predicate namespace is defined, if not, return predicate namespace error
         try:
             if (datatype != None):
-                id.add_attributes({self.namespaces[namespace_prefix][term]: Literal(object, datatype=datatype)})
+                self.add_attributes({str(namespace_prefix + ':' + term): Literal(object, datatype=datatype)})
             else:
-                id.add_attributes({self.namespaces[namespace_prefix][term]: Literal(object)})
+                self.add_attributes({str(namespace_prefix + ':' + term): Literal(object)})
         except KeyError as e:
             print("\nPredicate namespace identifier \" %s \" not found! \n" % (str(e).split("'")[1]))
             print("Use addNamespace method to add namespace before adding literal attribute \n")
@@ -208,34 +226,6 @@ class Core(object):
             else:
                 id.add_attributes({key:Literal(attributes[key])})
 
-    def addURIRef(self,id,pred_namespace,pred_term, object):
-        """
-        Adds URIRef attribute and inserts into the graph
-        :param id: subject identifier/URI
-        :param pred_namespace: predicate namespace URL
-        :param pred_term: predidate term to associate with tuple
-        :param object: URIRef to add as object of tuple
-        :return: none
-        """
-        id.add_attributes({self.namespaces[pred_namespace][pred_term]: Literal(object, XSD_ANYURI)})
-    def addPerson(self):
-        """
-        Generic add prov:Person, use addLiteralAttribute to add more descriptive attributes
-        :return: URI identifier of this subject
-        """
-        #Get unique ID
-        uuid = self.getUUID()
-        #add to graph
-        p1=self.graph.agent(self.namespaces["nidm"][uuid])
-        return p1
-    def wasAssociatedWith(self, subject, object):
-        """
-        Generic prov:wasAssociatedWith function to associate the subject and objects together in graph
-        :param subject: URI of subject (e.g. person)
-        :param object: URI of object (e.g. investigation)
-        :return: URI identifier of this subject
-        """
-        self.graph.add((subject, self.namespaces["prov"]["wasAssociatedWith"], object))
     def serializeTurtle(self):
         """
         Serializes graph to Turtle format
