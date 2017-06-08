@@ -4,21 +4,24 @@ import os,sys
 #from experiment import Project
 
 from nidm.experiment import Project
+from nidm.experiment import Session
+from nidm.experiment import Acquisition
+from nidm.experiment import AcquisitionObject
 from nidm.core import Constants
 
 #create new nidm-experiment document with project
 kwargs={Constants.NIDM_PROJECT_NAME:"FBIRN_PhaseII",Constants.NIDM_PROJECT_IDENTIFIER:9610,Constants.NIDM_PROJECT_DESCRIPTION:"Test investigation"}
-nidm_doc = Project(attributes=kwargs)
+project = Project(attributes=kwargs)
 
 #test add string attribute with existing namespace
 #nidm_doc.addLiteralAttribute("nidm","isFun","ForMe")
-nidm_doc.add_attributes({Constants.NIDM["isFun"]:"ForMe"})
+project.add_attributes({Constants.NIDM["isFun"]:"ForMe"})
 
 #test adding string attribute with new namespace/term
-nidm_doc.addLiteralAttribute("fred","notFound","in namespaces","www.fred.org/")
+project.addLiteralAttribute("fred","notFound","in namespaces","www.fred.org/")
 
 #test add float attribute
-nidm_doc.addLiteralAttribute("nidm", "float", float(2.34))
+project.addLiteralAttribute("nidm", "float", float(2.34))
 
 #test adding attributes in bulk with mix of existing and new namespaces
 #nidm_doc.addAttributesWithNamespaces(nidm_doc.getProject(),[{"prefix":"nidm", "uri":nidm_doc.namespaces["nidm"], "term":"score", "value":int(15)}, \
@@ -29,9 +32,19 @@ nidm_doc.addLiteralAttribute("nidm", "float", float(2.34))
 
 
 #test add PI to investigation
-project_PI = nidm_doc.add_person(role=Constants.NIDM_PI,  attributes={Constants.NIDM_FAMILY_NAME:"Keator", Constants.NIDM_GIVEN_NAME:"David"})
+project_PI = project.add_person(role=Constants.NIDM_PI,  attributes={Constants.NIDM_FAMILY_NAME:"Keator", Constants.NIDM_GIVEN_NAME:"David"})
 
-print (nidm_doc.serializeTurtle())
+#test add session to graph and associate with project
+session = Session(project)
+project.add_sessions(session)
+
+#test add acquisition activity to graph and associate with session
+acq_act = Acquisition(session=session)
+#test add acquisition object entity to graph associated with participant role NIDM_PARTICIPANT
+acq_entity = AcquisitionObject(acquisition=acq_act)
+acq_entity.add_person(role=Constants.NIDM_PARTICIPANT,attributes={Constants.NIDM_GIVEN_NAME:"George"})
+
+print (project.serializeTurtle())
 
 
 

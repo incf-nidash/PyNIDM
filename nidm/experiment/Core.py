@@ -130,8 +130,11 @@ class Core(object):
         assoc = self.graph.association(agent=person, activity=activity)
         #add role for qualified association
         assoc.add_attributes({PROV_ROLE:role})
-        #connect project to person serving as PI
-        self.wasAssociatedWith(person)
+        #connect project to person serving as role
+        if(isinstance(self,ProvActivity)):
+            self.wasAssociatedWith(person)
+        elif(isinstance(self,ProvEntity)):
+            self.wasAttributedTo(person)
 
 
 

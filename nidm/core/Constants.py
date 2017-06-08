@@ -280,6 +280,7 @@ NIDM_FAMILY_NAME = FOAF["familyName"]
 NIDM_GIVEN_NAME = FOAF["givenName"]
 NIDM_SUBJECTID = NCIT["subjectID"]
 NIDM_PI = NIDM["PI"]
+NIDM_PARTICIPANT = NIDM["Participant"]
 ##############################################################################
 # OBO constants
 OBO_EXAMPLE = OBO['IAO_0000112']
