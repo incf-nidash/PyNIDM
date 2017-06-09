@@ -2,17 +2,15 @@
 
 import sys, getopt, os
 
-#sys.path.insert(0, os.path.abspath('NIDMExperiment'))
-#from NIDMExperiment import *
-
-from nidm.experiment import Project,Session,AcquisitionObject
+from nidm.experiment import Project,Session,AcquisitionObject,MRAcquisitionObject
+from nidm.core import BIDS_Constants,Constants
+from prov.model import PROV_LABEL
 
 import json
 from pprint import pprint
 import csv
 from argparse import ArgumentParser
 from bids.grabbids import BIDSLayout
-from nidm.core import BIDS_Constants
 
 def main(argv):
     parser = ArgumentParser()
@@ -28,25 +26,27 @@ def main(argv):
     #Parse dataset_description.json file in BIDS directory
     with open(directory+'/'+'dataset_description.json') as data_file:
         dataset_data = json.load(data_file)
-    #pprint(dataset_data)
-    #create a NIDM-Exp document with project information..deal with ambiguity in BIDS, some have "Procedure", some do not.
+    #print(dataset_data)
+
+    #create project / nidm-exp doc
+    project = Project()
+
+    #add various attributes if they exist in BIDS dataset
     if 'Procedure' in dataset_data:
-        nidm_doc = Project(dataset_data['Name'],dataset_data['BIDSVersion'],dataset_data['Procedure'])
-    else:
-        nidm_doc = Project(dataset_data['Name'],dataset_data['BIDSVersion'],"None")
-
-    #add attributes separately to account for ambiguity in BIDS datasets
+        project.add_attributes({BIDS_Constants.Procedure:dataset_data['Procedure']})
+    if 'BIDSVersion' in dataset_data:
+        project.add_attributes({BIDS_Constants.BIDSVersion:dataset_data['BIDSVersion']})
+    if 'Name' in dataset_data:
+        project.add_attributes({BIDS_Constants.Name:dataset_data['Name']})
     if 'ReferencesAndLinks' in dataset_data:
-        nidm_doc.addAttributes(nidm_doc.getProject(),{BIDS_Constants.ReferencesAndLinks:dataset_data['ReferencesAndLinks']})
+        project.add_attributes({BIDS_Constants.ReferencesAndLinks:dataset_data['ReferencesAndLinks']})
     if 'License' in dataset_data:
-        nidm_doc.addAttributes(nidm_doc.getProject(),{BIDS_Constants.License:dataset_data['License']})
+        project.add_attributes({BIDS_Constants.License:dataset_data['License']})
     if 'Authors' in dataset_data:
-        nidm_doc.addAttributes(nidm_doc.getProject(),{BIDS_Constants.Authors:dataset_data['Authors']})
-
+        project.add_attributes({BIDS_Constants.Authors:dataset_data['Authors']})
 
     #create session object for participants information
-    session = Session(nidm_doc.getProject())
-
+    session = Session(project)
 
     #Parse participants.tsv file in BIDS directory and create study and acquisition objects
     with open(directory+'/'+'participants.tsv') as csvfile:
@@ -54,15 +54,14 @@ def main(argv):
         print(participants_data.fieldnames)
         for row in participants_data:
             #for now we're not worrying about all variables in participants.tsv file.  just go with ID, diagnosis, age, and gender
-
             #Should add URL of the dataset
 
             #add acquisition object
             acq = AcquisitionObject(session)
-            participant = acq.addParticipant(row['participant_id'])
+            participant = acq.add_person(role=Constants.NIDM_PARTICIPANT,attributes=({Constants.NIDM_SUBJECTID:row['participant_id']})
             #add metadata to acquisition entity
 
-            acq.addAttributes(acq.getAcquisitionEntity(),{"prov:label":"Participants file demographics", "ncit:age":int(row['age']), "ncit:gender":row['gender'], "ncit:diagnosis":row['diagnosis']})
+            acq.add_attributes({PROV_LABEL:"Participants file demographics", Constants.NIDM_AGE:int(row['age']), Constants.NIDM_GENDER:row['gender'], Constants.NIDM_DIAGNOSIS:row['diagnosis']})
 
     #create acquisition objects for each scan for each subject
     #get BIDS layout
@@ -80,7 +79,7 @@ def main(argv):
                 #create acquisition object for this scan
 
                 #add acquisition object
-                acq_T1w = AcquisitionObject(session)
+                acq_T1w = MRAcquisitionObject(session)
                 #get scan filename to parse
 
             elif type == 'bold':

@@ -4,11 +4,14 @@ import uuid
 from rdflib import Namespace
 from rdflib.namespace import XSD
 from types import *
+import graphviz
 
 #sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from nidm.core import Constants
 
 from prov.model import *
+from prov.dot import prov_to_dot
+
 
 class Core(object):
     """Base-class for NIDM-Experimenent
@@ -241,5 +244,12 @@ class Core(object):
         :return: text of serialized graph in JSON-LD format
         """
         return self.graph.serialize(format='json-ld', indent=4)
+    def save_DotGraph(self,filename,format=None):
+        dot = prov_to_dot(self.graph)
+        if not (format == "None"):
+            dot.write(filename,format=format)
+        else:
+            dot.write(filename,format="pdf")
+
     def __str__(self):
         return "NIDM-Experiment Base Class"

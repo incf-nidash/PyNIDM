@@ -1,8 +1,5 @@
 import os,sys
 
-#sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
-#from experiment import Project
-
 from nidm.experiment import Project
 from nidm.experiment import Session
 from nidm.experiment import Acquisition
@@ -44,7 +41,12 @@ acq_act = Acquisition(session=session)
 acq_entity = AcquisitionObject(acquisition=acq_act)
 acq_entity.add_person(role=Constants.NIDM_PARTICIPANT,attributes={Constants.NIDM_GIVEN_NAME:"George"})
 
-print (project.serializeTurtle())
+#save a turtle file
+with open("test.ttl",'w') as f:
+    f.write (project.serializeTurtle())
+
+#save a DOT graph as PDF
+project.save_DotGraph("test.pdf",format="pdf")
 
 
 
