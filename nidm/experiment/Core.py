@@ -1,13 +1,17 @@
 import os,sys
 import uuid
+#import validators
 from rdflib import Namespace
 from rdflib.namespace import XSD
 from types import *
+import graphviz
 
 #sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from nidm.core import Constants
 
 from prov.model import *
+from prov.dot import prov_to_dot
+
 
 class Core(object):
     """Base-class for NIDM-Experimenent
@@ -73,15 +77,14 @@ class Core(object):
         """
         return self.namespaces
 
-    def addNamespace(self, prefix, namespace):
+    def addNamespace(self, prefix, uri):
         """
         Adds namespace to self.graph
-        :param prefix: namespace identifier
-        :param namespace: namespace URL
+        :param prefix: namespace prefix
+        :param uri: namespace URI
         :return: none
         """
-        ns = Namespace(prefix,namespace)
-        self.namespaces[prefix]=ns
+        self.graph.add_namespace(prefix,uri)
 
     def checkNamespacePrefix(self, prefix):
         """
@@ -90,7 +93,7 @@ class Core(object):
         :return: True if prefix exists, False if not
         """
         #check if prefix already exists
-        if prefix in self.namespaces:
+        if prefix in self.graph._namespaces.keys():
             #prefix already exists
             return True
         else:
@@ -115,10 +118,32 @@ class Core(object):
         else:
             print("datatype not found...")
             return None
-    def addLiteralAttribute(self, id, namespace_prefix, term, object, namespace_uri=None):
+    def add_person(self,role=None,attributes=None):
+
+        #add Person agent
+        person = self.graph.agent(Constants.namespaces["nidm"][self.getUUID()],other_attributes=attributes)
+
+        #create an activity for qualified association with person
+        activity = self.graph.activity(Constants.namespaces["nidm"][self.getUUID()])
+
+        #add minimal attributes to person
+        person.add_attributes({PROV_TYPE: PROV['Person']})
+
+        #associate person with activity for qualified association
+        assoc = self.graph.association(agent=person, activity=activity)
+        #add role for qualified association
+        assoc.add_attributes({PROV_ROLE:role})
+        #connect project to person serving as role
+        if(isinstance(self,ProvActivity)):
+            self.wasAssociatedWith(person)
+        elif(isinstance(self,ProvEntity)):
+            self.wasAttributedTo(person)
+
+
+
+    def addLiteralAttribute(self, namespace_prefix, term, object, namespace_uri=None):
         """
         Adds generic literal and inserts into the graph
-        :param id: subject identifier/URI
         :param namespace_prefix: namespace prefix
         :param pred_term: predidate term to associate with tuple
         :param object: literal to add as object of tuple
@@ -140,14 +165,14 @@ class Core(object):
         #figure out if predicate namespace is defined, if not, return predicate namespace error
         try:
             if (datatype != None):
-                id.add_attributes({self.namespaces[namespace_prefix][term]: Literal(object, datatype=datatype)})
+                self.add_attributes({str(namespace_prefix + ':' + term): Literal(object, datatype=datatype)})
             else:
-                id.add_attributes({self.namespaces[namespace_prefix][term]: Literal(object)})
+                self.add_attributes({str(namespace_prefix + ':' + term): Literal(object)})
         except KeyError as e:
             print("\nPredicate namespace identifier \" %s \" not found! \n" % (str(e).split("'")[1]))
             print("Use addNamespace method to add namespace before adding literal attribute \n")
             print("No attribute has been added \n")
-    def addAttributes(self,id,attributes):
+    def addAttributesWithNamespaces(self,id,attributes):
         """
         Adds generic attributes in bulk to object [id] and inserts into the graph
 
@@ -175,34 +200,38 @@ class Core(object):
             else:
                 id.add_attributes({self.namespaces[tuple['prefix']][tuple['term']]:Literal(tuple['value'])})
 
-    def addURIRef(self,id,pred_namespace,pred_term, object):
+    def addAttributes(self,id,attributes):
         """
-        Adds URIRef attribute and inserts into the graph
+        Adds generic attributes in bulk to object [id] and inserts into the graph
+
         :param id: subject identifier/URI
-        :param pred_namespace: predicate namespace URL
-        :param pred_term: predidate term to associate with tuple
-        :param object: URIRef to add as object of tuple
-        :return: none
+        :param attributes: Dictionary with keys as prefix:term and value of attribute} \
+        example: {"ncit:age":15,"ncit:gender":"M", Constants.NIDM_FAMILY_NAME:"Keator"}
+        :return: TypeError if namespace prefix does not exist in graph
         """
-        id.add_attributes({self.namespaces[pred_namespace][pred_term]: Literal(object, XSD_ANYURI)})
-    def addPerson(self):
-        """
-        Generic add prov:Person, use addLiteralAttribute to add more descriptive attributes
-        :return: URI identifier of this subject
-        """
-        #Get unique ID
-        uuid = self.getUUID()
-        #add to graph
-        p1=self.graph.agent(self.namespaces["nidm"][uuid])
-        return p1
-    def wasAssociatedWith(self, subject, object):
-        """
-        Generic prov:wasAssociatedWith function to associate the subject and objects together in graph
-        :param subject: URI of subject (e.g. person)
-        :param object: URI of object (e.g. investigation)
-        :return: URI identifier of this subject
-        """
-        self.graph.add((subject, self.namespaces["prov"]["wasAssociatedWith"], object))
+        #iterate through attributes
+        for key in attributes.keys():
+            #is the key already mapped to a URL (i.e. using one of the constants from Constants.py) or is it in prefix:term form?
+            #if not validators.url(key):
+                #check if namespace prefix already exists in graph or #if we're using a Constants reference
+            if (not self.checkNamespacePrefix(key.split(':')[0])):
+                raise TypeError("Namespace prefix " + key + " not in graph, use addAttributesWithNamespaces or manually add!")
+            #figure out datatype of literal
+            datatype = self.getDataType(attributes[key])
+            #if (not validators.url(key)):
+                #we must be using the prefix:term form instead of a constant directly
+
+            #    if (datatype != None):
+            #        id.add_attributes({self.namespaces[key.split(':')[0]][key.split(':')[1]]:Literal(attributes[key],datatype=datatype)})
+            #    else:
+            #        id.add_attributes({self.namespaces[key.split(':')[0]][key.split(':')[1]]:Literal(attributes[key])})
+            #else:
+                #we're using the Constants form
+            if (datatype != None):
+                id.add_attributes({key:Literal(attributes[key],datatype=datatype)})
+            else:
+                id.add_attributes({key:Literal(attributes[key])})
+
     def serializeTurtle(self):
         """
         Serializes graph to Turtle format
@@ -215,5 +244,12 @@ class Core(object):
         :return: text of serialized graph in JSON-LD format
         """
         return self.graph.serialize(format='json-ld', indent=4)
+    def save_DotGraph(self,filename,format=None):
+        dot = prov_to_dot(self.graph)
+        if not (format == "None"):
+            dot.write(filename,format=format)
+        else:
+            dot.write(filename,format="pdf")
+
     def __str__(self):
         return "NIDM-Experiment Base Class"
