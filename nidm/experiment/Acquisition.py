@@ -19,7 +19,7 @@ class Acquisition(ProvActivity,Core):
 
     """
     #constructor
-    def __init__(self, session=None,attributes=None):
+    def __init__(self, session, attributes=None):
         """
         Default contructor, creates a session activity and links to project object
 
@@ -34,11 +34,13 @@ class Acquisition(ProvActivity,Core):
         self.add_attributes({str("dct:isPartOf"):session})
 
         #list to store acquisition objects associated with this activity
-        self._acquisitions=[]
+        self._acquisition_objects=[]
+        #if constructor is called with a session object then add this acquisition to the session
+
         #carry graph object around
         self.graph = session.graph
 
-    def add_acquisitions(self,acquisition):
+    def add_acquisition_object(self,acquisition_object):
         """
         Adds acquisition objects to acquisition activity, creating links and adding reference to acquisitions list
 
@@ -46,9 +48,10 @@ class Acquisition(ProvActivity,Core):
 
         """
         #add acquisition object to self._acquisitions list
-        self._acquisitions.extend([acquisition])
+        self._acquisition_objects.extend([acquisition_object])
         #create links in graph
-        self.graph.wasGeneratedBy(acquisition,self)
-
+        self.graph.wasGeneratedBy(acquisition_object,self)
+    def get_acquisition_objects(self):
+        return self._acquisition_objects
     def __str__(self):
         return "NIDM-Experiment Acquisition Class"

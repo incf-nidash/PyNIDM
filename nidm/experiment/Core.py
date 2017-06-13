@@ -246,6 +246,7 @@ class Core(object):
         return self.graph.serialize(format='json-ld', indent=4)
     def save_DotGraph(self,filename,format=None):
         dot = prov_to_dot(self.graph)
+        #add some logic to find nodes with dct:hasPart relation and add those edges to graph...prov_to_dot ignores these
         if not (format == "None"):
             dot.write(filename,format=format)
         else:

@@ -5,8 +5,8 @@ from nidm.core import Constants
 from nidm.experiment import *
 from prov.model import *
 
-class AcquisitionObject(ProvEntity,Core):
-    """Class for NIDM-Experimenent AcquisitionObject-Level Objects.
+class DemographicsAcquisitionObject(AcquisitionObject):
+    """Class for NIDM-Experimenent MRAcquisitionObject-Level Objects.
 
     Default constructor uses empty graph with namespaces added from NIDM/Scripts/Constants.py.
     Additional alternate constructors for user-supplied graphs and default namespaces (i.e. from Constants.py)
@@ -28,17 +28,12 @@ class AcquisitionObject(ProvEntity,Core):
         """
         #execute default parent class constructor
           #execute default parent class constructor
-        super(AcquisitionObject,self).__init__(acquisition.graph, QualifiedName(Namespace("nidm",Constants.NIDM),self.getUUID()),attributes)
-        acquisition.graph._add_record(self)
+        super(DemographicsAcquisitionObject,self).__init__(acquisition,attributes)
 
-        #self.add_attributes({PROV_TYPE: Constants.NIDM_ACQUISITION_ENTITY})
+        self.add_attributes({PROV_TYPE: Constants.NIDM_DEMOGRAPHICS_ENTITY})
         #carry graph object around
         self.graph = acquisition.graph
-        #create link to acquisition activity
-        acquisition.add_acquisition_object(self)
 
 
     def __str__(self):
-        return "NIDM-Experiment AcquisitionObject Class"
-
-
+        return "NIDM-Experiment Demographics AcquisitionObject Class"

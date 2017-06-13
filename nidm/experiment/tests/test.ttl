@@ -23,22 +23,22 @@
 @prefix xml: <http://www.w3.org/XML/1998/namespace> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-<http://purl.org/nidash/nidm#7581449a-4d4b-11e7-9904-6c4008b8f03e> a prov:Activity ;
+<http://purl.org/nidash/nidm#802c5424-4fc2-11e7-877e-6c4008b8f03e> a prov:Activity ;
     prov:qualifiedAssociation [ a prov:Association ;
             prov:hadRole "http://purl.org/nidash/nidm#PI"^^xsd:string ] ;
-    prov:wasAssociatedWith <http://purl.org/nidash/nidm#75814054-4d4b-11e7-8956-6c4008b8f03e> .
+    prov:wasAssociatedWith <http://purl.org/nidash/nidm#802c4f0c-4fc2-11e7-bb05-6c4008b8f03e> .
 
-<http://purl.org/nidash/nidm#7581511a-4d4b-11e7-a56b-6c4008b8f03e> a prov:Entity,
-        "http://purl.org/nidash/nidm#AcquisitionEntity"^^xsd:string ;
-    prov:wasAttributedTo <http://purl.org/nidash/nidm#758154a4-4d4b-11e7-9cb4-6c4008b8f03e> ;
-    prov:wasGeneratedBy <http://purl.org/nidash/nidm#75814e7a-4d4b-11e7-9a6c-6c4008b8f03e> .
+<http://purl.org/nidash/nidm#802c61e2-4fc2-11e7-ad01-6c4008b8f03e> a prov:Entity,
+        "http://purl.org/nidash/nidm#MRAcquistionEntity"^^xsd:string ;
+    prov:wasAttributedTo <http://purl.org/nidash/nidm#802c662e-4fc2-11e7-831e-6c4008b8f03e> ;
+    prov:wasGeneratedBy <http://purl.org/nidash/nidm#802c5eae-4fc2-11e7-b572-6c4008b8f03e> .
 
-<http://purl.org/nidash/nidm#758156de-4d4b-11e7-932e-6c4008b8f03e> a prov:Activity ;
+<http://purl.org/nidash/nidm#802c68e2-4fc2-11e7-bb75-6c4008b8f03e> a prov:Activity ;
     prov:qualifiedAssociation [ a prov:Association ;
             prov:hadRole "http://purl.org/nidash/nidm#Participant"^^xsd:string ] ;
-    prov:wasAssociatedWith <http://purl.org/nidash/nidm#758154a4-4d4b-11e7-9cb4-6c4008b8f03e> .
+    prov:wasAssociatedWith <http://purl.org/nidash/nidm#802c662e-4fc2-11e7-831e-6c4008b8f03e> .
 
-<http://purl.org/nidash/nidm#75804728-4d4b-11e7-b324-6c4008b8f03e> a prov:Activity,
+<http://purl.org/nidash/nidm#802b6800-4fc2-11e7-b23a-6c4008b8f03e> a prov:Activity,
         "http://purl.org/dc/dcmitype/Dataset"^^xsd:string,
         "http://purl.org/nidash/nidm#Project"^^xsd:string ;
     ncit:Identifier "9610"^^xsd:int ;
@@ -46,23 +46,23 @@
     dct:title "FBIRN_PhaseII"^^xsd:string ;
     nidm:float "2.34"^^xsd:float ;
     nidm:isFun "ForMe"^^xsd:string ;
-    prov:wasAssociatedWith <http://purl.org/nidash/nidm#75814054-4d4b-11e7-8956-6c4008b8f03e> ;
+    prov:wasAssociatedWith <http://purl.org/nidash/nidm#802c4f0c-4fc2-11e7-bb05-6c4008b8f03e> ;
     fred:notFound "in namespaces"^^xsd:string .
 
-<http://purl.org/nidash/nidm#75814ba2-4d4b-11e7-9bbb-6c4008b8f03e> a prov:Activity,
+<http://purl.org/nidash/nidm#802c5b9a-4fc2-11e7-acf5-6c4008b8f03e> a prov:Activity,
         "http://purl.org/nidash/nidm#Session"^^xsd:string ;
-    dct:isPartOf <http://purl.org/nidash/nidm#75804728-4d4b-11e7-b324-6c4008b8f03e> .
+    dct:isPartOf <http://purl.org/nidash/nidm#802b6800-4fc2-11e7-b23a-6c4008b8f03e> .
 
-<http://purl.org/nidash/nidm#75814e7a-4d4b-11e7-9a6c-6c4008b8f03e> a prov:Activity,
+<http://purl.org/nidash/nidm#802c5eae-4fc2-11e7-b572-6c4008b8f03e> a prov:Activity,
         "http://purl.org/nidash/nidm#AcquisitionActivity"^^xsd:string ;
-    dct:isPartOf <http://purl.org/nidash/nidm#75814ba2-4d4b-11e7-9bbb-6c4008b8f03e> .
+    dct:isPartOf <http://purl.org/nidash/nidm#802c5b9a-4fc2-11e7-acf5-6c4008b8f03e> .
 
-<http://purl.org/nidash/nidm#75814054-4d4b-11e7-8956-6c4008b8f03e> a prov:Agent,
+<http://purl.org/nidash/nidm#802c4f0c-4fc2-11e7-bb05-6c4008b8f03e> a prov:Agent,
         prov:Person ;
     foaf:familyName "Keator"^^xsd:string ;
     foaf:givenName "David"^^xsd:string .
 
-<http://purl.org/nidash/nidm#758154a4-4d4b-11e7-9cb4-6c4008b8f03e> a prov:Agent,
+<http://purl.org/nidash/nidm#802c662e-4fc2-11e7-831e-6c4008b8f03e> a prov:Agent,
         prov:Person ;
     foaf:givenName "George"^^xsd:string .
 

@@ -34,6 +34,12 @@ class Session(ProvActivity,Core):
         self.add_attributes({PROV_TYPE: Constants.NIDM_SESSION})
         self.graph = project.graph
 
+        #list of acquisitions associated with this session
+        self._acquisitions=[]
+    def add_acquisition(self,acquisition):
+        self._acquisitions.extend([acquisition])
+        #create links in graph
+        acquisition.add_attributes({str("dct:isPartOf"):self})
     def __str__(self):
         return "NIDM-Experiment Session Class"
 
