@@ -61,4 +61,4 @@ VERSION = __version__
 PACKAGES = ['nidm']
 # PACKAGE_DATA = {'nidm': [pjoin('data', '*')]}
 PACKAGE_DATA = {}
-REQUIRES = []  # TODO
+REQUIRES = ['bids', 'graphviz']  # TODO -- extend and modularize ;)
