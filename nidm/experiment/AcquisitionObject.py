@@ -17,7 +17,7 @@ class AcquisitionObject(ProvEntity,Core):
 
     """
     #constructor
-    def __init__(self, acquisition=None,attributes=None):
+    def __init__(self, acquisition,attributes=None):
         """
         Default contructor, creates an acquisition object and links to acquisition activity object
 
@@ -31,11 +31,11 @@ class AcquisitionObject(ProvEntity,Core):
         super(AcquisitionObject,self).__init__(acquisition.graph, QualifiedName(Namespace("nidm",Constants.NIDM),self.getUUID()),attributes)
         acquisition.graph._add_record(self)
 
-        self.add_attributes({PROV_TYPE: Constants.NIDM_ACQUISITION_ENTITY})
+        #self.add_attributes({PROV_TYPE: Constants.NIDM_ACQUISITION_ENTITY})
         #carry graph object around
         self.graph = acquisition.graph
         #create link to acquisition activity
-        self.graph.wasGeneratedBy(self,acquisition)
+        acquisition.add_acquisition_object(self)
 
 
     def __str__(self):

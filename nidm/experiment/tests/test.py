@@ -4,6 +4,7 @@ from nidm.experiment import Project
 from nidm.experiment import Session
 from nidm.experiment import Acquisition
 from nidm.experiment import AcquisitionObject
+from nidm.experiment import MRAcquisitionObject
 from nidm.core import Constants
 
 #create new nidm-experiment document with project
@@ -38,7 +39,7 @@ project.add_sessions(session)
 #test add acquisition activity to graph and associate with session
 acq_act = Acquisition(session=session)
 #test add acquisition object entity to graph associated with participant role NIDM_PARTICIPANT
-acq_entity = AcquisitionObject(acquisition=acq_act)
+acq_entity = MRAcquisitionObject(acquisition=acq_act)
 acq_entity.add_person(role=Constants.NIDM_PARTICIPANT,attributes={Constants.NIDM_GIVEN_NAME:"George"})
 
 #save a turtle file
@@ -46,7 +47,7 @@ with open("test.ttl",'w') as f:
     f.write (project.serializeTurtle())
 
 #save a DOT graph as PDF
-project.save_DotGraph("test.pdf",format="pdf")
+project.save_DotGraph("test.png",format="png")
 
 
 

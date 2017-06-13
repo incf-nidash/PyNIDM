@@ -17,7 +17,7 @@ class MRAcquisitionObject(AcquisitionObject):
 
     """
     #constructor
-    def __init__(self, acquisition=None,attributes=None):
+    def __init__(self, acquisition,attributes=None):
         """
         Default contructor, creates an acquisition object and links to acquisition activity object
 
@@ -28,17 +28,14 @@ class MRAcquisitionObject(AcquisitionObject):
         """
         #execute default parent class constructor
           #execute default parent class constructor
-        super(MRAcquisitionObject,self).__init__(acquisition.graph, QualifiedName(Namespace("nidm",Constants.NIDM),self.getUUID()),attributes)
-        acquisition.graph._add_record(self)
+        super(MRAcquisitionObject,self).__init__(acquisition,attributes)
+        #acquisition.graph._add_record(self)
 
         self.add_attributes({PROV_TYPE: Constants.NIDM_MRACQUISITION_ENTITY})
         #carry graph object around
         self.graph = acquisition.graph
-        #create link to acquisition activity
-        self.graph.wasGeneratedBy(self,acquisition)
-
 
     def __str__(self):
-        return "NIDM-Experiment AcquisitionObject Class"
+        return "NIDM-Experiment MRI AcquisitionObject Class"
 
 

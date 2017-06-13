@@ -276,15 +276,22 @@ NIDM_SESSION = NIDM["Session"]
 NIDM_ACQUISITION_ACTIVITY = NIDM["AcquisitionActivity"]
 NIDM_ACQUISITION_ENTITY = NIDM["AcquisitionEntity"]
 NIDM_MRACQUISITION_ENTITY = NIDM["MRAcquistionEntity"]
-NIDM_PARTICIPANT = NIDM["Participant"]
-NIDM_FAMILY_NAME = FOAF["familyName"]
-NIDM_GIVEN_NAME = FOAF["givenName"]
-NIDM_SUBJECTID = NCIT["subjectID"]
+NIDM_DEMOGRAPHICS_ENTITY = NIDM["DemographicsAcquistionEntity"]
+#Roles
 NIDM_PI = NIDM["PI"]
 NIDM_PARTICIPANT = NIDM["Participant"]
+#Demographics
 NIDM_AGE = NCIT["Age"]
 NIDM_GENDER = NCIT["Gender"]
 NIDM_DIAGNOSIS = NCIT["Diagnosis"]
+NIDM_FAMILY_NAME = FOAF["familyName"]
+NIDM_GIVEN_NAME = FOAF["givenName"]
+NIDM_SUBJECTID = NCIT["subjectID"]
+#MRI scan types
+NIDM_MRI_ANATOMIC_SCAN = NIDM["MRI_Anatomy"]
+NIDM_MRI_FUNCTION_SCAN = NIDM["MRI_Function"]
+NIDM_MRI_FUNCTION_TASK = NIDM["MRI_Task"]
+NIDM_MRI_BOLD_EVENTS = NIDM["MRI_TaskEvents"]
 ##############################################################################
 # OBO constants
 OBO_EXAMPLE = OBO['IAO_0000112']
