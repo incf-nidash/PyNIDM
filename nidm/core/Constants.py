@@ -290,6 +290,9 @@ NIDM_SUBJECTID = NCIT["subjectID"]
 #MRI scan types
 NIDM_MRI_ANATOMIC_SCAN = NIDM["MRI_Anatomy"]
 NIDM_MRI_FUNCTION_SCAN = NIDM["MRI_Function"]
+NIDM_MRI_DWI_SCAN = NIDM["MRI_DWI"]
+NIDM_MRI_DWI_BVAL = NIDM["MRI_bval"]
+NIDM_MRI_DWI_BVEC = NIDM["MRI_bvec"]
 NIDM_MRI_FUNCTION_TASK = NIDM["MRI_Task"]
 NIDM_MRI_BOLD_EVENTS = NIDM["MRI_TaskEvents"]
 ##############################################################################

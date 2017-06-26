@@ -70,9 +70,10 @@ def main(argv):
 
     #loop through all subjects in dataset
     for subject_id in bids_layout.get_subjects():
-        #create an acquisition activity
-        acq=Acquisition(session[subject_id])
         for file_tpl in bids_layout.get(subject=subject_id, extensions=['.nii', '.nii.gz']):
+            #create an acquisition activity
+            acq=Acquisition(session[subject_id])
+
             #print(file_tpl.type)
             if file_tpl.modality == 'anat':
                 #do something with anatomicals
@@ -114,8 +115,30 @@ def main(argv):
                     #add prov type, task name as prov:label, and link to filename of events file
                     events_obj.add_attributes({PROV_TYPE:Constants.NIDM_MRI_BOLD_EVENTS,BIDS_Constants.json_keys["TaskName"]: json_data["TaskName"], Constants.NFO["filename"]:events_file[0].filename})
                     #link it to appropriate MR acquisition entity
-                    events_obj.wasDerivedFrom(acq_obj)
-
+                    events_obj.wasAttributedTo(acq_obj)
+            elif file_tpl.modality == 'dwi':
+                #do stuff with with dwi scans...
+                acq_obj = MRAcquisitionObject(acq)
+                acq_obj.add_attributes({PROV_TYPE:BIDS_Constants.scans[file_tpl.modality]})
+                #add file link
+                acq_obj.add_attributes({Constants.NFO["filename"]:file_tpl.filename,BIDS_Constants.json_keys["run"]:file_tpl.run})
+                #add attributes for task description keys from task JSON file
+                for task_desc in bids_layout.get(extensions=['.json'],task=file_tpl.task):
+                    with open(task_desc[0]) as data_file:
+                        json_data = json.load(data_file)
+                    for key in json_data:
+                        if key in BIDS_Constants.json_keys:
+                            acq_obj.add_attributes({BIDS_Constants.json_keys[key]:json_data[key]})
+                #for bval and bvec files, what to do with those?
+                #for now, create new generic acquisition objects, link the files, and associate with the one for the DWI scan?
+                acq_obj = AcquisitionObject(acq)
+                acq_obj.add_attributes({PROV_TYPE:BIDS_Constants.scans["bval"]})
+                for bval in bids_layout.get(extensions=['.bval'],task=file_tpl.task):
+                    #add file link
+                    acq_obj.add_attributes({Constants.NFO["filename"]:bval.filename})
+                for bvec in bids_layout.get(extensions=['.bvec'],task=file_tpl.task):
+                    #add file link
+                    acq_obj.add_attributes({Constants.NFO["filename"]:bvec.filename})
 
 
     #serialize graph

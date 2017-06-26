@@ -23,7 +23,10 @@ participants = {
 #scan metadata -> NIDM constants mappings
 scans = {
     "anat" : Constants.NIDM_MRI_ANATOMIC_SCAN,
-    "func" : Constants.NIDM_MRI_FUNCTION_SCAN
+    "func" : Constants.NIDM_MRI_FUNCTION_SCAN,
+    "dwi" : Constants.NIDM_MRI_DWI_SCAN,
+    "bval" : Constants.NIDM_MRI_DWI_BVAL,
+    "bvec" : Constants.NIDM_MRI_DWI_BVEC
 }
 #JSON file keys
 json_keys = {
@@ -61,6 +64,8 @@ json_keys = {
     "VariableFlipAngleFlag": Constants.DICOM["VariableFlipAngleFlag"],
     "PatientPosition": Constants.DICOM["PatientPosition"],
     "PhaseEncodingDirection": Constants.DICOM["PhaseEncodingDirection"],
+    "SliceTiming": Constants.DICOM["SliceTiming"],
+    "TotalReadoutTime" : Constants.DICOM["TotalReadoutTime"],
     ###Task Stuff
     "TaskName" : Constants.NIDM_MRI_FUNCTION_TASK
 
