@@ -2,7 +2,7 @@
 ''' BIDS Terms -> NIDM-Exp Mappings
 @author: David Keator <dbkeator@uci.edu>
 '''
-from nidm.core import Constants
+from . import Constants
 #BIDS dataset_description -> NIDM constants mappings
 dataset_description = {
     "BIDSVersion" : Constants.NIDM_PROJECT_IDENTIFIER,

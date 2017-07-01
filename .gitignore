@@ -1,4 +1,12 @@
+.eggs
+__pycache__/
 *.pyc
+*.*~
+
+/build
+/dist
+nidm.egg-info/
+
 idea/
 .DS_Store
 .project

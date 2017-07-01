@@ -2,8 +2,8 @@ import rdflib as rdf
 import os, sys
 
 #sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from nidm.core import Constants
-from nidm.experiment import *
+from ..core import Constants
+from ..experiment import *
 from prov.model import *
 
 
