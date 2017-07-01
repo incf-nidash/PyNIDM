@@ -3,13 +3,13 @@ import uuid
 #import validators
 from rdflib import Namespace
 from rdflib.namespace import XSD
-from types import *
+import types 
 import graphviz
 
 #sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from ..core import Constants
 
-from prov.model import *
+import prov.model as pm
 from prov.dot import prov_to_dot
 
 
@@ -108,11 +108,11 @@ class Core(object):
 
     def getDataType(self,var):
         if type(var) is int:
-            return XSD_INTEGER
+            return pm.XSD_INTEGER
         elif type(var) is float:
-            return XSD_FLOAT
+            return pm.XSD_FLOAT
         elif (type(var) is str):
-            return XSD_STRING
+            return pm.XSD_STRING
         elif (type(var) is list):
             return list
         else:
@@ -127,16 +127,16 @@ class Core(object):
         activity = self.graph.activity(Constants.namespaces["nidm"][self.getUUID()])
 
         #add minimal attributes to person
-        person.add_attributes({PROV_TYPE: PROV['Person']})
+        person.add_attributes({pm.PROV_TYPE: pm.PROV['Person']})
 
         #associate person with activity for qualified association
         assoc = self.graph.association(agent=person, activity=activity)
         #add role for qualified association
-        assoc.add_attributes({PROV_ROLE:role})
+        assoc.add_attributes({pm.PROV_ROLE:role})
         #connect project to person serving as role
-        if(isinstance(self,ProvActivity)):
+        if(isinstance(self,pm.ProvActivity)):
             self.wasAssociatedWith(person)
-        elif(isinstance(self,ProvEntity)):
+        elif(isinstance(self,pm.ProvEntity)):
             self.wasAttributedTo(person)
 
 
@@ -165,9 +165,9 @@ class Core(object):
         #figure out if predicate namespace is defined, if not, return predicate namespace error
         try:
             if (datatype != None):
-                self.add_attributes({str(namespace_prefix + ':' + term): Literal(object, datatype=datatype)})
+                self.add_attributes({str(namespace_prefix + ':' + term): pm.Literal(object, datatype=datatype)})
             else:
-                self.add_attributes({str(namespace_prefix + ':' + term): Literal(object)})
+                self.add_attributes({str(namespace_prefix + ':' + term): pm.Literal(object)})
         except KeyError as e:
             print("\nPredicate namespace identifier \" %s \" not found! \n" % (str(e).split("'")[1]))
             print("Use addNamespace method to add namespace before adding literal attribute \n")
@@ -196,9 +196,9 @@ class Core(object):
             #figure out datatype of literal
             datatype = self.getDataType(tuple['value'])
             if (datatype != None):
-                id.add_attributes({self.namespaces[tuple['prefix']][tuple['term']]:Literal(tuple['value'],datatype=datatype)})
+                id.add_attributes({self.namespaces[tuple['prefix']][tuple['term']]:pm.Literal(tuple['value'],datatype=datatype)})
             else:
-                id.add_attributes({self.namespaces[tuple['prefix']][tuple['term']]:Literal(tuple['value'])})
+                id.add_attributes({self.namespaces[tuple['prefix']][tuple['term']]:pm.Literal(tuple['value'])})
 
     def addAttributes(self,id,attributes):
         """
@@ -228,9 +228,9 @@ class Core(object):
             #else:
                 #we're using the Constants form
             if (datatype != None):
-                id.add_attributes({key:Literal(attributes[key],datatype=datatype)})
+                id.add_attributes({key:pm.Literal(attributes[key],datatype=datatype)})
             else:
-                id.add_attributes({key:Literal(attributes[key])})
+                id.add_attributes({key:pm.Literal(attributes[key])})
 
     def serializeTurtle(self):
         """

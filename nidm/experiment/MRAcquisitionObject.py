@@ -2,8 +2,8 @@ import os, sys
 #sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import rdflib as rdf
 from ..core import Constants
-from ..experiment import *
-from prov.model import *
+from ..experiment import AcquisitionObject
+import prov.model as pm
 
 class MRAcquisitionObject(AcquisitionObject):
     """Class for NIDM-Experimenent MRAcquisitionObject-Level Objects.
@@ -31,7 +31,7 @@ class MRAcquisitionObject(AcquisitionObject):
         super(MRAcquisitionObject,self).__init__(acquisition,attributes)
         #acquisition.graph._add_record(self)
 
-        self.add_attributes({PROV_TYPE: Constants.NIDM_MRACQUISITION_ENTITY})
+        self.add_attributes({pm.PROV_TYPE: Constants.NIDM_MRACQUISITION_ENTITY})
         #carry graph object around
         self.graph = acquisition.graph
 
