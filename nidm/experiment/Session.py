@@ -2,12 +2,12 @@ import rdflib as rdf
 import os, sys
 
 #sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from nidm.core import Constants
-from nidm.experiment import *
-from prov.model import *
+from ..core import Constants
+from ..experiment import Core
+import prov.model as pm
 
 
-class Session(ProvActivity,Core):
+class Session(pm.ProvActivity,Core):
     """Class for NIDM-Experimenent Session-Level Objects.
 
     Default constructor uses empty graph with namespaces added from NIDM/Scripts/Constants.py.
@@ -28,10 +28,10 @@ class Session(ProvActivity,Core):
 
         """
         #execute default parent class constructor
-        super(Session,self).__init__(project.graph, QualifiedName(Namespace("nidm",Constants.NIDM),self.getUUID()),attributes)
+        super(Session,self).__init__(project.graph, pm.QualifiedName(pm.Namespace("nidm",Constants.NIDM),self.getUUID()),attributes)
         project.graph._add_record(self)
 
-        self.add_attributes({PROV_TYPE: Constants.NIDM_SESSION})
+        self.add_attributes({pm.PROV_TYPE: Constants.NIDM_SESSION})
         self.graph = project.graph
 
         #list of acquisitions associated with this session

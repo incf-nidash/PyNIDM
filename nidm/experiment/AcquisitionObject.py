@@ -2,10 +2,10 @@ import os, sys
 #sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import rdflib as rdf
 from ..core import Constants
-from ..experiment import *
-from prov.model import *
+from ..experiment import Core
+import prov.model as pm
 
-class AcquisitionObject(ProvEntity,Core):
+class AcquisitionObject(pm.ProvEntity,Core):
     """Class for NIDM-Experimenent AcquisitionObject-Level Objects.
 
     Default constructor uses empty graph with namespaces added from NIDM/Scripts/Constants.py.
@@ -28,7 +28,7 @@ class AcquisitionObject(ProvEntity,Core):
         """
         #execute default parent class constructor
           #execute default parent class constructor
-        super(AcquisitionObject,self).__init__(acquisition.graph, QualifiedName(Namespace("nidm",Constants.NIDM),self.getUUID()),attributes)
+        super(AcquisitionObject,self).__init__(acquisition.graph, pm.QualifiedName(pm.Namespace("nidm",Constants.NIDM),self.getUUID()),attributes)
         acquisition.graph._add_record(self)
 
         #self.add_attributes({PROV_TYPE: Constants.NIDM_ACQUISITION_ENTITY})

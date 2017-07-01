@@ -3,11 +3,10 @@ import os, sys
 
 #sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from ..core import Constants
-from ..experiment import *
-from prov.model import *
+from ..experiment import Core
+import prov.model as pm
 
-
-class Acquisition(ProvActivity,Core):
+class Acquisition(pm.ProvActivity,Core):
     """Class for NIDM-Experimenent Acquisition-Level Objects.
 
     Default constructor uses empty graph with namespaces added from NIDM/Scripts/Constants.py.
@@ -27,10 +26,10 @@ class Acquisition(ProvActivity,Core):
 
         """
         #execute default parent class constructor
-        super(Acquisition,self).__init__(session.graph, QualifiedName(Namespace("nidm",Constants.NIDM),self.getUUID()),attributes)
+        super(Acquisition,self).__init__(session.graph, pm.QualifiedName(pm.Namespace("nidm",Constants.NIDM),self.getUUID()),attributes)
         session.graph._add_record(self)
 
-        self.add_attributes({PROV_TYPE: Constants.NIDM_ACQUISITION_ACTIVITY})
+        self.add_attributes({pm.PROV_TYPE: Constants.NIDM_ACQUISITION_ACTIVITY})
         self.add_attributes({str("dct:isPartOf"):session})
 
         #list to store acquisition objects associated with this activity
