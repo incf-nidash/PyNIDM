@@ -20,14 +20,15 @@ __version__ = '.'.join(map(str, _ver))
 CLASSIFIERS = ["Development Status :: 3 - Alpha",
                "Environment :: Console",
                "Intended Audience :: Science/Research",
-               "License :: OSI Approved :: MIT License",
-               "Operating System :: OS Independent",
-               "Programming Language :: Python",
+               "License :: OSI Approved :: Apache Software License",
+               "Operating System :: MacOS :: MacOS X",
+               "Operating System :: POSIX :: Linux",
+               "Programming Language :: Python :: 3",
                "Topic :: Scientific/Engineering"]
 
 # Description should be a one-liner:
 # TODO
-description = "NIDM: a Python library...."
+description = "NIDM: a Python NI-DM library"
 # Long description will go up on the pypi page
 long_description = """
 NIDM
@@ -35,23 +36,23 @@ NIDM
 HERE should be longer description of tha package TODO!
 License
 =======
-``shablona`` is licensed under the terms of the Apache License 2.0. See the file
+``nidm`` is licensed under the terms of the Apache License 2.0. See the file
 "LICENSE" for information on the history of this software, terms & conditions
 for usage, and a DISCLAIMER OF ALL WARRANTIES.
 """
 
 NAME = "nidm"
-MAINTAINER = "David Keator"
-MAINTAINER_EMAIL = "dbkeator@uci.edu"
+MAINTAINER = "INCF-NIDASH developers"
+MAINTAINER_EMAIL = "incf-nidash-nidm@googlegroups.com"
 DESCRIPTION = description
 LONG_DESCRIPTION = long_description
 URL = "https://github.com/incf-nidash/PyNIDM"
 DOWNLOAD_URL = ""
 LICENSE = "Apache License 2.0"
-AUTHOR = "David Keator"
-AUTHOR_EMAIL = "dbkeator@uci.edu"
+AUTHOR = "INCF-NIDASH developers"
+AUTHOR_EMAIL = "incf-nidash-nidm@googlegroups.com"
 MAJOR = _version_major
 MINOR = _version_minor
 MICRO = _version_micro
 VERSION = __version__
-REQUIRES = ["prov", "rdflib", "graphviz", "pydotplus"] #TODO
+REQUIRES = ["prov", "rdflib", "graphviz", "pydotplus"]

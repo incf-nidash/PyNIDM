@@ -1,7 +1,10 @@
 .eggs
 __pycache__/
+.cache/
 *.pyc
-*.*~
+*~
+*.png
+*.ttl
 
 /build
 /dist
