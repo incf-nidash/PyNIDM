@@ -68,5 +68,10 @@ json_keys = {
     "TotalReadoutTime" : Constants.DICOM["TotalReadoutTime"],
     ###Task Stuff
     "TaskName" : Constants.NIDM_MRI_FUNCTION_TASK
-
+    # "CogAtlasID" :
+    # "CogPOID" :
+    # "TaskDescription" :
+    # "Instructions" :
+    # "TaskFullName" :
+    # "TaskName" :
 }
