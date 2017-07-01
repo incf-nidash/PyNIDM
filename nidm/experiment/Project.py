@@ -3,10 +3,10 @@ import os, sys
 from prov.model import *
 
 #sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from nidm.core import Constants
+from ..core import Constants
 
 #import NIDMExperimentCore
-from nidm.experiment.Core import Core
+from ..experiment.Core import Core
 
 class Project(ProvActivity,Core):
     """Class for NIDM-Experiment Project-Level Objects.

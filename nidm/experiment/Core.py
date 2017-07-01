@@ -7,7 +7,7 @@ from types import *
 import graphviz
 
 #sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from nidm.core import Constants
+from ..core import Constants
 
 from prov.model import *
 from prov.dot import prov_to_dot
