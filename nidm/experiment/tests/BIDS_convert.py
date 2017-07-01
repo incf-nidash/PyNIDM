@@ -116,6 +116,7 @@ def main(argv):
                     events_obj.add_attributes({PROV_TYPE:Constants.NIDM_MRI_BOLD_EVENTS,BIDS_Constants.json_keys["TaskName"]: json_data["TaskName"], Constants.NFO["filename"]:events_file[0].filename})
                     #link it to appropriate MR acquisition entity
                     events_obj.wasAttributedTo(acq_obj)
+
             elif file_tpl.modality == 'dwi':
                 #do stuff with with dwi scans...
                 acq_obj = MRAcquisitionObject(acq)

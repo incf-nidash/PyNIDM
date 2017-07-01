@@ -39,6 +39,9 @@ DICOM = Namespace("http://neurolex.org/wiki/Category:DICOM_term/")
 DCTYPES = Namespace("http://purl.org/dc/dcmitype/")
 NCIT = Namespace("http://ncitt.ncit.nih.gov/")
 DCAT = Namespace("http://www.w3.org/ns/dcat#")
+BIRNLEX = Namespace(" http://bioontology.org/projects/ontologies/birnlex")
+NDAR = Namespace("https://ndar.nih.gov/api/datadictionary/v2/dataelement/")
+NCICB = Namespace("http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#")
 
 namespaces = {
     "prov": PROV,
@@ -60,7 +63,9 @@ namespaces = {
     "dicom": DICOM,
     "dctypes": DCTYPES,
     "ncit": NCIT,
-    "dcat": DCAT
+    "dcat": DCAT,
+    "birnlex" : BIRNLEX,
+    "ndar" : NDAR
     }
 
 # Empty graph used to compute qnames
@@ -278,15 +283,21 @@ NIDM_ACQUISITION_ENTITY = NIDM["AcquisitionEntity"]
 NIDM_MRACQUISITION_ENTITY = NIDM["MRAcquistionEntity"]
 NIDM_DEMOGRAPHICS_ENTITY = NIDM["DemographicsAcquistionEntity"]
 #Roles
-NIDM_PI = NIDM["PI"]
-NIDM_PARTICIPANT = NIDM["Participant"]
+NIDM_PI = BIRNLEX["birnlex_2152"]
+NIDM_COI = BIRNLEX["birnlex_2199"]
+NIDM_PARTICIPANT = NCIT["Participant"]
 #Demographics
 NIDM_AGE = NCIT["Age"]
-NIDM_GENDER = NCIT["Gender"]
+NIDM_GENDER = NDAR["gender"]
+NIDM_SEX = NCIT["Sex"]
+NIDM_HANDEDNESS = OBO["handedness"]
+#NIDM_HANDEDNESS = OBO["PATO_0002201"] is correct term ID for handedness above
+NCICB_ETHNICITY = NCICB["EthnicGroup"]
+#NCICB_ETHNICITY = NCICB["C16564"] is correct term ID for ethnic group
 NIDM_DIAGNOSIS = NCIT["Diagnosis"]
 NIDM_FAMILY_NAME = FOAF["familyName"]
 NIDM_GIVEN_NAME = FOAF["givenName"]
-NIDM_SUBJECTID = NCIT["subjectID"]
+NIDM_SUBJECTID = NDAR["src_subject_id"]
 #MRI scan types
 NIDM_MRI_ANATOMIC_SCAN = NIDM["MRI_Anatomy"]
 NIDM_MRI_FUNCTION_SCAN = NIDM["MRI_Function"]
