@@ -18,7 +18,8 @@ participants = {
     "participant_id" : Constants.NIDM_SUBJECTID,
     "sex" : Constants.NIDM_GENDER,
     "age" : Constants.NIDM_AGE,
-    "gender" : Constants.NIDM_GENDER
+    "gender" : Constants.NIDM_GENDER,
+    "diagnosis" : Constants.NIDM_DIAGNOSIS
 }
 #scan metadata -> NIDM constants mappings
 scans = {
@@ -31,7 +32,7 @@ scans = {
 #JSON file keys
 json_keys = {
     ##Image terms
-    "run" : Constants.NIDM["Run"],
+    "run" : Constants.NIDM_ACQUISITION_ENTITY,
     "ImageType" : Constants.DICOM["ImageType"],
     "ManufacturerModelName" : Constants.DICOM["ManufacturerModelName"],
     "ScanningSequence" : Constants.DICOM["ScanningSequence"],
@@ -63,9 +64,13 @@ json_keys = {
     "FlipAngle": Constants.DICOM["FlipAngle"],
     "VariableFlipAngleFlag": Constants.DICOM["VariableFlipAngleFlag"],
     "PatientPosition": Constants.DICOM["PatientPosition"],
-    "PhaseEncodingDirection": Constants.DICOM["PhaseEncodingDirection"],
-    "SliceTiming": Constants.DICOM["SliceTiming"],
+    "PhaseEncodingDirection": Constants.NIDM["PhaseEncodingDirection"],
+    "SliceTiming": Constants.NIDM["SliceTiming"],
     "TotalReadoutTime" : Constants.DICOM["TotalReadoutTime"],
+    "EffectiveEchoSpacing" : Constants.NIDM["EffectiveEchoSpacing"],
+    "NumberDiscardedVolumesByScanner" : Constants.NIDM["NumberDiscardedVolumesByScanner"],
+    "NumberDiscardedVolumesByUser" : Constants.NIDM["NumberDiscardedVolumesByUser"],
+    "DelayTime" : Constants.NIDM["DelayTime"],
     ###Task Stuff
     "TaskName" : Constants.NIDM_MRI_FUNCTION_TASK
     # "CogAtlasID" :

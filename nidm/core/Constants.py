@@ -39,9 +39,10 @@ DICOM = Namespace("http://neurolex.org/wiki/Category:DICOM_term/")
 DCTYPES = Namespace("http://purl.org/dc/dcmitype/")
 NCIT = Namespace("http://ncitt.ncit.nih.gov/")
 DCAT = Namespace("http://www.w3.org/ns/dcat#")
-BIRNLEX = Namespace(" http://bioontology.org/projects/ontologies/birnlex")
+BIRNLEX = Namespace("http://bioontology.org/projects/ontologies/birnlex/")
 NDAR = Namespace("https://ndar.nih.gov/api/datadictionary/v2/dataelement/")
 NCICB = Namespace("http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#")
+SIO = Namespace("http://semanticscience.org/resource/")
 
 namespaces = {
     "prov": PROV,
@@ -65,7 +66,9 @@ namespaces = {
     "ncit": NCIT,
     "dcat": DCAT,
     "birnlex" : BIRNLEX,
-    "ndar" : NDAR
+    "ndar" : NDAR,
+    "ncicb" : NCICB,
+    "sio" : SIO
     }
 
 # Empty graph used to compute qnames
@@ -271,11 +274,11 @@ NIDM_CONTRAST_MAP = NIDM['NIDM_0000002']
 #NIDM-Experiment##############################################################
 NIDM_PROJECT = NIDM["Project"]
 NIDM_PROJECT_TYPE = DCTYPES["Dataset"]
-NIDM_PROJECT_IDENTIFIER = NCIT["Identifier"]
+NIDM_PROJECT_IDENTIFIER = SIO["Identifier"]
 NIDM_PROJECT_NAME = DCT["title"]
 NIDM_PROJECT_DESCRIPTION = DCT["description"]
-NIDM_PROJECT_LICENSE = DCAT["license"]
-NIDM_PROJECT_URL = DCAT["accessURL"]
+NIDM_PROJECT_LICENSE = DCT["license"]
+NIDM_PROJECT_URL = SIO["URL"]
 NIDM_PROJECT_REFERENCES = DCAT["creator"]
 NIDM_SESSION = NIDM["Session"]
 NIDM_ACQUISITION_ACTIVITY = NIDM["AcquisitionActivity"]
@@ -287,7 +290,7 @@ NIDM_PI = BIRNLEX["birnlex_2152"]
 NIDM_COI = BIRNLEX["birnlex_2199"]
 NIDM_PARTICIPANT = NCIT["Participant"]
 #Demographics
-NIDM_AGE = NCIT["Age"]
+NIDM_AGE = NCICB["Age"]
 NIDM_GENDER = NDAR["gender"]
 NIDM_SEX = NCIT["Sex"]
 NIDM_HANDEDNESS = OBO["handedness"]
@@ -304,8 +307,8 @@ NIDM_MRI_FUNCTION_SCAN = NIDM["MRI_Function"]
 NIDM_MRI_DWI_SCAN = NIDM["MRI_DWI"]
 NIDM_MRI_DWI_BVAL = NIDM["MRI_bval"]
 NIDM_MRI_DWI_BVEC = NIDM["MRI_bvec"]
-NIDM_MRI_FUNCTION_TASK = NIDM["MRI_Task"]
-NIDM_MRI_BOLD_EVENTS = NIDM["MRI_TaskEvents"]
+NIDM_MRI_FUNCTION_TASK = NIDM["Task"]
+NIDM_MRI_BOLD_EVENTS = NIDM["Event"]
 ##############################################################################
 # OBO constants
 OBO_EXAMPLE = OBO['IAO_0000112']
