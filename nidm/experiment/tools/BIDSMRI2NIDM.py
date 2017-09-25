@@ -76,6 +76,9 @@ def main(argv):
 
     #loop through all subjects in dataset
     for subject_id in bids_layout.get_subjects():
+        #skip .git directories...added to support datalad datasets
+        if subject_id.startswith("."):
+            continue
         for file_tpl in bids_layout.get(subject=subject_id, extensions=['.nii', '.nii.gz']):
             #create an acquisition activity
             acq=Acquisition(session[subject_id])
