@@ -1,0 +1,373 @@
+@prefix afni: <http://purl.org/nidash/afni#> .
+@prefix birnlex: <http://bioontology.org/projects/ontologies/birnlex/> .
+@prefix crypto: <http://id.loc.gov/vocabulary/preservation/cryptographicHashFunctions#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix dctypes: <http://purl.org/dc/dcmitype/> .
+@prefix dicom: <http://neurolex.org/wiki/Category:DICOM_term/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix fsl: <http://purl.org/nidash/fsl#> .
+@prefix ncicb: <http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#> .
+@prefix ncit: <http://ncitt.ncit.nih.gov/> .
+@prefix ndar: <https://ndar.nih.gov/api/datadictionary/v2/dataelement/> .
+@prefix nfo: <http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#> .
+@prefix nidm: <http://purl.org/nidash/nidm#> .
+@prefix niiri: <http://iri.nidash.org/> .
+@prefix nlx: <http://uri.neuinfo.org/nif/nifstd/> .
+@prefix obo: <http://purl.obolibrary.org/obo/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix scr: <http://scicrunch.org/resolver/> .
+@prefix sio: <http://semanticscience.org/resource/> .
+@prefix spm: <http://purl.org/nidash/spm#> .
+@prefix vc: <http://www.w3.org/2006/vcard/ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://purl.org/nidash/nidm#9035320c-a225-11e7-803e-6c4008b8f03e> a prov:Activity,
+        "http://purl.org/dc/dcmitype/Dataset"^^xsd:string,
+        "http://purl.org/nidash/nidm#Project"^^xsd:string ;
+    dct:description "All participants received brief training on each task directly before scanning. Each participant viewed the task through MRI-compatible goggles, responded with his or her right hand on an MR-compatible button box in the scanner, and performed one run of each task while in the scanner. Stimulus presentation and timing of all stimuli and response events were achieved using Matlab (Mathworks) and the Psychtoolbox (www.psychtoolbox.org) on an Apple Powerbook."^^xsd:string ;
+    dct:license "PDDL"^^xsd:string ;
+    dct:title "UCLA Consortium for Neuropsychiatric Phenomics LA5c Study"^^xsd:string ;
+    sio:Identifier "1.0.0rc3"^^xsd:string ;
+    dcat:creator "Bilder, RPoldrack, RCannon, TLondon, EFreimer, NCongdon, EKarlsgodt, KSabb, F"^^xsd:string,
+        "http://www.phenowiki.org/wiki/index.php/LA5C"^^xsd:string .
+
+<http://purl.org/nidash/nidm#90364868-a225-11e7-bd4d-6c4008b8f03e> a prov:Entity,
+        "http://purl.org/nidash/nidm#DemographicsAcquistionEntity"^^xsd:string ;
+    ncicb:Age "30"^^xsd:string ;
+    ncit:Diagnosis "CONTROL"^^xsd:string ;
+    prov:wasGeneratedBy <http://purl.org/nidash/nidm#90364458-a225-11e7-852f-6c4008b8f03e> ;
+    ndar:gender "F"^^xsd:string ;
+    ndar:src_subject_id "sub-10159"^^xsd:string .
+
+<http://purl.org/nidash/nidm#9036515a-a225-11e7-9f56-6c4008b8f03e> a prov:Activity ;
+    prov:qualifiedAssociation [ a prov:Association ;
+            prov:hadRole "http://ncitt.ncit.nih.gov/Participant"^^xsd:string ] ;
+    prov:wasAssociatedWith <http://purl.org/nidash/nidm#90364d86-a225-11e7-a5c0-6c4008b8f03e> .
+
+<http://purl.org/nidash/nidm#90388774-a225-11e7-bb42-6c4008b8f03e> a prov:Entity,
+        "http://purl.org/nidash/nidm#MRAcquistionEntity"^^xsd:string,
+        "http://purl.org/nidash/nidm#MRI_Anatomy"^^xsd:string ;
+    dicom:AccelNumReferenceLines "32"^^xsd:int ;
+    dicom:AccelerationFactorPE "2"^^xsd:int ;
+    dicom:AcquisitionMatrix "0/256/256/0"^^xsd:string ;
+    dicom:DeviceSerialNumber "35343"^^xsd:string ;
+    dicom:EchoTime 3.31e-03 ;
+    dicom:EchoTrainLength "1"^^xsd:int ;
+    dicom:FlipAngle "7"^^xsd:int ;
+    dicom:ImageType "ORIGINAL/PRIMARY/M/ND/NORM"^^xsd:string ;
+    dicom:ImagingFrequency "123249959"^^xsd:int ;
+    dicom:InPlanePhaseEncodingDirection "ROW"^^xsd:string ;
+    dicom:InversionTime 1.1e+00 ;
+    dicom:MRAcquisitionType "3D"^^xsd:string ;
+    dicom:MagneticFieldStrength "3"^^xsd:int ;
+    dicom:ManufacturerModelName "TrioTim"^^xsd:string ;
+    dicom:NumberOfAverages "1"^^xsd:int ;
+    dicom:NumberOfPhaseEncodingSteps "255"^^xsd:int ;
+    dicom:PatientPosition "HFS"^^xsd:string ;
+    dicom:PercentPhaseFieldOfView "100"^^xsd:int ;
+    dicom:PercentSampling "100"^^xsd:int ;
+    dicom:PixelBandwidth "200"^^xsd:int ;
+    dicom:ProtocolName "MPRAGE - BWM"^^xsd:string ;
+    dicom:ReceiveCoilName "HeadMatrix"^^xsd:string ;
+    dicom:RepetitionTime 2.53e+00 ;
+    dicom:ScanOptions "IR"^^xsd:string ;
+    dicom:ScanningSequence "GR/IR"^^xsd:string ;
+    dicom:SequenceName "*tfl3d1_ns"^^xsd:string ;
+    dicom:SequenceVariant "SP/MP"^^xsd:string ;
+    dicom:SoftwareVersions "syngo MR B15"^^xsd:string ;
+    dicom:TotalScanTimeSec "363"^^xsd:int ;
+    dicom:TransmitCoilName "Body"^^xsd:string ;
+    dicom:VariableFlipAngleFlag "N"^^xsd:string ;
+    nidm:PhaseEncodingDirection "i-"^^xsd:string ;
+    nfo:filename "/Users/dbkeator/Documents/UCI/ReproNim/example_bids/ds000030_single_subj/sub-10159/anat/sub-10159_T1w.nii.gz"^^xsd:string ;
+    prov:wasGeneratedBy <http://purl.org/nidash/nidm#903883d0-a225-11e7-9ce8-6c4008b8f03e> .
+
+<http://purl.org/nidash/nidm#9038baba-a225-11e7-84af-6c4008b8f03e> a prov:Entity,
+        "http://purl.org/nidash/nidm#MRAcquistionEntity"^^xsd:string,
+        "http://purl.org/nidash/nidm#MRI_DWI"^^xsd:string ;
+    nfo:filename "/Users/dbkeator/Documents/UCI/ReproNim/example_bids/ds000030_single_subj/sub-10159/dwi/sub-10159_dwi.nii.gz"^^xsd:string ;
+    prov:wasGeneratedBy <http://purl.org/nidash/nidm#9038b83e-a225-11e7-8b60-6c4008b8f03e> .
+
+<http://purl.org/nidash/nidm#9038bf6c-a225-11e7-aab3-6c4008b8f03e> a prov:Entity,
+        "http://purl.org/nidash/nidm#MRI_bval"^^xsd:string ;
+    nfo:filename "/Users/dbkeator/Documents/UCI/ReproNim/example_bids/ds000030_single_subj/sub-10159/dwi/sub-10159_dwi.bval"^^xsd:string ;
+    prov:wasGeneratedBy <http://purl.org/nidash/nidm#9038b83e-a225-11e7-8b60-6c4008b8f03e> .
+
+<http://purl.org/nidash/nidm#9038d240-a225-11e7-89f9-6c4008b8f03e> a prov:Entity,
+        "http://purl.org/nidash/nidm#MRI_bvec"^^xsd:string ;
+    nfo:filename "/Users/dbkeator/Documents/UCI/ReproNim/example_bids/ds000030_single_subj/sub-10159/dwi/sub-10159_dwi.bvec"^^xsd:string ;
+    prov:wasGeneratedBy <http://purl.org/nidash/nidm#9038b83e-a225-11e7-8b60-6c4008b8f03e> .
+
+<http://purl.org/nidash/nidm#90393fd2-a225-11e7-8a41-6c4008b8f03e> a prov:Entity,
+        "http://purl.org/nidash/nidm#Event"^^xsd:string ;
+    nidm:Task "bart"^^xsd:string ;
+    nfo:filename "/Users/dbkeator/Documents/UCI/ReproNim/example_bids/ds000030_single_subj/sub-10159/func/sub-10159_task-bart_events.tsv"^^xsd:string ;
+    prov:wasAttributedTo <http://purl.org/nidash/nidm#9038e564-a225-11e7-8a77-6c4008b8f03e> ;
+    prov:wasGeneratedBy <http://purl.org/nidash/nidm#9038e30c-a225-11e7-b59e-6c4008b8f03e> .
+
+<http://purl.org/nidash/nidm#9039489c-a225-11e7-9a8e-6c4008b8f03e> a prov:Entity,
+        "http://purl.org/nidash/nidm#MRAcquistionEntity"^^xsd:string,
+        "http://purl.org/nidash/nidm#MRI_Function"^^xsd:string ;
+    dicom:AccelNumReferenceLines "24"^^xsd:int ;
+    dicom:AccelerationFactorPE "2"^^xsd:int ;
+    dicom:AcquisitionMatrix "64/0/0/64"^^xsd:string ;
+    dicom:DeviceSerialNumber "35343"^^xsd:string ;
+    dicom:EchoTime 3e-02 ;
+    dicom:EchoTrainLength "1"^^xsd:int ;
+    dicom:FlipAngle "90"^^xsd:int ;
+    dicom:ImageType "ORIGINAL/PRIMARY/M/ND/MOSAIC"^^xsd:string ;
+    dicom:ImagingFrequency "123249486"^^xsd:int ;
+    dicom:InPlanePhaseEncodingDirection "COL"^^xsd:string ;
+    dicom:MRAcquisitionType "2D"^^xsd:string ;
+    dicom:MagneticFieldStrength "3"^^xsd:int ;
+    dicom:ManufacturerModelName "TrioTim"^^xsd:string ;
+    dicom:NumberOfAverages "1"^^xsd:int ;
+    dicom:NumberOfPhaseEncodingSteps "63"^^xsd:int ;
+    dicom:PatientPosition "HFS"^^xsd:string ;
+    dicom:PercentPhaseFieldOfView "100"^^xsd:int ;
+    dicom:PercentSampling "100"^^xsd:int ;
+    dicom:PixelBandwidth "1420"^^xsd:int ;
+    dicom:ProtocolName "BOLD - RESTING"^^xsd:string ;
+    dicom:ReceiveCoilName "HeadMatrix"^^xsd:string ;
+    dicom:RepetitionTime "2"^^xsd:int ;
+    dicom:ScanOptions "FS"^^xsd:string ;
+    dicom:ScanningSequence "EP"^^xsd:string ;
+    dicom:SequenceName "*epfid2d1_64"^^xsd:string ;
+    dicom:SequenceVariant "SK"^^xsd:string ;
+    dicom:SoftwareVersions "syngo MR B15"^^xsd:string ;
+    dicom:TotalScanTimeSec "312"^^xsd:int ;
+    dicom:TransmitCoilName "Body"^^xsd:string ;
+    dicom:VariableFlipAngleFlag "N"^^xsd:string ;
+    nidm:EffectiveEchoSpacing 3.95e-04 ;
+    nidm:PhaseEncodingDirection "j-"^^xsd:string ;
+    nidm:SliceTiming "1.00501.06250.061.12250.121.18250.17751.240.23751.30.2951.360.3551.41750.4151.47750.47251.5350.53251.5950.591.6550.651.71250.711.77250.76751.830.82751.890.88751.950.945"^^xsd:string ;
+    nidm:Task "rest"^^xsd:string ;
+    nfo:filename "/Users/dbkeator/Documents/UCI/ReproNim/example_bids/ds000030_single_subj/sub-10159/func/sub-10159_task-rest_bold.nii.gz"^^xsd:string ;
+    prov:wasGeneratedBy <http://purl.org/nidash/nidm#90394676-a225-11e7-ac84-6c4008b8f03e> .
+
+<http://purl.org/nidash/nidm#9039cc10-a225-11e7-b4ec-6c4008b8f03e> a prov:Entity,
+        "http://purl.org/nidash/nidm#Event"^^xsd:string ;
+    nidm:Task "scap"^^xsd:string ;
+    nfo:filename "/Users/dbkeator/Documents/UCI/ReproNim/example_bids/ds000030_single_subj/sub-10159/func/sub-10159_task-scap_events.tsv"^^xsd:string ;
+    prov:wasAttributedTo <http://purl.org/nidash/nidm#903982b4-a225-11e7-9735-6c4008b8f03e> ;
+    prov:wasGeneratedBy <http://purl.org/nidash/nidm#90398050-a225-11e7-b346-6c4008b8f03e> .
+
+<http://purl.org/nidash/nidm#903a2602-a225-11e7-94f2-6c4008b8f03e> a prov:Entity,
+        "http://purl.org/nidash/nidm#Event"^^xsd:string ;
+    nidm:Task "stopsignal"^^xsd:string ;
+    nfo:filename "/Users/dbkeator/Documents/UCI/ReproNim/example_bids/ds000030_single_subj/sub-10159/func/sub-10159_task-stopsignal_events.tsv"^^xsd:string ;
+    prov:wasAttributedTo <http://purl.org/nidash/nidm#9039d424-a225-11e7-8778-6c4008b8f03e> ;
+    prov:wasGeneratedBy <http://purl.org/nidash/nidm#9039d226-a225-11e7-ab12-6c4008b8f03e> .
+
+<http://purl.org/nidash/nidm#903a807a-a225-11e7-80e0-6c4008b8f03e> a prov:Entity,
+        "http://purl.org/nidash/nidm#Event"^^xsd:string ;
+    nidm:Task "taskswitch"^^xsd:string ;
+    nfo:filename "/Users/dbkeator/Documents/UCI/ReproNim/example_bids/ds000030_single_subj/sub-10159/func/sub-10159_task-taskswitch_events.tsv"^^xsd:string ;
+    prov:wasAttributedTo <http://purl.org/nidash/nidm#903a2f28-a225-11e7-9a83-6c4008b8f03e> ;
+    prov:wasGeneratedBy <http://purl.org/nidash/nidm#903a2cee-a225-11e7-8196-6c4008b8f03e> .
+
+<http://purl.org/nidash/nidm#90364458-a225-11e7-852f-6c4008b8f03e> a prov:Activity,
+        "http://purl.org/nidash/nidm#AcquisitionActivity"^^xsd:string ;
+    dct:isPartOf <http://purl.org/nidash/nidm#9036411a-a225-11e7-b6ab-6c4008b8f03e> ;
+    prov:wasAssociatedWith <http://purl.org/nidash/nidm#90364d86-a225-11e7-a5c0-6c4008b8f03e> .
+
+<http://purl.org/nidash/nidm#903883d0-a225-11e7-9ce8-6c4008b8f03e> a prov:Activity,
+        "http://purl.org/nidash/nidm#AcquisitionActivity"^^xsd:string ;
+    dct:isPartOf <http://purl.org/nidash/nidm#9036411a-a225-11e7-b6ab-6c4008b8f03e> .
+
+<http://purl.org/nidash/nidm#9038e564-a225-11e7-8a77-6c4008b8f03e> a prov:Entity,
+        "http://purl.org/nidash/nidm#MRAcquistionEntity"^^xsd:string,
+        "http://purl.org/nidash/nidm#MRI_Function"^^xsd:string ;
+    dicom:AccelNumReferenceLines "24"^^xsd:int ;
+    dicom:AccelerationFactorPE "2"^^xsd:int ;
+    dicom:AcquisitionMatrix "64/0/0/64"^^xsd:string ;
+    dicom:DeviceSerialNumber "35343"^^xsd:string ;
+    dicom:EchoTime 3e-02 ;
+    dicom:EchoTrainLength "1"^^xsd:int ;
+    dicom:FlipAngle "90"^^xsd:int ;
+    dicom:ImageType "ORIGINAL/PRIMARY/M/ND/MOSAIC"^^xsd:string ;
+    dicom:ImagingFrequency "123249925"^^xsd:int ;
+    dicom:InPlanePhaseEncodingDirection "COL"^^xsd:string ;
+    dicom:MRAcquisitionType "2D"^^xsd:string ;
+    dicom:MagneticFieldStrength "3"^^xsd:int ;
+    dicom:ManufacturerModelName "TrioTim"^^xsd:string ;
+    dicom:NumberOfAverages "1"^^xsd:int ;
+    dicom:NumberOfPhaseEncodingSteps "63"^^xsd:int ;
+    dicom:PatientPosition "HFS"^^xsd:string ;
+    dicom:PercentPhaseFieldOfView "100"^^xsd:int ;
+    dicom:PercentSampling "100"^^xsd:int ;
+    dicom:PixelBandwidth "1420"^^xsd:int ;
+    dicom:ProtocolName "BOLD - BART"^^xsd:string ;
+    dicom:ReceiveCoilName "HeadMatrix"^^xsd:string ;
+    dicom:RepetitionTime "2"^^xsd:int ;
+    dicom:ScanOptions "FS"^^xsd:string ;
+    dicom:ScanningSequence "EP"^^xsd:string ;
+    dicom:SequenceName "*epfid2d1_64"^^xsd:string ;
+    dicom:SequenceVariant "SK"^^xsd:string ;
+    dicom:SoftwareVersions "syngo MR B15"^^xsd:string ;
+    dicom:TotalScanTimeSec "542"^^xsd:int ;
+    dicom:TransmitCoilName "Body"^^xsd:string ;
+    dicom:VariableFlipAngleFlag "N"^^xsd:string ;
+    nidm:EffectiveEchoSpacing 3.95e-04 ;
+    nidm:PhaseEncodingDirection "j-"^^xsd:string ;
+    nidm:SliceTiming "1.002501.06250.061.12250.11751.180.17751.240.2351.30.2951.35750.3551.41750.41251.4750.47251.5350.531.5950.591.65250.651.71250.70751.770.76751.830.82751.890.8851.94750.945"^^xsd:string ;
+    nidm:Task "bart"^^xsd:string ;
+    nfo:filename "/Users/dbkeator/Documents/UCI/ReproNim/example_bids/ds000030_single_subj/sub-10159/func/sub-10159_task-bart_bold.nii.gz"^^xsd:string ;
+    prov:wasGeneratedBy <http://purl.org/nidash/nidm#9038e30c-a225-11e7-b59e-6c4008b8f03e> .
+
+<http://purl.org/nidash/nidm#90394676-a225-11e7-ac84-6c4008b8f03e> a prov:Activity,
+        "http://purl.org/nidash/nidm#AcquisitionActivity"^^xsd:string ;
+    dct:isPartOf <http://purl.org/nidash/nidm#9036411a-a225-11e7-b6ab-6c4008b8f03e> .
+
+<http://purl.org/nidash/nidm#903982b4-a225-11e7-9735-6c4008b8f03e> a prov:Entity,
+        "http://purl.org/nidash/nidm#MRAcquistionEntity"^^xsd:string,
+        "http://purl.org/nidash/nidm#MRI_Function"^^xsd:string ;
+    dicom:AccelNumReferenceLines "24"^^xsd:int ;
+    dicom:AccelerationFactorPE "2"^^xsd:int ;
+    dicom:AcquisitionMatrix "64/0/0/64"^^xsd:string ;
+    dicom:DeviceSerialNumber "35343"^^xsd:string ;
+    dicom:EchoTime 3e-02 ;
+    dicom:EchoTrainLength "1"^^xsd:int ;
+    dicom:FlipAngle "90"^^xsd:int ;
+    dicom:ImageType "ORIGINAL/PRIMARY/M/ND/MOSAIC"^^xsd:string ;
+    dicom:ImagingFrequency "123249486"^^xsd:int ;
+    dicom:InPlanePhaseEncodingDirection "COL"^^xsd:string ;
+    dicom:MRAcquisitionType "2D"^^xsd:string ;
+    dicom:MagneticFieldStrength "3"^^xsd:int ;
+    dicom:ManufacturerModelName "TrioTim"^^xsd:string ;
+    dicom:NumberOfAverages "1"^^xsd:int ;
+    dicom:NumberOfPhaseEncodingSteps "63"^^xsd:int ;
+    dicom:PatientPosition "HFS"^^xsd:string ;
+    dicom:PercentPhaseFieldOfView "100"^^xsd:int ;
+    dicom:PercentSampling "100"^^xsd:int ;
+    dicom:PixelBandwidth "1420"^^xsd:int ;
+    dicom:ProtocolName "BOLD - SCAP"^^xsd:string ;
+    dicom:ReceiveCoilName "HeadMatrix"^^xsd:string ;
+    dicom:RepetitionTime "2"^^xsd:int ;
+    dicom:ScanOptions "FS"^^xsd:string ;
+    dicom:ScanningSequence "EP"^^xsd:string ;
+    dicom:SequenceName "*epfid2d1_64"^^xsd:string ;
+    dicom:SequenceVariant "SK"^^xsd:string ;
+    dicom:SoftwareVersions "syngo MR B15"^^xsd:string ;
+    dicom:TotalScanTimeSec "590"^^xsd:int ;
+    dicom:TransmitCoilName "Body"^^xsd:string ;
+    dicom:VariableFlipAngleFlag "N"^^xsd:string ;
+    nidm:EffectiveEchoSpacing 3.95e-04 ;
+    nidm:PhaseEncodingDirection "j-"^^xsd:string ;
+    nidm:SliceTiming "1.00501.06250.061.12250.11751.180.17751.240.2351.30.2951.35750.3551.41750.41251.4750.47251.5350.53251.5950.591.65250.651.71250.70751.77250.76751.830.82751.890.8851.94750.945"^^xsd:string ;
+    nidm:Task "scap"^^xsd:string ;
+    nfo:filename "/Users/dbkeator/Documents/UCI/ReproNim/example_bids/ds000030_single_subj/sub-10159/func/sub-10159_task-scap_bold.nii.gz"^^xsd:string ;
+    prov:wasGeneratedBy <http://purl.org/nidash/nidm#90398050-a225-11e7-b346-6c4008b8f03e> .
+
+<http://purl.org/nidash/nidm#9039d424-a225-11e7-8778-6c4008b8f03e> a prov:Entity,
+        "http://purl.org/nidash/nidm#MRAcquistionEntity"^^xsd:string,
+        "http://purl.org/nidash/nidm#MRI_Function"^^xsd:string ;
+    dicom:AccelNumReferenceLines "24"^^xsd:int ;
+    dicom:AccelerationFactorPE "2"^^xsd:int ;
+    dicom:AcquisitionMatrix "64/0/0/64"^^xsd:string ;
+    dicom:DeviceSerialNumber "35343"^^xsd:string ;
+    dicom:EchoTime 3e-02 ;
+    dicom:EchoTrainLength "1"^^xsd:int ;
+    dicom:FlipAngle "90"^^xsd:int ;
+    dicom:ImageType "ORIGINAL/PRIMARY/M/ND/MOSAIC"^^xsd:string ;
+    dicom:ImagingFrequency "123249486"^^xsd:int ;
+    dicom:InPlanePhaseEncodingDirection "COL"^^xsd:string ;
+    dicom:MRAcquisitionType "2D"^^xsd:string ;
+    dicom:MagneticFieldStrength "3"^^xsd:int ;
+    dicom:ManufacturerModelName "TrioTim"^^xsd:string ;
+    dicom:NumberOfAverages "1"^^xsd:int ;
+    dicom:NumberOfPhaseEncodingSteps "63"^^xsd:int ;
+    dicom:PatientPosition "HFS"^^xsd:string ;
+    dicom:PercentPhaseFieldOfView "100"^^xsd:int ;
+    dicom:PercentSampling "100"^^xsd:int ;
+    dicom:PixelBandwidth "1420"^^xsd:int ;
+    dicom:ProtocolName "BOLD - STOPSIGNAL"^^xsd:string ;
+    dicom:ReceiveCoilName "HeadMatrix"^^xsd:string ;
+    dicom:RepetitionTime "2"^^xsd:int ;
+    dicom:ScanOptions "FS"^^xsd:string ;
+    dicom:ScanningSequence "EP"^^xsd:string ;
+    dicom:SequenceName "*epfid2d1_64"^^xsd:string ;
+    dicom:SequenceVariant "SK"^^xsd:string ;
+    dicom:SoftwareVersions "syngo MR B15"^^xsd:string ;
+    dicom:TotalScanTimeSec "376"^^xsd:int ;
+    dicom:TransmitCoilName "Body"^^xsd:string ;
+    dicom:VariableFlipAngleFlag "N"^^xsd:string ;
+    nidm:EffectiveEchoSpacing 3.95e-04 ;
+    nidm:PhaseEncodingDirection "j-"^^xsd:string ;
+    nidm:SliceTiming "1.002501.06250.05751.120.11751.180.17751.240.2351.29750.2951.35750.35251.41750.41251.4750.47251.5350.531.59250.591.65250.651.71250.70751.770.76751.830.8251.88750.8851.94750.945"^^xsd:string ;
+    nidm:Task "stopsignal"^^xsd:string ;
+    nfo:filename "/Users/dbkeator/Documents/UCI/ReproNim/example_bids/ds000030_single_subj/sub-10159/func/sub-10159_task-stopsignal_bold.nii.gz"^^xsd:string ;
+    prov:wasGeneratedBy <http://purl.org/nidash/nidm#9039d226-a225-11e7-ab12-6c4008b8f03e> .
+
+<http://purl.org/nidash/nidm#903a2f28-a225-11e7-9a83-6c4008b8f03e> a prov:Entity,
+        "http://purl.org/nidash/nidm#MRAcquistionEntity"^^xsd:string,
+        "http://purl.org/nidash/nidm#MRI_Function"^^xsd:string ;
+    dicom:AccelNumReferenceLines "24"^^xsd:int ;
+    dicom:AccelerationFactorPE "2"^^xsd:int ;
+    dicom:AcquisitionMatrix "64/0/0/64"^^xsd:string ;
+    dicom:DeviceSerialNumber "35343"^^xsd:string ;
+    dicom:EchoTime 3e-02 ;
+    dicom:EchoTrainLength "1"^^xsd:int ;
+    dicom:FlipAngle "90"^^xsd:int ;
+    dicom:ImageType "ORIGINAL/PRIMARY/M/ND/MOSAIC"^^xsd:string ;
+    dicom:ImagingFrequency "123249486"^^xsd:int ;
+    dicom:InPlanePhaseEncodingDirection "COL"^^xsd:string ;
+    dicom:MRAcquisitionType "2D"^^xsd:string ;
+    dicom:MagneticFieldStrength "3"^^xsd:int ;
+    dicom:ManufacturerModelName "TrioTim"^^xsd:string ;
+    dicom:NumberOfAverages "1"^^xsd:int ;
+    dicom:NumberOfPhaseEncodingSteps "63"^^xsd:int ;
+    dicom:PatientPosition "HFS"^^xsd:string ;
+    dicom:PercentPhaseFieldOfView "100"^^xsd:int ;
+    dicom:PercentSampling "100"^^xsd:int ;
+    dicom:PixelBandwidth "1420"^^xsd:int ;
+    dicom:ProtocolName "BOLD - TASKSWITCH"^^xsd:string ;
+    dicom:ReceiveCoilName "HeadMatrix"^^xsd:string ;
+    dicom:RepetitionTime "2"^^xsd:int ;
+    dicom:ScanOptions "FS"^^xsd:string ;
+    dicom:ScanningSequence "EP"^^xsd:string ;
+    dicom:SequenceName "*epfid2d1_64"^^xsd:string ;
+    dicom:SequenceVariant "SK"^^xsd:string ;
+    dicom:SoftwareVersions "syngo MR B15"^^xsd:string ;
+    dicom:TotalScanTimeSec "424"^^xsd:int ;
+    dicom:TransmitCoilName "Body"^^xsd:string ;
+    dicom:VariableFlipAngleFlag "N"^^xsd:string ;
+    nidm:EffectiveEchoSpacing 3.95e-04 ;
+    nidm:PhaseEncodingDirection "j-"^^xsd:string ;
+    nidm:SliceTiming "1.002501.06250.05751.120.11751.180.1751.23750.2351.29750.2951.35750.35251.4150.41251.4750.471.5350.531.59250.591.65250.64751.710.70751.770.76751.830.8251.88750.8851.94750.9425"^^xsd:string ;
+    nidm:Task "taskswitch"^^xsd:string ;
+    nfo:filename "/Users/dbkeator/Documents/UCI/ReproNim/example_bids/ds000030_single_subj/sub-10159/func/sub-10159_task-taskswitch_bold.nii.gz"^^xsd:string ;
+    prov:wasGeneratedBy <http://purl.org/nidash/nidm#903a2cee-a225-11e7-8196-6c4008b8f03e> .
+
+<http://purl.org/nidash/nidm#90364d86-a225-11e7-a5c0-6c4008b8f03e> a prov:Agent,
+        prov:Person ;
+    ndar:src_subject_id "sub-10159"^^xsd:string .
+
+<http://purl.org/nidash/nidm#9038e30c-a225-11e7-b59e-6c4008b8f03e> a prov:Activity,
+        "http://purl.org/nidash/nidm#AcquisitionActivity"^^xsd:string ;
+    dct:isPartOf <http://purl.org/nidash/nidm#9036411a-a225-11e7-b6ab-6c4008b8f03e> .
+
+<http://purl.org/nidash/nidm#90398050-a225-11e7-b346-6c4008b8f03e> a prov:Activity,
+        "http://purl.org/nidash/nidm#AcquisitionActivity"^^xsd:string ;
+    dct:isPartOf <http://purl.org/nidash/nidm#9036411a-a225-11e7-b6ab-6c4008b8f03e> .
+
+<http://purl.org/nidash/nidm#9039d226-a225-11e7-ab12-6c4008b8f03e> a prov:Activity,
+        "http://purl.org/nidash/nidm#AcquisitionActivity"^^xsd:string ;
+    dct:isPartOf <http://purl.org/nidash/nidm#9036411a-a225-11e7-b6ab-6c4008b8f03e> .
+
+<http://purl.org/nidash/nidm#903a2cee-a225-11e7-8196-6c4008b8f03e> a prov:Activity,
+        "http://purl.org/nidash/nidm#AcquisitionActivity"^^xsd:string ;
+    dct:isPartOf <http://purl.org/nidash/nidm#9036411a-a225-11e7-b6ab-6c4008b8f03e> .
+
+<http://purl.org/nidash/nidm#9038b83e-a225-11e7-8b60-6c4008b8f03e> a prov:Activity,
+        "http://purl.org/nidash/nidm#AcquisitionActivity"^^xsd:string ;
+    dct:isPartOf <http://purl.org/nidash/nidm#9036411a-a225-11e7-b6ab-6c4008b8f03e> .
+
+<http://purl.org/nidash/nidm#9036411a-a225-11e7-b6ab-6c4008b8f03e> a prov:Activity,
+        "http://purl.org/nidash/nidm#Session"^^xsd:string .
+
