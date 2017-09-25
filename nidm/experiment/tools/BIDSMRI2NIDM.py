@@ -12,6 +12,10 @@ import csv
 from argparse import ArgumentParser
 from bids.grabbids import BIDSLayout
 
+
+
+
+
 def main(argv):
     parser = ArgumentParser()
 
@@ -22,6 +26,8 @@ def main(argv):
     directory = args.directory
     outputfile = args.outputfile
 
+    #importlib.reload(sys)
+    #sys.setdefaultencoding('utf8')
 
     #Parse dataset_description.json file in BIDS directory
     with open(directory+'/'+'dataset_description.json') as data_file:
@@ -80,25 +86,17 @@ def main(argv):
                 acq_obj = MRAcquisitionObject(acq)
                 acq_obj.add_attributes({PROV_TYPE:BIDS_Constants.scans[file_tpl.modality]})
                 #add file link
+                #make relative link to
                 acq_obj.add_attributes({Constants.NFO["filename"]:file_tpl.filename})
                 #get associated JSON file if exists
                 json_data = bids_layout.get_metadata(file_tpl.filename)
-
-                ###commented out, replaced with get_metadata function which returns concatenated dictionary of all json
-                ###files associated with current imaging file
-                #for json_file in bids_layout.get(subject=subject_id, extensions=['.json'],modality=file_tpl.modality):
-                    #open json file, grab key-value pairs, map them to terms and add to acquisition object
-                #    with open(json_file[0]) as data_file:
-                #        json_data = json.load(data_file)
-                for key in json_data:
-                    if key in BIDS_Constants.json_keys:
-                        if type(json_data[key]) is list:
-                            project.add_attributes({BIDS_Constants.json_keys[key]:"".join(json_data[key])})
-                        else:
-                            project.add_attributes({BIDS_Constants.json_keys[key]:json_data[key]})
-                #if we want to do something further if T1w or t2, etc
-                    #if file_tpl.type == 'T1w':
-                    #elif file_tpl.type == 'inplaneT2':
+                if json_data:
+                    for key in json_data:
+                        if key in BIDS_Constants.json_keys:
+                            if type(json_data[key]) is list:
+                                acq_obj.add_attributes({BIDS_Constants.json_keys[key]:''.join(str(e) for e in json_data[key])})
+                            else:
+                                acq_obj.add_attributes({BIDS_Constants.json_keys[key]:json_data[key]})
             elif file_tpl.modality == 'func':
                 #do something with functionals
                 acq_obj = MRAcquisitionObject(acq)
@@ -111,25 +109,21 @@ def main(argv):
                 #get associated JSON file if exists
                 json_data = bids_layout.get_metadata(file_tpl.filename)
 
-                ###commented out, replaced with get_metadata function which returns concatenated dictionary of all json
-                ###files associated with current imaging file
+                if json_data:
+                    for key in json_data:
+                        if key in BIDS_Constants.json_keys:
+                            if type(json_data[key]) is list:
+                                acq_obj.add_attributes({BIDS_Constants.json_keys[key]:''.join(str(e) for e in json_data[key])})
+                            else:
+                                acq_obj.add_attributes({BIDS_Constants.json_keys[key]:json_data[key]})
 
-                #add attributes for task description keys from task JSON file
-                #for task_desc in bids_layout.get(extensions=['.json'],task=file_tpl.task):
-                #    with open(task_desc[0]) as data_file:
-                #        json_data = json.load(data_file)
-                for key in json_data:
-                    if key in BIDS_Constants.json_keys:
-                        if type(json_data[key]) is list:
-                            acq_obj.add_attributes({BIDS_Constants.json_keys[key]:''.join(str(e) for e in json_data[key])})
-                        else:
-                            acq_obj.add_attributes({BIDS_Constants.json_keys[key]:json_data[key]})
-
-                    #get associated events TSV file
-                    if 'run' in file_tpl._fields:
-                        events_file = bids_layout.get(subject=subject_id, extensions=['.tsv'],modality=file_tpl.modality,task=file_tpl.task,run=file_tpl.run)
-                    else:
-                        events_file = bids_layout.get(subject=subject_id, extensions=['.tsv'],modality=file_tpl.modality,task=file_tpl.task)
+                #get associated events TSV file
+                if 'run' in file_tpl._fields:
+                    events_file = bids_layout.get(subject=subject_id, extensions=['.tsv'],modality=file_tpl.modality,task=file_tpl.task,run=file_tpl.run)
+                else:
+                    events_file = bids_layout.get(subject=subject_id, extensions=['.tsv'],modality=file_tpl.modality,task=file_tpl.task)
+                #if there is an events file then this is task-based so create an acquisition object for the task file and link
+                if events_file:
                     #for now create acquisition object and link it to the associated scan
                     events_obj = AcquisitionObject(acq)
                     #add prov type, task name as prov:label, and link to filename of events file
@@ -145,17 +139,29 @@ def main(argv):
                 acq_obj.add_attributes({Constants.NFO["filename"]:file_tpl.filename})
                 if 'run' in file_tpl._fields:
                     acq_obj.add_attributes({BIDS_Constants.json_keys["run"]:file_tpl.run})
+                    #get associated JSON file if exists
+                json_data = bids_layout.get_metadata(file_tpl.filename)
+
+                if json_data:
+                    for key in json_data:
+                        if key in BIDS_Constants.json_keys:
+                            if type(json_data[key]) is list:
+                                acq_obj.add_attributes({BIDS_Constants.json_keys[key]:''.join(str(e) for e in json_data[key])})
+                            else:
+                                acq_obj.add_attributes({BIDS_Constants.json_keys[key]:json_data[key]})
+
                 #for bval and bvec files, what to do with those?
                 #for now, create new generic acquisition objects, link the files, and associate with the one for the DWI scan?
-                acq_obj = AcquisitionObject(acq)
-                acq_obj.add_attributes({PROV_TYPE:BIDS_Constants.scans["bval"]})
-                #for bval in bids_layout.get(extensions=['.bval'],task=file_tpl.task):
-                #add file link
-                #print(bids_layout.get_bvec(file_tpl.filename))
-                #print(bids_layout.get_bval(file_tpl.filename))
-                acq_obj.add_attributes({Constants.NFO["filename"]:bids_layout.get_bval(file_tpl.filename)[0]})
-                #add file link
-                acq_obj.add_attributes({Constants.NFO["filename"]:bids_layout.get_bvec(file_tpl.filename)[0]})
+                acq_obj_bval = AcquisitionObject(acq)
+                acq_obj_bval.add_attributes({PROV_TYPE:BIDS_Constants.scans["bval"]})
+                #add file link to bval files
+                acq_obj_bval.add_attributes({Constants.NFO["filename"]:bids_layout.get_bval(file_tpl.filename)})
+                acq_obj_bvec = AcquisitionObject(acq)
+                acq_obj_bvec.add_attributes({PROV_TYPE:BIDS_Constants.scans["bvec"]})
+                #add file link to bvec files
+                acq_obj_bvec.add_attributes({Constants.NFO["filename"]:bids_layout.get_bvec(file_tpl.filename)})
+                #link bval and bvec acquisition object entities together or is their association with enclosing activity enough?
+
 
 
     #serialize graph
