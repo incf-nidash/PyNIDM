@@ -2,13 +2,14 @@
 
 import sys, getopt, os
 
-from nidm.experiment import Project,Session,Acquisition,AcquisitionObject,DemographicsAcquisitionObject,MRAcquisitionObject
+from nidm.experiment import Project,Session,Acquisition,AcquisitionObject,DemographicsAcquisitionObject,AssessmentAcquisitionObject, MRAcquisitionObject
 from nidm.core import BIDS_Constants,Constants
 from prov.model import PROV_LABEL,PROV_TYPE
 
 import json
 from pprint import pprint
 import csv
+import glob
 from argparse import ArgumentParser
 from bids.grabbids import BIDSLayout
 
@@ -30,7 +31,7 @@ def main(argv):
     #sys.setdefaultencoding('utf8')
 
     #Parse dataset_description.json file in BIDS directory
-    with open(directory+'/'+'dataset_description.json') as data_file:
+    with open(os.path.join(directory,'dataset_description.json')) as data_file:
         dataset = json.load(data_file)
     #print(dataset_data)
 
@@ -50,7 +51,7 @@ def main(argv):
     #create empty dictinary for sessions where key is subject id and used later to link scans to same session as demographics
     session={}
     #Parse participants.tsv file in BIDS directory and create study and acquisition objects
-    with open(directory+'/'+'participants.tsv') as csvfile:
+    with open(os.path.join(directory,'participants.tsv')) as csvfile:
         participants_data = csv.DictReader(csvfile, delimiter='\t')
         #print(participants_data.fieldnames)
         for row in participants_data:
@@ -90,7 +91,7 @@ def main(argv):
                 acq_obj.add_attributes({PROV_TYPE:BIDS_Constants.scans[file_tpl.modality]})
                 #add file link
                 #make relative link to
-                acq_obj.add_attributes({Constants.NFO["filename"]:file_tpl.filename})
+                acq_obj.add_attributes({Constants.NIDM_FILENAME:file_tpl.filename})
                 #get associated JSON file if exists
                 json_data = bids_layout.get_metadata(file_tpl.filename)
                 if json_data:
@@ -105,7 +106,7 @@ def main(argv):
                 acq_obj = MRAcquisitionObject(acq)
                 acq_obj.add_attributes({PROV_TYPE:BIDS_Constants.scans[file_tpl.modality]})
                 #add file link
-                acq_obj.add_attributes({Constants.NFO["filename"]:file_tpl.filename})
+                acq_obj.add_attributes({Constants.NIDM_FILENAME:file_tpl.filename})
                 if 'run' in file_tpl._fields:
                     acq_obj.add_attributes({BIDS_Constants.json_keys["run"]:file_tpl.run})
 
@@ -139,7 +140,7 @@ def main(argv):
                 acq_obj = MRAcquisitionObject(acq)
                 acq_obj.add_attributes({PROV_TYPE:BIDS_Constants.scans[file_tpl.modality]})
                 #add file link
-                acq_obj.add_attributes({Constants.NFO["filename"]:file_tpl.filename})
+                acq_obj.add_attributes({Constants.NIDM_FILENAME:file_tpl.filename})
                 if 'run' in file_tpl._fields:
                     acq_obj.add_attributes({BIDS_Constants.json_keys["run"]:file_tpl.run})
                     #get associated JSON file if exists
@@ -158,13 +159,41 @@ def main(argv):
                 acq_obj_bval = AcquisitionObject(acq)
                 acq_obj_bval.add_attributes({PROV_TYPE:BIDS_Constants.scans["bval"]})
                 #add file link to bval files
-                acq_obj_bval.add_attributes({Constants.NFO["filename"]:bids_layout.get_bval(file_tpl.filename)})
+                acq_obj_bval.add_attributes({Constants.NIDM_FILENAME:bids_layout.get_bval(file_tpl.filename)})
                 acq_obj_bvec = AcquisitionObject(acq)
                 acq_obj_bvec.add_attributes({PROV_TYPE:BIDS_Constants.scans["bvec"]})
                 #add file link to bvec files
-                acq_obj_bvec.add_attributes({Constants.NFO["filename"]:bids_layout.get_bvec(file_tpl.filename)})
+                acq_obj_bvec.add_attributes({Constants.NIDM_FILENAME:bids_layout.get_bvec(file_tpl.filename)})
                 #link bval and bvec acquisition object entities together or is their association with enclosing activity enough?
 
+        #Added temporarily to support phenotype files
+        #for each *.tsv / *.json file pair in the phenotypes directory
+        for tsv_file in glob.glob(os.path.join(directory,"phenotype","*.tsv")):
+            #for now, open the TSV file, extract the row for this subject, store it in an acquisition object and link to
+            #the associated JSON data dictionary file
+            with open(tsv_file) as phenofile:
+                pheno_data = csv.DictReader(phenofile, delimiter='\t')
+                for row in pheno_data:
+                    subjid = row['participant_id'].split("-")
+                    if not subjid[1] == subject_id:
+                        continue
+                    else:
+                        #add acquisition object
+                        acq = Acquisition(session=session[subjid[1]])
+                        acq_entity = AssessmentAcquisitionObject(acquisition=acq)
+                        participant = acq.add_person(role=Constants.NIDM_PARTICIPANT,attributes=({Constants.NIDM_SUBJECTID:row['participant_id']}))
+
+                        for key,value in row.items():
+                            if not key == "participant_id":
+                                #for now we're using a placeholder namespace for BIDS and simply the variable names as the concept IDs..
+                                acq_entity.add_attributes({Constants.BIDS[key]:value})
+
+                        #link TSV file
+                        acq_entity.add_attributes({Constants.NIDM_FILENAME:tsv_file})
+                        #link associated JSON file if it exists
+                        data_dict = os.path.join(directory,"phenotype",os.path.splitext(os.path.basename(tsv_file))[0]+ ".json")
+                        if os.path.isfile(data_dict):
+                            acq_entity.add_attributes({Constants.BIDS["data_dictionary"]:data_dict})
 
 
     #serialize graph

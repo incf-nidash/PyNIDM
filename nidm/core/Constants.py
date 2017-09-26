@@ -43,6 +43,7 @@ BIRNLEX = Namespace("http://bioontology.org/projects/ontologies/birnlex/")
 NDAR = Namespace("https://ndar.nih.gov/api/datadictionary/v2/dataelement/")
 NCICB = Namespace("http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#")
 SIO = Namespace("http://semanticscience.org/resource/")
+BIDS = Namespace("http://bids.neuroimaging.io/")
 
 namespaces = {
     "prov": PROV,
@@ -68,7 +69,8 @@ namespaces = {
     "birnlex" : BIRNLEX,
     "ndar" : NDAR,
     "ncicb" : NCICB,
-    "sio" : SIO
+    "sio" : SIO,
+    "bids" : BIDS
     }
 
 # Empty graph used to compute qnames
@@ -285,6 +287,9 @@ NIDM_ACQUISITION_ACTIVITY = NIDM["AcquisitionActivity"]
 NIDM_ACQUISITION_ENTITY = NIDM["AcquisitionEntity"]
 NIDM_MRACQUISITION_ENTITY = NIDM["MRAcquistionEntity"]
 NIDM_DEMOGRAPHICS_ENTITY = NIDM["DemographicsAcquistionEntity"]
+NIDM_ASSESSMENT_ENTITY = NIDM["AssessmentAcquistionEntity"]
+#files
+NIDM_FILENAME = NFO["filename"]
 #Roles
 NIDM_PI = BIRNLEX["birnlex_2152"]
 NIDM_COI = BIRNLEX["birnlex_2199"]

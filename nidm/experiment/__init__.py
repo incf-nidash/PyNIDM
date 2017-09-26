@@ -5,3 +5,4 @@ from .Acquisition import Acquisition
 from .AcquisitionObject import AcquisitionObject
 from .MRAcquisitionObject import MRAcquisitionObject
 from .DemographicsAcquisitionObject import DemographicsAcquisitionObject
+from .AssessmentAcquisitionObject import AssessmentAcquisitionObject
