@@ -1,4 +1,5 @@
 @prefix afni: <http://purl.org/nidash/afni#> .
+@prefix bids: <http://bids.neuroimaging.io/> .
 @prefix birnlex: <http://bioontology.org/projects/ontologies/birnlex/> .
 @prefix crypto: <http://id.loc.gov/vocabulary/preservation/cryptographicHashFunctions#> .
 @prefix dc: <http://purl.org/dc/elements/1.1/> .
@@ -26,7 +27,7 @@
 @prefix xml: <http://www.w3.org/XML/1998/namespace> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-<http://purl.org/nidash/nidm#9035320c-a225-11e7-803e-6c4008b8f03e> a prov:Activity,
+<http://purl.org/nidash/nidm#8fbd43c0-a24b-11e7-b86e-6c4008b8f03e> a prov:Activity,
         "http://purl.org/dc/dcmitype/Dataset"^^xsd:string,
         "http://purl.org/nidash/nidm#Project"^^xsd:string ;
     dct:description "All participants received brief training on each task directly before scanning. Each participant viewed the task through MRI-compatible goggles, responded with his or her right hand on an MR-compatible button box in the scanner, and performed one run of each task while in the scanner. Stimulus presentation and timing of all stimuli and response events were achieved using Matlab (Mathworks) and the Psychtoolbox (www.psychtoolbox.org) on an Apple Powerbook."^^xsd:string ;
@@ -36,20 +37,20 @@
     dcat:creator "Bilder, RPoldrack, RCannon, TLondon, EFreimer, NCongdon, EKarlsgodt, KSabb, F"^^xsd:string,
         "http://www.phenowiki.org/wiki/index.php/LA5C"^^xsd:string .
 
-<http://purl.org/nidash/nidm#90364868-a225-11e7-bd4d-6c4008b8f03e> a prov:Entity,
+<http://purl.org/nidash/nidm#8fbe1c5a-a24b-11e7-a1d1-6c4008b8f03e> a prov:Entity,
         "http://purl.org/nidash/nidm#DemographicsAcquistionEntity"^^xsd:string ;
     ncicb:Age "30"^^xsd:string ;
     ncit:Diagnosis "CONTROL"^^xsd:string ;
-    prov:wasGeneratedBy <http://purl.org/nidash/nidm#90364458-a225-11e7-852f-6c4008b8f03e> ;
+    prov:wasGeneratedBy <http://purl.org/nidash/nidm#8fbe195a-a24b-11e7-926b-6c4008b8f03e> ;
     ndar:gender "F"^^xsd:string ;
     ndar:src_subject_id "sub-10159"^^xsd:string .
 
-<http://purl.org/nidash/nidm#9036515a-a225-11e7-9f56-6c4008b8f03e> a prov:Activity ;
+<http://purl.org/nidash/nidm#8fbe2436-a24b-11e7-91ab-6c4008b8f03e> a prov:Activity ;
     prov:qualifiedAssociation [ a prov:Association ;
             prov:hadRole "http://ncitt.ncit.nih.gov/Participant"^^xsd:string ] ;
-    prov:wasAssociatedWith <http://purl.org/nidash/nidm#90364d86-a225-11e7-a5c0-6c4008b8f03e> .
+    prov:wasAssociatedWith <http://purl.org/nidash/nidm#8fbe210a-a24b-11e7-a45a-6c4008b8f03e> .
 
-<http://purl.org/nidash/nidm#90388774-a225-11e7-bb42-6c4008b8f03e> a prov:Entity,
+<http://purl.org/nidash/nidm#8fc073b0-a24b-11e7-bb5d-6c4008b8f03e> a prov:Entity,
         "http://purl.org/nidash/nidm#MRAcquistionEntity"^^xsd:string,
         "http://purl.org/nidash/nidm#MRI_Anatomy"^^xsd:string ;
     dicom:AccelNumReferenceLines "32"^^xsd:int ;
@@ -85,32 +86,65 @@
     dicom:VariableFlipAngleFlag "N"^^xsd:string ;
     nidm:PhaseEncodingDirection "i-"^^xsd:string ;
     nfo:filename "/Users/dbkeator/Documents/UCI/ReproNim/example_bids/ds000030_single_subj/sub-10159/anat/sub-10159_T1w.nii.gz"^^xsd:string ;
-    prov:wasGeneratedBy <http://purl.org/nidash/nidm#903883d0-a225-11e7-9ce8-6c4008b8f03e> .
+    prov:wasGeneratedBy <http://purl.org/nidash/nidm#8fc07036-a24b-11e7-afc2-6c4008b8f03e> .
 
-<http://purl.org/nidash/nidm#9038baba-a225-11e7-84af-6c4008b8f03e> a prov:Entity,
+<http://purl.org/nidash/nidm#8fc0bcee-a24b-11e7-a978-6c4008b8f03e> a prov:Entity,
         "http://purl.org/nidash/nidm#MRAcquistionEntity"^^xsd:string,
         "http://purl.org/nidash/nidm#MRI_DWI"^^xsd:string ;
+    dicom:AccelerationFactorPE "1"^^xsd:int ;
+    dicom:AcquisitionMatrix "96/0/0/96"^^xsd:string ;
+    dicom:DeviceSerialNumber "35343"^^xsd:string ;
+    dicom:EchoTime 9.26e-02 ;
+    dicom:EchoTrainLength "1"^^xsd:int ;
+    dicom:FlipAngle "90"^^xsd:int ;
+    dicom:ImageType "ORIGINAL/PRIMARY/M/ND/MOSAIC"^^xsd:string ;
+    dicom:ImagingFrequency "123249931"^^xsd:int ;
+    dicom:InPlanePhaseEncodingDirection "COL"^^xsd:string ;
+    dicom:MRAcquisitionType "2D"^^xsd:string ;
+    dicom:MagneticFieldStrength "3"^^xsd:int ;
+    dicom:ManufacturerModelName "TrioTim"^^xsd:string ;
+    dicom:NumberOfAverages "1"^^xsd:int ;
+    dicom:NumberOfPhaseEncodingSteps "72"^^xsd:int ;
+    dicom:PatientPosition "HFS"^^xsd:string ;
+    dicom:PercentPhaseFieldOfView "100"^^xsd:int ;
+    dicom:PercentSampling "100"^^xsd:int ;
+    dicom:PixelBandwidth "2265"^^xsd:int ;
+    dicom:ProtocolName "DTI 64dir"^^xsd:string ;
+    dicom:ReceiveCoilName "HeadMatrix"^^xsd:string ;
+    dicom:RepetitionTime "7"^^xsd:int ;
+    dicom:ScanOptions "PFP/FS"^^xsd:string ;
+    dicom:ScanningSequence "EP"^^xsd:string ;
+    dicom:SequenceName "*ep_b1000#10"^^xsd:string ;
+    dicom:SequenceVariant "SK/SP"^^xsd:string ;
+    dicom:SoftwareVersions "syngo MR B15"^^xsd:string ;
+    dicom:TotalReadoutTime 8.831782e-02 ;
+    dicom:TotalScanTimeSec "464"^^xsd:int ;
+    dicom:TransmitCoilName "Body"^^xsd:string ;
+    dicom:VariableFlipAngleFlag "N"^^xsd:string ;
+    nidm:EffectiveEchoSpacing 6.89983e-04 ;
+    nidm:PhaseEncodingDirection "j-"^^xsd:string ;
+    nidm:SliceTiming "3.51503.6550.14253.7950.28253.93750.42254.07750.56254.21750.7054.35750.8454.50.9854.641.1254.781.2654.921.40755.061.54755.20251.68755.34251.82755.48251.975.62252.115.7652.255.9052.396.0452.536.1852.67256.3252.81256.46752.95256.60753.09256.74753.2356.88753.375"^^xsd:string ;
     nfo:filename "/Users/dbkeator/Documents/UCI/ReproNim/example_bids/ds000030_single_subj/sub-10159/dwi/sub-10159_dwi.nii.gz"^^xsd:string ;
-    prov:wasGeneratedBy <http://purl.org/nidash/nidm#9038b83e-a225-11e7-8b60-6c4008b8f03e> .
+    prov:wasGeneratedBy <http://purl.org/nidash/nidm#8fc0ba82-a24b-11e7-ad36-6c4008b8f03e> .
 
-<http://purl.org/nidash/nidm#9038bf6c-a225-11e7-aab3-6c4008b8f03e> a prov:Entity,
+<http://purl.org/nidash/nidm#8fc0ef78-a24b-11e7-a725-6c4008b8f03e> a prov:Entity,
         "http://purl.org/nidash/nidm#MRI_bval"^^xsd:string ;
     nfo:filename "/Users/dbkeator/Documents/UCI/ReproNim/example_bids/ds000030_single_subj/sub-10159/dwi/sub-10159_dwi.bval"^^xsd:string ;
-    prov:wasGeneratedBy <http://purl.org/nidash/nidm#9038b83e-a225-11e7-8b60-6c4008b8f03e> .
+    prov:wasGeneratedBy <http://purl.org/nidash/nidm#8fc0ba82-a24b-11e7-ad36-6c4008b8f03e> .
 
-<http://purl.org/nidash/nidm#9038d240-a225-11e7-89f9-6c4008b8f03e> a prov:Entity,
+<http://purl.org/nidash/nidm#8fc101ae-a24b-11e7-b85b-6c4008b8f03e> a prov:Entity,
         "http://purl.org/nidash/nidm#MRI_bvec"^^xsd:string ;
     nfo:filename "/Users/dbkeator/Documents/UCI/ReproNim/example_bids/ds000030_single_subj/sub-10159/dwi/sub-10159_dwi.bvec"^^xsd:string ;
-    prov:wasGeneratedBy <http://purl.org/nidash/nidm#9038b83e-a225-11e7-8b60-6c4008b8f03e> .
+    prov:wasGeneratedBy <http://purl.org/nidash/nidm#8fc0ba82-a24b-11e7-ad36-6c4008b8f03e> .
 
-<http://purl.org/nidash/nidm#90393fd2-a225-11e7-8a41-6c4008b8f03e> a prov:Entity,
+<http://purl.org/nidash/nidm#8fc1730a-a24b-11e7-9636-6c4008b8f03e> a prov:Entity,
         "http://purl.org/nidash/nidm#Event"^^xsd:string ;
     nidm:Task "bart"^^xsd:string ;
     nfo:filename "/Users/dbkeator/Documents/UCI/ReproNim/example_bids/ds000030_single_subj/sub-10159/func/sub-10159_task-bart_events.tsv"^^xsd:string ;
-    prov:wasAttributedTo <http://purl.org/nidash/nidm#9038e564-a225-11e7-8a77-6c4008b8f03e> ;
-    prov:wasGeneratedBy <http://purl.org/nidash/nidm#9038e30c-a225-11e7-b59e-6c4008b8f03e> .
+    prov:wasAttributedTo <http://purl.org/nidash/nidm#8fc11714-a24b-11e7-9d05-6c4008b8f03e> ;
+    prov:wasGeneratedBy <http://purl.org/nidash/nidm#8fc1149e-a24b-11e7-89b7-6c4008b8f03e> .
 
-<http://purl.org/nidash/nidm#9039489c-a225-11e7-9a8e-6c4008b8f03e> a prov:Entity,
+<http://purl.org/nidash/nidm#8fc17b64-a24b-11e7-8a9a-6c4008b8f03e> a prov:Entity,
         "http://purl.org/nidash/nidm#MRAcquistionEntity"^^xsd:string,
         "http://purl.org/nidash/nidm#MRI_Function"^^xsd:string ;
     dicom:AccelNumReferenceLines "24"^^xsd:int ;
@@ -148,39 +182,180 @@
     nidm:SliceTiming "1.00501.06250.061.12250.121.18250.17751.240.23751.30.2951.360.3551.41750.4151.47750.47251.5350.53251.5950.591.6550.651.71250.711.77250.76751.830.82751.890.88751.950.945"^^xsd:string ;
     nidm:Task "rest"^^xsd:string ;
     nfo:filename "/Users/dbkeator/Documents/UCI/ReproNim/example_bids/ds000030_single_subj/sub-10159/func/sub-10159_task-rest_bold.nii.gz"^^xsd:string ;
-    prov:wasGeneratedBy <http://purl.org/nidash/nidm#90394676-a225-11e7-ac84-6c4008b8f03e> .
+    prov:wasGeneratedBy <http://purl.org/nidash/nidm#8fc17954-a24b-11e7-87b4-6c4008b8f03e> .
 
-<http://purl.org/nidash/nidm#9039cc10-a225-11e7-b4ec-6c4008b8f03e> a prov:Entity,
+<http://purl.org/nidash/nidm#8fc2103a-a24b-11e7-8d80-6c4008b8f03e> a prov:Entity,
         "http://purl.org/nidash/nidm#Event"^^xsd:string ;
     nidm:Task "scap"^^xsd:string ;
     nfo:filename "/Users/dbkeator/Documents/UCI/ReproNim/example_bids/ds000030_single_subj/sub-10159/func/sub-10159_task-scap_events.tsv"^^xsd:string ;
-    prov:wasAttributedTo <http://purl.org/nidash/nidm#903982b4-a225-11e7-9735-6c4008b8f03e> ;
-    prov:wasGeneratedBy <http://purl.org/nidash/nidm#90398050-a225-11e7-b346-6c4008b8f03e> .
+    prov:wasAttributedTo <http://purl.org/nidash/nidm#8fc1bbd0-a24b-11e7-a532-6c4008b8f03e> ;
+    prov:wasGeneratedBy <http://purl.org/nidash/nidm#8fc1b96e-a24b-11e7-9229-6c4008b8f03e> .
 
-<http://purl.org/nidash/nidm#903a2602-a225-11e7-94f2-6c4008b8f03e> a prov:Entity,
+<http://purl.org/nidash/nidm#8fc26a30-a24b-11e7-a488-6c4008b8f03e> a prov:Entity,
         "http://purl.org/nidash/nidm#Event"^^xsd:string ;
     nidm:Task "stopsignal"^^xsd:string ;
     nfo:filename "/Users/dbkeator/Documents/UCI/ReproNim/example_bids/ds000030_single_subj/sub-10159/func/sub-10159_task-stopsignal_events.tsv"^^xsd:string ;
-    prov:wasAttributedTo <http://purl.org/nidash/nidm#9039d424-a225-11e7-8778-6c4008b8f03e> ;
-    prov:wasGeneratedBy <http://purl.org/nidash/nidm#9039d226-a225-11e7-ab12-6c4008b8f03e> .
+    prov:wasAttributedTo <http://purl.org/nidash/nidm#8fc2185a-a24b-11e7-a876-6c4008b8f03e> ;
+    prov:wasGeneratedBy <http://purl.org/nidash/nidm#8fc21652-a24b-11e7-8173-6c4008b8f03e> .
 
-<http://purl.org/nidash/nidm#903a807a-a225-11e7-80e0-6c4008b8f03e> a prov:Entity,
+<http://purl.org/nidash/nidm#8fc2d04c-a24b-11e7-8752-6c4008b8f03e> a prov:Entity,
         "http://purl.org/nidash/nidm#Event"^^xsd:string ;
     nidm:Task "taskswitch"^^xsd:string ;
     nfo:filename "/Users/dbkeator/Documents/UCI/ReproNim/example_bids/ds000030_single_subj/sub-10159/func/sub-10159_task-taskswitch_events.tsv"^^xsd:string ;
-    prov:wasAttributedTo <http://purl.org/nidash/nidm#903a2f28-a225-11e7-9a83-6c4008b8f03e> ;
-    prov:wasGeneratedBy <http://purl.org/nidash/nidm#903a2cee-a225-11e7-8196-6c4008b8f03e> .
+    prov:wasAttributedTo <http://purl.org/nidash/nidm#8fc273de-a24b-11e7-88bf-6c4008b8f03e> ;
+    prov:wasGeneratedBy <http://purl.org/nidash/nidm#8fc270c0-a24b-11e7-b365-6c4008b8f03e> .
 
-<http://purl.org/nidash/nidm#90364458-a225-11e7-852f-6c4008b8f03e> a prov:Activity,
+<http://purl.org/nidash/nidm#8fc2e51e-a24b-11e7-9f23-6c4008b8f03e> a prov:Entity,
+        "http://purl.org/nidash/nidm#AssessmentAcquistionEntity"^^xsd:string ;
+    bids: "0"^^xsd:string ;
+    bids:adhd_b "n/a"^^xsd:string ;
+    bids:adhd_c_dx "n/a"^^xsd:string ;
+    bids:adhd_c_ina_a1 "n/a"^^xsd:string ;
+    bids:adhd_c_ina_a2 "n/a"^^xsd:string ;
+    bids:adhd_c_ina_a3 "n/a"^^xsd:string ;
+    bids:adhd_c_ina_a4 "n/a"^^xsd:string ;
+    bids:adhd_c_ina_c1 "n/a"^^xsd:string ;
+    bids:adhd_c_ina_c3 "n/a"^^xsd:string ;
+    bids:adhd_c_ina_c4 "n/a"^^xsd:string ;
+    bids:adhd_c_subtype "n/a"^^xsd:string ;
+    bids:adhd_e_adult "n/a"^^xsd:string ;
+    bids:adhd_e_child "n/a"^^xsd:string ;
+    bids:adhd_f_adult "n/a"^^xsd:string ;
+    bids:adhd_f_child "n/a"^^xsd:string ;
+    bids:adhd_f_child_dsm "n/a"^^xsd:string ;
+    bids:adhd_f_child_dx "n/a"^^xsd:string ;
+    bids:adhd_f_child_subtype "n/a"^^xsd:string ;
+    bids:adult_attention "n/a"^^xsd:string ;
+    bids:adult_attentionseverity "n/a"^^xsd:string ;
+    bids:adult_duration "n/a"^^xsd:string ;
+    bids:adult_hyperactivity "n/a"^^xsd:string ;
+    bids:adult_hyperactivityseverity "n/a"^^xsd:string ;
+    bids:adult_impairment "n/a"^^xsd:string ;
+    bids:adult_totalseverity "n/a"^^xsd:string ;
+    bids:adult_totalsymptoms "n/a"^^xsd:string ;
+    bids:adultadhd1 "n/a"^^xsd:string ;
+    bids:adultadhd10 "n/a"^^xsd:string ;
+    bids:adultadhd11 "n/a"^^xsd:string ;
+    bids:adultadhd12 "n/a"^^xsd:string ;
+    bids:adultadhd13 "n/a"^^xsd:string ;
+    bids:adultadhd14 "n/a"^^xsd:string ;
+    bids:adultadhd15 "n/a"^^xsd:string ;
+    bids:adultadhd16 "n/a"^^xsd:string ;
+    bids:adultadhd17 "n/a"^^xsd:string ;
+    bids:adultadhd18 "n/a"^^xsd:string ;
+    bids:adultadhd19 "n/a"^^xsd:string ;
+    bids:adultadhd2 "n/a"^^xsd:string ;
+    bids:adultadhd20 "n/a"^^xsd:string ;
+    bids:adultadhd21 "n/a"^^xsd:string ;
+    bids:adultadhd22 "n/a"^^xsd:string ;
+    bids:adultadhd23 "n/a"^^xsd:string ;
+    bids:adultadhd24 "n/a"^^xsd:string ;
+    bids:adultadhd25 "n/a"^^xsd:string ;
+    bids:adultadhd26 "n/a"^^xsd:string ;
+    bids:adultadhd27 "n/a"^^xsd:string ;
+    bids:adultadhd28 "n/a"^^xsd:string ;
+    bids:adultadhd29 "n/a"^^xsd:string ;
+    bids:adultadhd3 "n/a"^^xsd:string ;
+    bids:adultadhd30 "n/a"^^xsd:string ;
+    bids:adultadhd31 "n/a"^^xsd:string ;
+    bids:adultadhd32 "n/a"^^xsd:string ;
+    bids:adultadhd33 "n/a"^^xsd:string ;
+    bids:adultadhd34 "n/a"^^xsd:string ;
+    bids:adultadhd35 "n/a"^^xsd:string ;
+    bids:adultadhd36 "n/a"^^xsd:string ;
+    bids:adultadhd37 "n/a"^^xsd:string ;
+    bids:adultadhd38 "n/a"^^xsd:string ;
+    bids:adultadhd39 "n/a"^^xsd:string ;
+    bids:adultadhd4 "n/a"^^xsd:string ;
+    bids:adultadhd5 "n/a"^^xsd:string ;
+    bids:adultadhd6 "n/a"^^xsd:string ;
+    bids:adultadhd7 "n/a"^^xsd:string ;
+    bids:adultadhd8 "n/a"^^xsd:string ;
+    bids:adultadhd9 "n/a"^^xsd:string ;
+    bids:childadhd "n/a"^^xsd:string ;
+    bids:childadhd1 "n/a"^^xsd:string ;
+    bids:childadhd10 "n/a"^^xsd:string ;
+    bids:childadhd11 "n/a"^^xsd:string ;
+    bids:childadhd12 "n/a"^^xsd:string ;
+    bids:childadhd13 "n/a"^^xsd:string ;
+    bids:childadhd14 "n/a"^^xsd:string ;
+    bids:childadhd15 "n/a"^^xsd:string ;
+    bids:childadhd16 "n/a"^^xsd:string ;
+    bids:childadhd17 "n/a"^^xsd:string ;
+    bids:childadhd18 "n/a"^^xsd:string ;
+    bids:childadhd19 "n/a"^^xsd:string ;
+    bids:childadhd2 "n/a"^^xsd:string ;
+    bids:childadhd20 "n/a"^^xsd:string ;
+    bids:childadhd20age "n/a"^^xsd:string ;
+    bids:childadhd21 "n/a"^^xsd:string ;
+    bids:childadhd22 "n/a"^^xsd:string ;
+    bids:childadhd23 "n/a"^^xsd:string ;
+    bids:childadhd24 "n/a"^^xsd:string ;
+    bids:childadhd25 "n/a"^^xsd:string ;
+    bids:childadhd26 "n/a"^^xsd:string ;
+    bids:childadhd27 "n/a"^^xsd:string ;
+    bids:childadhd28 "n/a"^^xsd:string ;
+    bids:childadhd29 "n/a"^^xsd:string ;
+    bids:childadhd3 "n/a"^^xsd:string ;
+    bids:childadhd30 "n/a"^^xsd:string ;
+    bids:childadhd31 "n/a"^^xsd:string ;
+    bids:childadhd32 "n/a"^^xsd:string ;
+    bids:childadhd33 "n/a"^^xsd:string ;
+    bids:childadhd34 "n/a"^^xsd:string ;
+    bids:childadhd35 "n/a"^^xsd:string ;
+    bids:childadhd36 "n/a"^^xsd:string ;
+    bids:childadhd37 "n/a"^^xsd:string ;
+    bids:childadhd38 "n/a"^^xsd:string ;
+    bids:childadhd39 "n/a"^^xsd:string ;
+    bids:childadhd4 "n/a"^^xsd:string ;
+    bids:childadhd40 "n/a"^^xsd:string ;
+    bids:childadhd5 "n/a"^^xsd:string ;
+    bids:childadhd6 "n/a"^^xsd:string ;
+    bids:childadhd7 "n/a"^^xsd:string ;
+    bids:childadhd8 "n/a"^^xsd:string ;
+    bids:childadhd9 "n/a"^^xsd:string ;
+    bids:data_dictionary "/Users/dbkeator/Documents/UCI/ReproNim/example_bids/ds000030_single_subj/phenotype/acds_adult.json"^^xsd:string ;
+    nfo:filename "/Users/dbkeator/Documents/UCI/ReproNim/example_bids/ds000030_single_subj/phenotype/acds_adult.tsv"^^xsd:string ;
+    prov:wasGeneratedBy <http://purl.org/nidash/nidm#8fc2e294-a24b-11e7-9f4e-6c4008b8f03e> .
+
+<http://purl.org/nidash/nidm#8fc2ea46-a24b-11e7-b70b-6c4008b8f03e> a prov:Activity ;
+    prov:qualifiedAssociation [ a prov:Association ;
+            prov:hadRole "http://ncitt.ncit.nih.gov/Participant"^^xsd:string ] ;
+    prov:wasAssociatedWith <http://purl.org/nidash/nidm#8fc2e848-a24b-11e7-b6b4-6c4008b8f03e> .
+
+<http://purl.org/nidash/nidm#8fc34766-a24b-11e7-926e-6c4008b8f03e> a prov:Entity,
+        "http://purl.org/nidash/nidm#AssessmentAcquistionEntity"^^xsd:string ;
+    bids: "0"^^xsd:string ;
+    bids:adhd1 "n/a"^^xsd:string ;
+    bids:adhd10 "n/a"^^xsd:string ;
+    bids:adhd11 "n/a"^^xsd:string ;
+    bids:adhd2 "n/a"^^xsd:string ;
+    bids:adhd3 "n/a"^^xsd:string ;
+    bids:adhd4 "n/a"^^xsd:string ;
+    bids:adhd5 "n/a"^^xsd:string ;
+    bids:adhd6 "n/a"^^xsd:string ;
+    bids:adhd7 "n/a"^^xsd:string ;
+    bids:adhd8 "n/a"^^xsd:string ;
+    bids:adhd9 "n/a"^^xsd:string ;
+    bids:data_dictionary "/Users/dbkeator/Documents/UCI/ReproNim/example_bids/ds000030_single_subj/phenotype/adhd.json"^^xsd:string ;
+    nfo:filename "/Users/dbkeator/Documents/UCI/ReproNim/example_bids/ds000030_single_subj/phenotype/adhd.tsv"^^xsd:string ;
+    prov:wasGeneratedBy <http://purl.org/nidash/nidm#8fc344b4-a24b-11e7-b626-6c4008b8f03e> .
+
+<http://purl.org/nidash/nidm#8fc34ce8-a24b-11e7-a4d6-6c4008b8f03e> a prov:Activity ;
+    prov:qualifiedAssociation [ a prov:Association ;
+            prov:hadRole "http://ncitt.ncit.nih.gov/Participant"^^xsd:string ] ;
+    prov:wasAssociatedWith <http://purl.org/nidash/nidm#8fc34aa4-a24b-11e7-ba69-6c4008b8f03e> .
+
+<http://purl.org/nidash/nidm#8fbe195a-a24b-11e7-926b-6c4008b8f03e> a prov:Activity,
         "http://purl.org/nidash/nidm#AcquisitionActivity"^^xsd:string ;
-    dct:isPartOf <http://purl.org/nidash/nidm#9036411a-a225-11e7-b6ab-6c4008b8f03e> ;
-    prov:wasAssociatedWith <http://purl.org/nidash/nidm#90364d86-a225-11e7-a5c0-6c4008b8f03e> .
+    dct:isPartOf <http://purl.org/nidash/nidm#8fbe1662-a24b-11e7-84da-6c4008b8f03e> ;
+    prov:wasAssociatedWith <http://purl.org/nidash/nidm#8fbe210a-a24b-11e7-a45a-6c4008b8f03e> .
 
-<http://purl.org/nidash/nidm#903883d0-a225-11e7-9ce8-6c4008b8f03e> a prov:Activity,
+<http://purl.org/nidash/nidm#8fc07036-a24b-11e7-afc2-6c4008b8f03e> a prov:Activity,
         "http://purl.org/nidash/nidm#AcquisitionActivity"^^xsd:string ;
-    dct:isPartOf <http://purl.org/nidash/nidm#9036411a-a225-11e7-b6ab-6c4008b8f03e> .
+    dct:isPartOf <http://purl.org/nidash/nidm#8fbe1662-a24b-11e7-84da-6c4008b8f03e> .
 
-<http://purl.org/nidash/nidm#9038e564-a225-11e7-8a77-6c4008b8f03e> a prov:Entity,
+<http://purl.org/nidash/nidm#8fc11714-a24b-11e7-9d05-6c4008b8f03e> a prov:Entity,
         "http://purl.org/nidash/nidm#MRAcquistionEntity"^^xsd:string,
         "http://purl.org/nidash/nidm#MRI_Function"^^xsd:string ;
     dicom:AccelNumReferenceLines "24"^^xsd:int ;
@@ -218,13 +393,13 @@
     nidm:SliceTiming "1.002501.06250.061.12250.11751.180.17751.240.2351.30.2951.35750.3551.41750.41251.4750.47251.5350.531.5950.591.65250.651.71250.70751.770.76751.830.82751.890.8851.94750.945"^^xsd:string ;
     nidm:Task "bart"^^xsd:string ;
     nfo:filename "/Users/dbkeator/Documents/UCI/ReproNim/example_bids/ds000030_single_subj/sub-10159/func/sub-10159_task-bart_bold.nii.gz"^^xsd:string ;
-    prov:wasGeneratedBy <http://purl.org/nidash/nidm#9038e30c-a225-11e7-b59e-6c4008b8f03e> .
+    prov:wasGeneratedBy <http://purl.org/nidash/nidm#8fc1149e-a24b-11e7-89b7-6c4008b8f03e> .
 
-<http://purl.org/nidash/nidm#90394676-a225-11e7-ac84-6c4008b8f03e> a prov:Activity,
+<http://purl.org/nidash/nidm#8fc17954-a24b-11e7-87b4-6c4008b8f03e> a prov:Activity,
         "http://purl.org/nidash/nidm#AcquisitionActivity"^^xsd:string ;
-    dct:isPartOf <http://purl.org/nidash/nidm#9036411a-a225-11e7-b6ab-6c4008b8f03e> .
+    dct:isPartOf <http://purl.org/nidash/nidm#8fbe1662-a24b-11e7-84da-6c4008b8f03e> .
 
-<http://purl.org/nidash/nidm#903982b4-a225-11e7-9735-6c4008b8f03e> a prov:Entity,
+<http://purl.org/nidash/nidm#8fc1bbd0-a24b-11e7-a532-6c4008b8f03e> a prov:Entity,
         "http://purl.org/nidash/nidm#MRAcquistionEntity"^^xsd:string,
         "http://purl.org/nidash/nidm#MRI_Function"^^xsd:string ;
     dicom:AccelNumReferenceLines "24"^^xsd:int ;
@@ -262,9 +437,9 @@
     nidm:SliceTiming "1.00501.06250.061.12250.11751.180.17751.240.2351.30.2951.35750.3551.41750.41251.4750.47251.5350.53251.5950.591.65250.651.71250.70751.77250.76751.830.82751.890.8851.94750.945"^^xsd:string ;
     nidm:Task "scap"^^xsd:string ;
     nfo:filename "/Users/dbkeator/Documents/UCI/ReproNim/example_bids/ds000030_single_subj/sub-10159/func/sub-10159_task-scap_bold.nii.gz"^^xsd:string ;
-    prov:wasGeneratedBy <http://purl.org/nidash/nidm#90398050-a225-11e7-b346-6c4008b8f03e> .
+    prov:wasGeneratedBy <http://purl.org/nidash/nidm#8fc1b96e-a24b-11e7-9229-6c4008b8f03e> .
 
-<http://purl.org/nidash/nidm#9039d424-a225-11e7-8778-6c4008b8f03e> a prov:Entity,
+<http://purl.org/nidash/nidm#8fc2185a-a24b-11e7-a876-6c4008b8f03e> a prov:Entity,
         "http://purl.org/nidash/nidm#MRAcquistionEntity"^^xsd:string,
         "http://purl.org/nidash/nidm#MRI_Function"^^xsd:string ;
     dicom:AccelNumReferenceLines "24"^^xsd:int ;
@@ -302,9 +477,9 @@
     nidm:SliceTiming "1.002501.06250.05751.120.11751.180.17751.240.2351.29750.2951.35750.35251.41750.41251.4750.47251.5350.531.59250.591.65250.651.71250.70751.770.76751.830.8251.88750.8851.94750.945"^^xsd:string ;
     nidm:Task "stopsignal"^^xsd:string ;
     nfo:filename "/Users/dbkeator/Documents/UCI/ReproNim/example_bids/ds000030_single_subj/sub-10159/func/sub-10159_task-stopsignal_bold.nii.gz"^^xsd:string ;
-    prov:wasGeneratedBy <http://purl.org/nidash/nidm#9039d226-a225-11e7-ab12-6c4008b8f03e> .
+    prov:wasGeneratedBy <http://purl.org/nidash/nidm#8fc21652-a24b-11e7-8173-6c4008b8f03e> .
 
-<http://purl.org/nidash/nidm#903a2f28-a225-11e7-9a83-6c4008b8f03e> a prov:Entity,
+<http://purl.org/nidash/nidm#8fc273de-a24b-11e7-88bf-6c4008b8f03e> a prov:Entity,
         "http://purl.org/nidash/nidm#MRAcquistionEntity"^^xsd:string,
         "http://purl.org/nidash/nidm#MRI_Function"^^xsd:string ;
     dicom:AccelNumReferenceLines "24"^^xsd:int ;
@@ -342,32 +517,50 @@
     nidm:SliceTiming "1.002501.06250.05751.120.11751.180.1751.23750.2351.29750.2951.35750.35251.4150.41251.4750.471.5350.531.59250.591.65250.64751.710.70751.770.76751.830.8251.88750.8851.94750.9425"^^xsd:string ;
     nidm:Task "taskswitch"^^xsd:string ;
     nfo:filename "/Users/dbkeator/Documents/UCI/ReproNim/example_bids/ds000030_single_subj/sub-10159/func/sub-10159_task-taskswitch_bold.nii.gz"^^xsd:string ;
-    prov:wasGeneratedBy <http://purl.org/nidash/nidm#903a2cee-a225-11e7-8196-6c4008b8f03e> .
+    prov:wasGeneratedBy <http://purl.org/nidash/nidm#8fc270c0-a24b-11e7-b365-6c4008b8f03e> .
 
-<http://purl.org/nidash/nidm#90364d86-a225-11e7-a5c0-6c4008b8f03e> a prov:Agent,
+<http://purl.org/nidash/nidm#8fc2e294-a24b-11e7-9f4e-6c4008b8f03e> a prov:Activity,
+        "http://purl.org/nidash/nidm#AcquisitionActivity"^^xsd:string ;
+    dct:isPartOf <http://purl.org/nidash/nidm#8fbe1662-a24b-11e7-84da-6c4008b8f03e> ;
+    prov:wasAssociatedWith <http://purl.org/nidash/nidm#8fc2e848-a24b-11e7-b6b4-6c4008b8f03e> .
+
+<http://purl.org/nidash/nidm#8fc344b4-a24b-11e7-b626-6c4008b8f03e> a prov:Activity,
+        "http://purl.org/nidash/nidm#AcquisitionActivity"^^xsd:string ;
+    dct:isPartOf <http://purl.org/nidash/nidm#8fbe1662-a24b-11e7-84da-6c4008b8f03e> ;
+    prov:wasAssociatedWith <http://purl.org/nidash/nidm#8fc34aa4-a24b-11e7-ba69-6c4008b8f03e> .
+
+<http://purl.org/nidash/nidm#8fbe210a-a24b-11e7-a45a-6c4008b8f03e> a prov:Agent,
         prov:Person ;
     ndar:src_subject_id "sub-10159"^^xsd:string .
 
-<http://purl.org/nidash/nidm#9038e30c-a225-11e7-b59e-6c4008b8f03e> a prov:Activity,
+<http://purl.org/nidash/nidm#8fc1149e-a24b-11e7-89b7-6c4008b8f03e> a prov:Activity,
         "http://purl.org/nidash/nidm#AcquisitionActivity"^^xsd:string ;
-    dct:isPartOf <http://purl.org/nidash/nidm#9036411a-a225-11e7-b6ab-6c4008b8f03e> .
+    dct:isPartOf <http://purl.org/nidash/nidm#8fbe1662-a24b-11e7-84da-6c4008b8f03e> .
 
-<http://purl.org/nidash/nidm#90398050-a225-11e7-b346-6c4008b8f03e> a prov:Activity,
+<http://purl.org/nidash/nidm#8fc1b96e-a24b-11e7-9229-6c4008b8f03e> a prov:Activity,
         "http://purl.org/nidash/nidm#AcquisitionActivity"^^xsd:string ;
-    dct:isPartOf <http://purl.org/nidash/nidm#9036411a-a225-11e7-b6ab-6c4008b8f03e> .
+    dct:isPartOf <http://purl.org/nidash/nidm#8fbe1662-a24b-11e7-84da-6c4008b8f03e> .
 
-<http://purl.org/nidash/nidm#9039d226-a225-11e7-ab12-6c4008b8f03e> a prov:Activity,
+<http://purl.org/nidash/nidm#8fc21652-a24b-11e7-8173-6c4008b8f03e> a prov:Activity,
         "http://purl.org/nidash/nidm#AcquisitionActivity"^^xsd:string ;
-    dct:isPartOf <http://purl.org/nidash/nidm#9036411a-a225-11e7-b6ab-6c4008b8f03e> .
+    dct:isPartOf <http://purl.org/nidash/nidm#8fbe1662-a24b-11e7-84da-6c4008b8f03e> .
 
-<http://purl.org/nidash/nidm#903a2cee-a225-11e7-8196-6c4008b8f03e> a prov:Activity,
+<http://purl.org/nidash/nidm#8fc270c0-a24b-11e7-b365-6c4008b8f03e> a prov:Activity,
         "http://purl.org/nidash/nidm#AcquisitionActivity"^^xsd:string ;
-    dct:isPartOf <http://purl.org/nidash/nidm#9036411a-a225-11e7-b6ab-6c4008b8f03e> .
+    dct:isPartOf <http://purl.org/nidash/nidm#8fbe1662-a24b-11e7-84da-6c4008b8f03e> .
 
-<http://purl.org/nidash/nidm#9038b83e-a225-11e7-8b60-6c4008b8f03e> a prov:Activity,
+<http://purl.org/nidash/nidm#8fc2e848-a24b-11e7-b6b4-6c4008b8f03e> a prov:Agent,
+        prov:Person ;
+    ndar:src_subject_id "sub-10159"^^xsd:string .
+
+<http://purl.org/nidash/nidm#8fc34aa4-a24b-11e7-ba69-6c4008b8f03e> a prov:Agent,
+        prov:Person ;
+    ndar:src_subject_id "sub-10159"^^xsd:string .
+
+<http://purl.org/nidash/nidm#8fc0ba82-a24b-11e7-ad36-6c4008b8f03e> a prov:Activity,
         "http://purl.org/nidash/nidm#AcquisitionActivity"^^xsd:string ;
-    dct:isPartOf <http://purl.org/nidash/nidm#9036411a-a225-11e7-b6ab-6c4008b8f03e> .
+    dct:isPartOf <http://purl.org/nidash/nidm#8fbe1662-a24b-11e7-84da-6c4008b8f03e> .
 
-<http://purl.org/nidash/nidm#9036411a-a225-11e7-b6ab-6c4008b8f03e> a prov:Activity,
+<http://purl.org/nidash/nidm#8fbe1662-a24b-11e7-84da-6c4008b8f03e> a prov:Activity,
         "http://purl.org/nidash/nidm#Session"^^xsd:string .
 
