@@ -8,10 +8,11 @@ import graphviz
 
 #sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from ..core import Constants
-
 import prov.model as pm
 from prov.dot import prov_to_dot
 
+def getUUID ():
+    return str(uuid.uuid1())
 
 class Core(object):
     """Base-class for NIDM-Experimenent
@@ -103,8 +104,7 @@ class Core(object):
         return string.strip().replace(" ","_").replace("-", "_").replace(",", "_").replace("(", "_").replace(")","_")\
             .replace("'","_").replace("/", "_")
 
-    def getUUID (self):
-        return str(uuid.uuid1())
+
 
     def getDataType(self,var):
         if type(var) is int:
@@ -121,10 +121,10 @@ class Core(object):
     def add_person(self,role=None,attributes=None):
 
         #add Person agent
-        person = self.graph.agent(Constants.namespaces["nidm"][self.getUUID()],other_attributes=attributes)
+        person = self.graph.agent(Constants.namespaces["nidm"][getUUID()],other_attributes=attributes)
 
         #create an activity for qualified association with person
-        activity = self.graph.activity(Constants.namespaces["nidm"][self.getUUID()])
+        activity = self.graph.activity(Constants.namespaces["nidm"][getUUID()])
 
         #add minimal attributes to person
         person.add_attributes({pm.PROV_TYPE: pm.PROV['Person']})

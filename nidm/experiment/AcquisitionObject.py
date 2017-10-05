@@ -3,6 +3,7 @@ import os, sys
 import rdflib as rdf
 from ..core import Constants
 from ..experiment import Core
+from ..experiment.Core import getUUID
 import prov.model as pm
 
 class AcquisitionObject(pm.ProvEntity,Core):
@@ -28,7 +29,7 @@ class AcquisitionObject(pm.ProvEntity,Core):
         """
         #execute default parent class constructor
           #execute default parent class constructor
-        super(AcquisitionObject,self).__init__(acquisition.graph, pm.QualifiedName(pm.Namespace("nidm",Constants.NIDM),self.getUUID()),attributes)
+        super(AcquisitionObject,self).__init__(acquisition.graph, pm.QualifiedName(pm.Namespace("nidm",Constants.NIDM),getUUID()),attributes)
         acquisition.graph._add_record(self)
 
         #self.add_attributes({PROV_TYPE: Constants.NIDM_ACQUISITION_ENTITY})

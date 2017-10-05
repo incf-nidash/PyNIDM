@@ -1,4 +1,36 @@
 #!/usr/bin/env python
+#**************************************************************************************
+#**************************************************************************************
+#  BIDSMRI2NIDM.py
+#  License: GPL
+#**************************************************************************************
+#**************************************************************************************
+# Date: 10-2-17                 Coded by: David Keator (dbkeator@gmail.com)
+# Filename: BIDSMRI2NIDM.py
+#
+# Program description:  This program will convert a BIDS MRI dataset to a NIDM-Experiment
+# RDF document.  It will parse phenotype information and simply store variables/values
+# and link to the associated json data dictionary file.
+#
+#**************************************************************************************
+# Development environment: Python - PyCharm IDE
+#
+#**************************************************************************************
+# System requirements:  Python 3.X
+# Libraries: pybids, numpy, matplotlib, pandas, scipy, math, dateutil, datetime,argparse,
+# os,sys,getopt,csv
+#**************************************************************************************
+# Start date: 10-2-17
+# Update history:
+# DATE            MODIFICATION				Who
+#
+#
+#**************************************************************************************
+# Programmer comments:
+#
+#
+#**************************************************************************************
+#**************************************************************************************
 
 import sys, getopt, os
 
@@ -18,7 +50,9 @@ from bids.grabbids import BIDSLayout
 
 
 def main(argv):
-    parser = ArgumentParser()
+    parser = ArgumentParser(description='This program will convert a BIDS MRI dataset to a NIDM-Experiment \
+        RDF document.  It will parse phenotype information and simply store variables/values \
+        and link to the associated json data dictionary file.')
 
     parser.add_argument('-d', dest='directory', required=True, help="Path to BIDS dataset directory")
     parser.add_argument('-o', dest='outputfile', default="nidm.ttl", help="NIDM output turtle file")

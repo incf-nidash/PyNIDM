@@ -5,10 +5,12 @@
 @copyright: University of Warwick 2014
 @author: David Keator <dbkeator@uci.edu>
     Added Python provtoolbox  support
+    10/3/17 Modified Namespace to be QualifiedName for provtoolbox support...left most of the NIDM-Results Namespaces the same
 '''
 
 from rdflib import Namespace, Graph
-from prov.model import ProvDocument
+from prov.model import ProvDocument, QualifiedName
+from prov.model import Namespace as provNamespace
 
 PROV = Namespace('http://www.w3.org/ns/prov#')
 NIDM_URL = 'http://purl.org/nidash/nidm#'
@@ -274,46 +276,46 @@ NIDM_BINARY_MAP = NIDM['NIDM_0000004']
 NIDM_CONTRAST_ESTIMATION = NIDM['NIDM_0000001']
 NIDM_CONTRAST_MAP = NIDM['NIDM_0000002']
 #NIDM-Experiment##############################################################
-NIDM_PROJECT = NIDM["Project"]
-NIDM_PROJECT_TYPE = DCTYPES["Dataset"]
-NIDM_PROJECT_IDENTIFIER = SIO["Identifier"]
-NIDM_PROJECT_NAME = DCT["title"]
-NIDM_PROJECT_DESCRIPTION = DCT["description"]
-NIDM_PROJECT_LICENSE = DCT["license"]
-NIDM_PROJECT_URL = SIO["URL"]
-NIDM_PROJECT_REFERENCES = DCAT["creator"]
-NIDM_SESSION = NIDM["Session"]
-NIDM_ACQUISITION_ACTIVITY = NIDM["AcquisitionActivity"]
-NIDM_ACQUISITION_ENTITY = NIDM["AcquisitionEntity"]
-NIDM_MRACQUISITION_ENTITY = NIDM["MRAcquistionEntity"]
-NIDM_DEMOGRAPHICS_ENTITY = NIDM["DemographicsAcquistionEntity"]
-NIDM_ASSESSMENT_ENTITY = NIDM["AssessmentAcquistionEntity"]
+NIDM_PROJECT = QualifiedName(provNamespace("nidm", NIDM), 'Project')
+NIDM_PROJECT_TYPE = QualifiedName(provNamespace("dctypes", DCTYPES),"Dataset")
+NIDM_PROJECT_IDENTIFIER = QualifiedName(provNamespace("sio", SIO),"Identifier")
+NIDM_PROJECT_NAME = QualifiedName(provNamespace("dctypes", DCTYPES),"title")
+NIDM_PROJECT_DESCRIPTION = QualifiedName(provNamespace("dct", DCT),"description")
+NIDM_PROJECT_LICENSE = QualifiedName(provNamespace("dct", DCT),"license")
+NIDM_PROJECT_URL = QualifiedName(provNamespace("sio", SIO),"URL")
+NIDM_PROJECT_REFERENCES = QualifiedName(provNamespace("dcat", DCAT),"creator")
+NIDM_SESSION = QualifiedName(provNamespace("nidm", NIDM), 'Session')
+NIDM_ACQUISITION_ACTIVITY = QualifiedName(provNamespace("nidm", NIDM), "AcquisitionActivity")
+NIDM_ACQUISITION_ENTITY = QualifiedName(provNamespace("nidm", NIDM), "AcquisitionEntity")
+NIDM_MRACQUISITION_ENTITY = QualifiedName(provNamespace("nidm", NIDM), "MRAcquistionEntity")
+NIDM_DEMOGRAPHICS_ENTITY = QualifiedName(provNamespace("nidm", NIDM), "DemographicsAcquistionEntity")
+NIDM_ASSESSMENT_ENTITY = QualifiedName(provNamespace("nidm", NIDM), "AssessmentAcquistionEntity")
 #files
-NIDM_FILENAME = NFO["filename"]
+NIDM_FILENAME = QualifiedName(provNamespace("nfo", NFO), "filename")
 #Roles
-NIDM_PI = BIRNLEX["birnlex_2152"]
-NIDM_COI = BIRNLEX["birnlex_2199"]
-NIDM_PARTICIPANT = NCIT["Participant"]
+NIDM_PI = QualifiedName(provNamespace("birnlex", BIRNLEX), "birnlex_2152")
+NIDM_COI = QualifiedName(provNamespace("birnlex", BIRNLEX),"birnlex_2199")
+NIDM_PARTICIPANT = QualifiedName(provNamespace("ncit", NCIT),"Participant")
 #Demographics
-NIDM_AGE = NCICB["Age"]
-NIDM_GENDER = NDAR["gender"]
-NIDM_SEX = NCIT["Sex"]
-NIDM_HANDEDNESS = OBO["handedness"]
+NIDM_AGE = QualifiedName(provNamespace("ncidb",NCICB),"Age")
+NIDM_GENDER = QualifiedName(provNamespace("ndar",NDAR),"gender")
+NIDM_SEX = QualifiedName(provNamespace("ncit",NCIT),"Sex")
+NIDM_HANDEDNESS = QualifiedName(provNamespace("obo",OBO),"handedness")
 #NIDM_HANDEDNESS = OBO["PATO_0002201"] is correct term ID for handedness above
-NCICB_ETHNICITY = NCICB["EthnicGroup"]
+NCICB_ETHNICITY = QualifiedName(provNamespace("ncicb",NCICB),"EthnicGroup")
 #NCICB_ETHNICITY = NCICB["C16564"] is correct term ID for ethnic group
-NIDM_DIAGNOSIS = NCIT["Diagnosis"]
-NIDM_FAMILY_NAME = FOAF["familyName"]
-NIDM_GIVEN_NAME = FOAF["givenName"]
-NIDM_SUBJECTID = NDAR["src_subject_id"]
+NIDM_DIAGNOSIS = QualifiedName(provNamespace("ncit",NCIT),"Diagnosis")
+NIDM_FAMILY_NAME = QualifiedName(provNamespace("foaf",FOAF),"familyName")
+NIDM_GIVEN_NAME = QualifiedName(provNamespace("foaf",FOAF),"givenName")
+NIDM_SUBJECTID = QualifiedName(provNamespace("ndar",NDAR),"src_subject_id")
 #MRI scan types
-NIDM_MRI_ANATOMIC_SCAN = NIDM["MRI_Anatomy"]
-NIDM_MRI_FUNCTION_SCAN = NIDM["MRI_Function"]
-NIDM_MRI_DWI_SCAN = NIDM["MRI_DWI"]
-NIDM_MRI_DWI_BVAL = NIDM["MRI_bval"]
-NIDM_MRI_DWI_BVEC = NIDM["MRI_bvec"]
-NIDM_MRI_FUNCTION_TASK = NIDM["Task"]
-NIDM_MRI_BOLD_EVENTS = NIDM["Event"]
+NIDM_MRI_ANATOMIC_SCAN = QualifiedName(provNamespace("nidm", NIDM),"MRI_Anatomy")
+NIDM_MRI_FUNCTION_SCAN = QualifiedName(provNamespace("nidm", NIDM),"MRI_Function")
+NIDM_MRI_DWI_SCAN = QualifiedName(provNamespace("nidm", NIDM),"MRI_DWI")
+NIDM_MRI_DWI_BVAL = QualifiedName(provNamespace("nidm", NIDM),"MRI_bval")
+NIDM_MRI_DWI_BVEC = QualifiedName(provNamespace("nidm", NIDM),"MRI_bvec")
+NIDM_MRI_FUNCTION_TASK = QualifiedName(provNamespace("nidm", NIDM),"Task")
+NIDM_MRI_BOLD_EVENTS = QualifiedName(provNamespace("nidm", NIDM),"Event")
 ##############################################################################
 # OBO constants
 OBO_EXAMPLE = OBO['IAO_0000112']
