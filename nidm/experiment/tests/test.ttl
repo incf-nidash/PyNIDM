@@ -1,4 +1,6 @@
 @prefix afni: <http://purl.org/nidash/afni#> .
+@prefix bids: <http://bids.neuroimaging.io/> .
+@prefix birnlex: <http://bioontology.org/projects/ontologies/birnlex/> .
 @prefix crypto: <http://id.loc.gov/vocabulary/preservation/cryptographicHashFunctions#> .
 @prefix dc: <http://purl.org/dc/elements/1.1/> .
 @prefix dcat: <http://www.w3.org/ns/dcat#> .
@@ -8,7 +10,9 @@
 @prefix foaf: <http://xmlns.com/foaf/0.1/> .
 @prefix fred: <www.fred.org/> .
 @prefix fsl: <http://purl.org/nidash/fsl#> .
+@prefix ncicb: <http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#> .
 @prefix ncit: <http://ncitt.ncit.nih.gov/> .
+@prefix ndar: <https://ndar.nih.gov/api/datadictionary/v2/dataelement/> .
 @prefix nfo: <http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#> .
 @prefix nidm: <http://purl.org/nidash/nidm#> .
 @prefix niiri: <http://iri.nidash.org/> .
@@ -18,51 +22,52 @@
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix scr: <http://scicrunch.org/resolver/> .
+@prefix sio: <http://semanticscience.org/resource/> .
 @prefix spm: <http://purl.org/nidash/spm#> .
 @prefix vc: <http://www.w3.org/2006/vcard/ns#> .
 @prefix xml: <http://www.w3.org/XML/1998/namespace> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-<http://purl.org/nidash/nidm#802c5424-4fc2-11e7-877e-6c4008b8f03e> a prov:Activity ;
+nidm:c55aa8d4-aa22-11e7-9f84-6c4008b8f03e a prov:Activity ;
     prov:qualifiedAssociation [ a prov:Association ;
-            prov:hadRole "http://purl.org/nidash/nidm#PI"^^xsd:string ] ;
-    prov:wasAssociatedWith <http://purl.org/nidash/nidm#802c4f0c-4fc2-11e7-bb05-6c4008b8f03e> .
+            prov:hadRole birnlex:birnlex_2152 ] ;
+    prov:wasAssociatedWith nidm:c55aa250-aa22-11e7-bf61-6c4008b8f03e .
 
-<http://purl.org/nidash/nidm#802c61e2-4fc2-11e7-ad01-6c4008b8f03e> a prov:Entity,
-        "http://purl.org/nidash/nidm#MRAcquistionEntity"^^xsd:string ;
-    prov:wasAttributedTo <http://purl.org/nidash/nidm#802c662e-4fc2-11e7-831e-6c4008b8f03e> ;
-    prov:wasGeneratedBy <http://purl.org/nidash/nidm#802c5eae-4fc2-11e7-b572-6c4008b8f03e> .
+nidm:c55abe18-aa22-11e7-a49f-6c4008b8f03e a nidm:MRAcquistionEntity,
+        prov:Entity ;
+    prov:wasAttributedTo nidm:c55ac37a-aa22-11e7-a7d6-6c4008b8f03e ;
+    prov:wasGeneratedBy nidm:c55aba42-aa22-11e7-855f-6c4008b8f03e .
 
-<http://purl.org/nidash/nidm#802c68e2-4fc2-11e7-bb75-6c4008b8f03e> a prov:Activity ;
+nidm:c55ac618-aa22-11e7-95ce-6c4008b8f03e a prov:Activity ;
     prov:qualifiedAssociation [ a prov:Association ;
-            prov:hadRole "http://purl.org/nidash/nidm#Participant"^^xsd:string ] ;
-    prov:wasAssociatedWith <http://purl.org/nidash/nidm#802c662e-4fc2-11e7-831e-6c4008b8f03e> .
+            prov:hadRole ncit:Participant ] ;
+    prov:wasAssociatedWith nidm:c55ac37a-aa22-11e7-a7d6-6c4008b8f03e .
 
-<http://purl.org/nidash/nidm#802b6800-4fc2-11e7-b23a-6c4008b8f03e> a prov:Activity,
-        "http://purl.org/dc/dcmitype/Dataset"^^xsd:string,
-        "http://purl.org/nidash/nidm#Project"^^xsd:string ;
-    ncit:Identifier "9610"^^xsd:int ;
+nidm:c5596a70-aa22-11e7-90ef-6c4008b8f03e a dctypes:Dataset,
+        nidm:Project,
+        prov:Activity ;
+    dctypes:title "FBIRN_PhaseII"^^xsd:string ;
     dct:description "Test investigation"^^xsd:string ;
-    dct:title "FBIRN_PhaseII"^^xsd:string ;
     nidm:float "2.34"^^xsd:float ;
     nidm:isFun "ForMe"^^xsd:string ;
-    prov:wasAssociatedWith <http://purl.org/nidash/nidm#802c4f0c-4fc2-11e7-bb05-6c4008b8f03e> ;
+    sio:Identifier "9610"^^xsd:int ;
+    prov:wasAssociatedWith nidm:c55aa250-aa22-11e7-bf61-6c4008b8f03e ;
     fred:notFound "in namespaces"^^xsd:string .
 
-<http://purl.org/nidash/nidm#802c5b9a-4fc2-11e7-acf5-6c4008b8f03e> a prov:Activity,
-        "http://purl.org/nidash/nidm#Session"^^xsd:string ;
-    dct:isPartOf <http://purl.org/nidash/nidm#802b6800-4fc2-11e7-b23a-6c4008b8f03e> .
+nidm:c55ab5ec-aa22-11e7-9167-6c4008b8f03e a nidm:Session,
+        prov:Activity ;
+    dct:isPartOf nidm:c5596a70-aa22-11e7-90ef-6c4008b8f03e .
 
-<http://purl.org/nidash/nidm#802c5eae-4fc2-11e7-b572-6c4008b8f03e> a prov:Activity,
-        "http://purl.org/nidash/nidm#AcquisitionActivity"^^xsd:string ;
-    dct:isPartOf <http://purl.org/nidash/nidm#802c5b9a-4fc2-11e7-acf5-6c4008b8f03e> .
+nidm:c55aba42-aa22-11e7-855f-6c4008b8f03e a nidm:AcquisitionActivity,
+        prov:Activity ;
+    dct:isPartOf nidm:c55ab5ec-aa22-11e7-9167-6c4008b8f03e .
 
-<http://purl.org/nidash/nidm#802c4f0c-4fc2-11e7-bb05-6c4008b8f03e> a prov:Agent,
+nidm:c55aa250-aa22-11e7-bf61-6c4008b8f03e a prov:Agent,
         prov:Person ;
     foaf:familyName "Keator"^^xsd:string ;
     foaf:givenName "David"^^xsd:string .
 
-<http://purl.org/nidash/nidm#802c662e-4fc2-11e7-831e-6c4008b8f03e> a prov:Agent,
+nidm:c55ac37a-aa22-11e7-a7d6-6c4008b8f03e a prov:Agent,
         prov:Person ;
     foaf:givenName "George"^^xsd:string .
 

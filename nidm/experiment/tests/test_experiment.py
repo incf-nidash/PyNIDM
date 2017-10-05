@@ -1,14 +1,11 @@
 import os,sys
 
-from ...experiment import Project
-from ...experiment import Session
-from ...experiment import Acquisition
-from ...experiment import AcquisitionObject
-from ...experiment import MRAcquisitionObject
-from ...core import Constants
+from nidm.experiment import Project,Session,Acquisition,AcquisitionObject,MRAcquisitionObject
+from nidm.core import Constants
+
 
 # dj TODO: adding more tests; I only put the Dave's pipeline to a function
-def test_main():
+def main(argv):
     #create new nidm-experiment document with project
     kwargs={Constants.NIDM_PROJECT_NAME:"FBIRN_PhaseII",Constants.NIDM_PROJECT_IDENTIFIER:9610,Constants.NIDM_PROJECT_DESCRIPTION:"Test investigation"}
     project = Project(attributes=kwargs)
@@ -51,5 +48,7 @@ def test_main():
     #save a DOT graph as PDF
     project.save_DotGraph("test.png",format="png")
 
+if __name__ == "__main__":
+   main(sys.argv[1:])
 
 
