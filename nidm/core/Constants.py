@@ -295,7 +295,7 @@ NIDM_FILENAME = QualifiedName(provNamespace("nfo", NFO), "filename")
 #Roles
 NIDM_PI = QualifiedName(provNamespace("birnlex", BIRNLEX), "birnlex_2152")
 NIDM_COI = QualifiedName(provNamespace("birnlex", BIRNLEX),"birnlex_2199")
-NIDM_PARTICIPANT = QualifiedName(provNamespace("ncit", NCIT),"Participant")
+NIDM_PARTICIPANT = QualifiedName(provNamespace("sio", SIO),"Subject")
 #Demographics
 NIDM_AGE = QualifiedName(provNamespace("ncidb",NCICB),"Age")
 NIDM_GENDER = QualifiedName(provNamespace("ndar",NDAR),"gender")

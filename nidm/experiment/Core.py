@@ -1,6 +1,6 @@
 import os,sys
 import uuid
-#import validators
+
 from rdflib import Namespace
 from rdflib.namespace import XSD
 import types 
@@ -12,7 +12,7 @@ import prov.model as pm
 from prov.dot import prov_to_dot
 
 def getUUID ():
-    return str(uuid.uuid1())
+    return "_"+str(uuid.uuid1())
 
 class Core(object):
     """Base-class for NIDM-Experimenent
