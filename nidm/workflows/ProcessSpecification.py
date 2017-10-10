@@ -29,7 +29,9 @@ class ProcessSpecification(pm.ProvEntity, Core):
             self.graph = Constants.p_graph
 
         # A Process Specification is a Prov Plan
-        self._prov_type = pm.PROV_ATTR_PLAN
+# This makes save_DotGraph crash, most likely because Prov:Plan is not part of
+# PROV_REC_CLS in prov/model.py (is not a class)
+#        self._prov_type = pm.PROV_ATTR_PLAN
             
          #execute default parent class constructor
         super(ProcessSpecification,self).__init__(self.graph, pm.QualifiedName(pm.Namespace("prov",Constants.PROV),getUUID()),attributes)
