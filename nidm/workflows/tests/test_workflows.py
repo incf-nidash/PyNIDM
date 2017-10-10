@@ -2,7 +2,6 @@ import sys
 
 import nidm.workflows
 
-# dj TODO: adding more tests; I only put the Dave's pipeline to a function
 def main(argv):
     #create new nidm-experiment document with project
     proc = nidm.workflows.ProcessSpecification()
