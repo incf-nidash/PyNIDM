@@ -14,7 +14,7 @@ A Python library to manipulate the [Neuro Imaging Data Model](http://nidm.nidash
   * `source activate pynidm_py35`
   * `cd PyNIDM`
   * `pip install -e .`
-  #yes it looks like you already have `graphviz`, but OSX complains about `dot`
+  yes it looks like you already have `graphviz`, but OSX complains about `dot`
   * `conda install graphviz`
-  # you can try to run a test
+   you can try to run a test
   * `python nidm/experiment/tests/test_experiment.py`
