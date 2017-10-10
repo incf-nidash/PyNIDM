@@ -55,4 +55,4 @@ MAJOR = _version_major
 MINOR = _version_minor
 MICRO = _version_micro
 VERSION = __version__
-REQUIRES = ["prov", "rdflib", "graphviz", "pydotplus"]
+REQUIRES = ["prov", "rdflib", "graphviz", "pydotplus", "pydot"]
