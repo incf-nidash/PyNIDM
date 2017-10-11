@@ -4,8 +4,12 @@ python:
   - 3.4
   - 3.5
 
+before_install:
+  - sudo apt-get update -q
+  - sudo apt-get install graphviz -y
+
 install:
   - python setup.py install
 
 script:
-  - py.test 
+  - py.test -v
