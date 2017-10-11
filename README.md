@@ -1,5 +1,7 @@
 # PyNIDM
 
+[![Build Status](https://travis-ci.org/incf-nidash/PyNIDM.svg?branch=master)](https://travis-ci.org/incf-nidash/PyNIDM)
+
 A Python library to manipulate the [Neuro Imaging Data Model](http://nidm.nidash.org). 
 
 ## Dependencies
