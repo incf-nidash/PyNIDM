@@ -28,8 +28,10 @@ class ProcessSpecification(pm.ProvEntity, Core):
         else:
             self.graph = Constants.p_graph
 
-        # A Process Specification is a Prov Plan
-        self._prov_type = pm.PROV_ATTR_PLAN
+       # A Process Specification is a Prov Plan
+        if not attributes:
+            attributes = {}
+        attributes.update(**{pm.PROV_TYPE: pm.PROV_ATTR_PLAN})
             
          #execute default parent class constructor
         super(ProcessSpecification,self).__init__(self.graph, pm.QualifiedName(pm.Namespace("prov",Constants.PROV),getUUID()),attributes)
