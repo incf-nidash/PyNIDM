@@ -11,7 +11,7 @@ def main(argv):
         f.write (proc.serializeTurtle())
 
     #save a DOT graph as PDF
-#    proc.save_DotGraph("test.png",format="png")
+    proc.save_DotGraph("test.png",format="png")
 
 if __name__ == "__main__":
    main(sys.argv[1:])
