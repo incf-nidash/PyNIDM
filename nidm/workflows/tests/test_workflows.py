@@ -1,19 +1,29 @@
-import sys
+from .. import ProcessSpecification, ProcessExecution
 
-import nidm.workflows
 
-def main(argv):
+def test_processspec(tmpdir):
     #create new nidm-experiment document with project
-    proc = nidm.workflows.ProcessSpecification()
+    proc = ProcessSpecification()
 
+    tmpdir.chdir()
     #save a turtle file
     with open("test.ttl",'w') as f:
-        f.write (proc.serializeTurtle())
+        f.write(proc.serializeTurtle())
 
     #save a DOT graph as PDF
-    proc.save_DotGraph("test.png",format="png")
+    proc.save_DotGraph("test.png", format="png")
 
-if __name__ == "__main__":
-   main(sys.argv[1:])
+
+def test_processexec(tmpdir):
+    #create new nidm-experiment document with project
+    proc = ProcessExecution()
+
+    tmpdir.chdir()
+    #save a turtle file
+    with open("test.ttl", 'w') as f:
+        f.write(proc.serializeTurtle())
+
+    #save a DOT graph as PDF
+    proc.save_DotGraph("test.png", format="png")
 
 
