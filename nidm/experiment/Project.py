@@ -48,7 +48,7 @@ class Project(pm.ProvActivity,Core):
 
             #prov toolbox doesn't like 2 attributes with PROV_TYPE in 1 add_attributes call so split them...
             self.add_attributes({pm.PROV_TYPE: Constants.NIDM_PROJECT})
-            self.add_attributes({pm.PROV_TYPE: Constants.NIDM_PROJECT_TYPE})
+            #self.add_attributes({pm.PROV_TYPE: Constants.NIDM_PROJECT_TYPE})
 
 
 
@@ -121,7 +121,9 @@ class Project(pm.ProvActivity,Core):
 
         #create empty sessions list
         self._sessions=[]
-        #Query graph for acquisition objects store
+        #Query graph for sessions, instantiate session objects, and add to project._session list
+
+        #Query graph for acquisition objects, instantiate acquisition objects, and add to session _acquisitions
 
 
     def __str__(self):

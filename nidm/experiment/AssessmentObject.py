@@ -5,7 +5,7 @@ from ..core import Constants
 from ..experiment import AcquisitionObject
 import prov.model as pm
 
-class AssessmentAcquisitionObject(AcquisitionObject):
+class AssessmentObject(AcquisitionObject):
     """Class for NIDM-Experimenent generic AssessmentAcquisitionObject-Level Objects.
 
     Default constructor uses empty graph with namespaces added from NIDM/Scripts/Constants.py.
@@ -28,7 +28,7 @@ class AssessmentAcquisitionObject(AcquisitionObject):
         """
         #execute default parent class constructor
           #execute default parent class constructor
-        super(AssessmentAcquisitionObject,self).__init__(acquisition,attributes)
+        super(AssessmentObject,self).__init__(acquisition,attributes)
 
         self.add_attributes({pm.PROV_TYPE: Constants.NIDM_ASSESSMENT_ENTITY})
         #carry graph object around
@@ -36,4 +36,4 @@ class AssessmentAcquisitionObject(AcquisitionObject):
 
 
     def __str__(self):
-        return "NIDM-Experiment Generic Assessment AcquisitionObject Class"
+        return "NIDM-Experiment Generic Assessment Object Class"

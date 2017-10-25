@@ -30,7 +30,7 @@ class Acquisition(pm.ProvActivity,Core):
         super(Acquisition,self).__init__(session.graph, pm.QualifiedName(pm.Namespace("nidm",Constants.NIDM),getUUID()),attributes)
         session.graph._add_record(self)
 
-        self.add_attributes({pm.PROV_TYPE: Constants.NIDM_ACQUISITION_ACTIVITY})
+        #self.add_attributes({pm.PROV_TYPE: Constants.NIDM_IMAGE_ACQUISITION_ACTIVITY})
         self.add_attributes({str("dct:isPartOf"):session})
 
         #list to store acquisition objects associated with this activity
