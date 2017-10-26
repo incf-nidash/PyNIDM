@@ -20,7 +20,7 @@ class Session(pm.ProvActivity,Core):
 
     """
     #constructor
-    def __init__(self, project,attributes=None):
+    def __init__(self, project,uuid=None,attributes=None):
         """
         Default contructor, creates a session activity and links to project object
 
@@ -28,8 +28,13 @@ class Session(pm.ProvActivity,Core):
         :return: none
 
         """
-        #execute default parent class constructor
-        super(Session,self).__init__(project.graph, pm.QualifiedName(pm.Namespace("nidm",Constants.NIDM),getUUID()),attributes)
+        if uuid is None:
+            #execute default parent class constructor
+            super(Session,self).__init__(project.graph, pm.QualifiedName(pm.Namespace("nidm",Constants.NIDM),getUUID()),attributes)
+        else:
+            #execute default parent class constructor
+            super(Session,self).__init__(project.graph, pm.QualifiedName(pm.Namespace("nidm",Constants.NIDM),uuid),attributes)
+
         project.graph._add_record(self)
 
         self.add_attributes({pm.PROV_TYPE: Constants.NIDM_SESSION})
@@ -41,6 +46,8 @@ class Session(pm.ProvActivity,Core):
         self._acquisitions.extend([acquisition])
         #create links in graph
         acquisition.add_attributes({str("dct:isPartOf"):self})
+    def get_acquisitions(self):
+        return self._acquisitions
     def __str__(self):
         return "NIDM-Experiment Session Class"
 

@@ -28,86 +28,87 @@
 @prefix xml: <http://www.w3.org/XML/1998/namespace> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-nidm:_51d7d708-b9ae-11e7-9c5c-6c4008b8f03e a prov:Activity ;
+nidm:_0869876e-b9df-11e7-b7e1-6c4008b8f03e a prov:Activity ;
     prov:qualifiedAssociation [ a prov:Association ;
             prov:hadRole birnlex:birnlex_2152 ] ;
-    prov:wasAssociatedWith nidm:_51d7d0dc-b9ae-11e7-9985-6c4008b8f03e .
+    prov:wasAssociatedWith nidm:_086983ba-b9df-11e7-a619-6c4008b8f03e .
 
-nidm:_51d7e5e2-b9ae-11e7-86b7-6c4008b8f03e a nidm:MRI_dataset,
+nidm:_0869949a-b9df-11e7-a170-6c4008b8f03e a nidm:MRI_dataset,
         prov:Entity ;
-    prov:wasAttributedTo nidm:_51d7e9d2-b9ae-11e7-bdb5-6c4008b8f03e ;
-    prov:wasGeneratedBy nidm:_51d7e2f0-b9ae-11e7-a89e-6c4008b8f03e .
+    prov:wasAttributedTo nidm:_08699846-b9df-11e7-82d8-6c4008b8f03e ;
+    prov:wasGeneratedBy nidm:_086991c0-b9df-11e7-9c8f-6c4008b8f03e .
 
-nidm:_51d7ebbe-b9ae-11e7-bc2e-6c4008b8f03e a prov:Activity ;
+nidm:_086999fe-b9df-11e7-be99-6c4008b8f03e a prov:Activity ;
     prov:qualifiedAssociation [ a prov:Association ;
             prov:hadRole sio:Subject ] ;
-    prov:wasAssociatedWith nidm:_51d7e9d2-b9ae-11e7-bdb5-6c4008b8f03e .
+    prov:wasAssociatedWith nidm:_08699846-b9df-11e7-82d8-6c4008b8f03e .
 
-nidm:_51d7f454-b9ae-11e7-9c39-6c4008b8f03e a nidm:Assessment,
+nidm:_0869a234-b9df-11e7-b585-6c4008b8f03e a nidm:Assessment,
         prov:Entity ;
     nidm:Q1 "Q1 Answer"^^xsd:string ;
     nidm:Q2 "Q2 Answer"^^xsd:string ;
-    prov:wasAttributedTo nidm:_51d7f88a-b9ae-11e7-ae64-6c4008b8f03e ;
-    prov:wasGeneratedBy nidm:_51d7f1b6-b9ae-11e7-a7c7-6c4008b8f03e .
+    prov:wasAttributedTo nidm:_0869a570-b9df-11e7-a950-6c4008b8f03e ;
+    prov:wasGeneratedBy nidm:_08699fb0-b9df-11e7-8ff8-6c4008b8f03e .
 
-nidm:_51d7fa6c-b9ae-11e7-ac72-6c4008b8f03e a prov:Activity ;
+nidm:_0869a726-b9df-11e7-b7de-6c4008b8f03e a prov:Activity ;
     prov:qualifiedAssociation [ a prov:Association ;
             prov:hadRole sio:Subject ] ;
-    prov:wasAssociatedWith nidm:_51d7f88a-b9ae-11e7-ae64-6c4008b8f03e .
+    prov:wasAssociatedWith nidm:_0869a570-b9df-11e7-a950-6c4008b8f03e .
 
-nidm:_51d8037e-b9ae-11e7-845f-6c4008b8f03e a nidm:DemographicsAssessment,
+nidm:_0869afca-b9df-11e7-853b-6c4008b8f03e a nidm:DemographicsAssessment,
         prov:Entity ;
     ncicb:Age "60"^^xsd:int ;
-    prov:wasAttributedTo nidm:_51d80a5c-b9ae-11e7-b134-6c4008b8f03e ;
-    prov:wasGeneratedBy nidm:_51d80138-b9ae-11e7-bf75-6c4008b8f03e ;
+    prov:wasAttributedTo nidm:_0869b2e2-b9df-11e7-9ed5-6c4008b8f03e ;
+    prov:wasGeneratedBy nidm:_0869adb8-b9df-11e7-a297-6c4008b8f03e ;
     ndar:gender "Male"^^xsd:string .
 
-nidm:_51d80ea6-b9ae-11e7-9394-6c4008b8f03e a prov:Activity ;
+nidm:_0869b4c0-b9df-11e7-9a91-6c4008b8f03e a prov:Activity ;
     prov:qualifiedAssociation [ a prov:Association ;
             prov:hadRole sio:Subject ] ;
-    prov:wasAssociatedWith nidm:_51d80a5c-b9ae-11e7-b134-6c4008b8f03e .
+    prov:wasAssociatedWith nidm:_0869b2e2-b9df-11e7-9ed5-6c4008b8f03e .
 
-nidm:_51d6c052-b9ae-11e7-bea6-6c4008b8f03e a nidm:Project,
+nidm:_08685b34-b9df-11e7-9319-6c4008b8f03e a nidm:Project,
         prov:Activity ;
     dctypes:title "FBIRN_PhaseII"^^xsd:string ;
     dct:description "Test investigation"^^xsd:string ;
     nidm:float "2.34"^^xsd:float ;
     nidm:isFun "ForMe"^^xsd:string ;
     sio:Identifier "9610"^^xsd:int ;
-    prov:wasAssociatedWith nidm:_51d7d0dc-b9ae-11e7-9985-6c4008b8f03e ;
+    prov:wasAssociatedWith nidm:_086983ba-b9df-11e7-a619-6c4008b8f03e ;
     fred:notFound "in namespaces"^^xsd:string .
 
-nidm:_51d7e2f0-b9ae-11e7-a89e-6c4008b8f03e a nidm:ImageAcquisition,
+nidm:_086991c0-b9df-11e7-9c8f-6c4008b8f03e a nidm:ImageAcquisition,
         prov:Activity ;
-    dct:isPartOf nidm:_51d7dfac-b9ae-11e7-9fc0-6c4008b8f03e .
+    dct:isPartOf nidm:_08698e30-b9df-11e7-93d0-6c4008b8f03e .
 
-nidm:_51d7f1b6-b9ae-11e7-a7c7-6c4008b8f03e a nidm:AssessmentAcquisition,
+nidm:_08699fb0-b9df-11e7-8ff8-6c4008b8f03e a nidm:AssessmentAcquisition,
         prov:Activity ;
-    dct:isPartOf nidm:_51d7dfac-b9ae-11e7-9fc0-6c4008b8f03e .
+    dct:isPartOf nidm:_08698e30-b9df-11e7-93d0-6c4008b8f03e .
 
-nidm:_51d80138-b9ae-11e7-bf75-6c4008b8f03e a nidm:AssessmentAcquisition,
+nidm:_0869adb8-b9df-11e7-a297-6c4008b8f03e a nidm:AssessmentAcquisition,
         prov:Activity ;
-    dct:isPartOf nidm:_51d7dfac-b9ae-11e7-9fc0-6c4008b8f03e .
+    dct:isPartOf nidm:_08698e30-b9df-11e7-93d0-6c4008b8f03e .
 
-nidm:_51d7d0dc-b9ae-11e7-9985-6c4008b8f03e a prov:Agent,
+nidm:_086983ba-b9df-11e7-a619-6c4008b8f03e a prov:Agent,
         prov:Person ;
     foaf:familyName "Keator"^^xsd:string ;
     foaf:givenName "David"^^xsd:string .
 
-nidm:_51d7e9d2-b9ae-11e7-bdb5-6c4008b8f03e a prov:Agent,
+nidm:_08699846-b9df-11e7-82d8-6c4008b8f03e a prov:Agent,
         prov:Person ;
     foaf:givenName "George"^^xsd:string .
 
-nidm:_51d7f88a-b9ae-11e7-ae64-6c4008b8f03e a prov:Agent,
+nidm:_0869a570-b9df-11e7-a950-6c4008b8f03e a prov:Agent,
         prov:Person ;
     foaf:givenName "George"^^xsd:string .
 
-nidm:_51d80a5c-b9ae-11e7-b134-6c4008b8f03e a prov:Agent,
+nidm:_0869b2e2-b9df-11e7-9ed5-6c4008b8f03e a prov:Agent,
         prov:Person ;
     foaf:familyName "Doe"^^xsd:string ;
     foaf:givenName "John"^^xsd:string .
 
-nidm:_51d7dfac-b9ae-11e7-9fc0-6c4008b8f03e a nidm:Session,
+nidm:_08698e30-b9df-11e7-93d0-6c4008b8f03e a nidm:Session,
         prov:Activity ;
-    dct:isPartOf nidm:_51d6c052-b9ae-11e7-bea6-6c4008b8f03e .
+    dct:isPartOf nidm:_08685b34-b9df-11e7-9319-6c4008b8f03e ;
+    nidm: "test"^^xsd:string .
 

@@ -17,19 +17,18 @@ class MRObject(AcquisitionObject):
 
     """
     #constructor
-    def __init__(self, acquisition,attributes=None):
+    def __init__(self, acquisition,attributes=None,uuid=None):
         """
         Default contructor, creates an acquisition object and links to acquisition activity object
 
         :param acquisition: a Aquisition activity object
         :param attributes: optional attributes to add to entity
+        :param uuid: optional uuid...used mostly for reading in existing NIDM document
         :return: none
 
         """
         #execute default parent class constructor
-          #execute default parent class constructor
-        super(MRObject,self).__init__(acquisition,attributes)
-        #acquisition.graph._add_record(self)
+        super(MRObject,self).__init__(acquisition,attributes,uuid)
 
 
         self.add_attributes({pm.PROV_TYPE: Constants.NIDM_MRACQUISITION_DATASET})

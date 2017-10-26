@@ -15,18 +15,19 @@ class AssessmentAcquisition(Acquisition):
     """
 
     #constructor
-    def __init__(self, session,attributes=None):
+    def __init__(self, session,attributes=None, uuid=None):
         """
         Default contructor, creates an acquisition object and links to acquisition activity object
 
         :param session: a session object
         :param attributes: optional attributes to add to entity
+        :param uuid: optional uuid...used mostly for reading in existing NIDM document
         :return: none
 
         """
         #execute default parent class constructor
           #execute default parent class constructor
-        super(AssessmentAcquisition,self).__init__(session,attributes)
+        super(AssessmentAcquisition,self).__init__(session,attributes,uuid)
         #acquisition.graph._add_record(self)
 
         self.add_attributes({pm.PROV_TYPE: Constants.NIDM_ASSESSMENT_ACQUISITION})

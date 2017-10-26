@@ -19,15 +19,21 @@ class Acquisition(pm.ProvActivity,Core):
 
     """
     #constructor
-    def __init__(self, session, attributes=None):
+    def __init__(self, session, attributes=None, uuid=None):
         """
         Default contructor, creates a session activity and links to project object
 
         :param session: a session object
+        :param uuid: optional uuid...used mostly for reading in existing NIDM document
+        :param attributes: optional dictionary of attributes to add qname:value
 
         """
-        #execute default parent class constructor
-        super(Acquisition,self).__init__(session.graph, pm.QualifiedName(pm.Namespace("nidm",Constants.NIDM),getUUID()),attributes)
+        if uuid is None:
+            #execute default parent class constructor
+            super(Acquisition,self).__init__(session.graph, pm.QualifiedName(pm.Namespace("nidm",Constants.NIDM),getUUID()),attributes)
+        else:
+            super(Acquisition,self).__init__(session.graph, pm.QualifiedName(pm.Namespace("nidm",Constants.NIDM),uuid),attributes)
+
         session.graph._add_record(self)
 
         #self.add_attributes({pm.PROV_TYPE: Constants.NIDM_IMAGE_ACQUISITION_ACTIVITY})

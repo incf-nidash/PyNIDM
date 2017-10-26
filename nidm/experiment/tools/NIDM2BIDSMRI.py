@@ -77,7 +77,7 @@ def main(argv):
     for format in 'turtle','xml','n3','trix','rdfa':
         try:
             print("reading RDF file...")
-            rdf_graph = parse(rdf_file, format=format)
+            rdf_graph = rdf_file.parse(rdf_file, format=format)
             print("RDF file sucessfully read")
             break
         except Exception:
