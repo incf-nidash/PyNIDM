@@ -277,7 +277,7 @@ NIDM_CONTRAST_ESTIMATION = NIDM['NIDM_0000001']
 NIDM_CONTRAST_MAP = NIDM['NIDM_0000002']
 #NIDM-Experiment##############################################################
 NIDM_PROJECT = QualifiedName(provNamespace("nidm", NIDM), 'Project')
-NIDM_PROJECT_TYPE = QualifiedName(provNamespace("dctypes", DCTYPES),"Dataset")
+#NIDM_PROJECT_TYPE = QualifiedName(provNamespace("dctypes", DCTYPES),"Dataset")
 NIDM_PROJECT_IDENTIFIER = QualifiedName(provNamespace("sio", SIO),"Identifier")
 NIDM_PROJECT_NAME = QualifiedName(provNamespace("dctypes", DCTYPES),"title")
 NIDM_PROJECT_DESCRIPTION = QualifiedName(provNamespace("dct", DCT),"description")
@@ -285,17 +285,18 @@ NIDM_PROJECT_LICENSE = QualifiedName(provNamespace("dct", DCT),"license")
 NIDM_PROJECT_URL = QualifiedName(provNamespace("sio", SIO),"URL")
 NIDM_PROJECT_REFERENCES = QualifiedName(provNamespace("dcat", DCAT),"creator")
 NIDM_SESSION = QualifiedName(provNamespace("nidm", NIDM), 'Session')
-NIDM_ACQUISITION_ACTIVITY = QualifiedName(provNamespace("nidm", NIDM), "AcquisitionActivity")
+NIDM_IMAGE_ACQUISITION_ACTIVITY = QualifiedName(provNamespace("nidm", NIDM), "ImageAcquisition")
+NIDM_ASSESSMENT_ACQUISITION = QualifiedName(provNamespace("nidm", NIDM), "AssessmentAcquisition")
 NIDM_ACQUISITION_ENTITY = QualifiedName(provNamespace("nidm", NIDM), "AcquisitionEntity")
-NIDM_MRACQUISITION_ENTITY = QualifiedName(provNamespace("nidm", NIDM), "MRAcquistionEntity")
-NIDM_DEMOGRAPHICS_ENTITY = QualifiedName(provNamespace("nidm", NIDM), "DemographicsAcquistionEntity")
-NIDM_ASSESSMENT_ENTITY = QualifiedName(provNamespace("nidm", NIDM), "AssessmentAcquistionEntity")
+NIDM_MRACQUISITION_DATASET = QualifiedName(provNamespace("nidm", NIDM), "MRI_dataset")
+NIDM_DEMOGRAPHICS_ENTITY = QualifiedName(provNamespace("nidm", NIDM), "DemographicsAssessment")
+NIDM_ASSESSMENT_ENTITY = QualifiedName(provNamespace("nidm", NIDM), "Assessment")
 #files
 NIDM_FILENAME = QualifiedName(provNamespace("nfo", NFO), "filename")
 #Roles
 NIDM_PI = QualifiedName(provNamespace("birnlex", BIRNLEX), "birnlex_2152")
 NIDM_COI = QualifiedName(provNamespace("birnlex", BIRNLEX),"birnlex_2199")
-NIDM_PARTICIPANT = QualifiedName(provNamespace("ncit", NCIT),"Participant")
+NIDM_PARTICIPANT = QualifiedName(provNamespace("sio", SIO),"Subject")
 #Demographics
 NIDM_AGE = QualifiedName(provNamespace("ncidb",NCICB),"Age")
 NIDM_GENDER = QualifiedName(provNamespace("ndar",NDAR),"gender")

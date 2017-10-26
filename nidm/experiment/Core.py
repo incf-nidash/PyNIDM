@@ -1,24 +1,29 @@
 import os,sys
 import uuid
-#import validators
+
 from rdflib import Namespace
 from rdflib.namespace import XSD
 import types 
 import graphviz
+from rdflib import Graph, RDF, URIRef, util
+from rdflib.namespace import split_uri
+import validators
 
 #sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from ..core import Constants
 import prov.model as pm
 from prov.dot import prov_to_dot
 
-def getUUID ():
-    return str(uuid.uuid1())
+
+
+def getUUID():
+    return "_"+str(uuid.uuid1())
 
 class Core(object):
     """Base-class for NIDM-Experimenent
 
     Typically this class is not instantiated directly.  Instantiate one of the child classes such as
-    NIDMExperimentInvestigation, NIDMExperimentImaging, NIDMExperimentAssessments, etec.
+    Project, Session, Acquisition, etec.
 
     @author: David Keator <dbkeator@uci.edu>
     @copyright: University of California, Irvine 2017

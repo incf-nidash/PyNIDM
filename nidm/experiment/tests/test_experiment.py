@@ -1,6 +1,7 @@
 import os,sys
 
-from nidm.experiment import Project,Session,Acquisition,AcquisitionObject,MRAcquisitionObject
+from nidm.experiment import Project,Session,MRAcquisition,MRObject, \
+    AssessmentAcquisition, AssessmentObject, DemographicsObject
 from nidm.core import Constants
 
 
@@ -33,13 +34,31 @@ def main(argv):
     
     #test add session to graph and associate with project
     session = Session(project)
+    session.add_attributes({Constants.NIDM:"test"})
     project.add_sessions(session)
 
-    #test add acquisition activity to graph and associate with session
-    acq_act = Acquisition(session=session)
+    #test add MR acquisition activity / entity to graph and associate with session
+    acq_act = MRAcquisition(session=session)
     #test add acquisition object entity to graph associated with participant role NIDM_PARTICIPANT
-    acq_entity = MRAcquisitionObject(acquisition=acq_act)
+    acq_entity = MRObject(acquisition=acq_act)
     acq_entity.add_person(role=Constants.NIDM_PARTICIPANT,attributes={Constants.NIDM_GIVEN_NAME:"George"})
+
+
+    #test add Assessment acquisition activity / entity to graph and associate with session
+    acq_act = AssessmentAcquisition(session=session)
+    #test add acquisition object entity to graph associated with participant role NIDM_PARTICIPANT
+    acq_entity = AssessmentObject(acquisition=acq_act)
+    acq_entity.add_person(role=Constants.NIDM_PARTICIPANT,attributes={Constants.NIDM_GIVEN_NAME:"George"})
+    acq_entity.add_attributes({Constants.NIDM["Q1"]:"Q1 Answer",Constants.NIDM["Q2"]:"Q2 Answer" })
+
+    #test add DemographicsAssessment acquisition activity / entity to graph and associate with session
+    acq_act = AssessmentAcquisition(session=session)
+    #test add acquisition object entity to graph associated with participant role NIDM_PARTICIPANT
+    acq_entity = DemographicsObject(acquisition=acq_act)
+    acq_entity.add_person(role=Constants.NIDM_PARTICIPANT,attributes={Constants.NIDM_FAMILY_NAME:"Doe", \
+            Constants.NIDM_GIVEN_NAME:"John"})
+    acq_entity.add_attributes({Constants.NIDM_AGE:60,Constants.NIDM_GENDER:"Male" })
+
 
     #save a turtle file
     with open("test.ttl",'w') as f:

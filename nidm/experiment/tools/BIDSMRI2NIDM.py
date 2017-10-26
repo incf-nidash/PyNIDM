@@ -34,7 +34,8 @@
 
 import sys, getopt, os
 
-from nidm.experiment import Project,Session,Acquisition,AcquisitionObject,DemographicsAcquisitionObject,AssessmentAcquisitionObject, MRAcquisitionObject
+from nidm.experiment import Project,Session,MRAcquisition,AcquisitionObject,DemographicsObject, AssessmentAcquisition, \
+    AssessmentObject,MRObject
 from nidm.core import BIDS_Constants,Constants
 from prov.model import PROV_LABEL,PROV_TYPE
 
@@ -95,8 +96,8 @@ def main(argv):
             session[subjid[1]] = Session(project)
 
             #add acquisition object
-            acq = Acquisition(session=session[subjid[1]])
-            acq_entity = DemographicsAcquisitionObject(acquisition=acq)
+            acq = MRAcquisition(session=session[subjid[1]])
+            acq_entity = DemographicsObject(acquisition=acq)
             participant = acq.add_person(role=Constants.NIDM_PARTICIPANT,attributes=({Constants.NIDM_SUBJECTID:row['participant_id']}))
 
             for key,value in row.items():
@@ -116,12 +117,12 @@ def main(argv):
             continue
         for file_tpl in bids_layout.get(subject=subject_id, extensions=['.nii', '.nii.gz']):
             #create an acquisition activity
-            acq=Acquisition(session[subject_id])
+            acq=MRAcquisition(session[subject_id])
 
             #print(file_tpl.type)
             if file_tpl.modality == 'anat':
                 #do something with anatomicals
-                acq_obj = MRAcquisitionObject(acq)
+                acq_obj = MRObject(acq)
                 acq_obj.add_attributes({PROV_TYPE:BIDS_Constants.scans[file_tpl.modality]})
                 #add file link
                 #make relative link to
@@ -137,7 +138,7 @@ def main(argv):
                                 acq_obj.add_attributes({BIDS_Constants.json_keys[key]:json_data[key]})
             elif file_tpl.modality == 'func':
                 #do something with functionals
-                acq_obj = MRAcquisitionObject(acq)
+                acq_obj = MRObject(acq)
                 acq_obj.add_attributes({PROV_TYPE:BIDS_Constants.scans[file_tpl.modality]})
                 #add file link
                 acq_obj.add_attributes({Constants.NIDM_FILENAME:file_tpl.filename})
@@ -171,7 +172,7 @@ def main(argv):
 
             elif file_tpl.modality == 'dwi':
                 #do stuff with with dwi scans...
-                acq_obj = MRAcquisitionObject(acq)
+                acq_obj = MRObject(acq)
                 acq_obj.add_attributes({PROV_TYPE:BIDS_Constants.scans[file_tpl.modality]})
                 #add file link
                 acq_obj.add_attributes({Constants.NIDM_FILENAME:file_tpl.filename})
@@ -189,6 +190,7 @@ def main(argv):
                                 acq_obj.add_attributes({BIDS_Constants.json_keys[key]:json_data[key]})
 
                 #for bval and bvec files, what to do with those?
+
                 #for now, create new generic acquisition objects, link the files, and associate with the one for the DWI scan?
                 acq_obj_bval = AcquisitionObject(acq)
                 acq_obj_bval.add_attributes({PROV_TYPE:BIDS_Constants.scans["bval"]})
@@ -198,7 +200,8 @@ def main(argv):
                 acq_obj_bvec.add_attributes({PROV_TYPE:BIDS_Constants.scans["bvec"]})
                 #add file link to bvec files
                 acq_obj_bvec.add_attributes({Constants.NIDM_FILENAME:bids_layout.get_bvec(file_tpl.filename)})
-                #link bval and bvec acquisition object entities together or is their association with enclosing activity enough?
+
+                #link bval and bvec acquisition object entities together or is their association with DWI scan...
 
         #Added temporarily to support phenotype files
         #for each *.tsv / *.json file pair in the phenotypes directory
@@ -213,8 +216,8 @@ def main(argv):
                         continue
                     else:
                         #add acquisition object
-                        acq = Acquisition(session=session[subjid[1]])
-                        acq_entity = AssessmentAcquisitionObject(acquisition=acq)
+                        acq = AssessmentAcquisition(session=session[subjid[1]])
+                        acq_entity = AssessmentObject(acquisition=acq)
                         participant = acq.add_person(role=Constants.NIDM_PARTICIPANT,attributes=({Constants.NIDM_SUBJECTID:row['participant_id']}))
 
                         for key,value in row.items():

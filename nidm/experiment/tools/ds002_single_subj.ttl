@@ -27,8 +27,7 @@
 @prefix xml: <http://www.w3.org/XML/1998/namespace> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-<http://purl.org/nidash/nidm#04818cb0-aa22-11e7-b93e-6c4008b8f03e> a dctypes:Dataset,
-        nidm:Project,
+nidm:_70593cfe-b9ad-11e7-b159-6c4008b8f03e a nidm:Project,
         prov:Activity ;
     dctypes:title "Classification learning"^^xsd:string ;
     dct:license """This dataset is made available under the Public Domain Dedication and License 
@@ -42,167 +41,167 @@ OCI-1131441 (R. Poldrack, PI) in any publications."""^^xsd:string ;
     sio:Identifier "1.0.0"^^xsd:string ;
     dcat:creator "Aron, A.R., Gluck, M.A., Poldrack, R.A. (2006). Long-term test-retest reliability of functional MRI in a classification learning task. Neuroimage, 29(3):1000-6"^^xsd:string .
 
-<http://purl.org/nidash/nidm#0482cb98-aa22-11e7-a302-6c4008b8f03e> a nidm:DemographicsAcquistionEntity,
+nidm:_705a5cf6-b9ad-11e7-9679-6c4008b8f03e a nidm:DemographicsAssessment,
         prov:Entity ;
     ncicb:Age "22"^^xsd:string ;
-    prov:wasGeneratedBy <http://purl.org/nidash/nidm#0482c850-aa22-11e7-b078-6c4008b8f03e> ;
+    prov:wasGeneratedBy nidm:_705a5968-b9ad-11e7-9cb3-6c4008b8f03e ;
     ndar:gender "M"^^xsd:string ;
     ndar:src_subject_id "sub-01"^^xsd:string .
 
-<http://purl.org/nidash/nidm#0482d4c6-aa22-11e7-9d58-6c4008b8f03e> a prov:Activity ;
+nidm:_705a66d8-b9ad-11e7-b671-6c4008b8f03e a prov:Activity ;
     prov:qualifiedAssociation [ a prov:Association ;
-            prov:hadRole ncit:Participant ] ;
-    prov:wasAssociatedWith <http://purl.org/nidash/nidm#0482d098-aa22-11e7-93e0-6c4008b8f03e> .
+            prov:hadRole sio:Subject ] ;
+    prov:wasAssociatedWith nidm:_705a62d2-b9ad-11e7-9cd0-6c4008b8f03e .
 
-<http://purl.org/nidash/nidm#0485771c-aa22-11e7-b6a6-6c4008b8f03e> a nidm:MRAcquistionEntity,
-        nidm:MRI_Anatomy,
+nidm:_705d1108-b9ad-11e7-894f-6c4008b8f03e a nidm:MRI_Anatomy,
+        nidm:MRI_dataset,
         prov:Entity ;
     nfo:filename "/Users/dbkeator/Documents/UCI/ReproNim/example_bids/ds002_single_subj/sub-01/anat/sub-01_inplaneT2.nii.gz"^^xsd:string ;
-    prov:wasGeneratedBy <http://purl.org/nidash/nidm#04857230-aa22-11e7-90d0-6c4008b8f03e> .
+    prov:wasGeneratedBy nidm:_705d0c80-b9ad-11e7-8d38-6c4008b8f03e .
 
-<http://purl.org/nidash/nidm#04859134-aa22-11e7-8a6e-6c4008b8f03e> a nidm:MRAcquistionEntity,
-        nidm:MRI_Anatomy,
+nidm:_705d2742-b9ad-11e7-835e-6c4008b8f03e a nidm:MRI_Anatomy,
+        nidm:MRI_dataset,
         prov:Entity ;
     nfo:filename "/Users/dbkeator/Documents/UCI/ReproNim/example_bids/ds002_single_subj/sub-01/anat/sub-01_T1w.nii.gz"^^xsd:string ;
-    prov:wasGeneratedBy <http://purl.org/nidash/nidm#04858e5a-aa22-11e7-ac6e-6c4008b8f03e> .
+    prov:wasGeneratedBy nidm:_705d24b8-b9ad-11e7-aabb-6c4008b8f03e .
 
-<http://purl.org/nidash/nidm#0485f2ee-aa22-11e7-8072-6c4008b8f03e> a nidm:Event,
+nidm:_705d8d18-b9ad-11e7-a677-6c4008b8f03e a nidm:Event,
         prov:Entity ;
     nidm:Task "deterministic classification"^^xsd:string ;
     nfo:filename "/Users/dbkeator/Documents/UCI/ReproNim/example_bids/ds002_single_subj/sub-01/func/sub-01_task-deterministicclassification_run-01_events.tsv"^^xsd:string ;
-    prov:wasAttributedTo <http://purl.org/nidash/nidm#0485a306-aa22-11e7-8e01-6c4008b8f03e> ;
-    prov:wasGeneratedBy <http://purl.org/nidash/nidm#0485a048-aa22-11e7-b1b3-6c4008b8f03e> .
+    prov:wasAttributedTo nidm:_705d3688-b9ad-11e7-86f6-6c4008b8f03e ;
+    prov:wasGeneratedBy nidm:_705d3438-b9ad-11e7-b2a8-6c4008b8f03e .
 
-<http://purl.org/nidash/nidm#04862fae-aa22-11e7-91d4-6c4008b8f03e> a nidm:Event,
+nidm:_705dc83e-b9ad-11e7-9a6b-6c4008b8f03e a nidm:Event,
         prov:Entity ;
     nidm:Task "deterministic classification"^^xsd:string ;
     nfo:filename "/Users/dbkeator/Documents/UCI/ReproNim/example_bids/ds002_single_subj/sub-01/func/sub-01_task-deterministicclassification_run-02_events.tsv"^^xsd:string ;
-    prov:wasAttributedTo <http://purl.org/nidash/nidm#0485fcf8-aa22-11e7-9297-6c4008b8f03e> ;
-    prov:wasGeneratedBy <http://purl.org/nidash/nidm#0485faa4-aa22-11e7-88b9-6c4008b8f03e> .
+    prov:wasAttributedTo nidm:_705d97d8-b9ad-11e7-9f70-6c4008b8f03e ;
+    prov:wasGeneratedBy nidm:_705d954c-b9ad-11e7-9640-6c4008b8f03e .
 
-<http://purl.org/nidash/nidm#048679b6-aa22-11e7-a4d8-6c4008b8f03e> a nidm:Event,
+nidm:_705e1e90-b9ad-11e7-a3c7-6c4008b8f03e a nidm:Event,
         prov:Entity ;
     nidm:Task "mixed event-related probe"^^xsd:string ;
     nfo:filename "/Users/dbkeator/Documents/UCI/ReproNim/example_bids/ds002_single_subj/sub-01/func/sub-01_task-mixedeventrelatedprobe_run-01_events.tsv"^^xsd:string ;
-    prov:wasAttributedTo <http://purl.org/nidash/nidm#0486380a-aa22-11e7-9f41-6c4008b8f03e> ;
-    prov:wasGeneratedBy <http://purl.org/nidash/nidm#048635e4-aa22-11e7-b002-6c4008b8f03e> .
+    prov:wasAttributedTo nidm:_705dd002-b9ad-11e7-84a0-6c4008b8f03e ;
+    prov:wasGeneratedBy nidm:_705dcde6-b9ad-11e7-93bd-6c4008b8f03e .
 
-<http://purl.org/nidash/nidm#0486aff6-aa22-11e7-94ec-6c4008b8f03e> a nidm:Event,
+nidm:_705e6314-b9ad-11e7-b592-6c4008b8f03e a nidm:Event,
         prov:Entity ;
     nidm:Task "mixed event-related probe"^^xsd:string ;
     nfo:filename "/Users/dbkeator/Documents/UCI/ReproNim/example_bids/ds002_single_subj/sub-01/func/sub-01_task-mixedeventrelatedprobe_run-02_events.tsv"^^xsd:string ;
-    prov:wasAttributedTo <http://purl.org/nidash/nidm#04868346-aa22-11e7-abea-6c4008b8f03e> ;
-    prov:wasGeneratedBy <http://purl.org/nidash/nidm#048680f8-aa22-11e7-b893-6c4008b8f03e> .
+    prov:wasAttributedTo nidm:_705e2980-b9ad-11e7-bbe5-6c4008b8f03e ;
+    prov:wasGeneratedBy nidm:_705e26d8-b9ad-11e7-ac00-6c4008b8f03e .
 
-<http://purl.org/nidash/nidm#0486f7b8-aa22-11e7-844f-6c4008b8f03e> a nidm:Event,
+nidm:_705ec7a2-b9ad-11e7-8614-6c4008b8f03e a nidm:Event,
         prov:Entity ;
     nidm:Task "probabilistic classification"^^xsd:string ;
     nfo:filename "/Users/dbkeator/Documents/UCI/ReproNim/example_bids/ds002_single_subj/sub-01/func/sub-01_task-probabilisticclassification_run-01_events.tsv"^^xsd:string ;
-    prov:wasAttributedTo <http://purl.org/nidash/nidm#0486b848-aa22-11e7-a246-6c4008b8f03e> ;
-    prov:wasGeneratedBy <http://purl.org/nidash/nidm#0486b622-aa22-11e7-87fb-6c4008b8f03e> .
+    prov:wasAttributedTo nidm:_705e6bb6-b9ad-11e7-acba-6c4008b8f03e ;
+    prov:wasGeneratedBy nidm:_705e6966-b9ad-11e7-af7a-6c4008b8f03e .
 
-<http://purl.org/nidash/nidm#04872fc6-aa22-11e7-9ca6-6c4008b8f03e> a nidm:Event,
+nidm:_705f3de6-b9ad-11e7-81ca-6c4008b8f03e a nidm:Event,
         prov:Entity ;
     nidm:Task "probabilistic classification"^^xsd:string ;
     nfo:filename "/Users/dbkeator/Documents/UCI/ReproNim/example_bids/ds002_single_subj/sub-01/func/sub-01_task-probabilisticclassification_run-02_events.tsv"^^xsd:string ;
-    prov:wasAttributedTo <http://purl.org/nidash/nidm#0487010c-aa22-11e7-9c0f-6c4008b8f03e> ;
-    prov:wasGeneratedBy <http://purl.org/nidash/nidm#0486feac-aa22-11e7-ba3e-6c4008b8f03e> .
+    prov:wasAttributedTo nidm:_705edaba-b9ad-11e7-9f2b-6c4008b8f03e ;
+    prov:wasGeneratedBy nidm:_705ed6f0-b9ad-11e7-9759-6c4008b8f03e .
 
-<http://purl.org/nidash/nidm#0482c850-aa22-11e7-b078-6c4008b8f03e> a nidm:AcquisitionActivity,
+nidm:_705a5968-b9ad-11e7-9cb3-6c4008b8f03e a nidm:ImageAcquisition,
         prov:Activity ;
-    dct:isPartOf <http://purl.org/nidash/nidm#0482c4f4-aa22-11e7-931f-6c4008b8f03e> ;
-    prov:wasAssociatedWith <http://purl.org/nidash/nidm#0482d098-aa22-11e7-93e0-6c4008b8f03e> .
+    dct:isPartOf nidm:_705a5580-b9ad-11e7-bfe7-6c4008b8f03e ;
+    prov:wasAssociatedWith nidm:_705a62d2-b9ad-11e7-9cd0-6c4008b8f03e .
 
-<http://purl.org/nidash/nidm#04857230-aa22-11e7-90d0-6c4008b8f03e> a nidm:AcquisitionActivity,
+nidm:_705d0c80-b9ad-11e7-8d38-6c4008b8f03e a nidm:ImageAcquisition,
         prov:Activity ;
-    dct:isPartOf <http://purl.org/nidash/nidm#0482c4f4-aa22-11e7-931f-6c4008b8f03e> .
+    dct:isPartOf nidm:_705a5580-b9ad-11e7-bfe7-6c4008b8f03e .
 
-<http://purl.org/nidash/nidm#04858e5a-aa22-11e7-ac6e-6c4008b8f03e> a nidm:AcquisitionActivity,
+nidm:_705d24b8-b9ad-11e7-aabb-6c4008b8f03e a nidm:ImageAcquisition,
         prov:Activity ;
-    dct:isPartOf <http://purl.org/nidash/nidm#0482c4f4-aa22-11e7-931f-6c4008b8f03e> .
+    dct:isPartOf nidm:_705a5580-b9ad-11e7-bfe7-6c4008b8f03e .
 
-<http://purl.org/nidash/nidm#0485a306-aa22-11e7-8e01-6c4008b8f03e> a nidm:MRAcquistionEntity,
-        nidm:MRI_Function,
+nidm:_705d3688-b9ad-11e7-86f6-6c4008b8f03e a nidm:MRI_Function,
+        nidm:MRI_dataset,
         prov:Entity ;
     dicom:RepetitionTime 2e+00 ;
     nidm:AcquisitionEntity "01"^^xsd:string ;
     nidm:Task "deterministic classification"^^xsd:string ;
     nfo:filename "/Users/dbkeator/Documents/UCI/ReproNim/example_bids/ds002_single_subj/sub-01/func/sub-01_task-deterministicclassification_run-01_bold.nii.gz"^^xsd:string ;
-    prov:wasGeneratedBy <http://purl.org/nidash/nidm#0485a048-aa22-11e7-b1b3-6c4008b8f03e> .
+    prov:wasGeneratedBy nidm:_705d3438-b9ad-11e7-b2a8-6c4008b8f03e .
 
-<http://purl.org/nidash/nidm#0485fcf8-aa22-11e7-9297-6c4008b8f03e> a nidm:MRAcquistionEntity,
-        nidm:MRI_Function,
+nidm:_705d97d8-b9ad-11e7-9f70-6c4008b8f03e a nidm:MRI_Function,
+        nidm:MRI_dataset,
         prov:Entity ;
     dicom:RepetitionTime 2e+00 ;
     nidm:AcquisitionEntity "02"^^xsd:string ;
     nidm:Task "deterministic classification"^^xsd:string ;
     nfo:filename "/Users/dbkeator/Documents/UCI/ReproNim/example_bids/ds002_single_subj/sub-01/func/sub-01_task-deterministicclassification_run-02_bold.nii.gz"^^xsd:string ;
-    prov:wasGeneratedBy <http://purl.org/nidash/nidm#0485faa4-aa22-11e7-88b9-6c4008b8f03e> .
+    prov:wasGeneratedBy nidm:_705d954c-b9ad-11e7-9640-6c4008b8f03e .
 
-<http://purl.org/nidash/nidm#0486380a-aa22-11e7-9f41-6c4008b8f03e> a nidm:MRAcquistionEntity,
-        nidm:MRI_Function,
+nidm:_705dd002-b9ad-11e7-84a0-6c4008b8f03e a nidm:MRI_Function,
+        nidm:MRI_dataset,
         prov:Entity ;
     dicom:RepetitionTime 2e+00 ;
     nidm:AcquisitionEntity "01"^^xsd:string ;
     nidm:Task "mixed event-related probe"^^xsd:string ;
     nfo:filename "/Users/dbkeator/Documents/UCI/ReproNim/example_bids/ds002_single_subj/sub-01/func/sub-01_task-mixedeventrelatedprobe_run-01_bold.nii.gz"^^xsd:string ;
-    prov:wasGeneratedBy <http://purl.org/nidash/nidm#048635e4-aa22-11e7-b002-6c4008b8f03e> .
+    prov:wasGeneratedBy nidm:_705dcde6-b9ad-11e7-93bd-6c4008b8f03e .
 
-<http://purl.org/nidash/nidm#04868346-aa22-11e7-abea-6c4008b8f03e> a nidm:MRAcquistionEntity,
-        nidm:MRI_Function,
+nidm:_705e2980-b9ad-11e7-bbe5-6c4008b8f03e a nidm:MRI_Function,
+        nidm:MRI_dataset,
         prov:Entity ;
     dicom:RepetitionTime 2e+00 ;
     nidm:AcquisitionEntity "02"^^xsd:string ;
     nidm:Task "mixed event-related probe"^^xsd:string ;
     nfo:filename "/Users/dbkeator/Documents/UCI/ReproNim/example_bids/ds002_single_subj/sub-01/func/sub-01_task-mixedeventrelatedprobe_run-02_bold.nii.gz"^^xsd:string ;
-    prov:wasGeneratedBy <http://purl.org/nidash/nidm#048680f8-aa22-11e7-b893-6c4008b8f03e> .
+    prov:wasGeneratedBy nidm:_705e26d8-b9ad-11e7-ac00-6c4008b8f03e .
 
-<http://purl.org/nidash/nidm#0486b848-aa22-11e7-a246-6c4008b8f03e> a nidm:MRAcquistionEntity,
-        nidm:MRI_Function,
+nidm:_705e6bb6-b9ad-11e7-acba-6c4008b8f03e a nidm:MRI_Function,
+        nidm:MRI_dataset,
         prov:Entity ;
     dicom:RepetitionTime 2e+00 ;
     nidm:AcquisitionEntity "01"^^xsd:string ;
     nidm:Task "probabilistic classification"^^xsd:string ;
     nfo:filename "/Users/dbkeator/Documents/UCI/ReproNim/example_bids/ds002_single_subj/sub-01/func/sub-01_task-probabilisticclassification_run-01_bold.nii.gz"^^xsd:string ;
-    prov:wasGeneratedBy <http://purl.org/nidash/nidm#0486b622-aa22-11e7-87fb-6c4008b8f03e> .
+    prov:wasGeneratedBy nidm:_705e6966-b9ad-11e7-af7a-6c4008b8f03e .
 
-<http://purl.org/nidash/nidm#0487010c-aa22-11e7-9c0f-6c4008b8f03e> a nidm:MRAcquistionEntity,
-        nidm:MRI_Function,
+nidm:_705edaba-b9ad-11e7-9f2b-6c4008b8f03e a nidm:MRI_Function,
+        nidm:MRI_dataset,
         prov:Entity ;
     dicom:RepetitionTime 2e+00 ;
     nidm:AcquisitionEntity "02"^^xsd:string ;
     nidm:Task "probabilistic classification"^^xsd:string ;
     nfo:filename "/Users/dbkeator/Documents/UCI/ReproNim/example_bids/ds002_single_subj/sub-01/func/sub-01_task-probabilisticclassification_run-02_bold.nii.gz"^^xsd:string ;
-    prov:wasGeneratedBy <http://purl.org/nidash/nidm#0486feac-aa22-11e7-ba3e-6c4008b8f03e> .
+    prov:wasGeneratedBy nidm:_705ed6f0-b9ad-11e7-9759-6c4008b8f03e .
 
-<http://purl.org/nidash/nidm#0482d098-aa22-11e7-93e0-6c4008b8f03e> a prov:Agent,
+nidm:_705a62d2-b9ad-11e7-9cd0-6c4008b8f03e a prov:Agent,
         prov:Person ;
     ndar:src_subject_id "sub-01"^^xsd:string .
 
-<http://purl.org/nidash/nidm#0485a048-aa22-11e7-b1b3-6c4008b8f03e> a nidm:AcquisitionActivity,
+nidm:_705d3438-b9ad-11e7-b2a8-6c4008b8f03e a nidm:ImageAcquisition,
         prov:Activity ;
-    dct:isPartOf <http://purl.org/nidash/nidm#0482c4f4-aa22-11e7-931f-6c4008b8f03e> .
+    dct:isPartOf nidm:_705a5580-b9ad-11e7-bfe7-6c4008b8f03e .
 
-<http://purl.org/nidash/nidm#0485faa4-aa22-11e7-88b9-6c4008b8f03e> a nidm:AcquisitionActivity,
+nidm:_705d954c-b9ad-11e7-9640-6c4008b8f03e a nidm:ImageAcquisition,
         prov:Activity ;
-    dct:isPartOf <http://purl.org/nidash/nidm#0482c4f4-aa22-11e7-931f-6c4008b8f03e> .
+    dct:isPartOf nidm:_705a5580-b9ad-11e7-bfe7-6c4008b8f03e .
 
-<http://purl.org/nidash/nidm#048635e4-aa22-11e7-b002-6c4008b8f03e> a nidm:AcquisitionActivity,
+nidm:_705dcde6-b9ad-11e7-93bd-6c4008b8f03e a nidm:ImageAcquisition,
         prov:Activity ;
-    dct:isPartOf <http://purl.org/nidash/nidm#0482c4f4-aa22-11e7-931f-6c4008b8f03e> .
+    dct:isPartOf nidm:_705a5580-b9ad-11e7-bfe7-6c4008b8f03e .
 
-<http://purl.org/nidash/nidm#048680f8-aa22-11e7-b893-6c4008b8f03e> a nidm:AcquisitionActivity,
+nidm:_705e26d8-b9ad-11e7-ac00-6c4008b8f03e a nidm:ImageAcquisition,
         prov:Activity ;
-    dct:isPartOf <http://purl.org/nidash/nidm#0482c4f4-aa22-11e7-931f-6c4008b8f03e> .
+    dct:isPartOf nidm:_705a5580-b9ad-11e7-bfe7-6c4008b8f03e .
 
-<http://purl.org/nidash/nidm#0486b622-aa22-11e7-87fb-6c4008b8f03e> a nidm:AcquisitionActivity,
+nidm:_705e6966-b9ad-11e7-af7a-6c4008b8f03e a nidm:ImageAcquisition,
         prov:Activity ;
-    dct:isPartOf <http://purl.org/nidash/nidm#0482c4f4-aa22-11e7-931f-6c4008b8f03e> .
+    dct:isPartOf nidm:_705a5580-b9ad-11e7-bfe7-6c4008b8f03e .
 
-<http://purl.org/nidash/nidm#0486feac-aa22-11e7-ba3e-6c4008b8f03e> a nidm:AcquisitionActivity,
+nidm:_705ed6f0-b9ad-11e7-9759-6c4008b8f03e a nidm:ImageAcquisition,
         prov:Activity ;
-    dct:isPartOf <http://purl.org/nidash/nidm#0482c4f4-aa22-11e7-931f-6c4008b8f03e> .
+    dct:isPartOf nidm:_705a5580-b9ad-11e7-bfe7-6c4008b8f03e .
 
-<http://purl.org/nidash/nidm#0482c4f4-aa22-11e7-931f-6c4008b8f03e> a nidm:Session,
+nidm:_705a5580-b9ad-11e7-bfe7-6c4008b8f03e a nidm:Session,
         prov:Activity .
 
