@@ -1,11 +1,8 @@
 import os, sys
 #sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import rdflib as rdf
-from ..core import Constants
 from ..experiment import Acquisition
-import prov.model as pm
 from ..core import Constants
-from ..experiment import Core
 from ..experiment.Core import getUUID
 import prov.model as pm
 
