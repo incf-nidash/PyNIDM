@@ -1,7 +1,7 @@
 import os,sys
 import pytest, pdb
 
-from nidm.experiment import Project,Session,Acquisition,AcquisitionObject,MRAcquisitionObject
+from nidm.experiment import Project,Session,Acquisition,AcquisitionObject
 from nidm.core import Constants
 
 def test_1(tmpdir):
