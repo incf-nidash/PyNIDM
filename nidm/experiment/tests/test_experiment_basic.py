@@ -41,7 +41,7 @@ def test_sessions_1(tmpdir):
 
 
 @pytest.mark.xfail(reason="the session is not automatically added to the project")
-def test_sessions_1(tmpdir):
+def test_sessions_2(tmpdir):
     tmpdir.chdir()
 
     project = Project()
@@ -52,7 +52,6 @@ def test_sessions_1(tmpdir):
 
 
 def test_sessions_3(tmpdir):
-    pdb.set_trace()
     tmpdir.chdir()
 
     project1 = Project()
