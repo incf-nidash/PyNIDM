@@ -39,6 +39,7 @@ class Session(pm.ProvActivity,Core):
 
         self.add_attributes({pm.PROV_TYPE: Constants.NIDM_SESSION})
         self.graph = project.graph
+        project.add_sessions(self)
 
         #list of acquisitions associated with this session
         self._acquisitions=[]

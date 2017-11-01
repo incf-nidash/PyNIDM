@@ -46,6 +46,9 @@ class Acquisition(pm.ProvActivity,Core):
         #carry graph object around
         self.graph = session.graph
 
+        #add acquisition to session
+        session.add_acquisition(self)
+
     def add_acquisition_object(self,acquisition_object):
         """
         Adds acquisition objects to acquisition activity, creating links and adding reference to acquisitions list
