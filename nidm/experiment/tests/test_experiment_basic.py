@@ -40,7 +40,6 @@ def test_sessions_1(tmpdir):
     assert session2.label == project.sessions[1].label
 
 
-@pytest.mark.xfail(reason="the session is not automatically added to the project")
 def test_sessions_2(tmpdir):
     tmpdir.chdir()
 
@@ -48,7 +47,7 @@ def test_sessions_2(tmpdir):
     assert project.sessions == []
 
     session1 = Session(project)
-    assert project.sessions == session1.label
+    assert project.sessions[0].label == session1.label
 
 
 def test_sessions_3(tmpdir):
