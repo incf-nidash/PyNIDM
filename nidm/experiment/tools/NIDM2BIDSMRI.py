@@ -35,10 +35,12 @@
 #**************************************************************************************
 
 import sys, getopt, os
+from os.path import join
 
-from nidm.experiment import Project,Session,Acquisition,AcquisitionObject,DemographicsAcquisitionObject,AssessmentAcquisitionObject, MRAcquisitionObject
+from nidm.experiment import Project,Session,Acquisition,AcquisitionObject,DemographicsObject,AssessmentObject, MRObject
 from nidm.core import BIDS_Constants,Constants
 from prov.model import PROV_LABEL,PROV_TYPE
+from nidm.experiment.Utils import read_nidm
 
 import json
 from pprint import pprint
@@ -77,11 +79,38 @@ def main(argv):
     for format in 'turtle','xml','n3','trix','rdfa':
         try:
             print("reading RDF file...")
-            rdf_graph = rdf_file.parse(rdf_file, format=format)
+            #load NIDM graph into NIDM-Exp API objects
+            nidm_project = read_nidm(rdf_file)
             print("RDF file sucessfully read")
             break
         except Exception:
             print("file: %s appears to be an invalid RDF file" % rdf_file)
+
+
+    #get json representation of project metadata
+    project_metadata = nidm_project.get_metadata_JSON()
+    print(project_metadata)
+
+    #cycle through keys converting them to BIDS keys
+    for proj_key,value in project_metadata.iteritems():
+        key_found=0
+        print("proj_key = %s " % proj_key)
+        print("project_metadata[proj_key] = %s" %project_metadata[proj_key])
+        for key,value in BIDS_Constants.dataset_description.iteritems():
+            if BIDS_Constants.dataset_description[key]._uri == proj_key:
+                project_metadata[key] = project_metadata.pop[proj_key]
+                key_found=1
+        #if this proj_key wasn't found in BIDS dataset_description Constants dictionary then delete it
+        if not key_found:
+            del project_metadata[proj_key]
+
+    #write dataset_description.json to output_directory
+    if not os.path.isdir(args.output_directory):
+        os.mkdir(args.output_directory)
+    if not os.path.isdir(join(args.output_directory,os.path.splitext(args.rdf_file)[0])):
+        os.mkdir(join(args.output_directory,os.path.splitext(args.rdf_file)[0]))
+    with open(join(args.output_directory,os.path.splitext(args.rdf_file)[0], "dataset_description.json"),'w') as f:
+        json.dump(project_metadata,f,sort_keys=True,indent=2)
 
 
 

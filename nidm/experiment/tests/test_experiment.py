@@ -35,7 +35,7 @@ def main(argv):
     #test add session to graph and associate with project
     session = Session(project)
     session.add_attributes({Constants.NIDM:"test"})
-    project.add_sessions(session)
+    #project.add_sessions(session)
 
     #test add MR acquisition activity / entity to graph and associate with session
     acq_act = MRAcquisition(session=session)

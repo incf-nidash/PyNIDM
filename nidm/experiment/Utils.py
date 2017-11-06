@@ -63,7 +63,7 @@ def read_nidm(nidmDoc):
     #add namespaces to prov graph
     for name, namespace in rdf_graph_parse.namespaces():
         #skip these default namespaces in prov Document
-        if (name != 'prov') and (name != 'xsd'):
+        if (name != 'prov') and (name != 'xsd') and (name != 'nidm'):
             project.graph.add_namespace(name, namespace)
 
     #Cycle through Project metadata adding to prov graph
