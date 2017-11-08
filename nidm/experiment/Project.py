@@ -78,7 +78,7 @@ class Project(pm.ProvActivity,Core):
         return self._sessions
 
 
-    def get_metadata_JSON(self):
+    def get_metadata_dict(self):
         """
         This function converts project metadata to json representation using uris as keys
         :return: json object containing metadata
@@ -107,7 +107,7 @@ class Project(pm.ProvActivity,Core):
         for predicate, objects in rdf_graph.predicate_objects(subject=proj_id):
             project_metadata[str(predicate)] = str(objects)
 
-        return json.dumps(project_metadata)
+        return project_metadata
 
 
 

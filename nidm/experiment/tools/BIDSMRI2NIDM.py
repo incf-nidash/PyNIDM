@@ -85,6 +85,7 @@ def main(argv):
 
     #create empty dictinary for sessions where key is subject id and used later to link scans to same session as demographics
     session={}
+    participant={}
     #Parse participants.tsv file in BIDS directory and create study and acquisition objects
     with open(os.path.join(directory,'participants.tsv')) as csvfile:
         participants_data = csv.DictReader(csvfile, delimiter='\t')
@@ -98,7 +99,11 @@ def main(argv):
             #add acquisition object
             acq = MRAcquisition(session=session[subjid[1]])
             acq_entity = DemographicsObject(acquisition=acq)
-            participant = acq.add_person(role=Constants.NIDM_PARTICIPANT,attributes=({Constants.NIDM_SUBJECTID:row['participant_id']}))
+            participant[subjid[1]] = {}
+            participant[subjid[1]]['person'] = acq.add_person(attributes=({Constants.NIDM_SUBJECTID:row['participant_id']}))
+
+            #add qualified association of participant with acquisition activity
+            acq.add_qualified_association(person=participant[subjid[1]]['person'],role=Constants.NIDM_PARTICIPANT)
 
             for key,value in row.items():
                 #for now only convert variables in participants.tsv file who have term mappings in BIDS_Constants.py
@@ -118,6 +123,10 @@ def main(argv):
         for file_tpl in bids_layout.get(subject=subject_id, extensions=['.nii', '.nii.gz']):
             #create an acquisition activity
             acq=MRAcquisition(session[subject_id])
+
+            #add qualified association with person
+            acq.add_qualified_association(person=participant[subject_id]['person'],role=Constants.NIDM_PARTICIPANT)
+
 
             #print(file_tpl.type)
             if file_tpl.modality == 'anat':
@@ -217,8 +226,11 @@ def main(argv):
                     else:
                         #add acquisition object
                         acq = AssessmentAcquisition(session=session[subjid[1]])
+                        #add qualified association with person
+                        acq.add_qualified_association(person=participant[subject_id]['person'],role=Constants.NIDM_PARTICIPANT)
+
                         acq_entity = AssessmentObject(acquisition=acq)
-                        participant = acq.add_person(role=Constants.NIDM_PARTICIPANT,attributes=({Constants.NIDM_SUBJECTID:row['participant_id']}))
+
 
                         for key,value in row.items():
                             if not key == "participant_id":

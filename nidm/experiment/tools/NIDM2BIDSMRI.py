@@ -88,17 +88,22 @@ def main(argv):
 
 
     #get json representation of project metadata
-    project_metadata = nidm_project.get_metadata_JSON()
+    project_metadata = nidm_project.get_metadata_dict()
     print(project_metadata)
 
     #cycle through keys converting them to BIDS keys
-    for proj_key,value in project_metadata.iteritems():
+    #make copy of project_metadata
+    project_metadata_tmp = dict(project_metadata)
+    #iterate over the temporary dictionary and delete items from the original
+    for proj_key,value in project_metadata_tmp.items():
         key_found=0
         print("proj_key = %s " % proj_key)
         print("project_metadata[proj_key] = %s" %project_metadata[proj_key])
-        for key,value in BIDS_Constants.dataset_description.iteritems():
+
+        for key,value in BIDS_Constants.dataset_description.items():
             if BIDS_Constants.dataset_description[key]._uri == proj_key:
-                project_metadata[key] = project_metadata.pop[proj_key]
+                project_metadata[key] = project_metadata[proj_key]
+                del project_metadata[proj_key]
                 key_found=1
         #if this proj_key wasn't found in BIDS dataset_description Constants dictionary then delete it
         if not key_found:

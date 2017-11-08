@@ -10,7 +10,7 @@ dataset_description = {
     "Procedure" : Constants.NIDM_PROJECT_DESCRIPTION,
     "License" : Constants.NIDM_PROJECT_LICENSE,
     "ReferencesAndLinks" : Constants.NIDM_PROJECT_REFERENCES,
-    "Authors" : Constants.NIDM_PROJECT_REFERENCES
+    "Authors" : Constants.NIDM_AUTHOR
 }
 
 #BIDS Participants file -> NIDM constants mappings
