@@ -98,7 +98,7 @@ def main(argv):
 
             #add acquisition object
             acq = MRAcquisition(session=session[subjid[1]])
-            acq_entity = DemographicsObject(acquisition=acq)
+            acq_entity = AssessmentObject(acquisition=acq)
             participant[subjid[1]] = {}
             participant[subjid[1]]['person'] = acq.add_person(attributes=({Constants.NIDM_SUBJECTID:row['participant_id']}))
 
@@ -106,9 +106,14 @@ def main(argv):
             acq.add_qualified_association(person=participant[subjid[1]]['person'],role=Constants.NIDM_PARTICIPANT)
 
             for key,value in row.items():
-                #for now only convert variables in participants.tsv file who have term mappings in BIDS_Constants.py
+                #for variables in participants.tsv file who have term mappings in BIDS_Constants.py use those
                 if key in BIDS_Constants.participants:
                     acq_entity.add_attributes({BIDS_Constants.participants[key]:value})
+                #else just put variables in bids namespace since we don't know what they mean
+                else:
+                    acq_entity.add_attributes({Constants.BIDS[key]:value})
+
+
 
     #get BIDS layout
     bids_layout = BIDSLayout(directory)

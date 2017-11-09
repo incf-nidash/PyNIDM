@@ -95,7 +95,7 @@ class Project(pm.ProvActivity,Core):
         #get subject uri for project object
         #Get subject URI for project
         proj_id=None
-        for s in rdf_graph_parse.subjects(predicate=RDF.type,object=Constants.NIDM['Project']):
+        for s in rdf_graph_parse.subjects(predicate=RDF.type,object=Constants.NIDM_PROJECT):
 
             proj_id=s
 

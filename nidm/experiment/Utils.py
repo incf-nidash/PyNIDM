@@ -3,6 +3,7 @@ import uuid
 
 from rdflib import Namespace
 from rdflib.namespace import XSD
+from rdflib.resource import Resource
 import types
 import graphviz
 from rdflib import Graph, RDF, URIRef, util, term
@@ -47,12 +48,13 @@ def read_nidm(nidmDoc):
     #Query graph for project metadata and create project level objects
     #Get subject URI for project
     proj_id=None
-    for s in rdf_graph_parse.subjects(predicate=RDF.type,object=Constants.NIDM['Project']):
+    for s in rdf_graph_parse.subjects(predicate=RDF.type,object=URIRef(Constants.NIDM_PROJECT.uri)):
         #print(s)
         proj_id=s
 
     if proj_id is None:
         print("Error reading NIDM-Exp Document %s, Must have Project Object" % nidmDoc)
+        exit(1)
 
     #Split subject URI into namespace, term
     nm,uuid = split_uri(proj_id)
@@ -75,7 +77,7 @@ def read_nidm(nidmDoc):
 
     #Query graph for sessions, instantiate session objects, and add to project._session list
     #Get subject URI for sessions
-    for s in rdf_graph_parse.subjects(predicate=RDF.type,object=Constants.NIDM['Session']):
+    for s in rdf_graph_parse.subjects(predicate=RDF.type,object=URIRef(Constants.NIDM_SESSION.uri)):
         #print("session: %s" % s)
 
         #Split subject URI for session into namespace, uuid
@@ -155,6 +157,8 @@ def get_RDFliteral_type(rdf_literal):
 
 def add_metadata_for_subject (rdf_graph,subject_uri,namespaces,nidm_obj):
     """
+    Cycles through triples for a particular subject and adds them to the nidm_obj
+
     :param rdf_graph: RDF graph object
     :param subject_uri: URI of subject to query for additional metadata
     :param namespaces: Namespaces in NIDM document
@@ -164,24 +168,53 @@ def add_metadata_for_subject (rdf_graph,subject_uri,namespaces,nidm_obj):
     """
     #Cycle through remaining metadata and add attributes
     for predicate, objects in rdf_graph.predicate_objects(subject=subject_uri):
-        if validators.url(objects):
-            #create qualified names for objects
-            obj_nm,obj_term = split_uri(objects)
-            for uris in namespaces:
-                if uris.uri == URIRef(obj_nm):
-                    #prefix = uris.prefix
-                    nidm_obj.add_attributes({predicate : pm.QualifiedName(uris,obj_term)})
-        else:
+        if predicate == URIRef(Constants.PROV['qualifiedAssociation']):
+            #need to get associated prov:Agent uri, add person information to graph
+            for agent in rdf_graph.objects(subject=subject_uri, predicate=Constants.PROV['wasAssociatedWith']):
+                #add person to graph and also add all metadata
+                person = nidm_obj.add_person(uuid=agent)
+                #now add metadata for person
+                add_metadata_for_subject(rdf_graph=rdf_graph,subject_uri=agent,namespaces=namespaces,nidm_obj=person)
 
-            nidm_obj.add_attributes({predicate : get_RDFliteral_type(objects)})
+            #get role information
+            for bnode in rdf_graph.objects(subject=subject_uri,predicate=Constants.PROV['qualifiedAssociation']):
+                #for bnode, query for object which is role?  How?
+                #term.BNode.__dict__()
+                #create an IRI for this bnode so we can query for the role
+                iri=bnode.skolemize()
+
+                #create temporary resource for this bnode
+                r = Resource(rdf_graph,bnode)
+                #get the object for this bnode with predicate Constants.PROV['hadRole']
+                for r_obj in r.objects(predicate=Constants.PROV['hadRole']):
+                    #create qualified names for objects
+                    obj_nm,obj_term = split_uri(r_obj._identifier)
+                    for uris in namespaces:
+                        if uris.uri == URIRef(obj_nm):
+                            #create qualified association in graph
+                            nidm_obj.add_qualified_association(person=person,role=pm.QualifiedName(uris,obj_term))
+
+        else:
+            if validators.url(objects):
+                #create qualified names for objects
+                obj_nm,obj_term = split_uri(objects)
+                for uris in namespaces:
+                    if uris.uri == URIRef(obj_nm):
+                        #prefix = uris.prefix
+                        nidm_obj.add_attributes({predicate : pm.QualifiedName(uris,obj_term)})
+            else:
+
+                nidm_obj.add_attributes({predicate : get_RDFliteral_type(objects)})
 
 def add_qualified_association_for_subject(rdf_graph,object_uri  ):
     """
+    Cycles through triples for a particular subject and if a qualified association, adds to nidm_obj
+
     :param rdf_graph:
     :param object_uri:
     :return:
     """
     #Query for qualified associations associated with Project object which are rdf:type PROV:Activity and has metadata prov:qualifiedAssociation
     #add this to Project
-    for subject in rdf_graph.subjects(predicate=Constants.PROV["wasAssociatedWith"],object=object_uri):
+    #for subject in rdf_graph.subjects(predicate=Constants.PROV["wasAssociatedWith"],object=object_uri):
         

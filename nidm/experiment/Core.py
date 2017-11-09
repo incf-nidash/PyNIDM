@@ -123,15 +123,20 @@ class Core(object):
         else:
             print("datatype not found...")
             return None
-    def add_person(self,attributes=None):
+    def add_person(self,uuid=None,attributes=None):
         """
         Simply adds prov:agent to graph and returns object
         :param role:
         :param attributes:
         :return:
         """
-        #add Person agent
-        person = self.graph.agent(Constants.namespaces["nidm"][getUUID()],other_attributes=attributes)
+
+        if (uuid != None):
+            #add Person agent with existing uuid
+            person = self.graph.agent(Constants.namespaces["nidm"][uuid],other_attributes=attributes)
+        else:
+            #add Person agent
+            person = self.graph.agent(Constants.namespaces["nidm"][getUUID()],other_attributes=attributes)
 
         #add minimal attributes to person
         person.add_attributes({pm.PROV_TYPE: pm.PROV['Person']})
@@ -164,6 +169,8 @@ class Core(object):
             #connect self to person serving as role
             if(isinstance(self,pm.ProvActivity)):
                 self.wasAssociatedWith(person)
+            elif(isinstance(self,pm.ProvEntity)):
+                self.wasAttributedTo(person)
 
         return assoc
 
