@@ -284,6 +284,7 @@ NIDM_PROJECT_DESCRIPTION = QualifiedName(provNamespace("dct", DCT),"description"
 NIDM_PROJECT_LICENSE = QualifiedName(provNamespace("dct", DCT),"license")
 NIDM_PROJECT_URL = QualifiedName(provNamespace("sio", SIO),"URL")
 NIDM_PROJECT_REFERENCES = QualifiedName(provNamespace("dcat", DCAT),"creator")
+NIDM_AUTHOR = QualifiedName(provNamespace("ncit", DCAT),"author")
 NIDM_SESSION = QualifiedName(provNamespace("nidm", NIDM), 'Session')
 NIDM_IMAGE_ACQUISITION_ACTIVITY = QualifiedName(provNamespace("nidm", NIDM), "ImageAcquisition")
 NIDM_ASSESSMENT_ACQUISITION = QualifiedName(provNamespace("nidm", NIDM), "AssessmentAcquisition")

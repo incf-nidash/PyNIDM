@@ -69,6 +69,10 @@ def read_nidm(nidmDoc):
     #Cycle through Project metadata adding to prov graph
     add_metadata_for_subject (rdf_graph_parse,proj_id,project.graph.namespaces,project)
 
+    #Query for qualified associations associated with Project object which are rdf:type PROV:Activity and has metadata prov:qualifiedAssociation
+    #add this to Project
+
+
     #Query graph for sessions, instantiate session objects, and add to project._session list
     #Get subject URI for sessions
     for s in rdf_graph_parse.subjects(predicate=RDF.type,object=Constants.NIDM['Session']):
@@ -170,3 +174,14 @@ def add_metadata_for_subject (rdf_graph,subject_uri,namespaces,nidm_obj):
         else:
 
             nidm_obj.add_attributes({predicate : get_RDFliteral_type(objects)})
+
+def add_qualified_association_for_subject(rdf_graph,object_uri  ):
+    """
+    :param rdf_graph:
+    :param object_uri:
+    :return:
+    """
+    #Query for qualified associations associated with Project object which are rdf:type PROV:Activity and has metadata prov:qualifiedAssociation
+    #add this to Project
+    for subject in rdf_graph.subjects(predicate=Constants.PROV["wasAssociatedWith"],object=object_uri):
+        

@@ -123,28 +123,49 @@ class Core(object):
         else:
             print("datatype not found...")
             return None
-    def add_person(self,role=None,attributes=None):
-
+    def add_person(self,attributes=None):
+        """
+        Simply adds prov:agent to graph and returns object
+        :param role:
+        :param attributes:
+        :return:
+        """
         #add Person agent
         person = self.graph.agent(Constants.namespaces["nidm"][getUUID()],other_attributes=attributes)
-
-        #create an activity for qualified association with person
-        activity = self.graph.activity(Constants.namespaces["nidm"][getUUID()])
 
         #add minimal attributes to person
         person.add_attributes({pm.PROV_TYPE: pm.PROV['Person']})
 
-        #associate person with activity for qualified association
-        assoc = self.graph.association(agent=person, activity=activity)
-        #add role for qualified association
-        assoc.add_attributes({pm.PROV_ROLE:role})
-        #connect project to person serving as role
+        #connect self to person serving as role
         if(isinstance(self,pm.ProvActivity)):
             self.wasAssociatedWith(person)
         elif(isinstance(self,pm.ProvEntity)):
             self.wasAttributedTo(person)
 
+        return person
 
+    def add_qualified_association(self,person,role,plan=None, attributes=None):
+        """
+        Adds a qualified association to self object
+        :param person: prov:agent to associated
+        :param role: prov:hadRole to associate
+        :param plan: optional prov:hadPlan to associate
+        :param attributes: optional attributes to add to qualified association
+        :return: association
+        """
+        #connect self to person serving as role
+        if(isinstance(self,pm.ProvActivity)):
+
+            #associate person with activity for qualified association
+            assoc = self.graph.association(agent=person, activity=self)
+            #add role for qualified association
+            assoc.add_attributes({pm.PROV_ROLE:role})
+
+            #connect self to person serving as role
+            if(isinstance(self,pm.ProvActivity)):
+                self.wasAssociatedWith(person)
+
+        return assoc
 
     def addLiteralAttribute(self, namespace_prefix, term, object, namespace_uri=None):
         """
