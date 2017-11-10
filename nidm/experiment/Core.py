@@ -13,7 +13,7 @@ import validators
 from ..core import Constants
 import prov.model as pm
 from prov.dot import prov_to_dot
-
+from io import StringIO
 
 
 def getUUID():
@@ -142,10 +142,10 @@ class Core(object):
         person.add_attributes({pm.PROV_TYPE: pm.PROV['Person']})
 
         #connect self to person serving as role
-        if(isinstance(self,pm.ProvActivity)):
-            self.wasAssociatedWith(person)
-        elif(isinstance(self,pm.ProvEntity)):
-            self.wasAttributedTo(person)
+        #if(isinstance(self,pm.ProvActivity)):
+        #    self.wasAssociatedWith(person)
+        #elif(isinstance(self,pm.ProvEntity)):
+        #    self.wasAttributedTo(person)
 
         return person
 
@@ -167,10 +167,12 @@ class Core(object):
             assoc.add_attributes({pm.PROV_ROLE:role})
 
             #connect self to person serving as role
-            if(isinstance(self,pm.ProvActivity)):
-                self.wasAssociatedWith(person)
-            elif(isinstance(self,pm.ProvEntity)):
-                self.wasAttributedTo(person)
+            #if(isinstance(self,pm.ProvActivity)):
+                #assoc.add_attributes({Constants.PROV['wasAssociatedWith']:person})
+                #self.wasAssociatedWith(person)
+            #elif(isinstance(self,pm.ProvEntity)):
+                #assoc.add_attributes({Constants.PROV['wasAttributedTo']:person})
+                #self.wasAttributedTo(person)
 
         return assoc
 
@@ -264,6 +266,38 @@ class Core(object):
                 id.add_attributes({key:pm.Literal(attributes[key],datatype=datatype)})
             else:
                 id.add_attributes({key:pm.Literal(attributes[key])})
+
+    def get_metadata_dict(self,NIDM_TYPE):
+        """
+        This function converts metadata to a dictionary using uris as keys
+        :param NIDM_TYPE: a prov qualified name type (e.g. Constants.NIDM_PROJECT, Constants.NIDM_SESSION, etc.)
+        :return: dictionary object containing metadata
+
+        """
+        #create empty project_metadata json object
+        metadata = {}
+
+        #use RDFLib here for temporary graph making query easier
+        rdf_graph = Graph()
+
+        rdf_graph_parse = rdf_graph.parse(source=StringIO(self.serializeTurtle()),format='turtle')
+
+        #get subject uri for object
+
+
+        uri=None
+        for s in rdf_graph_parse.subjects(predicate=RDF.type,object=URIRef(NIDM_TYPE.uri)):
+            uri=s
+
+        if uri is None:
+            print("Error finding %s in NIDM-Exp Graph" %NIDM_TYPE)
+            return metadata
+
+        #Cycle through metadata and add to json
+        for predicate, objects in rdf_graph.predicate_objects(subject=uri):
+            metadata[str(predicate)] = str(objects)
+
+        return metadata
 
     def serializeTurtle(self):
         """

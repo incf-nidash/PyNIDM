@@ -97,18 +97,24 @@ def main(argv):
             session[subjid[1]] = Session(project)
 
             #add acquisition object
-            acq = MRAcquisition(session=session[subjid[1]])
+            acq = AssessmentAcquisition(session=session[subjid[1]])
+
             acq_entity = AssessmentObject(acquisition=acq)
             participant[subjid[1]] = {}
             participant[subjid[1]]['person'] = acq.add_person(attributes=({Constants.NIDM_SUBJECTID:row['participant_id']}))
 
+
             #add qualified association of participant with acquisition activity
             acq.add_qualified_association(person=participant[subjid[1]]['person'],role=Constants.NIDM_PARTICIPANT)
+
+
 
             for key,value in row.items():
                 #for variables in participants.tsv file who have term mappings in BIDS_Constants.py use those
                 if key in BIDS_Constants.participants:
-                    acq_entity.add_attributes({BIDS_Constants.participants[key]:value})
+                    #if this was the participant_id, we already handled it above creating agent / qualified association
+                    if not (BIDS_Constants.participants[key] == Constants.NIDM_SUBJECTID):
+                        acq_entity.add_attributes({BIDS_Constants.participants[key]:value})
                 #else just put variables in bids namespace since we don't know what they mean
                 else:
                     acq_entity.add_attributes({Constants.BIDS[key]:value})
@@ -122,6 +128,7 @@ def main(argv):
 
     #loop through all subjects in dataset
     for subject_id in bids_layout.get_subjects():
+        print("Converting subject: %s" %subject_id)
         #skip .git directories...added to support datalad datasets
         if subject_id.startswith("."):
             continue
@@ -238,7 +245,9 @@ def main(argv):
 
 
                         for key,value in row.items():
-                            if not key == "participant_id":
+                            #we're using participant_id in NIDM in agent so don't add to assessment as a triple.
+                            #BIDS phenotype files seem to have an index column with no column header variable name so skip those
+                            if ((not key == "participant_id") and (key != "")):
                                 #for now we're using a placeholder namespace for BIDS and simply the variable names as the concept IDs..
                                 acq_entity.add_attributes({Constants.BIDS[key]:value})
 
@@ -249,7 +258,7 @@ def main(argv):
                         if os.path.isfile(data_dict):
                             acq_entity.add_attributes({Constants.BIDS["data_dictionary"]:data_dict})
 
-
+    print("Serializing NIDM graph and creating graph visualization..")
     #serialize graph
     #print(project.graph.get_provn())
     with open(outputfile,'w') as f:
