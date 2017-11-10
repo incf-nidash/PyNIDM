@@ -71,9 +71,6 @@ def read_nidm(nidmDoc):
     #Cycle through Project metadata adding to prov graph
     add_metadata_for_subject (rdf_graph_parse,proj_id,project.graph.namespaces,project)
 
-    #Query for qualified associations associated with Project object which are rdf:type PROV:Activity and has metadata prov:qualifiedAssociation
-    #add this to Project
-
 
     #Query graph for sessions, instantiate session objects, and add to project._session list
     #Get subject URI for sessions
@@ -168,6 +165,7 @@ def add_metadata_for_subject (rdf_graph,subject_uri,namespaces,nidm_obj):
     """
     #Cycle through remaining metadata and add attributes
     for predicate, objects in rdf_graph.predicate_objects(subject=subject_uri):
+        #if find qualified association
         if predicate == URIRef(Constants.PROV['qualifiedAssociation']):
             #need to get associated prov:Agent uri, add person information to graph
             for agent in rdf_graph.objects(subject=subject_uri, predicate=Constants.PROV['wasAssociatedWith']):
@@ -206,15 +204,3 @@ def add_metadata_for_subject (rdf_graph,subject_uri,namespaces,nidm_obj):
 
                 nidm_obj.add_attributes({predicate : get_RDFliteral_type(objects)})
 
-def add_qualified_association_for_subject(rdf_graph,object_uri  ):
-    """
-    Cycles through triples for a particular subject and if a qualified association, adds to nidm_obj
-
-    :param rdf_graph:
-    :param object_uri:
-    :return:
-    """
-    #Query for qualified associations associated with Project object which are rdf:type PROV:Activity and has metadata prov:qualifiedAssociation
-    #add this to Project
-    #for subject in rdf_graph.subjects(predicate=Constants.PROV["wasAssociatedWith"],object=object_uri):
-        

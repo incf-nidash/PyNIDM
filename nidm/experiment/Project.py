@@ -5,7 +5,7 @@ import json
 from rdflib import Graph, RDF, URIRef, util, term
 from rdflib.namespace import split_uri
 import validators
-from io import StringIO
+
 
 #sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from ..core import Constants
@@ -77,37 +77,6 @@ class Project(pm.ProvActivity,Core):
     def get_sessions(self):
         return self._sessions
 
-
-    def get_metadata_dict(self):
-        """
-        This function converts project metadata to json representation using uris as keys
-        :return: json object containing metadata
-
-        """
-        #create empty project_metadata json object
-        project_metadata = {}
-
-        #use RDFLib here for temporary graph making query easier
-        rdf_graph = Graph()
-
-        rdf_graph_parse = rdf_graph.parse(source=StringIO(self.serializeTurtle()),format='turtle')
-
-        #get subject uri for project object
-        #Get subject URI for project
-        proj_id=None
-        for s in rdf_graph_parse.subjects(predicate=RDF.type,object=Constants.NIDM_PROJECT):
-
-            proj_id=s
-
-        if proj_id is None:
-            print("Error finding project in NIDM-Exp Graph")
-            return json.dumps(project_metadata)
-
-        #Cycle through metadata and add to json
-        for predicate, objects in rdf_graph.predicate_objects(subject=proj_id):
-            project_metadata[str(predicate)] = str(objects)
-
-        return project_metadata
 
 
 
