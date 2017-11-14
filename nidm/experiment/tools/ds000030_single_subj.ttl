@@ -21,13 +21,13 @@
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix scr: <http://scicrunch.org/resolver/> .
-@prefix sio: <http://semanticscience.org/resource/> .
+@prefix sio: <http://semanticscience.org/ontology/sio.owl#> .
 @prefix spm: <http://purl.org/nidash/spm#> .
 @prefix vc: <http://www.w3.org/2006/vcard/ns#> .
 @prefix xml: <http://www.w3.org/XML/1998/namespace> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-nidm:_82faf9ee-c59f-11e7-a24e-6c4008b8f03e a nidm:Assessment,
+nidm:_9b7fa8a6-c654-11e7-b2d0-6c4008b8f03e a nidm:Assessment,
         prov:Entity ;
     bids:ScannerSerialNumber "35343.0"^^xsd:string ;
     bids:T1w "1"^^xsd:string ;
@@ -42,10 +42,10 @@ nidm:_82faf9ee-c59f-11e7-a24e-6c4008b8f03e a nidm:Assessment,
     bids:taskswitch "1"^^xsd:string ;
     ncicb:Age "30"^^xsd:string ;
     ncit:Diagnosis "CONTROL"^^xsd:string ;
-    prov:wasGeneratedBy nidm:_82faf4be-c59f-11e7-a0c6-6c4008b8f03e ;
+    prov:wasGeneratedBy nidm:_9b7fa428-c654-11e7-b7f9-6c4008b8f03e ;
     ndar:gender "F"^^xsd:string .
 
-nidm:_82fdbc62-c59f-11e7-96c8-6c4008b8f03e a nidm:MRI_Anatomy,
+nidm:_9b82e028-c654-11e7-b88f-6c4008b8f03e a nidm:MRI_Anatomy,
         nidm:MRI_dataset,
         prov:Entity ;
     dicom:AccelNumReferenceLines "32"^^xsd:int ;
@@ -80,10 +80,10 @@ nidm:_82fdbc62-c59f-11e7-96c8-6c4008b8f03e a nidm:MRI_Anatomy,
     dicom:TransmitCoilName "Body"^^xsd:string ;
     dicom:VariableFlipAngleFlag "N"^^xsd:string ;
     nidm:PhaseEncodingDirection "i-"^^xsd:string ;
-    nfo:filename "/Users/dbkeator/Documents/UCI/ReproNim/example_bids/ds000030_single_subj/sub-10159/anat/sub-10159_T1w.nii.gz"^^xsd:string ;
-    prov:wasGeneratedBy nidm:_82fdb526-c59f-11e7-9b73-6c4008b8f03e .
+    nfo:filename "/sub-10159/anat/sub-10159_T1w.nii.gz"^^xsd:string ;
+    prov:wasGeneratedBy nidm:_9b82d530-c654-11e7-9998-6c4008b8f03e .
 
-nidm:_82fe0e52-c59f-11e7-8c36-6c4008b8f03e a nidm:MRI_DWI,
+nidm:_9b8347b6-c654-11e7-b812-6c4008b8f03e a nidm:MRI_DWI,
         nidm:MRI_dataset,
         prov:Entity ;
     dicom:AccelerationFactorPE "1"^^xsd:int ;
@@ -119,27 +119,27 @@ nidm:_82fe0e52-c59f-11e7-8c36-6c4008b8f03e a nidm:MRI_DWI,
     nidm:EffectiveEchoSpacing 6.89983e-04 ;
     nidm:PhaseEncodingDirection "j-"^^xsd:string ;
     nidm:SliceTiming "3.51503.6550.14253.7950.28253.93750.42254.07750.56254.21750.7054.35750.8454.50.9854.641.1254.781.2654.921.40755.061.54755.20251.68755.34251.82755.48251.975.62252.115.7652.255.9052.396.0452.536.1852.67256.3252.81256.46752.95256.60753.09256.74753.2356.88753.375"^^xsd:string ;
-    nfo:filename "/Users/dbkeator/Documents/UCI/ReproNim/example_bids/ds000030_single_subj/sub-10159/dwi/sub-10159_dwi.nii.gz"^^xsd:string ;
-    prov:wasGeneratedBy nidm:_82fe0850-c59f-11e7-95dd-6c4008b8f03e .
+    nfo:filename "/sub-10159/dwi/sub-10159_dwi.nii.gz"^^xsd:string ;
+    prov:wasGeneratedBy nidm:_9b833e76-c654-11e7-8e3b-6c4008b8f03e .
 
-nidm:_82fe5b0c-c59f-11e7-b8ee-6c4008b8f03e a nidm:MRI_bval,
+nidm:_9b839b82-c654-11e7-83e9-6c4008b8f03e a nidm:MRI_bval,
         prov:Entity ;
-    nfo:filename "/Users/dbkeator/Documents/UCI/ReproNim/example_bids/ds000030_single_subj/sub-10159/dwi/sub-10159_dwi.bval"^^xsd:string ;
-    prov:wasGeneratedBy nidm:_82fe0850-c59f-11e7-95dd-6c4008b8f03e .
+    nfo:filename "/sub-10159/dwi/sub-10159_dwi.bval"^^xsd:string ;
+    prov:wasGeneratedBy nidm:_9b833e76-c654-11e7-8e3b-6c4008b8f03e .
 
-nidm:_82fe7148-c59f-11e7-96dd-6c4008b8f03e a nidm:MRI_bvec,
+nidm:_9b83b50c-c654-11e7-8c5f-6c4008b8f03e a nidm:MRI_bvec,
         prov:Entity ;
-    nfo:filename "/Users/dbkeator/Documents/UCI/ReproNim/example_bids/ds000030_single_subj/sub-10159/dwi/sub-10159_dwi.bvec"^^xsd:string ;
-    prov:wasGeneratedBy nidm:_82fe0850-c59f-11e7-95dd-6c4008b8f03e .
+    nfo:filename "/sub-10159/dwi/sub-10159_dwi.bvec"^^xsd:string ;
+    prov:wasGeneratedBy nidm:_9b833e76-c654-11e7-8e3b-6c4008b8f03e .
 
-nidm:_82ff1978-c59f-11e7-8693-6c4008b8f03e a nidm:Event,
+nidm:_9b847624-c654-11e7-924e-6c4008b8f03e a nidm:Event,
         prov:Entity ;
     nidm:Task "bart"^^xsd:string ;
-    nfo:filename "/Users/dbkeator/Documents/UCI/ReproNim/example_bids/ds000030_single_subj/sub-10159/func/sub-10159_task-bart_events.tsv"^^xsd:string ;
-    prov:wasAttributedTo nidm:_82fe89b8-c59f-11e7-985c-6c4008b8f03e ;
-    prov:wasGeneratedBy nidm:_82fe83c0-c59f-11e7-b3e0-6c4008b8f03e .
+    nfo:filename "/sub-10159/func/sub-10159_task-bart_events.tsv"^^xsd:string ;
+    prov:wasAttributedTo nidm:_9b83d412-c654-11e7-91da-6c4008b8f03e ;
+    prov:wasGeneratedBy nidm:_9b83cc6c-c654-11e7-95b5-6c4008b8f03e .
 
-nidm:_82ff26e2-c59f-11e7-9c23-6c4008b8f03e a nidm:MRI_Function,
+nidm:_9b848718-c654-11e7-97a7-6c4008b8f03e a nidm:MRI_Function,
         nidm:MRI_dataset,
         prov:Entity ;
     dicom:AccelNumReferenceLines "24"^^xsd:int ;
@@ -176,31 +176,31 @@ nidm:_82ff26e2-c59f-11e7-9c23-6c4008b8f03e a nidm:MRI_Function,
     nidm:PhaseEncodingDirection "j-"^^xsd:string ;
     nidm:SliceTiming "1.00501.06250.061.12250.121.18250.17751.240.23751.30.2951.360.3551.41750.4151.47750.47251.5350.53251.5950.591.6550.651.71250.711.77250.76751.830.82751.890.88751.950.945"^^xsd:string ;
     nidm:Task "rest"^^xsd:string ;
-    nfo:filename "/Users/dbkeator/Documents/UCI/ReproNim/example_bids/ds000030_single_subj/sub-10159/func/sub-10159_task-rest_bold.nii.gz"^^xsd:string ;
-    prov:wasGeneratedBy nidm:_82ff219a-c59f-11e7-8d07-6c4008b8f03e .
+    nfo:filename "/sub-10159/func/sub-10159_task-rest_bold.nii.gz"^^xsd:string ;
+    prov:wasGeneratedBy nidm:_9b847f66-c654-11e7-936f-6c4008b8f03e .
 
-nidm:_830041cc-c59f-11e7-b0a4-6c4008b8f03e a nidm:Event,
+nidm:_9b857bf0-c654-11e7-bd5f-6c4008b8f03e a nidm:Event,
         prov:Entity ;
     nidm:Task "scap"^^xsd:string ;
-    nfo:filename "/Users/dbkeator/Documents/UCI/ReproNim/example_bids/ds000030_single_subj/sub-10159/func/sub-10159_task-scap_events.tsv"^^xsd:string ;
-    prov:wasAttributedTo nidm:_82ffadde-c59f-11e7-a2cd-6c4008b8f03e ;
-    prov:wasGeneratedBy nidm:_82ffa55c-c59f-11e7-9e20-6c4008b8f03e .
+    nfo:filename "/sub-10159/func/sub-10159_task-scap_events.tsv"^^xsd:string ;
+    prov:wasAttributedTo nidm:_9b850076-c654-11e7-9e8e-6c4008b8f03e ;
+    prov:wasGeneratedBy nidm:_9b84f926-c654-11e7-a205-6c4008b8f03e .
 
-nidm:_8300d330-c59f-11e7-9928-6c4008b8f03e a nidm:Event,
+nidm:_9b85ff1a-c654-11e7-bc59-6c4008b8f03e a nidm:Event,
         prov:Entity ;
     nidm:Task "stopsignal"^^xsd:string ;
-    nfo:filename "/Users/dbkeator/Documents/UCI/ReproNim/example_bids/ds000030_single_subj/sub-10159/func/sub-10159_task-stopsignal_events.tsv"^^xsd:string ;
-    prov:wasAttributedTo nidm:_83004fb6-c59f-11e7-9b18-6c4008b8f03e ;
-    prov:wasGeneratedBy nidm:_830049ee-c59f-11e7-98b9-6c4008b8f03e .
+    nfo:filename "/sub-10159/func/sub-10159_task-stopsignal_events.tsv"^^xsd:string ;
+    prov:wasAttributedTo nidm:_9b8588dc-c654-11e7-a53f-6c4008b8f03e ;
+    prov:wasGeneratedBy nidm:_9b858390-c654-11e7-b07f-6c4008b8f03e .
 
-nidm:_8301625c-c59f-11e7-9c55-6c4008b8f03e a nidm:Event,
+nidm:_9b868748-c654-11e7-8446-6c4008b8f03e a nidm:Event,
         prov:Entity ;
     nidm:Task "taskswitch"^^xsd:string ;
-    nfo:filename "/Users/dbkeator/Documents/UCI/ReproNim/example_bids/ds000030_single_subj/sub-10159/func/sub-10159_task-taskswitch_events.tsv"^^xsd:string ;
-    prov:wasAttributedTo nidm:_8300dff8-c59f-11e7-bebf-6c4008b8f03e ;
-    prov:wasGeneratedBy nidm:_8300dac6-c59f-11e7-9b41-6c4008b8f03e .
+    nfo:filename "/sub-10159/func/sub-10159_task-taskswitch_events.tsv"^^xsd:string ;
+    prov:wasAttributedTo nidm:_9b860afe-c654-11e7-acae-6c4008b8f03e ;
+    prov:wasGeneratedBy nidm:_9b8605ca-c654-11e7-862c-6c4008b8f03e .
 
-nidm:_830191ac-c59f-11e7-b36a-6c4008b8f03e a nidm:Assessment,
+nidm:_9b86b8e4-c654-11e7-ae7e-6c4008b8f03e a nidm:Assessment,
         prov:Entity ;
     bids:adhd_b "n/a"^^xsd:string ;
     bids:adhd_c_dx "n/a"^^xsd:string ;
@@ -309,10 +309,10 @@ nidm:_830191ac-c59f-11e7-b36a-6c4008b8f03e a nidm:Assessment,
     bids:childadhd8 "n/a"^^xsd:string ;
     bids:childadhd9 "n/a"^^xsd:string ;
     bids:data_dictionary "/Users/dbkeator/Documents/UCI/ReproNim/example_bids/ds000030_single_subj/phenotype/acds_adult.json"^^xsd:string ;
-    nfo:filename "/Users/dbkeator/Documents/UCI/ReproNim/example_bids/ds000030_single_subj/phenotype/acds_adult.tsv"^^xsd:string ;
-    prov:wasGeneratedBy nidm:_83018a3e-c59f-11e7-ae11-6c4008b8f03e .
+    nfo:filename "/phenotype/acds_adult.tsv"^^xsd:string ;
+    prov:wasGeneratedBy nidm:_9b86b09c-c654-11e7-90e7-6c4008b8f03e .
 
-nidm:_830213be-c59f-11e7-ab72-6c4008b8f03e a nidm:Assessment,
+nidm:_9b874e46-c654-11e7-a432-6c4008b8f03e a nidm:Assessment,
         prov:Entity ;
     bids:adhd1 "n/a"^^xsd:string ;
     bids:adhd10 "n/a"^^xsd:string ;
@@ -326,33 +326,36 @@ nidm:_830213be-c59f-11e7-ab72-6c4008b8f03e a nidm:Assessment,
     bids:adhd8 "n/a"^^xsd:string ;
     bids:adhd9 "n/a"^^xsd:string ;
     bids:data_dictionary "/Users/dbkeator/Documents/UCI/ReproNim/example_bids/ds000030_single_subj/phenotype/adhd.json"^^xsd:string ;
-    nfo:filename "/Users/dbkeator/Documents/UCI/ReproNim/example_bids/ds000030_single_subj/phenotype/adhd.tsv"^^xsd:string ;
-    prov:wasGeneratedBy nidm:_83020edc-c59f-11e7-a079-6c4008b8f03e .
+    nfo:filename "/phenotype/adhd.tsv"^^xsd:string ;
+    prov:wasGeneratedBy nidm:_9b8748c2-c654-11e7-8bd6-6c4008b8f03e .
 
-nidm:_82f9bbda-c59f-11e7-aeb8-6c4008b8f03e a nidm:Project,
+nidm:_9b7e763e-c654-11e7-bb30-6c4008b8f03e a nidm:Project,
         prov:Activity ;
     dctypes:title "UCLA Consortium for Neuropsychiatric Phenomics LA5c Study"^^xsd:string ;
     dct:description "All participants received brief training on each task directly before scanning. Each participant viewed the task through MRI-compatible goggles, responded with his or her right hand on an MR-compatible button box in the scanner, and performed one run of each task while in the scanner. Stimulus presentation and timing of all stimuli and response events were achieved using Matlab (Mathworks) and the Psychtoolbox (www.psychtoolbox.org) on an Apple Powerbook."^^xsd:string ;
     dct:license "PDDL"^^xsd:string ;
     sio:Identifier "1.0.0rc3"^^xsd:string ;
     dcat:author "Bilder, RPoldrack, RCannon, TLondon, EFreimer, NCongdon, EKarlsgodt, KSabb, F"^^xsd:string ;
-    dcat:creator "http://www.phenowiki.org/wiki/index.php/LA5C"^^xsd:string .
+    dcat:creator "http://www.phenowiki.org/wiki/index.php/LA5C"^^xsd:string ;
+    prov:Location "/Users/dbkeator/Documents/UCI/ReproNim/example_bids/ds000030_single_subj"^^xsd:string .
 
-nidm:_82faf4be-c59f-11e7-a0c6-6c4008b8f03e a nidm:AssessmentAcquisition,
+nidm:_9b7fa428-c654-11e7-b7f9-6c4008b8f03e a nidm:AssessmentAcquisition,
         prov:Activity ;
-    dct:isPartOf nidm:_82faee02-c59f-11e7-9ac2-6c4008b8f03e ;
+    dct:isPartOf nidm:_9b7f9e68-c654-11e7-8919-6c4008b8f03e ;
     prov:qualifiedAssociation [ a prov:Association ;
+            prov:Agent nidm:_9b7fae46-c654-11e7-b3a9-6c4008b8f03e ;
             prov:hadRole sio:Subject ] ;
-    prov:wasAssociatedWith nidm:_82fb0062-c59f-11e7-bf93-6c4008b8f03e .
+    prov:wasAssociatedWith nidm:_9b7fae46-c654-11e7-b3a9-6c4008b8f03e .
 
-nidm:_82fdb526-c59f-11e7-9b73-6c4008b8f03e a nidm:ImageAcquisition,
+nidm:_9b82d530-c654-11e7-9998-6c4008b8f03e a nidm:ImageAcquisition,
         prov:Activity ;
-    dct:isPartOf nidm:_82faee02-c59f-11e7-9ac2-6c4008b8f03e ;
+    dct:isPartOf nidm:_9b7f9e68-c654-11e7-8919-6c4008b8f03e ;
     prov:qualifiedAssociation [ a prov:Association ;
+            prov:Agent nidm:_9b7fae46-c654-11e7-b3a9-6c4008b8f03e ;
             prov:hadRole sio:Subject ] ;
-    prov:wasAssociatedWith nidm:_82fb0062-c59f-11e7-bf93-6c4008b8f03e .
+    prov:wasAssociatedWith nidm:_9b7fae46-c654-11e7-b3a9-6c4008b8f03e .
 
-nidm:_82fe89b8-c59f-11e7-985c-6c4008b8f03e a nidm:MRI_Function,
+nidm:_9b83d412-c654-11e7-91da-6c4008b8f03e a nidm:MRI_Function,
         nidm:MRI_dataset,
         prov:Entity ;
     dicom:AccelNumReferenceLines "24"^^xsd:int ;
@@ -389,17 +392,18 @@ nidm:_82fe89b8-c59f-11e7-985c-6c4008b8f03e a nidm:MRI_Function,
     nidm:PhaseEncodingDirection "j-"^^xsd:string ;
     nidm:SliceTiming "1.002501.06250.061.12250.11751.180.17751.240.2351.30.2951.35750.3551.41750.41251.4750.47251.5350.531.5950.591.65250.651.71250.70751.770.76751.830.82751.890.8851.94750.945"^^xsd:string ;
     nidm:Task "bart"^^xsd:string ;
-    nfo:filename "/Users/dbkeator/Documents/UCI/ReproNim/example_bids/ds000030_single_subj/sub-10159/func/sub-10159_task-bart_bold.nii.gz"^^xsd:string ;
-    prov:wasGeneratedBy nidm:_82fe83c0-c59f-11e7-b3e0-6c4008b8f03e .
+    nfo:filename "/sub-10159/func/sub-10159_task-bart_bold.nii.gz"^^xsd:string ;
+    prov:wasGeneratedBy nidm:_9b83cc6c-c654-11e7-95b5-6c4008b8f03e .
 
-nidm:_82ff219a-c59f-11e7-8d07-6c4008b8f03e a nidm:ImageAcquisition,
+nidm:_9b847f66-c654-11e7-936f-6c4008b8f03e a nidm:ImageAcquisition,
         prov:Activity ;
-    dct:isPartOf nidm:_82faee02-c59f-11e7-9ac2-6c4008b8f03e ;
+    dct:isPartOf nidm:_9b7f9e68-c654-11e7-8919-6c4008b8f03e ;
     prov:qualifiedAssociation [ a prov:Association ;
+            prov:Agent nidm:_9b7fae46-c654-11e7-b3a9-6c4008b8f03e ;
             prov:hadRole sio:Subject ] ;
-    prov:wasAssociatedWith nidm:_82fb0062-c59f-11e7-bf93-6c4008b8f03e .
+    prov:wasAssociatedWith nidm:_9b7fae46-c654-11e7-b3a9-6c4008b8f03e .
 
-nidm:_82ffadde-c59f-11e7-a2cd-6c4008b8f03e a nidm:MRI_Function,
+nidm:_9b850076-c654-11e7-9e8e-6c4008b8f03e a nidm:MRI_Function,
         nidm:MRI_dataset,
         prov:Entity ;
     dicom:AccelNumReferenceLines "24"^^xsd:int ;
@@ -436,10 +440,10 @@ nidm:_82ffadde-c59f-11e7-a2cd-6c4008b8f03e a nidm:MRI_Function,
     nidm:PhaseEncodingDirection "j-"^^xsd:string ;
     nidm:SliceTiming "1.00501.06250.061.12250.11751.180.17751.240.2351.30.2951.35750.3551.41750.41251.4750.47251.5350.53251.5950.591.65250.651.71250.70751.77250.76751.830.82751.890.8851.94750.945"^^xsd:string ;
     nidm:Task "scap"^^xsd:string ;
-    nfo:filename "/Users/dbkeator/Documents/UCI/ReproNim/example_bids/ds000030_single_subj/sub-10159/func/sub-10159_task-scap_bold.nii.gz"^^xsd:string ;
-    prov:wasGeneratedBy nidm:_82ffa55c-c59f-11e7-9e20-6c4008b8f03e .
+    nfo:filename "/sub-10159/func/sub-10159_task-scap_bold.nii.gz"^^xsd:string ;
+    prov:wasGeneratedBy nidm:_9b84f926-c654-11e7-a205-6c4008b8f03e .
 
-nidm:_83004fb6-c59f-11e7-9b18-6c4008b8f03e a nidm:MRI_Function,
+nidm:_9b8588dc-c654-11e7-a53f-6c4008b8f03e a nidm:MRI_Function,
         nidm:MRI_dataset,
         prov:Entity ;
     dicom:AccelNumReferenceLines "24"^^xsd:int ;
@@ -476,10 +480,10 @@ nidm:_83004fb6-c59f-11e7-9b18-6c4008b8f03e a nidm:MRI_Function,
     nidm:PhaseEncodingDirection "j-"^^xsd:string ;
     nidm:SliceTiming "1.002501.06250.05751.120.11751.180.17751.240.2351.29750.2951.35750.35251.41750.41251.4750.47251.5350.531.59250.591.65250.651.71250.70751.770.76751.830.8251.88750.8851.94750.945"^^xsd:string ;
     nidm:Task "stopsignal"^^xsd:string ;
-    nfo:filename "/Users/dbkeator/Documents/UCI/ReproNim/example_bids/ds000030_single_subj/sub-10159/func/sub-10159_task-stopsignal_bold.nii.gz"^^xsd:string ;
-    prov:wasGeneratedBy nidm:_830049ee-c59f-11e7-98b9-6c4008b8f03e .
+    nfo:filename "/sub-10159/func/sub-10159_task-stopsignal_bold.nii.gz"^^xsd:string ;
+    prov:wasGeneratedBy nidm:_9b858390-c654-11e7-b07f-6c4008b8f03e .
 
-nidm:_8300dff8-c59f-11e7-bebf-6c4008b8f03e a nidm:MRI_Function,
+nidm:_9b860afe-c654-11e7-acae-6c4008b8f03e a nidm:MRI_Function,
         nidm:MRI_dataset,
         prov:Entity ;
     dicom:AccelNumReferenceLines "24"^^xsd:int ;
@@ -516,63 +520,70 @@ nidm:_8300dff8-c59f-11e7-bebf-6c4008b8f03e a nidm:MRI_Function,
     nidm:PhaseEncodingDirection "j-"^^xsd:string ;
     nidm:SliceTiming "1.002501.06250.05751.120.11751.180.1751.23750.2351.29750.2951.35750.35251.4150.41251.4750.471.5350.531.59250.591.65250.64751.710.70751.770.76751.830.8251.88750.8851.94750.9425"^^xsd:string ;
     nidm:Task "taskswitch"^^xsd:string ;
-    nfo:filename "/Users/dbkeator/Documents/UCI/ReproNim/example_bids/ds000030_single_subj/sub-10159/func/sub-10159_task-taskswitch_bold.nii.gz"^^xsd:string ;
-    prov:wasGeneratedBy nidm:_8300dac6-c59f-11e7-9b41-6c4008b8f03e .
+    nfo:filename "/sub-10159/func/sub-10159_task-taskswitch_bold.nii.gz"^^xsd:string ;
+    prov:wasGeneratedBy nidm:_9b8605ca-c654-11e7-862c-6c4008b8f03e .
 
-nidm:_83018a3e-c59f-11e7-ae11-6c4008b8f03e a nidm:AssessmentAcquisition,
+nidm:_9b86b09c-c654-11e7-90e7-6c4008b8f03e a nidm:AssessmentAcquisition,
         prov:Activity ;
-    dct:isPartOf nidm:_82faee02-c59f-11e7-9ac2-6c4008b8f03e ;
+    dct:isPartOf nidm:_9b7f9e68-c654-11e7-8919-6c4008b8f03e ;
     prov:qualifiedAssociation [ a prov:Association ;
+            prov:Agent nidm:_9b7fae46-c654-11e7-b3a9-6c4008b8f03e ;
             prov:hadRole sio:Subject ] ;
-    prov:wasAssociatedWith nidm:_82fb0062-c59f-11e7-bf93-6c4008b8f03e .
+    prov:wasAssociatedWith nidm:_9b7fae46-c654-11e7-b3a9-6c4008b8f03e .
 
-nidm:_83020edc-c59f-11e7-a079-6c4008b8f03e a nidm:AssessmentAcquisition,
+nidm:_9b8748c2-c654-11e7-8bd6-6c4008b8f03e a nidm:AssessmentAcquisition,
         prov:Activity ;
-    dct:isPartOf nidm:_82faee02-c59f-11e7-9ac2-6c4008b8f03e ;
+    dct:isPartOf nidm:_9b7f9e68-c654-11e7-8919-6c4008b8f03e ;
     prov:qualifiedAssociation [ a prov:Association ;
+            prov:Agent nidm:_9b7fae46-c654-11e7-b3a9-6c4008b8f03e ;
             prov:hadRole sio:Subject ] ;
-    prov:wasAssociatedWith nidm:_82fb0062-c59f-11e7-bf93-6c4008b8f03e .
+    prov:wasAssociatedWith nidm:_9b7fae46-c654-11e7-b3a9-6c4008b8f03e .
 
-nidm:_82fe83c0-c59f-11e7-b3e0-6c4008b8f03e a nidm:ImageAcquisition,
+nidm:_9b83cc6c-c654-11e7-95b5-6c4008b8f03e a nidm:ImageAcquisition,
         prov:Activity ;
-    dct:isPartOf nidm:_82faee02-c59f-11e7-9ac2-6c4008b8f03e ;
+    dct:isPartOf nidm:_9b7f9e68-c654-11e7-8919-6c4008b8f03e ;
     prov:qualifiedAssociation [ a prov:Association ;
+            prov:Agent nidm:_9b7fae46-c654-11e7-b3a9-6c4008b8f03e ;
             prov:hadRole sio:Subject ] ;
-    prov:wasAssociatedWith nidm:_82fb0062-c59f-11e7-bf93-6c4008b8f03e .
+    prov:wasAssociatedWith nidm:_9b7fae46-c654-11e7-b3a9-6c4008b8f03e .
 
-nidm:_82ffa55c-c59f-11e7-9e20-6c4008b8f03e a nidm:ImageAcquisition,
+nidm:_9b84f926-c654-11e7-a205-6c4008b8f03e a nidm:ImageAcquisition,
         prov:Activity ;
-    dct:isPartOf nidm:_82faee02-c59f-11e7-9ac2-6c4008b8f03e ;
+    dct:isPartOf nidm:_9b7f9e68-c654-11e7-8919-6c4008b8f03e ;
     prov:qualifiedAssociation [ a prov:Association ;
+            prov:Agent nidm:_9b7fae46-c654-11e7-b3a9-6c4008b8f03e ;
             prov:hadRole sio:Subject ] ;
-    prov:wasAssociatedWith nidm:_82fb0062-c59f-11e7-bf93-6c4008b8f03e .
+    prov:wasAssociatedWith nidm:_9b7fae46-c654-11e7-b3a9-6c4008b8f03e .
 
-nidm:_830049ee-c59f-11e7-98b9-6c4008b8f03e a nidm:ImageAcquisition,
+nidm:_9b858390-c654-11e7-b07f-6c4008b8f03e a nidm:ImageAcquisition,
         prov:Activity ;
-    dct:isPartOf nidm:_82faee02-c59f-11e7-9ac2-6c4008b8f03e ;
+    dct:isPartOf nidm:_9b7f9e68-c654-11e7-8919-6c4008b8f03e ;
     prov:qualifiedAssociation [ a prov:Association ;
+            prov:Agent nidm:_9b7fae46-c654-11e7-b3a9-6c4008b8f03e ;
             prov:hadRole sio:Subject ] ;
-    prov:wasAssociatedWith nidm:_82fb0062-c59f-11e7-bf93-6c4008b8f03e .
+    prov:wasAssociatedWith nidm:_9b7fae46-c654-11e7-b3a9-6c4008b8f03e .
 
-nidm:_8300dac6-c59f-11e7-9b41-6c4008b8f03e a nidm:ImageAcquisition,
+nidm:_9b8605ca-c654-11e7-862c-6c4008b8f03e a nidm:ImageAcquisition,
         prov:Activity ;
-    dct:isPartOf nidm:_82faee02-c59f-11e7-9ac2-6c4008b8f03e ;
+    dct:isPartOf nidm:_9b7f9e68-c654-11e7-8919-6c4008b8f03e ;
     prov:qualifiedAssociation [ a prov:Association ;
+            prov:Agent nidm:_9b7fae46-c654-11e7-b3a9-6c4008b8f03e ;
             prov:hadRole sio:Subject ] ;
-    prov:wasAssociatedWith nidm:_82fb0062-c59f-11e7-bf93-6c4008b8f03e .
+    prov:wasAssociatedWith nidm:_9b7fae46-c654-11e7-b3a9-6c4008b8f03e .
 
-nidm:_82fe0850-c59f-11e7-95dd-6c4008b8f03e a nidm:ImageAcquisition,
+nidm:_9b833e76-c654-11e7-8e3b-6c4008b8f03e a nidm:ImageAcquisition,
         prov:Activity ;
-    dct:isPartOf nidm:_82faee02-c59f-11e7-9ac2-6c4008b8f03e ;
+    dct:isPartOf nidm:_9b7f9e68-c654-11e7-8919-6c4008b8f03e ;
     prov:qualifiedAssociation [ a prov:Association ;
+            prov:Agent nidm:_9b7fae46-c654-11e7-b3a9-6c4008b8f03e ;
             prov:hadRole sio:Subject ] ;
-    prov:wasAssociatedWith nidm:_82fb0062-c59f-11e7-bf93-6c4008b8f03e .
+    prov:wasAssociatedWith nidm:_9b7fae46-c654-11e7-b3a9-6c4008b8f03e .
 
-nidm:_82faee02-c59f-11e7-9ac2-6c4008b8f03e a nidm:Session,
+nidm:_9b7f9e68-c654-11e7-8919-6c4008b8f03e a nidm:Session,
         prov:Activity ;
-    dct:isPartOf nidm:_82f9bbda-c59f-11e7-aeb8-6c4008b8f03e .
+    dct:isPartOf nidm:_9b7e763e-c654-11e7-bb30-6c4008b8f03e .
 
-nidm:_82fb0062-c59f-11e7-bf93-6c4008b8f03e a prov:Agent,
+nidm:_9b7fae46-c654-11e7-b3a9-6c4008b8f03e a prov:Agent,
         prov:Person ;
     ndar:src_subject_id "sub-10159"^^xsd:string .
 

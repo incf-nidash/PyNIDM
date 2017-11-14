@@ -164,7 +164,8 @@ class Core(object):
             #associate person with activity for qualified association
             assoc = self.graph.association(agent=person, activity=self)
             #add role for qualified association
-            assoc.add_attributes({pm.PROV_ROLE:role})
+            assoc.add_attributes({pm.PROV_ROLE:role,pm.PROV_AGENT:person})
+
 
             #connect self to person serving as role
             #if(isinstance(self,pm.ProvActivity)):
@@ -310,7 +311,11 @@ class Core(object):
         Serializes graph to JSON-LD format
         :return: text of serialized graph in JSON-LD format
         """
-        return self.graph.serialize(format='json-ld', indent=4)
+        #workaround to get JSONLD from RDFLib...
+        rdf_graph = Graph()
+        rdf_graph_parse = rdf_graph.parse(source=StringIO(self.serializeTurtle()),format='turtle')
+        return rdf_graph_parse.serialize(format='json-ld', indent=4)
+        #return self.graph.serialize(format='json-ld', indent=4)
     def save_DotGraph(self,filename,format=None):
         dot = prov_to_dot(self.graph)
         #add some logic to find nodes with dct:hasPart relation and add those edges to graph...prov_to_dot ignores these
