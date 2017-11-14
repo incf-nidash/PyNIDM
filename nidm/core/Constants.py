@@ -44,11 +44,11 @@ DCAT = Namespace("http://www.w3.org/ns/dcat#")
 BIRNLEX = Namespace("http://bioontology.org/projects/ontologies/birnlex/")
 NDAR = Namespace("https://ndar.nih.gov/api/datadictionary/v2/dataelement/")
 NCICB = Namespace("http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#")
-SIO = Namespace("http://semanticscience.org/resource/")
+SIO = Namespace("http://semanticscience.org/ontology/sio.owl#")
 BIDS = Namespace("http://bids.neuroimaging.io/")
 
 namespaces = {
-    "prov": PROV,
+   # "prov": PROV,
     "nidm": NIDM,
     "niiri": NIIRI,
     "afni": AFNI,

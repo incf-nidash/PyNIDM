@@ -46,7 +46,18 @@ import glob
 from argparse import ArgumentParser
 from bids.grabbids import BIDSLayout
 
+def getRelPathToBIDS(filepath, bids_root):
+    """
+    This function returns a relative file link that is relative to the BIDS root directory.
 
+    :param filename: absolute path + file
+    :param bids_root: absolute path to BIDS directory
+    :return: relative path to file, relative to BIDS root
+    """
+    path,file = os.path.split(filepath)
+
+    relpath = path.replace(bids_root,"")
+    return(os.path.join(relpath,file))
 
 
 
@@ -82,7 +93,8 @@ def main(argv):
                 project.add_attributes({BIDS_Constants.dataset_description[key]:"".join(dataset[key])})
             else:
                 project.add_attributes({BIDS_Constants.dataset_description[key]:dataset[key]})
-
+        #add absolute location of BIDS directory on disk for later finding of files which are stored relatively in NIDM document
+        project.add_attributes({Constants.PROV['Location']:directory})
     #create empty dictinary for sessions where key is subject id and used later to link scans to same session as demographics
     session={}
     participant={}
@@ -147,7 +159,7 @@ def main(argv):
                 acq_obj.add_attributes({PROV_TYPE:BIDS_Constants.scans[file_tpl.modality]})
                 #add file link
                 #make relative link to
-                acq_obj.add_attributes({Constants.NIDM_FILENAME:file_tpl.filename})
+                acq_obj.add_attributes({Constants.NIDM_FILENAME:getRelPathToBIDS(file_tpl.filename, directory)})
                 #get associated JSON file if exists
                 json_data = bids_layout.get_metadata(file_tpl.filename)
                 if json_data:
@@ -162,7 +174,7 @@ def main(argv):
                 acq_obj = MRObject(acq)
                 acq_obj.add_attributes({PROV_TYPE:BIDS_Constants.scans[file_tpl.modality]})
                 #add file link
-                acq_obj.add_attributes({Constants.NIDM_FILENAME:file_tpl.filename})
+                acq_obj.add_attributes({Constants.NIDM_FILENAME:getRelPathToBIDS(file_tpl.filename, directory)})
                 if 'run' in file_tpl._fields:
                     acq_obj.add_attributes({BIDS_Constants.json_keys["run"]:file_tpl.run})
 
@@ -187,7 +199,8 @@ def main(argv):
                     #for now create acquisition object and link it to the associated scan
                     events_obj = AcquisitionObject(acq)
                     #add prov type, task name as prov:label, and link to filename of events file
-                    events_obj.add_attributes({PROV_TYPE:Constants.NIDM_MRI_BOLD_EVENTS,BIDS_Constants.json_keys["TaskName"]: json_data["TaskName"], Constants.NFO["filename"]:events_file[0].filename})
+
+                    events_obj.add_attributes({PROV_TYPE:Constants.NIDM_MRI_BOLD_EVENTS,BIDS_Constants.json_keys["TaskName"]: json_data["TaskName"], Constants.NIDM_FILENAME:getRelPathToBIDS(events_file[0].filename, directory)})
                     #link it to appropriate MR acquisition entity
                     events_obj.wasAttributedTo(acq_obj)
 
@@ -196,10 +209,11 @@ def main(argv):
                 acq_obj = MRObject(acq)
                 acq_obj.add_attributes({PROV_TYPE:BIDS_Constants.scans[file_tpl.modality]})
                 #add file link
-                acq_obj.add_attributes({Constants.NIDM_FILENAME:file_tpl.filename})
+                acq_obj.add_attributes({Constants.NIDM_FILENAME:getRelPathToBIDS(file_tpl.filename, directory)})
                 if 'run' in file_tpl._fields:
                     acq_obj.add_attributes({BIDS_Constants.json_keys["run"]:file_tpl.run})
-                    #get associated JSON file if exists
+
+                #get associated JSON file if exists
                 json_data = bids_layout.get_metadata(file_tpl.filename)
 
                 if json_data:
@@ -216,11 +230,11 @@ def main(argv):
                 acq_obj_bval = AcquisitionObject(acq)
                 acq_obj_bval.add_attributes({PROV_TYPE:BIDS_Constants.scans["bval"]})
                 #add file link to bval files
-                acq_obj_bval.add_attributes({Constants.NIDM_FILENAME:bids_layout.get_bval(file_tpl.filename)})
+                acq_obj_bval.add_attributes({Constants.NIDM_FILENAME:getRelPathToBIDS(bids_layout.get_bval(file_tpl.filename), directory)})
                 acq_obj_bvec = AcquisitionObject(acq)
                 acq_obj_bvec.add_attributes({PROV_TYPE:BIDS_Constants.scans["bvec"]})
                 #add file link to bvec files
-                acq_obj_bvec.add_attributes({Constants.NIDM_FILENAME:bids_layout.get_bvec(file_tpl.filename)})
+                acq_obj_bvec.add_attributes({Constants.NIDM_FILENAME:getRelPathToBIDS(bids_layout.get_bvec(file_tpl.filename),directory)})
 
                 #link bval and bvec acquisition object entities together or is their association with DWI scan...
 
@@ -252,7 +266,7 @@ def main(argv):
                                 acq_entity.add_attributes({Constants.BIDS[key]:value})
 
                         #link TSV file
-                        acq_entity.add_attributes({Constants.NIDM_FILENAME:tsv_file})
+                        acq_entity.add_attributes({Constants.NIDM_FILENAME:getRelPathToBIDS(tsv_file,directory)})
                         #link associated JSON file if it exists
                         data_dict = os.path.join(directory,"phenotype",os.path.splitext(os.path.basename(tsv_file))[0]+ ".json")
                         if os.path.isfile(data_dict):
