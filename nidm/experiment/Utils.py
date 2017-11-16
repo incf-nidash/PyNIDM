@@ -178,8 +178,6 @@ def add_metadata_for_subject (rdf_graph,subject_uri,namespaces,nidm_obj):
             for bnode in rdf_graph.objects(subject=subject_uri,predicate=Constants.PROV['qualifiedAssociation']):
                 #for bnode, query for object which is role?  How?
                 #term.BNode.__dict__()
-                #create an IRI for this bnode so we can query for the role
-                iri=bnode.skolemize()
 
                 #create temporary resource for this bnode
                 r = Resource(rdf_graph,bnode)

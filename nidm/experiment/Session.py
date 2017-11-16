@@ -46,7 +46,7 @@ class Session(pm.ProvActivity,Core):
     def add_acquisition(self,acquisition):
         self._acquisitions.extend([acquisition])
         #create links in graph
-        acquisition.add_attributes({str("dct:isPartOf"):self})
+        acquisition.add_attributes({pm.QualifiedName(pm.Namespace("dct",Constants.DCT),'isPartOf'):self})
     def get_acquisitions(self):
         return self._acquisitions
     def __str__(self):

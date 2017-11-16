@@ -26,7 +26,7 @@ class Project(pm.ProvActivity,Core):
 
     """
     #constructor, adds project
-    def __init__(self,attributes=None, empty_graph=False,uuid=None):
+    def __init__(self,attributes=None, empty_graph=False, uuid=None):
         """
         Default contructor, creates document and adds Project activity to graph with optional attributes
 
@@ -72,7 +72,8 @@ class Project(pm.ProvActivity,Core):
             #add session to self.sessions list
             self._sessions.extend([session])
             #create links in graph
-            session.add_attributes({str("dct:isPartOf"):self})
+            #session.add_attributes({str("dct:isPartOf"):self})
+            session.add_attributes({pm.QualifiedName(pm.Namespace("dct",Constants.DCT),'isPartOf'):self})
             return True
     def get_sessions(self):
         return self._sessions
