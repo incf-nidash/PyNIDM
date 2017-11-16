@@ -48,7 +48,7 @@ SIO = Namespace("http://semanticscience.org/resource/")
 BIDS = Namespace("http://bids.neuroimaging.io/")
 
 namespaces = {
-    "prov": PROV,
+#    "prov": PROV,
     "nidm": NIDM,
     "niiri": NIIRI,
     "afni": AFNI,

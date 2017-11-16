@@ -1,8 +1,10 @@
 import os,sys
 import pytest, pdb
 
-from nidm.experiment import Project,Session,Acquisition,AcquisitionObject
+from nidm.experiment import Project, Session, Acquisition, AcquisitionObject
 from nidm.core import Constants
+
+import prov, rdflib
 
 def test_1(tmpdir):
     tmpdir.chdir()
@@ -67,3 +69,113 @@ def test_sessions_3(tmpdir):
     assert session1.label == project1.sessions[0].label
 
 
+def test_project_noparameters():
+    # creating project without parameters
+    proj = Project()
+
+    # checking if we created ProvDocument
+    assert type(proj.bundle) is prov.model.ProvDocument
+
+    # checking graph namespace
+    const_l = list(Constants.namespaces)
+    namesp = [i.prefix for i in proj.graph.namespaces]
+    assert sorted(const_l) == sorted(namesp)
+
+    # checking type
+    proj_type = proj.get_type()
+    assert eval(proj_type.provn_representation()) == 'prov:Activity'
+
+    # checking length of graph records; it doesn work if all tests are run
+    assert len(proj.graph.get_records()) == 1
+
+
+def test_project_emptygraph():
+    # creating project without parameters
+    proj = Project(empty_graph=True)
+
+    # checking if we created ProvDocument
+    assert type(proj.bundle) is prov.model.ProvDocument
+
+    # checking graph namespace
+    namesp = [i.prefix for i in proj.graph.namespaces]
+    assert namesp == ["nidm"]
+
+    # checking type
+    proj_type = proj.get_type()
+    assert eval(proj_type.provn_representation()) == 'prov:Activity'
+
+    assert len(proj.graph.get_records()) == 1
+
+
+def test_project_uuid():
+    # creating project without parameters
+    proj = Project(uuid="my_uuid")
+
+    # checking if we created ProvDocument
+    assert type(proj.bundle) is prov.model.ProvDocument
+
+    # checking graph namespace
+    const_l = list(Constants.namespaces)
+    namesp = [i.prefix for i in proj.graph.namespaces]
+    assert sorted(const_l) == sorted(namesp)
+
+    # checking type
+    proj_type = proj.get_type()
+    assert eval(proj_type.provn_representation()) == 'prov:Activity'
+
+    # checking if uuid is correct
+    assert proj.identifier.localpart == "my_uuid"
+
+    # checking length of graph records; it doesn work if all tests are run
+    assert len(proj.graph.get_records()) == 1
+
+
+def test_project_att():
+    # creating project without parameters
+    proj = Project(attributes={prov.model.QualifiedName(Constants.NIDM, "title"): "MyPRoject"})
+
+    # checking if we created ProvDocument
+    assert type(proj.bundle) is prov.model.ProvDocument
+
+    # checking graph namespace
+    const_l = list(Constants.namespaces)
+    namesp = [i.prefix for i in proj.graph.namespaces]
+    assert sorted(const_l+[rdflib.term.URIRef('http://purl.org/nidash/nidm#prefix')]) == sorted(namesp)
+
+    # checking type
+    proj_type = proj.get_type()
+    assert eval(proj_type.provn_representation()) == 'prov:Activity'
+
+    # checking length of graph records; it doesn work if all tests are run
+    assert len(proj.graph.get_records()) == 1
+
+
+def test_session_noparameters():
+    # creating project without parameters and a session to the project
+    proj = Project()
+    sess = Session(proj)
+
+    # checking if we created ProvDocument
+    assert type(proj.bundle) is prov.model.ProvDocument
+
+    # checking if one session is added
+    assert len(proj.sessions)
+
+    # checking graph namespace
+    const_l = list(Constants.namespaces)
+    namesp = [i.prefix for i in proj.graph.namespaces]
+    assert sorted(const_l) == sorted(namesp)
+
+    # checking type
+    proj_type = proj.get_type()
+    assert eval(proj_type.provn_representation()) == 'prov:Activity'
+
+    # checking length of graph records; it doesn work if all tests are run
+    assert len(proj.graph.get_records()) == 2
+
+
+
+
+#TODO: checking
+#attributes{pm.QualifiedName(Namespace("uci", "https.../"), "mascot"): "bleble", ...}
+# (has to be "/" at the end (or #)
