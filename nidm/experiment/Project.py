@@ -39,7 +39,7 @@ class Project(pm.ProvActivity,Core):
         if (empty_graph):
             self.graph = pm.ProvDocument()
         else:
-            self.graph = Constants.PGraph()
+            self.graph = Constants.NIDMDocument()
 
         if uuid is None:
             #execute default parent class constructor

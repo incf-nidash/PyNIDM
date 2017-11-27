@@ -81,9 +81,10 @@ for name, namespace in namespaces.items():
     q_graph.bind(name, namespace)
 
 # DBK Added - Empty graph using provtoolbox used to compute qnames
-class PGraph(ProvDocument):
+# dj: chnaged to a new class
+class NIDMDocument(ProvDocument):
     def __init__(self):
-        super(PGraph, self).__init__(namespaces=namespaces)
+        super(NIDMDocument, self).__init__(namespaces=namespaces)
 
 
 # NIDM constants

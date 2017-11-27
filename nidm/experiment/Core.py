@@ -34,8 +34,8 @@ class Core(object):
         """
         Default constructor, loads empty graph and namespaces from NIDM/Scripts/Constants.py
         """
-        #make a local copy PGraph PROV document with namespaces already bound
-        self.graph = Constants.PGraph()
+        #a new instance of NIDMDocument PROV document with namespaces already bound
+        self.graph = Constants.NIDMDocument()
         #make a local copy of the namespaces
         self.namespaces = Constants.namespaces
 
