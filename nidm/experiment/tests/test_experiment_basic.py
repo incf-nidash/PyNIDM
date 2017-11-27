@@ -74,7 +74,7 @@ def test_project_noparameters():
     proj = Project()
 
     # checking if we created ProvDocument
-    assert type(proj.bundle) is prov.model.ProvDocument
+    assert issubclass(type(proj.bundle), prov.model.ProvDocument)
 
     # checking graph namespace
     const_l = list(Constants.namespaces)
@@ -94,7 +94,7 @@ def test_project_emptygraph():
     proj = Project(empty_graph=True)
 
     # checking if we created ProvDocument
-    assert type(proj.bundle) is prov.model.ProvDocument
+    assert issubclass(type(proj.bundle), prov.model.ProvDocument)
 
     # checking graph namespace
     namesp = [i.prefix for i in proj.graph.namespaces]
@@ -112,7 +112,7 @@ def test_project_uuid():
     proj = Project(uuid="my_uuid")
 
     # checking if we created ProvDocument
-    assert type(proj.bundle) is prov.model.ProvDocument
+    assert issubclass(type(proj.bundle), prov.model.ProvDocument)
 
     # checking graph namespace
     const_l = list(Constants.namespaces)
@@ -135,7 +135,7 @@ def test_project_att():
     proj = Project(attributes={prov.model.QualifiedName(Constants.NIDM, "title"): "MyPRoject"})
 
     # checking if we created ProvDocument
-    assert type(proj.bundle) is prov.model.ProvDocument
+    assert issubclass(type(proj.bundle), prov.model.ProvDocument)
 
     # checking graph namespace
     const_l = list(Constants.namespaces)
@@ -156,7 +156,7 @@ def test_session_noparameters():
     sess = Session(proj)
 
     # checking if we created ProvDocument
-    assert type(proj.bundle) is prov.model.ProvDocument
+    assert issubclass(type(proj.bundle), prov.model.ProvDocument)
 
     # checking if one session is added
     assert len(proj.sessions)
