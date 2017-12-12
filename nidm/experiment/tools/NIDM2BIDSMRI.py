@@ -55,6 +55,80 @@ import validators
 from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
 
+def CreateBIDSParticipantFile(nidm_graph,output_file,participant_fields):
+    '''
+    Creates participant file based on requested fields
+
+    :param nidm_graph:
+    :param output_directory:
+    :param fields:
+    :return:
+    '''
+
+    print("Creating participants.json file...")
+    participants=pd.DataFrame(columns=["participant_id"],index=[1])
+
+
+    #for each Constants.NIDM_SUBJECTID in NIDM file
+    row_index=1
+    for subj_uri,subj_id in nidm_graph.subject_objects(predicate=URIRef(Constants.NIDM_SUBJECTID.uri)):
+
+        #create temporary list to append to dataframe
+        #data=[]
+        #adding subject ID to data list to append to participants data frame
+        #data.append(str(subj_id))
+        participants.ix[row_index,'participant_id',] = subj_id
+        #for each of the fields in the participants list
+        for fields in participant_fields:
+            #if field identifier isn't a proper URI then do a fuzzy search on the graph, else an explicit search for the URL
+            if(validators.url(fields)):
+                #then this is a valid URI so simply query nidm_project document for it
+                for subj,obj in nidm_graph.subject_objects(predicate=URIRef(BIDS_Constants.participants[fields].uri)):
+                    #add row to the pandas data frame
+                    #data.append(obj)
+                    participants.ix[row_index,BIDS_Constants.participants[fields].uri] = obj
+            else:
+                #text matching task, remove basepart of URIs and try to fuzzy match the field in the part_fields parameter string
+                #to the "term" part of a qname URI...this part let's a user simply ask for "age" for example without knowing the
+                #complete URI....hopefully
+                #
+                #This needs to be a more complex query:
+                #   Step(1): For subj_uri query for prov:Activity that were prov:wasAttributedTo subj_uri
+                #   Step(2): Query for prov:Entity that were prov:wasGeneratedBy uris from Step(1)
+                #   Step(3): For each metadata triple in objects whose subject is uris from Step(2), fuzzy match predicate after
+                #   removing base of uri to "fields" in participants list, then add these to data list for appending to pandas
+                match_ratio={}
+                #
+                #Steps(1):(3)
+
+                query = """SELECT DISTINCT ?pred ?value
+                    WHERE {
+                        <%s> rdf:type prov:Agent .
+                        ?asses_activity prov:wasAssociatedWith <%s> ;
+                            rdf:type nidm:AssessmentAcquisition .
+                        ?entities prov:wasGeneratedBy ?asses_activity ;
+                            ?pred ?value .
+                        FILTER (regex(str(?pred) ,"%s","i" ))
+                    }""" % (subj_uri,subj_uri,fields)
+                #print(query)
+                qres = nidm_graph.query(query)
+
+                for row in qres:
+                    participants.ix[row_index,str(row[0])] = str(row[1])
+                    #data.append(str(row[1]))
+
+        #add row to participants DataFrame
+        #participants=participants.append(pd.DataFrame(data))
+        participants
+                #match_ratio[(fuzz.ratio())
+        row_index = row_index+1
+
+
+    #save participants.tsv file
+    participants.to_csv(output_file,sep='\t',index=False)
+    return participants
+
+
 
 def NIDMProject2BIDSDatasetDescriptor(nidm_graph,output_directory):
     '''
@@ -106,6 +180,9 @@ def main(argv):
     parser.add_argument('-nidm_file', dest='rdf_file', required=True, help="NIDM RDF file")
     parser.add_argument('-part_fields', nargs='+', dest='part_fields', required=False, \
                         help='Variables to add to BIDS participant file. Variables will be fuzzy-matched to NIDM URIs')
+    parser.add_argument('-anat', dest='anat', required=False, help="Include flag to add anatomical scans to BIDS dataset")
+    parser.add_argument('-func', dest='func', required=False, help="Include flag to add functional scans + events files to BIDS dataset")
+    parser.add_argument('-dwi', dest='dwi', required=False, help="Include flag to add DWI scans + Bval/Bvec files to BIDS dataset")
     parser.add_argument('-bids_dir', dest='bids_dir', required=True, help="Directory to store BIDS dataset")
     args = parser.parse_args()
 
@@ -144,77 +221,8 @@ def main(argv):
     rdf_graph = Graph()
     rdf_graph_parse = rdf_graph.parse(source=StringIO(nidm_project.serializeTurtle()),format='turtle')
 
-    #create pandas data frame for participants.tsv file items
-    #if user specified fields to add to participant file
-    if args.part_fields is not None:
-        #args.part_fields.insert(0,Constants.NIDM_SUBJECTID)
-        temp = ["participant_id"]
-        participants = pd.DataFrame(columns=temp+args.part_fields)
-    #else simply add participant_id which is the minimum BIDS spec
-    else:
-        #participants = pd.DataFrame(columns=[Constants.NIDM_SUBJECTID])
-        participants=pd.DataFrame(columns="participant_id")
-
-
-    #for each Constants.NIDM_SUBJECTID in NIDM file
-    for subj_uri,subj_id in rdf_graph_parse.subject_objects(predicate=URIRef(Constants.NIDM_SUBJECTID.uri)):
-
-        #create temporary list to append to dataframe
-        data=[]
-        #adding subject ID to data list to append to participants data frame
-        data.append(str(subj_id))
-        #for each of the fields in the participants list
-        for fields in args.part_fields:
-            #if field identifier isn't a proper URI then do a fuzzy search on the graph, else an explicit search for the URL
-            if(validators.url(fields)):
-                #then this is a valid URI so simply query nidm_project document for it
-                for subj,obj in rdf_graph_parse.subject_objects(predicate=URIRef(BIDS_Constants.participants[fields].uri)):
-                    #add row to the pandas data frame
-                    data.append(obj)
-            else:
-                #text matching task, remove basepart of URIs and try to fuzzy match the field in the part_fields parameter string
-                #to the "term" part of a qname URI...this part let's a user simply ask for "age" for example without knowing the
-                #complete URI....hopefully
-                #
-                #This needs to be a more complex query:
-                #   Step(1): For subj_uri query for prov:Activity that were prov:wasAttributedTo subj_uri
-                #   Step(2): Query for prov:Entity that were prov:wasGeneratedBy uris from Step(1)
-                #   Step(3): For each metadata triple in objects whose subject is uris from Step(2), fuzzy match predicate after
-                #   removing base of uri to "fields" in participants list, then add these to data list for appending to pandas
-                match_ratio={}
-                #
-                #Steps(1):(3)
-
-                query = """SELECT DISTINCT ?pred ?value
-                    WHERE {
-                        <%s> rdf:type prov:Agent .
-                        ?asses_activity prov:wasAssociatedWith <%s> ;
-                            rdf:type nidm:AssessmentAcquisition .
-                        ?entities prov:wasGeneratedBy ?asses_activity ;
-                            ?pred ?value .
-                        FILTER (regex(str(?pred) ,"%s","i" ))
-                    }""" % (subj_uri,subj_uri,fields)
-                print(query)
-                qres = rdf_graph_parse.query(query)
-
-                for row in qres:
-                    data.append(str(row[1]))
-                print(data)
-        #add row to participants DataFrame
-        participants=participants.append(pd.DataFrame(data))
-        participants
-                #match_ratio[(fuzz.ratio())
-
-
-
-
-
-    for key,value in BIDS_Constants.participants.items():
-        #now iterate through NIDM dataset subject/objects corresponding to BIDS_Constants['key'] which is a NIDM predicate
-        for subj,obj in rdf_graph_parse.subject_objects(predicate=URIRef(BIDS_Constants.participants[key].uri)):
-            print("subj: %s, pred: %s, obj: %s" %(subj,URIRef(BIDS_Constants.participants[key].uri),obj))
-
-
+    #create participants file
+    CreateBIDSParticipantFile(rdf_graph_parse,join(output_directory,os.path.splitext(args.rdf_file)[0],"participants.tsv"),args.part_fields)
 
 if __name__ == "__main__":
    main(sys.argv[1:])
