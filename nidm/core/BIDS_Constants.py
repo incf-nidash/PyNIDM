@@ -27,7 +27,12 @@ scans = {
     "func" : Constants.NIDM_MRI_FUNCTION_SCAN,
     "dwi" : Constants.NIDM_MRI_DWI_SCAN,
     "bval" : Constants.NIDM_MRI_DWI_BVAL,
-    "bvec" : Constants.NIDM_MRI_DWI_BVEC
+    "bvec" : Constants.NIDM_MRI_DWI_BVEC,
+    "T1w" : Constants.NIDM_MRI_T1,
+    "T2w" : Constants.NIDM_MRI_T2,
+    "inplaneT2" : Constants.NIDM_MRI_T2,
+    "bold" : Constants.NIDM_MRI_FLOW,
+    "dti" : Constants.NIDM_MRI_DIFFUSION_TENSOR
 }
 #JSON file keys
 json_keys = {
