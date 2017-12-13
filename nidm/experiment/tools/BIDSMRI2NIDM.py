@@ -156,7 +156,17 @@ def main(argv):
             if file_tpl.modality == 'anat':
                 #do something with anatomicals
                 acq_obj = MRObject(acq)
-                acq_obj.add_attributes({PROV_TYPE:BIDS_Constants.scans[file_tpl.modality]})
+                   #add image contrast type
+                if file_tpl.type in BIDS_Constants.scans:
+                    acq_obj.add_attributes({Constants.NIDM_IMAGE_CONTRAST_TYPE:BIDS_Constants.scans[file_tpl.type]})
+                else:
+                    print("WARNING: No matching image contrast type found in BIDS_Constants.py for %s" % file_tpl.type)
+
+                #add image usage type
+                if file_tpl.modality in BIDS_Constants.scans:
+                    acq_obj.add_attributes({Constants.NIDM_IMAGE_USAGE_TYPE:BIDS_Constants.scans[file_tpl.modality]})
+                else:
+                    print("WARNING: No matching image usage type found in BIDS_Constants.py for %s" % file_tpl.modality)
                 #add file link
                 #make relative link to
                 acq_obj.add_attributes({Constants.NIDM_FILENAME:getRelPathToBIDS(file_tpl.filename, directory)})
@@ -172,7 +182,17 @@ def main(argv):
             elif file_tpl.modality == 'func':
                 #do something with functionals
                 acq_obj = MRObject(acq)
-                acq_obj.add_attributes({PROV_TYPE:BIDS_Constants.scans[file_tpl.modality]})
+                #add image contrast type
+                if file_tpl.type in BIDS_Constants.scans:
+                    acq_obj.add_attributes({Constants.NIDM_IMAGE_CONTRAST_TYPE:BIDS_Constants.scans[file_tpl.type]})
+                else:
+                    print("WARNING: No matching image contrast type found in BIDS_Constants.py for %s" % file_tpl.type)
+
+                #add image usage type
+                if file_tpl.modality in BIDS_Constants.scans:
+                    acq_obj.add_attributes({Constants.NIDM_IMAGE_USAGE_TYPE:BIDS_Constants.scans[file_tpl.modality]})
+                else:
+                    print("WARNING: No matching image usage type found in BIDS_Constants.py for %s" % file_tpl.modality)
                 #add file link
                 acq_obj.add_attributes({Constants.NIDM_FILENAME:getRelPathToBIDS(file_tpl.filename, directory)})
                 if 'run' in file_tpl._fields:
@@ -207,8 +227,18 @@ def main(argv):
             elif file_tpl.modality == 'dwi':
                 #do stuff with with dwi scans...
                 acq_obj = MRObject(acq)
-                acq_obj.add_attributes({PROV_TYPE:BIDS_Constants.scans[file_tpl.modality]})
-                #add file link
+                   #add image contrast type
+                if file_tpl.type in BIDS_Constants.scans:
+                    acq_obj.add_attributes({Constants.NIDM_IMAGE_CONTRAST_TYPE:BIDS_Constants.scans[file_tpl.type]})
+                else:
+                    print("WARNING: No matching image contrast type found in BIDS_Constants.py for %s" % file_tpl.type)
+
+                #add image usage type
+                if file_tpl.modality in BIDS_Constants.scans:
+                    acq_obj.add_attributes({Constants.NIDM_IMAGE_USAGE_TYPE:BIDS_Constants.scans["dti"]})
+                else:
+                    print("WARNING: No matching image usage type found in BIDS_Constants.py for %s" % file_tpl.modality)
+                 #add file link
                 acq_obj.add_attributes({Constants.NIDM_FILENAME:getRelPathToBIDS(file_tpl.filename, directory)})
                 if 'run' in file_tpl._fields:
                     acq_obj.add_attributes({BIDS_Constants.json_keys["run"]:file_tpl.run})
