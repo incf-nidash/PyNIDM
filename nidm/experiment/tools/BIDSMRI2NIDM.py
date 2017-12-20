@@ -77,8 +77,12 @@ def main(argv):
     #sys.setdefaultencoding('utf8')
 
     #Parse dataset_description.json file in BIDS directory
-    with open(os.path.join(directory,'dataset_description.json')) as data_file:
-        dataset = json.load(data_file)
+    if (os.path.isdir(os.path.join(directory))):
+        with open(os.path.join(directory,'dataset_description.json')) as data_file:
+            dataset = json.load(data_file)
+    else:
+        print("Error: BIDS directory %s does not exist!" %os.path.join(directory))
+        exit("-1")
     #print(dataset_data)
 
     #create project / nidm-exp doc
@@ -300,7 +304,7 @@ def main(argv):
                         #link associated JSON file if it exists
                         data_dict = os.path.join(directory,"phenotype",os.path.splitext(os.path.basename(tsv_file))[0]+ ".json")
                         if os.path.isfile(data_dict):
-                            acq_entity.add_attributes({Constants.BIDS["data_dictionary"]:data_dict})
+                            acq_entity.add_attributes({Constants.BIDS["data_dictionary"]:getRelPathToBIDS(data_dict,directory)})
 
     print("Serializing NIDM graph and creating graph visualization..")
     #serialize graph

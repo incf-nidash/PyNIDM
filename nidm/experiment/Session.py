@@ -49,6 +49,16 @@ class Session(pm.ProvActivity,Core):
         acquisition.add_attributes({pm.QualifiedName(pm.Namespace("dct",Constants.DCT),'isPartOf'):self})
     def get_acquisitions(self):
         return self._acquisitions
+    def acquisition_exist(self,uuid):
+        '''
+        Checks whether uuid is a registered acquisition
+        :param uuid: full uuid of acquisition
+        :return: True if exists, False otherwise
+        '''
+        if uuid in self._acquisitions:
+            return True
+        else:
+            return False
     def __str__(self):
         return "NIDM-Experiment Session Class"
 

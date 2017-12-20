@@ -37,7 +37,6 @@ class AcquisitionObject(pm.ProvEntity,Core):
 
         acquisition.graph._add_record(self)
 
-        #self.add_attributes({PROV_TYPE: Constants.NIDM_ACQUISITION_ENTITY})
         #carry graph object around
         self.graph = acquisition.graph
         #create link to acquisition activity
