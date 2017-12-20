@@ -62,5 +62,16 @@ class Acquisition(pm.ProvActivity,Core):
         self.graph.wasGeneratedBy(acquisition_object,self)
     def get_acquisition_objects(self):
         return self._acquisition_objects
+    def acquisition_object_exists(self,uuid):
+        '''
+        Checks whether uuid is a registered acquisition object
+        :param uuid: full uuid of acquisition
+        :return: True if exists, False otherwise
+        '''
+        if uuid in self._acquisition_objects:
+            return True
+        else:
+            return False
+
     def __str__(self):
         return "NIDM-Experiment Acquisition Class"

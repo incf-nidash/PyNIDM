@@ -30,7 +30,7 @@ class AssessmentAcquisition(Acquisition):
         super(AssessmentAcquisition,self).__init__(session,attributes,uuid)
         #acquisition.graph._add_record(self)
 
-        self.add_attributes({pm.PROV_TYPE: Constants.NIDM_ASSESSMENT_ACQUISITION})
+        self.add_attributes({pm.PROV_TYPE: Constants.NIDM_ACQUISITION_ACTIVITY})
 
         #carry graph object around
         self.graph = session.graph

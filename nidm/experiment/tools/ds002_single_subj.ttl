@@ -27,69 +27,71 @@
 @prefix xml: <http://www.w3.org/XML/1998/namespace> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-nidm:_4a63cd7a-df99-11e7-9e49-6c4008b8f03e a nidm:Assessment,
+nidm:_51eff852-e44b-11e7-a179-6c4008b8f03e a nidm:assessment-instrument,
         prov:Entity ;
     ncicb:Age "22"^^xsd:string ;
-    prov:wasGeneratedBy nidm:_4a63b04c-df99-11e7-a6eb-6c4008b8f03e ;
+    prov:wasGeneratedBy nidm:_51eff55a-e44b-11e7-9410-6c4008b8f03e ;
     ndar:gender "M"^^xsd:string .
 
-nidm:_4a6fb1e6-df99-11e7-b936-6c4008b8f03e a nidm:MRI_dataset,
+nidm:_51f21bb4-e44b-11e7-9ace-6c4008b8f03e a sio:file,
         prov:Entity ;
+    nidm:AcquisitionModality nidm:MagneticResonanceImaging ;
     nidm:hasImageContrastType nidm:T2Weighted ;
     nidm:hasImageUsageType nidm:Anatomical ;
     nfo:filename "/sub-01/anat/sub-01_inplaneT2.nii.gz"^^xsd:string ;
-    prov:wasGeneratedBy nidm:_4a6f6ae2-df99-11e7-ac9e-6c4008b8f03e .
+    prov:wasGeneratedBy nidm:_51f2157e-e44b-11e7-a382-6c4008b8f03e .
 
-nidm:_4a70b5ac-df99-11e7-952f-6c4008b8f03e a nidm:MRI_dataset,
+nidm:_51f233ec-e44b-11e7-bf25-6c4008b8f03e a sio:file,
         prov:Entity ;
+    nidm:AcquisitionModality nidm:MagneticResonanceImaging ;
     nidm:hasImageContrastType nidm:T1Weighted ;
     nidm:hasImageUsageType nidm:Anatomical ;
     nfo:filename "/sub-01/anat/sub-01_T1w.nii.gz"^^xsd:string ;
-    prov:wasGeneratedBy nidm:_4a70673a-df99-11e7-838b-6c4008b8f03e .
+    prov:wasGeneratedBy nidm:_51f22f14-e44b-11e7-9243-6c4008b8f03e .
 
-nidm:_4a729262-df99-11e7-8d7c-6c4008b8f03e a nidm:StimulusResponseFile,
+nidm:_51f29186-e44b-11e7-9811-6c4008b8f03e a nidm:StimulusResponseFile,
         prov:Entity ;
     nidm:Task "deterministic classification"^^xsd:string ;
     nfo:filename "/sub-01/func/sub-01_task-deterministicclassification_run-01_events.tsv"^^xsd:string ;
-    prov:wasAttributedTo nidm:_4a717cda-df99-11e7-bab3-6c4008b8f03e ;
-    prov:wasGeneratedBy nidm:_4a713c46-df99-11e7-baf3-6c4008b8f03e .
+    prov:wasAttributedTo nidm:_51f246c0-e44b-11e7-8bbf-6c4008b8f03e ;
+    prov:wasGeneratedBy nidm:_51f2421a-e44b-11e7-a6d7-6c4008b8f03e .
 
-nidm:_4a741b8c-df99-11e7-810d-6c4008b8f03e a nidm:StimulusResponseFile,
+nidm:_51f2cc4c-e44b-11e7-af99-6c4008b8f03e a nidm:StimulusResponseFile,
         prov:Entity ;
     nidm:Task "deterministic classification"^^xsd:string ;
     nfo:filename "/sub-01/func/sub-01_task-deterministicclassification_run-02_events.tsv"^^xsd:string ;
-    prov:wasAttributedTo nidm:_4a7319f8-df99-11e7-aab9-6c4008b8f03e ;
-    prov:wasGeneratedBy nidm:_4a72db5a-df99-11e7-8e7b-6c4008b8f03e .
+    prov:wasAttributedTo nidm:_51f29c06-e44b-11e7-9879-6c4008b8f03e ;
+    prov:wasGeneratedBy nidm:_51f2979c-e44b-11e7-8c48-6c4008b8f03e .
 
-nidm:_4a7599be-df99-11e7-87e7-6c4008b8f03e a nidm:StimulusResponseFile,
+nidm:_51f321e4-e44b-11e7-9a21-6c4008b8f03e a nidm:StimulusResponseFile,
         prov:Entity ;
     nidm:Task "mixed event-related probe"^^xsd:string ;
     nfo:filename "/sub-01/func/sub-01_task-mixedeventrelatedprobe_run-01_events.tsv"^^xsd:string ;
-    prov:wasAttributedTo nidm:_4a74b2fe-df99-11e7-8026-6c4008b8f03e ;
-    prov:wasGeneratedBy nidm:_4a746740-df99-11e7-a562-6c4008b8f03e .
+    prov:wasAttributedTo nidm:_51f2d612-e44b-11e7-bea8-6c4008b8f03e ;
+    prov:wasGeneratedBy nidm:_51f2d1b0-e44b-11e7-b0dd-6c4008b8f03e .
 
-nidm:_4a76f6ec-df99-11e7-9b51-6c4008b8f03e a nidm:StimulusResponseFile,
+nidm:_51f35b1e-e44b-11e7-8018-6c4008b8f03e a nidm:StimulusResponseFile,
         prov:Entity ;
     nidm:Task "mixed event-related probe"^^xsd:string ;
     nfo:filename "/sub-01/func/sub-01_task-mixedeventrelatedprobe_run-02_events.tsv"^^xsd:string ;
-    prov:wasAttributedTo nidm:_4a762cba-df99-11e7-a5ef-6c4008b8f03e ;
-    prov:wasGeneratedBy nidm:_4a75e776-df99-11e7-9605-6c4008b8f03e .
+    prov:wasAttributedTo nidm:_51f32ce8-e44b-11e7-ba89-6c4008b8f03e ;
+    prov:wasGeneratedBy nidm:_51f32842-e44b-11e7-8520-6c4008b8f03e .
 
-nidm:_4a788242-df99-11e7-8fca-6c4008b8f03e a nidm:StimulusResponseFile,
+nidm:_51f3a568-e44b-11e7-8a37-6c4008b8f03e a nidm:StimulusResponseFile,
         prov:Entity ;
     nidm:Task "probabilistic classification"^^xsd:string ;
     nfo:filename "/sub-01/func/sub-01_task-probabilisticclassification_run-01_events.tsv"^^xsd:string ;
-    prov:wasAttributedTo nidm:_4a779b54-df99-11e7-8882-6c4008b8f03e ;
-    prov:wasGeneratedBy nidm:_4a7748b6-df99-11e7-bc15-6c4008b8f03e .
+    prov:wasAttributedTo nidm:_51f364f6-e44b-11e7-9f01-6c4008b8f03e ;
+    prov:wasGeneratedBy nidm:_51f3608c-e44b-11e7-bf94-6c4008b8f03e .
 
-nidm:_4a79ce7e-df99-11e7-a153-6c4008b8f03e a nidm:StimulusResponseFile,
+nidm:_51f3dff6-e44b-11e7-ac2b-6c4008b8f03e a nidm:StimulusResponseFile,
         prov:Entity ;
     nidm:Task "probabilistic classification"^^xsd:string ;
     nfo:filename "/sub-01/func/sub-01_task-probabilisticclassification_run-02_events.tsv"^^xsd:string ;
-    prov:wasAttributedTo nidm:_4a7909d0-df99-11e7-aae5-6c4008b8f03e ;
-    prov:wasGeneratedBy nidm:_4a78c9e8-df99-11e7-a30a-6c4008b8f03e .
+    prov:wasAttributedTo nidm:_51f3af4a-e44b-11e7-a43d-6c4008b8f03e ;
+    prov:wasGeneratedBy nidm:_51f3aae2-e44b-11e7-8e7b-6c4008b8f03e .
 
-nidm:_4a61c26e-df99-11e7-808d-6c4008b8f03e a nidm:Project,
+nidm:_51ef050a-e44b-11e7-9e92-6c4008b8f03e a nidm:Project,
         prov:Activity ;
     dctypes:title "Classification learning"^^xsd:string ;
     dct:license """This dataset is made available under the Public Domain Dedication and License 
@@ -104,143 +106,149 @@ OCI-1131441 (R. Poldrack, PI) in any publications."""^^xsd:string ;
     dcat:creator "Aron, A.R., Gluck, M.A., Poldrack, R.A. (2006). Long-term test-retest reliability of functional MRI in a classification learning task. Neuroimage, 29(3):1000-6"^^xsd:string ;
     prov:Location "/Users/dbkeator/Documents/UCI/ReproNim/example_bids/ds002_single_subj"^^xsd:string .
 
-nidm:_4a63b04c-df99-11e7-a6eb-6c4008b8f03e a nidm:AssessmentAcquisition,
+nidm:_51eff55a-e44b-11e7-9410-6c4008b8f03e a nidm:Acquisition,
         prov:Activity ;
-    dct:isPartOf nidm:_4a639064-df99-11e7-90b0-6c4008b8f03e ;
+    dct:isPartOf nidm:_51eff168-e44b-11e7-a34f-6c4008b8f03e ;
     prov:qualifiedAssociation [ a prov:Association ;
-            prov:Agent nidm:_4a63fca4-df99-11e7-bf2c-6c4008b8f03e ;
+            prov:Agent nidm:_51effca8-e44b-11e7-9bb7-6c4008b8f03e ;
             prov:hadRole sio:Subject ] ;
-    prov:wasAssociatedWith nidm:_4a63fca4-df99-11e7-bf2c-6c4008b8f03e .
+    prov:wasAssociatedWith nidm:_51effca8-e44b-11e7-9bb7-6c4008b8f03e .
 
-nidm:_4a6f6ae2-df99-11e7-ac9e-6c4008b8f03e a nidm:ImageAcquisition,
+nidm:_51f2157e-e44b-11e7-a382-6c4008b8f03e a nidm:Acquisition,
         prov:Activity ;
-    dct:isPartOf nidm:_4a639064-df99-11e7-90b0-6c4008b8f03e ;
+    dct:isPartOf nidm:_51eff168-e44b-11e7-a34f-6c4008b8f03e ;
     prov:qualifiedAssociation [ a prov:Association ;
-            prov:Agent nidm:_4a63fca4-df99-11e7-bf2c-6c4008b8f03e ;
+            prov:Agent nidm:_51effca8-e44b-11e7-9bb7-6c4008b8f03e ;
             prov:hadRole sio:Subject ] ;
-    prov:wasAssociatedWith nidm:_4a63fca4-df99-11e7-bf2c-6c4008b8f03e .
+    prov:wasAssociatedWith nidm:_51effca8-e44b-11e7-9bb7-6c4008b8f03e .
 
-nidm:_4a70673a-df99-11e7-838b-6c4008b8f03e a nidm:ImageAcquisition,
+nidm:_51f22f14-e44b-11e7-9243-6c4008b8f03e a nidm:Acquisition,
         prov:Activity ;
-    dct:isPartOf nidm:_4a639064-df99-11e7-90b0-6c4008b8f03e ;
+    dct:isPartOf nidm:_51eff168-e44b-11e7-a34f-6c4008b8f03e ;
     prov:qualifiedAssociation [ a prov:Association ;
-            prov:Agent nidm:_4a63fca4-df99-11e7-bf2c-6c4008b8f03e ;
+            prov:Agent nidm:_51effca8-e44b-11e7-9bb7-6c4008b8f03e ;
             prov:hadRole sio:Subject ] ;
-    prov:wasAssociatedWith nidm:_4a63fca4-df99-11e7-bf2c-6c4008b8f03e .
+    prov:wasAssociatedWith nidm:_51effca8-e44b-11e7-9bb7-6c4008b8f03e .
 
-nidm:_4a717cda-df99-11e7-bab3-6c4008b8f03e a nidm:MRI_dataset,
+nidm:_51f246c0-e44b-11e7-8bbf-6c4008b8f03e a sio:file,
         prov:Entity ;
     dicom:RepetitionTime 2e+00 ;
+    nidm:AcquisitionModality nidm:MagneticResonanceImaging ;
     nidm:AcquisitionObject "01"^^xsd:string ;
     nidm:Task "deterministic classification"^^xsd:string ;
     nidm:hasImageContrastType nidm:FlowWeighted ;
     nidm:hasImageUsageType nidm:Functional ;
     nfo:filename "/sub-01/func/sub-01_task-deterministicclassification_run-01_bold.nii.gz"^^xsd:string ;
-    prov:wasGeneratedBy nidm:_4a713c46-df99-11e7-baf3-6c4008b8f03e .
+    prov:wasGeneratedBy nidm:_51f2421a-e44b-11e7-a6d7-6c4008b8f03e .
 
-nidm:_4a7319f8-df99-11e7-aab9-6c4008b8f03e a nidm:MRI_dataset,
+nidm:_51f29c06-e44b-11e7-9879-6c4008b8f03e a sio:file,
         prov:Entity ;
     dicom:RepetitionTime 2e+00 ;
+    nidm:AcquisitionModality nidm:MagneticResonanceImaging ;
     nidm:AcquisitionObject "02"^^xsd:string ;
     nidm:Task "deterministic classification"^^xsd:string ;
     nidm:hasImageContrastType nidm:FlowWeighted ;
     nidm:hasImageUsageType nidm:Functional ;
     nfo:filename "/sub-01/func/sub-01_task-deterministicclassification_run-02_bold.nii.gz"^^xsd:string ;
-    prov:wasGeneratedBy nidm:_4a72db5a-df99-11e7-8e7b-6c4008b8f03e .
+    prov:wasGeneratedBy nidm:_51f2979c-e44b-11e7-8c48-6c4008b8f03e .
 
-nidm:_4a74b2fe-df99-11e7-8026-6c4008b8f03e a nidm:MRI_dataset,
+nidm:_51f2d612-e44b-11e7-bea8-6c4008b8f03e a sio:file,
         prov:Entity ;
     dicom:RepetitionTime 2e+00 ;
+    nidm:AcquisitionModality nidm:MagneticResonanceImaging ;
     nidm:AcquisitionObject "01"^^xsd:string ;
     nidm:Task "mixed event-related probe"^^xsd:string ;
     nidm:hasImageContrastType nidm:FlowWeighted ;
     nidm:hasImageUsageType nidm:Functional ;
     nfo:filename "/sub-01/func/sub-01_task-mixedeventrelatedprobe_run-01_bold.nii.gz"^^xsd:string ;
-    prov:wasGeneratedBy nidm:_4a746740-df99-11e7-a562-6c4008b8f03e .
+    prov:wasGeneratedBy nidm:_51f2d1b0-e44b-11e7-b0dd-6c4008b8f03e .
 
-nidm:_4a762cba-df99-11e7-a5ef-6c4008b8f03e a nidm:MRI_dataset,
+nidm:_51f32ce8-e44b-11e7-ba89-6c4008b8f03e a sio:file,
         prov:Entity ;
     dicom:RepetitionTime 2e+00 ;
+    nidm:AcquisitionModality nidm:MagneticResonanceImaging ;
     nidm:AcquisitionObject "02"^^xsd:string ;
     nidm:Task "mixed event-related probe"^^xsd:string ;
     nidm:hasImageContrastType nidm:FlowWeighted ;
     nidm:hasImageUsageType nidm:Functional ;
     nfo:filename "/sub-01/func/sub-01_task-mixedeventrelatedprobe_run-02_bold.nii.gz"^^xsd:string ;
-    prov:wasGeneratedBy nidm:_4a75e776-df99-11e7-9605-6c4008b8f03e .
+    prov:wasGeneratedBy nidm:_51f32842-e44b-11e7-8520-6c4008b8f03e .
 
-nidm:_4a779b54-df99-11e7-8882-6c4008b8f03e a nidm:MRI_dataset,
+nidm:_51f364f6-e44b-11e7-9f01-6c4008b8f03e a sio:file,
         prov:Entity ;
     dicom:RepetitionTime 2e+00 ;
+    nidm:AcquisitionModality nidm:MagneticResonanceImaging ;
     nidm:AcquisitionObject "01"^^xsd:string ;
     nidm:Task "probabilistic classification"^^xsd:string ;
     nidm:hasImageContrastType nidm:FlowWeighted ;
     nidm:hasImageUsageType nidm:Functional ;
     nfo:filename "/sub-01/func/sub-01_task-probabilisticclassification_run-01_bold.nii.gz"^^xsd:string ;
-    prov:wasGeneratedBy nidm:_4a7748b6-df99-11e7-bc15-6c4008b8f03e .
+    prov:wasGeneratedBy nidm:_51f3608c-e44b-11e7-bf94-6c4008b8f03e .
 
-nidm:_4a7909d0-df99-11e7-aae5-6c4008b8f03e a nidm:MRI_dataset,
+nidm:_51f3af4a-e44b-11e7-a43d-6c4008b8f03e a sio:file,
         prov:Entity ;
     dicom:RepetitionTime 2e+00 ;
+    nidm:AcquisitionModality nidm:MagneticResonanceImaging ;
     nidm:AcquisitionObject "02"^^xsd:string ;
     nidm:Task "probabilistic classification"^^xsd:string ;
     nidm:hasImageContrastType nidm:FlowWeighted ;
     nidm:hasImageUsageType nidm:Functional ;
     nfo:filename "/sub-01/func/sub-01_task-probabilisticclassification_run-02_bold.nii.gz"^^xsd:string ;
-    prov:wasGeneratedBy nidm:_4a78c9e8-df99-11e7-a30a-6c4008b8f03e .
+    prov:wasGeneratedBy nidm:_51f3aae2-e44b-11e7-8e7b-6c4008b8f03e .
 
-nidm:_4a713c46-df99-11e7-baf3-6c4008b8f03e a nidm:ImageAcquisition,
+nidm:_51f2421a-e44b-11e7-a6d7-6c4008b8f03e a nidm:Acquisition,
         prov:Activity ;
-    dct:isPartOf nidm:_4a639064-df99-11e7-90b0-6c4008b8f03e ;
+    dct:isPartOf nidm:_51eff168-e44b-11e7-a34f-6c4008b8f03e ;
     prov:qualifiedAssociation [ a prov:Association ;
-            prov:Agent nidm:_4a63fca4-df99-11e7-bf2c-6c4008b8f03e ;
+            prov:Agent nidm:_51effca8-e44b-11e7-9bb7-6c4008b8f03e ;
             prov:hadRole sio:Subject ] ;
-    prov:wasAssociatedWith nidm:_4a63fca4-df99-11e7-bf2c-6c4008b8f03e .
+    prov:wasAssociatedWith nidm:_51effca8-e44b-11e7-9bb7-6c4008b8f03e .
 
-nidm:_4a72db5a-df99-11e7-8e7b-6c4008b8f03e a nidm:ImageAcquisition,
+nidm:_51f2979c-e44b-11e7-8c48-6c4008b8f03e a nidm:Acquisition,
         prov:Activity ;
-    dct:isPartOf nidm:_4a639064-df99-11e7-90b0-6c4008b8f03e ;
+    dct:isPartOf nidm:_51eff168-e44b-11e7-a34f-6c4008b8f03e ;
     prov:qualifiedAssociation [ a prov:Association ;
-            prov:Agent nidm:_4a63fca4-df99-11e7-bf2c-6c4008b8f03e ;
+            prov:Agent nidm:_51effca8-e44b-11e7-9bb7-6c4008b8f03e ;
             prov:hadRole sio:Subject ] ;
-    prov:wasAssociatedWith nidm:_4a63fca4-df99-11e7-bf2c-6c4008b8f03e .
+    prov:wasAssociatedWith nidm:_51effca8-e44b-11e7-9bb7-6c4008b8f03e .
 
-nidm:_4a746740-df99-11e7-a562-6c4008b8f03e a nidm:ImageAcquisition,
+nidm:_51f2d1b0-e44b-11e7-b0dd-6c4008b8f03e a nidm:Acquisition,
         prov:Activity ;
-    dct:isPartOf nidm:_4a639064-df99-11e7-90b0-6c4008b8f03e ;
+    dct:isPartOf nidm:_51eff168-e44b-11e7-a34f-6c4008b8f03e ;
     prov:qualifiedAssociation [ a prov:Association ;
-            prov:Agent nidm:_4a63fca4-df99-11e7-bf2c-6c4008b8f03e ;
+            prov:Agent nidm:_51effca8-e44b-11e7-9bb7-6c4008b8f03e ;
             prov:hadRole sio:Subject ] ;
-    prov:wasAssociatedWith nidm:_4a63fca4-df99-11e7-bf2c-6c4008b8f03e .
+    prov:wasAssociatedWith nidm:_51effca8-e44b-11e7-9bb7-6c4008b8f03e .
 
-nidm:_4a75e776-df99-11e7-9605-6c4008b8f03e a nidm:ImageAcquisition,
+nidm:_51f32842-e44b-11e7-8520-6c4008b8f03e a nidm:Acquisition,
         prov:Activity ;
-    dct:isPartOf nidm:_4a639064-df99-11e7-90b0-6c4008b8f03e ;
+    dct:isPartOf nidm:_51eff168-e44b-11e7-a34f-6c4008b8f03e ;
     prov:qualifiedAssociation [ a prov:Association ;
-            prov:Agent nidm:_4a63fca4-df99-11e7-bf2c-6c4008b8f03e ;
+            prov:Agent nidm:_51effca8-e44b-11e7-9bb7-6c4008b8f03e ;
             prov:hadRole sio:Subject ] ;
-    prov:wasAssociatedWith nidm:_4a63fca4-df99-11e7-bf2c-6c4008b8f03e .
+    prov:wasAssociatedWith nidm:_51effca8-e44b-11e7-9bb7-6c4008b8f03e .
 
-nidm:_4a7748b6-df99-11e7-bc15-6c4008b8f03e a nidm:ImageAcquisition,
+nidm:_51f3608c-e44b-11e7-bf94-6c4008b8f03e a nidm:Acquisition,
         prov:Activity ;
-    dct:isPartOf nidm:_4a639064-df99-11e7-90b0-6c4008b8f03e ;
+    dct:isPartOf nidm:_51eff168-e44b-11e7-a34f-6c4008b8f03e ;
     prov:qualifiedAssociation [ a prov:Association ;
-            prov:Agent nidm:_4a63fca4-df99-11e7-bf2c-6c4008b8f03e ;
+            prov:Agent nidm:_51effca8-e44b-11e7-9bb7-6c4008b8f03e ;
             prov:hadRole sio:Subject ] ;
-    prov:wasAssociatedWith nidm:_4a63fca4-df99-11e7-bf2c-6c4008b8f03e .
+    prov:wasAssociatedWith nidm:_51effca8-e44b-11e7-9bb7-6c4008b8f03e .
 
-nidm:_4a78c9e8-df99-11e7-a30a-6c4008b8f03e a nidm:ImageAcquisition,
+nidm:_51f3aae2-e44b-11e7-8e7b-6c4008b8f03e a nidm:Acquisition,
         prov:Activity ;
-    dct:isPartOf nidm:_4a639064-df99-11e7-90b0-6c4008b8f03e ;
+    dct:isPartOf nidm:_51eff168-e44b-11e7-a34f-6c4008b8f03e ;
     prov:qualifiedAssociation [ a prov:Association ;
-            prov:Agent nidm:_4a63fca4-df99-11e7-bf2c-6c4008b8f03e ;
+            prov:Agent nidm:_51effca8-e44b-11e7-9bb7-6c4008b8f03e ;
             prov:hadRole sio:Subject ] ;
-    prov:wasAssociatedWith nidm:_4a63fca4-df99-11e7-bf2c-6c4008b8f03e .
+    prov:wasAssociatedWith nidm:_51effca8-e44b-11e7-9bb7-6c4008b8f03e .
 
-nidm:_4a639064-df99-11e7-90b0-6c4008b8f03e a nidm:Session,
+nidm:_51eff168-e44b-11e7-a34f-6c4008b8f03e a nidm:Session,
         prov:Activity ;
-    dct:isPartOf nidm:_4a61c26e-df99-11e7-808d-6c4008b8f03e .
+    dct:isPartOf nidm:_51ef050a-e44b-11e7-9e92-6c4008b8f03e .
 
-nidm:_4a63fca4-df99-11e7-bf2c-6c4008b8f03e a prov:Agent,
+nidm:_51effca8-e44b-11e7-9bb7-6c4008b8f03e a prov:Agent,
         prov:Person ;
     ndar:src_subject_id "sub-01"^^xsd:string .
 

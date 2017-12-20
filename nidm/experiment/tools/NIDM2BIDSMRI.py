@@ -52,8 +52,7 @@ from bids.grabbids import BIDSLayout
 from io import StringIO
 import pandas as pd
 import validators
-from fuzzywuzzy import fuzz
-from fuzzywuzzy import process
+import urllib.parse
 
 def CreateBIDSParticipantFile(nidm_graph,output_file,participant_fields):
     '''
@@ -67,7 +66,7 @@ def CreateBIDSParticipantFile(nidm_graph,output_file,participant_fields):
 
     print("Creating participants.json file...")
     participants=pd.DataFrame(columns=["participant_id"],index=[1])
-
+    participants_json = {}
 
     #for each Constants.NIDM_SUBJECTID in NIDM file
     row_index=1
@@ -114,19 +113,29 @@ def CreateBIDSParticipantFile(nidm_graph,output_file,participant_fields):
                 qres = nidm_graph.query(query)
 
                 for row in qres:
-                    participants.ix[row_index,str(row[0])] = str(row[1])
+                    #use last field in URIs for short column name and add full URI to sidecar participants.json file
+                    url_parts = urllib.parse.urlparse(row[0])
+                    path_parts = url_parts[2].rpartition('/')
+                    short_name = path_parts[2]
+                    participants_json[short_name] = {}
+                    participants_json[short_name]['TermURL'] = row[0]
+
+                    participants.ix[row_index,str(short_name)] = str(row[1])
                     #data.append(str(row[1]))
 
         #add row to participants DataFrame
         #participants=participants.append(pd.DataFrame(data))
         participants
-                #match_ratio[(fuzz.ratio())
         row_index = row_index+1
 
 
     #save participants.tsv file
-    participants.to_csv(output_file,sep='\t',index=False)
-    return participants
+    participants.to_csv(output_file + ".tsv",sep='\t',index=False)
+    #save participants.json file
+    with open(output_file + ".json",'w') as f:
+        json.dump(participants_json,f,sort_keys=True,indent=2)
+
+    return participants, participants_json
 
 
 
@@ -191,16 +200,23 @@ def main(argv):
 
 
     #try to read RDF file
+    print("Guessing RDF file format...")
+    format_found=False
     for format in 'turtle','xml','n3','trix','rdfa':
         try:
-            print("reading RDF file...")
+            print("reading RDF file as %s..." % format)
             #load NIDM graph into NIDM-Exp API objects
             nidm_project = read_nidm(rdf_file)
             print("RDF file sucessfully read")
+            format_found=True
             break
         except Exception:
-            print("file: %s appears to be an invalid RDF file" % rdf_file)
+            print("file: %s appears to be an invalid %s RDF file" % (rdf_file,format))
 
+    if not format_found:
+        print("File doesn't appear to be a valid RDF format supported by Python RDFLib!  Please check input file")
+        print("exiting...")
+        exit(-1)
     #set up output directory for BIDS data
     if not os.path.isdir(output_directory):
         os.mkdir(output_directory)
@@ -222,7 +238,7 @@ def main(argv):
     rdf_graph_parse = rdf_graph.parse(source=StringIO(nidm_project.serializeTurtle()),format='turtle')
 
     #create participants file
-    CreateBIDSParticipantFile(rdf_graph_parse,join(output_directory,os.path.splitext(args.rdf_file)[0],"participants.tsv"),args.part_fields)
+    CreateBIDSParticipantFile(rdf_graph_parse,join(output_directory,os.path.splitext(args.rdf_file)[0],"participants"),args.part_fields)
 
 if __name__ == "__main__":
    main(sys.argv[1:])
