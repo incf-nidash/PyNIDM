@@ -25,16 +25,16 @@ def main(argv):
     print("Elastic search returns:")
     print("-------------------------------------------")
     pprint(json_data)
-    print("\n\n-------------------------------------------")
-    print("Example terms listing from elastic search:")
+  #  print("\n\n-------------------------------------------")
+  #  print("Example terms listing from elastic search:")
 
     #example printing term label, definition, and preferred URL
-    for term in json_data['hits']['hits']:
-        #find preferred URL
-        for items in term['_source']['existing_ids']:
-            if items['preferred']=='1':
-                preferred_url=items['iri']
-        print("Label = %s \t Definition = %s \t Preferred URL = %s " %(term['_source']['label'],term['_source']['definition'],preferred_url))
+  #  for term in json_data['hits']['hits']:
+  #      #find preferred URL
+  #      for items in term['_source']['existing_ids']:
+  #          if items['preferred']=='1':
+  #              preferred_url=items['iri']
+  #      print("Label = %s \t Definition = %s \t Preferred URL = %s " %(term['_source']['label'],term['_source']['definition'],preferred_url))
 
     #example of uber elastic search query returns dictionary of label, definition, and preferred_url
     print("\n\n-------------------------------------------")

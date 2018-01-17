@@ -104,8 +104,9 @@ def CreateBIDSParticipantFile(nidm_graph,output_file,participant_fields):
                     WHERE {
                         <%s> rdf:type prov:Agent .
                         ?asses_activity prov:wasAssociatedWith <%s> ;
-                            rdf:type nidm:AssessmentAcquisition .
+                            rdf:type nidm:Acquisition .
                         ?entities prov:wasGeneratedBy ?asses_activity ;
+                            rdf:type nidm:assessment-instrument ;
                             ?pred ?value .
                         FILTER (regex(str(?pred) ,"%s","i" ))
                     }""" % (subj_uri,subj_uri,fields)
@@ -114,9 +115,17 @@ def CreateBIDSParticipantFile(nidm_graph,output_file,participant_fields):
 
                 for row in qres:
                     #use last field in URIs for short column name and add full URI to sidecar participants.json file
-                    url_parts = urllib.parse.urlparse(row[0])
-                    path_parts = url_parts[2].rpartition('/')
-                    short_name = path_parts[2]
+                    #url_parts = urllib.parse.urlparse(row[0])
+                    url_parts = urllib.parse.urlsplit(row[0],scheme='#')
+                    #path_parts = url_parts[2].rpartition('/')
+                    #short_name = path_parts[2]
+                    if url_parts.fragment == '':
+                        #do some parsing of the path URL because this particular one has no fragments
+                        url_parts = urllib.parse.urlparse(row[0])
+                        path_parts = url_parts[2].rpartition('/')
+                        short_name = path_parts[2]
+                    else:
+                        short_name = url_parts.fragment
                     participants_json[short_name] = {}
                     participants_json[short_name]['TermURL'] = row[0]
 
@@ -189,9 +198,9 @@ def main(argv):
     parser.add_argument('-nidm_file', dest='rdf_file', required=True, help="NIDM RDF file")
     parser.add_argument('-part_fields', nargs='+', dest='part_fields', required=False, \
                         help='Variables to add to BIDS participant file. Variables will be fuzzy-matched to NIDM URIs')
-    parser.add_argument('-anat', dest='anat', required=False, help="Include flag to add anatomical scans to BIDS dataset")
-    parser.add_argument('-func', dest='func', required=False, help="Include flag to add functional scans + events files to BIDS dataset")
-    parser.add_argument('-dwi', dest='dwi', required=False, help="Include flag to add DWI scans + Bval/Bvec files to BIDS dataset")
+    parser.add_argument('-anat', dest='anat', action='store_true', required=False, help="Include flag to add anatomical scans to BIDS dataset")
+    parser.add_argument('-func', dest='func', action='store_true', required=False, help="Include flag to add functional scans + events files to BIDS dataset")
+    parser.add_argument('-dwi', dest='dwi', action='store_true', required=False, help="Include flag to add DWI scans + Bval/Bvec files to BIDS dataset")
     parser.add_argument('-bids_dir', dest='bids_dir', required=True, help="Directory to store BIDS dataset")
     args = parser.parse_args()
 
@@ -239,6 +248,20 @@ def main(argv):
 
     #create participants file
     CreateBIDSParticipantFile(rdf_graph_parse,join(output_directory,os.path.splitext(args.rdf_file)[0],"participants"),args.part_fields)
+
+    #creating BIDS hierarchy with requested scans
+    if args.anat==True:
+        #make BIDS anat directory
+        if not os.path.exists(join(output_directory,"anat")):
+            os.makedirs(join(output_directory,"anat"))
+
+        #query NIDM document for acquisition entity "subjects" with predicate nidm:hasImageUsageType and object nidm:Anatomical
+        for anat_acq in rdf_graph_parse.subjects(predicate=URIRef(Constants.NIDM_IMAGE_USAGE_TYPE.uri),object=URIRef(Constants.NIDM_MRI_ANATOMIC_SCAN.uri)):
+            #get filename
+            for anat_filename in rdf_graph_parse.objects(subject=anat_acq,predicate=URIRef(Constants.NIDM_FILENAME.uri)):
+                #change filename to be BIDS compliant
+
+
 
 if __name__ == "__main__":
    main(sys.argv[1:])

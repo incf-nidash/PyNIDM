@@ -5,7 +5,7 @@ from nidm.core import Constants
 from nidm.experiment.Utils import read_nidm
 from argparse import ArgumentParser
 from os.path import  dirname, join, splitext
-
+import json
 
 def main(argv):
     parser = ArgumentParser()
@@ -32,6 +32,10 @@ def main(argv):
     #save a turtle file
     with open(join(dirname(args.nidm_file),splitext(args.nidm_file)[0]+"_read.ttl"),'w') as f:
         f.write (project.serializeTurtle())
+
+    #save a json file
+    with open(join(dirname(args.nidm_file),splitext(args.nidm_file)[0]+"_read.json"),'w') as f:
+        f.write (project.serializeJSONLD())
 
 
 
