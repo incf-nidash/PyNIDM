@@ -55,10 +55,13 @@ class Session(pm.ProvActivity,Core):
         :param uuid: full uuid of acquisition
         :return: True if exists, False otherwise
         '''
-        if uuid in self._acquisitions:
-            return True
-        else:
-            return False
+        print("Query uuid: %s" %uuid)
+        for acquisitions in self._acquisitions:
+            print(acquisitions._identifier._localpart)
+            if str(uuid) == acquisitions._identifier._localpart:
+                return True
+
+        return False
     def __str__(self):
         return "NIDM-Experiment Session Class"
 
