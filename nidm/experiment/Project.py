@@ -56,7 +56,9 @@ class Project(pm.ProvActivity,Core):
         self.add_attributes({pm.PROV_TYPE: Constants.NIDM_PROJECT})
         #self.add_attributes({pm.PROV_TYPE: Constants.NIDM_PROJECT_TYPE})
 
-
+    @property
+    def sessions(self):
+        return self._sessions
 
     def add_sessions(self,session):
         """

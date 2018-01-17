@@ -162,18 +162,10 @@ class Core(object):
         if(isinstance(self,pm.ProvActivity)):
 
             #associate person with activity for qualified association
-            assoc = self.graph.association(agent=person, activity=self)
+            assoc = self.graph.association(agent=person, activity=self, other_attributes={pm.PROV_ROLE:role})
+
             #add role for qualified association
-            assoc.add_attributes({pm.PROV_ROLE:role,pm.PROV_AGENT:person})
-
-
-            #connect self to person serving as role
-            #if(isinstance(self,pm.ProvActivity)):
-                #assoc.add_attributes({Constants.PROV['wasAssociatedWith']:person})
-                #self.wasAssociatedWith(person)
-            #elif(isinstance(self,pm.ProvEntity)):
-                #assoc.add_attributes({Constants.PROV['wasAttributedTo']:person})
-                #self.wasAttributedTo(person)
+            #assoc.add_attributes({pm.PROV_ROLE:role})
 
         return assoc
 
@@ -313,9 +305,29 @@ class Core(object):
         """
         #workaround to get JSONLD from RDFLib...
         rdf_graph = Graph()
-        rdf_graph_parse = rdf_graph.parse(source=StringIO(self.serializeTurtle()),format='turtle')
-        return rdf_graph_parse.serialize(format='json-ld', indent=4)
-        #return self.graph.serialize(format='json-ld', indent=4)
+        #rdf_graph_parse = rdf_graph.parse(source=StringIO(self.serializeTurtle()),format='turtle')
+        rdf_graph_parse = rdf_graph.parse(source=StringIO(self.graph.serialize(None, format='rdf', rdf_format='ttl')),format='turtle')
+        context = {
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "prov": "http://www.w3.org/ns/prov#",
+        "nidm": "http://purl.org/nidash/nidm#",
+        "foaf": "http://xmlns.com/foaf/0.1/",
+
+        "agent": { "@type": "@id", "@id": "prov:agent" },
+        "entity": { "@type": "@id", "@id": "prov:entity" },
+        "activity": { "@type": "@id", "@id": "prov:activity" },
+        "hadPlan": { "@type": "@id", "@id": "prov:hadPlan" },
+        "hadRole": { "@type": "@id", "@id": "prov:hadRole" },
+        "wasAttributedTo": { "@type": "@id", "@id": "prov:wasAttributedTo" },
+        "association": { "@type": "@id", "@id": "prov:qualifiedAssociation" },
+        "usage": { "@type": "@id", "@id": "prov:qualifiedUsage" },
+        "generation": { "@type": "@id", "@id": "prov:qualifiedGeneration" },
+
+        "startedAtTime": { "@type": "xsd:dateTime", "@id": "prov:startedAtTime" },
+        "endedAtTime": { "@type": "xsd:dateTime", "@id": "prov:endedAtTime" }
+        }
+        return rdf_graph_parse.serialize(format='json-ld', context=context, indent=4).decode('ASCII')
+
     def save_DotGraph(self,filename,format=None):
         dot = prov_to_dot(self.graph)
         #add some logic to find nodes with dct:hasPart relation and add those edges to graph...prov_to_dot ignores these
