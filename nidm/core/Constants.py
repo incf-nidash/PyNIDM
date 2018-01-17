@@ -83,7 +83,7 @@ for name, namespace in namespaces.items():
 # DBK Added - Empty graph using provtoolbox used to compute qnames
 # dj: chnaged to a new class
 class NIDMDocument(ProvDocument):
-    def __init__(self):
+    def __init__(self, namespaces):
         super(NIDMDocument, self).__init__(namespaces=namespaces)
 
 
