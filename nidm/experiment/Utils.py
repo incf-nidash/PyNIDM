@@ -125,7 +125,7 @@ def read_nidm(nidmDoc):
 
                             #check whether this acquisition activity has already been instantiated (maybe if there are multiple acquisition
                             #entities prov:wasGeneratedBy the acquisition
-                            if not session.acquisition_exist(acq_obj):
+                            if not session.acquisition_exist(acq_uuid):
                                 acquisition=MRAcquisition(session=session,uuid=acq_uuid)
                                 session.add_acquisition(acquisition)
                                 #Cycle through remaining metadata for acquisition activity and add attributes
@@ -152,7 +152,7 @@ def read_nidm(nidmDoc):
                                     #link it to appropriate MR acquisition entity
                                     events_obj.wasAttributedTo(acquisition_obj)
                                     #cycle through rest of metadata
-                                    add_metadata_for_subject (rdf_graph_parse,assoc_acq,project.graph.namespaces,events_obj)
+                                    add_metadata_for_subject(rdf_graph_parse,assoc_acq,project.graph.namespaces,events_obj)
 
 
 
@@ -163,24 +163,28 @@ def read_nidm(nidmDoc):
 
                             #if str(acq_modality) == Constants.NIDM_ASSESSMENT_ENTITY._uri:
                             acquisition=AssessmentAcquisition(session=session,uuid=acq_uuid)
-                            session.add_acquisition(acquisition)
+                            if not session.acquisition_exist(acq_uuid):
+                                session.add_acquisition(acquisition)
+                                 #Cycle through remaining metadata for acquisition activity and add attributes
+                                add_metadata_for_subject (rdf_graph_parse,acq,project.graph.namespaces,acquisition)
+
                             #and add acquisition object
                             acquisition_obj=AssessmentObject(acquisition=acquisition,uuid=acq_obj_uuid)
                             acquisition.add_acquisition_object(acquisition_obj)
-                            #Cycle through remaining metadata for acquisition activity and add attributes
-                            add_metadata_for_subject (rdf_graph_parse,acq,project.graph.namespaces,acquisition)
                             #Cycle through remaining metadata for acquisition entity and add attributes
                             add_metadata_for_subject(rdf_graph_parse,acq_obj,project.graph.namespaces,acquisition_obj)
                         elif (acq_obj, RDF.type, URIRef(Constants.NIDM_MRI_BOLD_EVENTS._uri)) in rdf_graph:
                             #If this is a stimulus response file
                             #elif str(acq_modality) == Constants.NIDM_MRI_BOLD_EVENTS:
                             acquisition=Acquisition(session=session,uuid=acq_uuid)
-                            session.add_acquisition(acquisition)
+                            if not session.acquisition_exist(acq_uuid):
+                                session.add_acquisition(acquisition)
+                                #Cycle through remaining metadata for acquisition activity and add attributes
+                                add_metadata_for_subject (rdf_graph_parse,acq,project.graph.namespaces,acquisition)
+
                             #and add acquisition object
                             acquisition_obj=AcquisitionObject(acquisition=acquisition,uuid=acq_obj_uuid)
                             acquisition.add_acquisition_object(acquisition_obj)
-                            #Cycle through remaining metadata for acquisition activity and add attributes
-                            add_metadata_for_subject (rdf_graph_parse,acq,project.graph.namespaces,acquisition)
                             #Cycle through remaining metadata for acquisition entity and add attributes
                             add_metadata_for_subject(rdf_graph_parse,acq_obj,project.graph.namespaces,acquisition_obj)
 
