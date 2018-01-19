@@ -148,6 +148,15 @@ def main(argv):
         #skip .git directories...added to support datalad datasets
         if subject_id.startswith("."):
             continue
+
+        #check if there's a session number.  If so, store it in the session activity
+        session_dirs = bids_layout.get(target='session',subject=subject_id,return_type='dir')
+        #if session_dirs has entries then get any metadata about session and store in session activity
+
+        #bids_layout.get(subject=subject_id,type='session',extensions='.tsv')
+        #bids_layout.get(subject=subject_id,type='scans',extensions='.tsv')
+        #bids_layout.get(extensions='.tsv',return_type='obj')
+
         for file_tpl in bids_layout.get(subject=subject_id, extensions=['.nii', '.nii.gz']):
             #create an acquisition activity
             acq=MRAcquisition(session[subject_id])

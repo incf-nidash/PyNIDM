@@ -164,6 +164,9 @@ class Core(object):
             #associate person with activity for qualified association
             assoc = self.graph.association(agent=person, activity=self, other_attributes={pm.PROV_ROLE:role})
 
+            #add wasAssociatedWith association
+            self.wasAssociatedWith(person)
+
             #add role for qualified association
             #assoc.add_attributes({pm.PROV_ROLE:role})
 
