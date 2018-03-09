@@ -88,17 +88,28 @@ def main(argv):
         #for each column name, query Interlex for possible matches
         search_result = GetNIDMTermsFromSciCrunch(args.key,column)
         #tk stuff
-        root=tk.Tk()
-        listb=NewListbox(root,selectmode=tk.SINGLE)
+        #root=tk.Tk()
+        #listb=NewListbox(root,selectmode=tk.SINGLE)
+        option=1
         for key,value in search_result.items():
-            print("Label: %s \t Definition: %s \t Preferred URL: %s " %(search_result[key]['label'],search_result[key]['definition'],search_result[key]['preferred_url']  ))
+            print("%d: Label: %s \t Definition: %s \t Preferred URL: %s " %(option,search_result[key]['label'],search_result[key]['definition'],search_result[key]['preferred_url']  ))
             #add to dialog box for user to check which one is correct 
-            listb.insert("end",search_result[key]['label']+", " +search_result[key]['definition'])
+            #listb.insert("end",search_result[key]['label']+", " +search_result[key]['definition'])
+            option=option+1
 
+        #Add option to change query string
+        print("%d: Change Interlex query string from: \"%s\"" %(option,column))
+        option=option+1
+        #Add option to define your own term
+        print("%d: Define my own term for this variable" %option)
+        print("---------------------------------------------------------------------------------------")
+        #Wait for user input
+        selection=input("Please select an option (1:%d) from above: \t" %(option))
 
-        listb.pack()
-        listb.autowidth()
-        root.mainloop()
+        print("user selected: %s" %selection)
+        #listb.pack()
+        #listb.autowidth()
+        #root.mainloop()
         #input("Press Enter to continue...")
 
 if __name__ == "__main__":
