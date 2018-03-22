@@ -200,19 +200,24 @@ nidm:_51f2421a-e44b-11e7-a6d7-6c4008b8f03e a nidm:Acquisition,
             prov:hadRole sio:Subject ] ;
     prov:wasAssociatedWith nidm:_51effca8-e44b-11e7-9bb7-6c4008b8f03e .
 
-nidm:_51f2979c-e44b-11e7-8c48-6c4008b8f03e a prov:Activity ;
-    dct:isPartOf nidm:_51eff168-e44b-11e7-a34f-6c4008b8f03e .
-
-nidm:_51f2d1b0-e44b-11e7-b0dd-6c4008b8f03e a prov:Activity ;
-    dct:isPartOf nidm:_51eff168-e44b-11e7-a34f-6c4008b8f03e .
-
-nidm:_51f32842-e44b-11e7-8520-6c4008b8f03e a nidm:Acquisition,
+nidm:_51f2979c-e44b-11e7-8c48-6c4008b8f03e a nidm:Acquisition,
         prov:Activity ;
     dct:isPartOf nidm:_51eff168-e44b-11e7-a34f-6c4008b8f03e ;
     prov:qualifiedAssociation [ a prov:Association ;
             prov:agent nidm:_51effca8-e44b-11e7-9bb7-6c4008b8f03e ;
             prov:hadRole sio:Subject ] ;
     prov:wasAssociatedWith nidm:_51effca8-e44b-11e7-9bb7-6c4008b8f03e .
+
+nidm:_51f2d1b0-e44b-11e7-b0dd-6c4008b8f03e a nidm:Acquisition,
+        prov:Activity ;
+    dct:isPartOf nidm:_51eff168-e44b-11e7-a34f-6c4008b8f03e ;
+    prov:qualifiedAssociation [ a prov:Association ;
+            prov:agent nidm:_51effca8-e44b-11e7-9bb7-6c4008b8f03e ;
+            prov:hadRole sio:Subject ] ;
+    prov:wasAssociatedWith nidm:_51effca8-e44b-11e7-9bb7-6c4008b8f03e .
+
+nidm:_51f32842-e44b-11e7-8520-6c4008b8f03e a prov:Activity ;
+    dct:isPartOf nidm:_51eff168-e44b-11e7-a34f-6c4008b8f03e .
 
 nidm:_51f3608c-e44b-11e7-bf94-6c4008b8f03e a prov:Activity ;
     dct:isPartOf nidm:_51eff168-e44b-11e7-a34f-6c4008b8f03e .

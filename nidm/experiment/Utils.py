@@ -65,7 +65,7 @@ def read_nidm(nidmDoc):
     #Split subject URI into namespace, term
     nm,project_uuid = split_uri(proj_id)
 
-    print("project uuid=%s" %project_uuid)
+    #print("project uuid=%s" %project_uuid)
 
     #create empty prov graph
     project = Project(empty_graph=True,uuid=project_uuid)
@@ -88,7 +88,7 @@ def read_nidm(nidmDoc):
         #Split subject URI for session into namespace, uuid
         nm,session_uuid = split_uri(s)
 
-        print("session uuid= %s" %session_uuid)
+        #print("session uuid= %s" %session_uuid)
 
         #instantiate session with this uuid
         session = Session(project=project, uuid=session_uuid)
@@ -105,7 +105,7 @@ def read_nidm(nidmDoc):
         for acq in rdf_graph_parse.subjects(predicate=Constants.DCT['isPartOf'],object=s):
             #Split subject URI for session into namespace, uuid
             nm,acq_uuid = split_uri(acq)
-            print("acquisition uuid: %s" %acq_uuid)
+            #print("acquisition uuid: %s" %acq_uuid)
 
             #query for whether this is an AssessmentAcquisition of other Acquisition, etc.
             for rdf_type in  rdf_graph_parse.objects(subject=acq, predicate=RDF.type):
@@ -117,7 +117,7 @@ def read_nidm(nidmDoc):
                     for acq_obj in rdf_graph_parse.subjects(predicate=Constants.PROV["wasGeneratedBy"],object=acq):
                         #Split subject URI for session into namespace, uuid
                         nm,acq_obj_uuid = split_uri(acq_obj)
-                        print("acquisition object uuid: %s" %acq_obj_uuid)
+                        #print("acquisition object uuid: %s" %acq_obj_uuid)
 
                         #query for whether this is an MRI acquisition by way of looking at the generated entity and determining
                         #if it has the tuple [uuid Constants.NIDM_ACQUISITION_MODALITY Constants.NIDM_MRI]
@@ -146,7 +146,7 @@ def read_nidm(nidmDoc):
                                 if (assoc_acq,RDF.type,URIRef(Constants.NIDM_MRI_BOLD_EVENTS._uri)) in rdf_graph:
                                     #Split subject URI for associated acquisition entity for nidm:StimulusResponseFile into namespace, uuid
                                     nm,assoc_acq_uuid = split_uri(assoc_acq)
-                                    print("associated acquisition object (stimulus file) uuid: %s" % assoc_acq_uuid)
+                                    #print("associated acquisition object (stimulus file) uuid: %s" % assoc_acq_uuid)
                                     #if so then add this entity and associate it with acquisition activity and MRI entity
                                     events_obj = AcquisitionObject(acquisition=acquisition,uuid=assoc_acq_uuid)
                                     #link it to appropriate MR acquisition entity
@@ -299,9 +299,9 @@ def QuerySciCrunchElasticSearch(key,query_string,cde_only=False):
         ('key', key),
     )
     if cde_only:
-        data = '\n{\n  "query": {\n    "bool": {\n       "must" : [\n       {  "terms" : { "type" : ["cde" ] } },\n       { "terms" : { "ancestors.ilx" : ["ilx_0115066" , "ilx_0103210"] } },\n       { "multi_match" : {\n         "query":    "%s", \n         "fields": [ "label", "definition" ] \n       } }\n]\n    }\n  }\n}\n' %query_string
+        data = '\n{\n  "query": {\n    "bool": {\n       "must" : [\n       {  "terms" : { "type" : ["cde" ] } },\n       { "terms" : { "ancestors.ilx" : ["ilx_0115066" , "ilx_0103210", "ilx_0115072"] } },\n       { "multi_match" : {\n         "query":    "%s", \n         "fields": [ "label", "definition" ] \n       } }\n]\n    }\n  }\n}\n' %query_string
     else:
-        data = '\n{\n  "query": {\n    "bool": {\n       "must" : [\n       {  "terms" : { "type" : ["cde" , "term"] } },\n       { "terms" : { "ancestors.ilx" : ["ilx_0115066" , "ilx_0103210"] } },\n       { "multi_match" : {\n         "query":    "%s", \n         "fields": [ "label", "definition" ] \n       } }\n]\n    }\n  }\n}\n' %query_string
+        data = '\n{\n  "query": {\n    "bool": {\n       "must" : [\n       {  "terms" : { "type" : ["cde" , "term"] } },\n       { "terms" : { "ancestors.ilx" : ["ilx_0115066" , "ilx_0103210", "ilx_0115072"] } },\n       { "multi_match" : {\n         "query":    "%s", \n         "fields": [ "label", "definition" ] \n       } }\n]\n    }\n  }\n}\n' %query_string
 
     response = requests.post('https://scicrunch.org/api/1/elastic-ilx/scicrunch/term/_search#', headers=headers, params=params, data=data)
 

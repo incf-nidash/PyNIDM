@@ -45,6 +45,7 @@ import csv
 import glob
 from argparse import ArgumentParser
 from bids.grabbids import BIDSLayout
+from urllib.parse import quote
 
 def getRelPathToBIDS(filepath, bids_root):
     """
@@ -67,11 +68,16 @@ def main(argv):
         and link to the associated json data dictionary file.')
 
     parser.add_argument('-d', dest='directory', required=True, help="Path to BIDS dataset directory")
+    parser.add_argument('-jsonld', '--jsonld', action='store_true', help='If flag set, output is json-ld not TURTLE')
     parser.add_argument('-o', dest='outputfile', default="nidm.ttl", help="NIDM output turtle file")
     args = parser.parse_args()
 
     directory = args.directory
     outputfile = args.outputfile
+
+    #if we're choosing json-ld, make sure file extension is .json
+    if args.jsonld:
+        outputfile = os.path.splitext(outputfile)[0]+".json"
 
     #importlib.reload(sys)
     #sys.setdefaultencoding('utf8')
@@ -133,7 +139,8 @@ def main(argv):
                         acq_entity.add_attributes({BIDS_Constants.participants[key]:value})
                 #else just put variables in bids namespace since we don't know what they mean
                 else:
-                    acq_entity.add_attributes({Constants.BIDS[key]:value})
+                    #acq_entity.add_attributes({Constants.BIDS[quote(key)]:value})
+                    acq_entity.add_attributes({Constants.BIDS[key.replace(" ", "_")]:value})
 
 
 
@@ -148,6 +155,15 @@ def main(argv):
         #skip .git directories...added to support datalad datasets
         if subject_id.startswith("."):
             continue
+
+        #check if there's a session number.  If so, store it in the session activity
+        session_dirs = bids_layout.get(target='session',subject=subject_id,return_type='dir')
+        #if session_dirs has entries then get any metadata about session and store in session activity
+
+        #bids_layout.get(subject=subject_id,type='session',extensions='.tsv')
+        #bids_layout.get(subject=subject_id,type='scans',extensions='.tsv')
+        #bids_layout.get(extensions='.tsv',return_type='obj')
+
         for file_tpl in bids_layout.get(subject=subject_id, extensions=['.nii', '.nii.gz']):
             #create an acquisition activity
             acq=MRAcquisition(session[subject_id])
@@ -180,9 +196,9 @@ def main(argv):
                     for key in json_data:
                         if key in BIDS_Constants.json_keys:
                             if type(json_data[key]) is list:
-                                acq_obj.add_attributes({BIDS_Constants.json_keys[key]:''.join(str(e) for e in json_data[key])})
+                                acq_obj.add_attributes({BIDS_Constants.json_keys[key.replace(" ", "_")]:''.join(str(e) for e in json_data[key])})
                             else:
-                                acq_obj.add_attributes({BIDS_Constants.json_keys[key]:json_data[key]})
+                                acq_obj.add_attributes({BIDS_Constants.json_keys[key.replace(" ", "_")]:json_data[key]})
             elif file_tpl.modality == 'func':
                 #do something with functionals
                 acq_obj = MRObject(acq)
@@ -209,9 +225,9 @@ def main(argv):
                     for key in json_data:
                         if key in BIDS_Constants.json_keys:
                             if type(json_data[key]) is list:
-                                acq_obj.add_attributes({BIDS_Constants.json_keys[key]:''.join(str(e) for e in json_data[key])})
+                                acq_obj.add_attributes({BIDS_Constants.json_keys[key.replace(" ", "_")]:''.join(str(e) for e in json_data[key])})
                             else:
-                                acq_obj.add_attributes({BIDS_Constants.json_keys[key]:json_data[key]})
+                                acq_obj.add_attributes({BIDS_Constants.json_keys[key.replace(" ", "_")]:json_data[key]})
 
                 #get associated events TSV file
                 if 'run' in file_tpl._fields:
@@ -254,9 +270,9 @@ def main(argv):
                     for key in json_data:
                         if key in BIDS_Constants.json_keys:
                             if type(json_data[key]) is list:
-                                acq_obj.add_attributes({BIDS_Constants.json_keys[key]:''.join(str(e) for e in json_data[key])})
+                                acq_obj.add_attributes({BIDS_Constants.json_keys[key.replace(" ", "_")]:''.join(str(e) for e in json_data[key])})
                             else:
-                                acq_obj.add_attributes({BIDS_Constants.json_keys[key]:json_data[key]})
+                                acq_obj.add_attributes({BIDS_Constants.json_keys[key.replace(" ", "_")]:json_data[key]})
 
                 #for bval and bvec files, what to do with those?
 
@@ -310,7 +326,10 @@ def main(argv):
     #serialize graph
     #print(project.graph.get_provn())
     with open(outputfile,'w') as f:
-        f.write(project.serializeTurtle())
+        if args.jsonld:
+            f.write(project.serializeJSONLD())
+        else:
+            f.write(project.serializeTurtle())
         #f.write(project.graph.get_provn())
     #save a DOT graph as PNG
     project.save_DotGraph(str(outputfile + ".png"),format="png")

@@ -51,63 +51,25 @@
     },
     "@graph": [
         {
-            "@id": "nidm:_51effca8-e44b-11e7-9bb7-6c4008b8f03e",
+            "@id": "nidm:_51f2cc4c-e44b-11e7-af99-6c4008b8f03e",
             "@type": [
-                "prov:Agent",
-                "prov:Person"
-            ],
-            "https://ndar.nih.gov/api/datadictionary/v2/dataelement/src_subject_id": "sub-01"
-        },
-        {
-            "@id": "nidm:_51f29c06-e44b-11e7-9879-6c4008b8f03e",
-            "@type": [
-                "http://semanticscience.org/ontology/sio.owl#file",
+                "nidm:StimulusResponseFile",
                 "prov:Entity"
             ],
-            "http://neurolex.org/wiki/Category:DICOM_term/RepetitionTime": 2.0,
-            "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#filename": "/sub-01/func/sub-01_task-deterministicclassification_run-02_bold.nii.gz",
-            "nidm:AcquisitionModality": {
-                "@id": "nidm:MagneticResonanceImaging"
-            },
-            "nidm:AcquisitionObject": "02",
+            "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#filename": "/sub-01/func/sub-01_task-deterministicclassification_run-02_events.tsv",
             "nidm:Task": "deterministic classification",
-            "nidm:hasImageContrastType": {
-                "@id": "nidm:FlowWeighted"
-            },
-            "nidm:hasImageUsageType": {
-                "@id": "nidm:Functional"
-            },
             "prov:wasGeneratedBy": {
                 "@id": "nidm:_51f2979c-e44b-11e7-8c48-6c4008b8f03e"
-            }
+            },
+            "wasAttributedTo": "nidm:_51f29c06-e44b-11e7-9879-6c4008b8f03e"
         },
         {
-            "@id": "nidm:_51f21bb4-e44b-11e7-9ace-6c4008b8f03e",
+            "@id": "nidm:_51f3aae2-e44b-11e7-8e7b-6c4008b8f03e",
             "@type": [
-                "prov:Entity",
-                "http://semanticscience.org/ontology/sio.owl#file"
+                "nidm:Acquisition",
+                "prov:Activity"
             ],
-            "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#filename": "/sub-01/anat/sub-01_inplaneT2.nii.gz",
-            "nidm:AcquisitionModality": {
-                "@id": "nidm:MagneticResonanceImaging"
-            },
-            "nidm:hasImageContrastType": {
-                "@id": "nidm:T2Weighted"
-            },
-            "nidm:hasImageUsageType": {
-                "@id": "nidm:Anatomical"
-            },
-            "prov:wasGeneratedBy": {
-                "@id": "nidm:_51f2157e-e44b-11e7-a382-6c4008b8f03e"
-            }
-        },
-        {
-            "@id": "nidm:_51f2421a-e44b-11e7-a6d7-6c4008b8f03e",
-            "@type": [
-                "prov:Activity",
-                "nidm:Acquisition"
-            ],
-            "association": "_:ub2bL197C31",
+            "association": "_:ub2bL227C31",
             "http://purl.org/dc/terms/isPartOf": {
                 "@id": "nidm:_51eff168-e44b-11e7-a34f-6c4008b8f03e"
             },
@@ -116,30 +78,84 @@
             }
         },
         {
-            "@id": "nidm:_51f35b1e-e44b-11e7-8018-6c4008b8f03e",
+            "@id": "nidm:_51ef050a-e44b-11e7-9e92-6c4008b8f03e",
             "@type": [
-                "nidm:StimulusResponseFile",
-                "prov:Entity"
+                "nidm:Project",
+                "prov:Activity"
             ],
-            "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#filename": "/sub-01/func/sub-01_task-mixedeventrelatedprobe_run-02_events.tsv",
-            "nidm:Task": "mixed event-related probe",
-            "prov:wasGeneratedBy": {
-                "@id": "nidm:_51f32842-e44b-11e7-8520-6c4008b8f03e"
-            },
-            "wasAttributedTo": "nidm:_51f32ce8-e44b-11e7-ba89-6c4008b8f03e"
+            "http://purl.org/dc/dcmitype/title": "Classification learning",
+            "http://purl.org/dc/terms/license": "This dataset is made available under the Public Domain Dedication and License \nv1.0, whose full text can be found at \nhttp://www.opendatacommons.org/licenses/pddl/1.0/. \nWe hope that all users will follow the ODC Attribution/Share-Alike \nCommunity Norms (http://www.opendatacommons.org/norms/odc-by-sa/); \nin particular, while not legally required, we hope that all users \nof the data will acknowledge the OpenfMRI project and NSF Grant \nOCI-1131441 (R. Poldrack, PI) in any publications.",
+            "http://semanticscience.org/ontology/sio.owl#Identifier": "1.0.0",
+            "http://www.w3.org/ns/dcat#creator": "Aron, A.R., Gluck, M.A., Poldrack, R.A. (2006). Long-term test-retest reliability of functional MRI in a classification learning task. Neuroimage, 29(3):1000-6",
+            "prov:Location": "/Users/dbkeator/Documents/UCI/ReproNim/example_bids/ds002_single_subj"
         },
         {
-            "@id": "nidm:_51f321e4-e44b-11e7-9a21-6c4008b8f03e",
+            "@id": "nidm:_51eff55a-e44b-11e7-9410-6c4008b8f03e",
             "@type": [
-                "nidm:StimulusResponseFile",
+                "nidm:Acquisition",
+                "prov:Activity"
+            ],
+            "http://purl.org/dc/terms/isPartOf": {
+                "@id": "nidm:_51eff168-e44b-11e7-a34f-6c4008b8f03e"
+            }
+        },
+        {
+            "@id": "nidm:_51f3608c-e44b-11e7-bf94-6c4008b8f03e",
+            "@type": "prov:Activity",
+            "http://purl.org/dc/terms/isPartOf": {
+                "@id": "nidm:_51eff168-e44b-11e7-a34f-6c4008b8f03e"
+            }
+        },
+        {
+            "@id": "nidm:_51f2d612-e44b-11e7-bea8-6c4008b8f03e",
+            "@type": [
+                "http://semanticscience.org/ontology/sio.owl#file",
                 "prov:Entity"
             ],
-            "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#filename": "/sub-01/func/sub-01_task-mixedeventrelatedprobe_run-01_events.tsv",
+            "http://neurolex.org/wiki/Category:DICOM_term/RepetitionTime": 2.0,
+            "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#filename": "/sub-01/func/sub-01_task-mixedeventrelatedprobe_run-01_bold.nii.gz",
+            "nidm:AcquisitionModality": {
+                "@id": "nidm:MagneticResonanceImaging"
+            },
+            "nidm:AcquisitionObject": "01",
             "nidm:Task": "mixed event-related probe",
+            "nidm:hasImageContrastType": {
+                "@id": "nidm:FlowWeighted"
+            },
+            "nidm:hasImageUsageType": {
+                "@id": "nidm:Functional"
+            },
             "prov:wasGeneratedBy": {
                 "@id": "nidm:_51f2d1b0-e44b-11e7-b0dd-6c4008b8f03e"
+            }
+        },
+        {
+            "@id": "nidm:_51f22f14-e44b-11e7-9243-6c4008b8f03e",
+            "@type": [
+                "nidm:Acquisition",
+                "prov:Activity"
+            ],
+            "association": "_:ub2bL123C31",
+            "http://purl.org/dc/terms/isPartOf": {
+                "@id": "nidm:_51eff168-e44b-11e7-a34f-6c4008b8f03e"
             },
-            "wasAttributedTo": "nidm:_51f2d612-e44b-11e7-bea8-6c4008b8f03e"
+            "prov:wasAssociatedWith": {
+                "@id": "nidm:_51effca8-e44b-11e7-9bb7-6c4008b8f03e"
+            }
+        },
+        {
+            "@id": "nidm:_51f2979c-e44b-11e7-8c48-6c4008b8f03e",
+            "@type": [
+                "nidm:Acquisition",
+                "prov:Activity"
+            ],
+            "association": "_:ub2bL205C31",
+            "http://purl.org/dc/terms/isPartOf": {
+                "@id": "nidm:_51eff168-e44b-11e7-a34f-6c4008b8f03e"
+            },
+            "prov:wasAssociatedWith": {
+                "@id": "nidm:_51effca8-e44b-11e7-9bb7-6c4008b8f03e"
+            }
         },
         {
             "@id": "nidm:_51f29186-e44b-11e7-9811-6c4008b8f03e",
@@ -157,8 +173,8 @@
         {
             "@id": "nidm:_51eff852-e44b-11e7-a179-6c4008b8f03e",
             "@type": [
-                "prov:Entity",
-                "nidm:assessment-instrument"
+                "nidm:assessment-instrument",
+                "prov:Entity"
             ],
             "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#Age": "22",
             "https://ndar.nih.gov/api/datadictionary/v2/dataelement/gender": "M",
@@ -167,33 +183,26 @@
             }
         },
         {
-            "@id": "nidm:_51eff168-e44b-11e7-a34f-6c4008b8f03e",
+            "@id": "nidm:_51f364f6-e44b-11e7-9f01-6c4008b8f03e",
             "@type": [
-                "nidm:Session",
-                "prov:Activity"
+                "prov:Entity",
+                "http://semanticscience.org/ontology/sio.owl#file"
             ],
-            "http://purl.org/dc/terms/isPartOf": {
-                "@id": "nidm:_51ef050a-e44b-11e7-9e92-6c4008b8f03e"
-            }
-        },
-        {
-            "@id": "nidm:_51f233ec-e44b-11e7-bf25-6c4008b8f03e",
-            "@type": [
-                "http://semanticscience.org/ontology/sio.owl#file",
-                "prov:Entity"
-            ],
-            "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#filename": "/sub-01/anat/sub-01_T1w.nii.gz",
+            "http://neurolex.org/wiki/Category:DICOM_term/RepetitionTime": 2.0,
+            "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#filename": "/sub-01/func/sub-01_task-probabilisticclassification_run-01_bold.nii.gz",
             "nidm:AcquisitionModality": {
                 "@id": "nidm:MagneticResonanceImaging"
             },
+            "nidm:AcquisitionObject": "01",
+            "nidm:Task": "probabilistic classification",
             "nidm:hasImageContrastType": {
-                "@id": "nidm:T1Weighted"
+                "@id": "nidm:FlowWeighted"
             },
             "nidm:hasImageUsageType": {
-                "@id": "nidm:Anatomical"
+                "@id": "nidm:Functional"
             },
             "prov:wasGeneratedBy": {
-                "@id": "nidm:_51f22f14-e44b-11e7-9243-6c4008b8f03e"
+                "@id": "nidm:_51f3608c-e44b-11e7-bf94-6c4008b8f03e"
             }
         },
         {
@@ -220,27 +229,6 @@
             }
         },
         {
-            "@id": "nidm:_51f2157e-e44b-11e7-a382-6c4008b8f03e",
-            "@type": [
-                "prov:Activity",
-                "nidm:Acquisition"
-            ],
-            "association": "_:ub2bL115C31",
-            "http://purl.org/dc/terms/isPartOf": {
-                "@id": "nidm:_51eff168-e44b-11e7-a34f-6c4008b8f03e"
-            },
-            "prov:wasAssociatedWith": {
-                "@id": "nidm:_51effca8-e44b-11e7-9bb7-6c4008b8f03e"
-            }
-        },
-        {
-            "@id": "nidm:_51f2d1b0-e44b-11e7-b0dd-6c4008b8f03e",
-            "@type": "prov:Activity",
-            "http://purl.org/dc/terms/isPartOf": {
-                "@id": "nidm:_51eff168-e44b-11e7-a34f-6c4008b8f03e"
-            }
-        },
-        {
             "@id": "nidm:_51f3af4a-e44b-11e7-a43d-6c4008b8f03e",
             "@type": [
                 "http://semanticscience.org/ontology/sio.owl#file",
@@ -264,10 +252,30 @@
             }
         },
         {
-            "@id": "nidm:_51f2979c-e44b-11e7-8c48-6c4008b8f03e",
-            "@type": "prov:Activity",
+            "@id": "nidm:_51f3dff6-e44b-11e7-ac2b-6c4008b8f03e",
+            "@type": [
+                "prov:Entity",
+                "nidm:StimulusResponseFile"
+            ],
+            "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#filename": "/sub-01/func/sub-01_task-probabilisticclassification_run-02_events.tsv",
+            "nidm:Task": "probabilistic classification",
+            "prov:wasGeneratedBy": {
+                "@id": "nidm:_51f3aae2-e44b-11e7-8e7b-6c4008b8f03e"
+            },
+            "wasAttributedTo": "nidm:_51f3af4a-e44b-11e7-a43d-6c4008b8f03e"
+        },
+        {
+            "@id": "nidm:_51f2421a-e44b-11e7-a6d7-6c4008b8f03e",
+            "@type": [
+                "nidm:Acquisition",
+                "prov:Activity"
+            ],
+            "association": "_:ub2bL197C31",
             "http://purl.org/dc/terms/isPartOf": {
                 "@id": "nidm:_51eff168-e44b-11e7-a34f-6c4008b8f03e"
+            },
+            "prov:wasAssociatedWith": {
+                "@id": "nidm:_51effca8-e44b-11e7-9bb7-6c4008b8f03e"
             }
         },
         {
@@ -294,153 +302,43 @@
             }
         },
         {
-            "@id": "nidm:_51f364f6-e44b-11e7-9f01-6c4008b8f03e",
+            "@id": "nidm:_51f321e4-e44b-11e7-9a21-6c4008b8f03e",
             "@type": [
-                "http://semanticscience.org/ontology/sio.owl#file",
-                "prov:Entity"
+                "prov:Entity",
+                "nidm:StimulusResponseFile"
             ],
-            "http://neurolex.org/wiki/Category:DICOM_term/RepetitionTime": 2.0,
-            "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#filename": "/sub-01/func/sub-01_task-probabilisticclassification_run-01_bold.nii.gz",
-            "nidm:AcquisitionModality": {
-                "@id": "nidm:MagneticResonanceImaging"
-            },
-            "nidm:AcquisitionObject": "01",
-            "nidm:Task": "probabilistic classification",
-            "nidm:hasImageContrastType": {
-                "@id": "nidm:FlowWeighted"
-            },
-            "nidm:hasImageUsageType": {
-                "@id": "nidm:Functional"
-            },
+            "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#filename": "/sub-01/func/sub-01_task-mixedeventrelatedprobe_run-01_events.tsv",
+            "nidm:Task": "mixed event-related probe",
             "prov:wasGeneratedBy": {
-                "@id": "nidm:_51f3608c-e44b-11e7-bf94-6c4008b8f03e"
-            }
-        },
-        {
-            "@id": "nidm:_51f3aae2-e44b-11e7-8e7b-6c4008b8f03e",
-            "@type": [
-                "nidm:Acquisition",
-                "prov:Activity"
-            ],
-            "association": "_:ub2bL222C31",
-            "http://purl.org/dc/terms/isPartOf": {
-                "@id": "nidm:_51eff168-e44b-11e7-a34f-6c4008b8f03e"
+                "@id": "nidm:_51f2d1b0-e44b-11e7-b0dd-6c4008b8f03e"
             },
-            "prov:wasAssociatedWith": {
-                "@id": "nidm:_51effca8-e44b-11e7-9bb7-6c4008b8f03e"
-            }
+            "wasAttributedTo": "nidm:_51f2d612-e44b-11e7-bea8-6c4008b8f03e"
         },
         {
-            "@id": "nidm:_51f2cc4c-e44b-11e7-af99-6c4008b8f03e",
-            "@type": [
-                "nidm:StimulusResponseFile",
-                "prov:Entity"
-            ],
-            "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#filename": "/sub-01/func/sub-01_task-deterministicclassification_run-02_events.tsv",
-            "nidm:Task": "deterministic classification",
-            "prov:wasGeneratedBy": {
-                "@id": "nidm:_51f2979c-e44b-11e7-8c48-6c4008b8f03e"
-            },
-            "wasAttributedTo": "nidm:_51f29c06-e44b-11e7-9879-6c4008b8f03e"
-        },
-        {
-            "@id": "nidm:_51f3dff6-e44b-11e7-ac2b-6c4008b8f03e",
-            "@type": [
-                "nidm:StimulusResponseFile",
-                "prov:Entity"
-            ],
-            "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#filename": "/sub-01/func/sub-01_task-probabilisticclassification_run-02_events.tsv",
-            "nidm:Task": "probabilistic classification",
-            "prov:wasGeneratedBy": {
-                "@id": "nidm:_51f3aae2-e44b-11e7-8e7b-6c4008b8f03e"
-            },
-            "wasAttributedTo": "nidm:_51f3af4a-e44b-11e7-a43d-6c4008b8f03e"
-        },
-        {
-            "@id": "nidm:_51eff55a-e44b-11e7-9410-6c4008b8f03e",
-            "@type": [
-                "nidm:Acquisition",
-                "prov:Activity"
-            ],
-            "http://purl.org/dc/terms/isPartOf": {
-                "@id": "nidm:_51eff168-e44b-11e7-a34f-6c4008b8f03e"
-            }
-        },
-        {
-            "@id": "nidm:_51ef050a-e44b-11e7-9e92-6c4008b8f03e",
-            "@type": [
-                "prov:Activity",
-                "nidm:Project"
-            ],
-            "http://purl.org/dc/dcmitype/title": "Classification learning",
-            "http://purl.org/dc/terms/license": "This dataset is made available under the Public Domain Dedication and License \nv1.0, whose full text can be found at \nhttp://www.opendatacommons.org/licenses/pddl/1.0/. \nWe hope that all users will follow the ODC Attribution/Share-Alike \nCommunity Norms (http://www.opendatacommons.org/norms/odc-by-sa/); \nin particular, while not legally required, we hope that all users \nof the data will acknowledge the OpenfMRI project and NSF Grant \nOCI-1131441 (R. Poldrack, PI) in any publications.",
-            "http://semanticscience.org/ontology/sio.owl#Identifier": "1.0.0",
-            "http://www.w3.org/ns/dcat#creator": "Aron, A.R., Gluck, M.A., Poldrack, R.A. (2006). Long-term test-retest reliability of functional MRI in a classification learning task. Neuroimage, 29(3):1000-6",
-            "prov:Location": "/Users/dbkeator/Documents/UCI/ReproNim/example_bids/ds002_single_subj"
-        },
-        {
-            "@id": "nidm:_51f3608c-e44b-11e7-bf94-6c4008b8f03e",
-            "@type": "prov:Activity",
-            "http://purl.org/dc/terms/isPartOf": {
-                "@id": "nidm:_51eff168-e44b-11e7-a34f-6c4008b8f03e"
-            }
-        },
-        {
-            "@id": "nidm:_51f2d612-e44b-11e7-bea8-6c4008b8f03e",
+            "@id": "nidm:_51f21bb4-e44b-11e7-9ace-6c4008b8f03e",
             "@type": [
                 "prov:Entity",
                 "http://semanticscience.org/ontology/sio.owl#file"
             ],
-            "http://neurolex.org/wiki/Category:DICOM_term/RepetitionTime": 2.0,
-            "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#filename": "/sub-01/func/sub-01_task-mixedeventrelatedprobe_run-01_bold.nii.gz",
+            "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#filename": "/sub-01/anat/sub-01_inplaneT2.nii.gz",
             "nidm:AcquisitionModality": {
                 "@id": "nidm:MagneticResonanceImaging"
             },
-            "nidm:AcquisitionObject": "01",
-            "nidm:Task": "mixed event-related probe",
             "nidm:hasImageContrastType": {
-                "@id": "nidm:FlowWeighted"
+                "@id": "nidm:T2Weighted"
             },
             "nidm:hasImageUsageType": {
-                "@id": "nidm:Functional"
+                "@id": "nidm:Anatomical"
             },
             "prov:wasGeneratedBy": {
-                "@id": "nidm:_51f2d1b0-e44b-11e7-b0dd-6c4008b8f03e"
-            }
-        },
-        {
-            "@id": "nidm:_51f32842-e44b-11e7-8520-6c4008b8f03e",
-            "@type": [
-                "nidm:Acquisition",
-                "prov:Activity"
-            ],
-            "association": "_:ub2bL211C31",
-            "http://purl.org/dc/terms/isPartOf": {
-                "@id": "nidm:_51eff168-e44b-11e7-a34f-6c4008b8f03e"
-            },
-            "prov:wasAssociatedWith": {
-                "@id": "nidm:_51effca8-e44b-11e7-9bb7-6c4008b8f03e"
-            }
-        },
-        {
-            "@id": "nidm:_51f22f14-e44b-11e7-9243-6c4008b8f03e",
-            "@type": [
-                "nidm:Acquisition",
-                "prov:Activity"
-            ],
-            "association": "_:ub2bL123C31",
-            "http://purl.org/dc/terms/isPartOf": {
-                "@id": "nidm:_51eff168-e44b-11e7-a34f-6c4008b8f03e"
-            },
-            "prov:wasAssociatedWith": {
-                "@id": "nidm:_51effca8-e44b-11e7-9bb7-6c4008b8f03e"
+                "@id": "nidm:_51f2157e-e44b-11e7-a382-6c4008b8f03e"
             }
         },
         {
             "@id": "nidm:_51f3a568-e44b-11e7-8a37-6c4008b8f03e",
             "@type": [
-                "prov:Entity",
-                "nidm:StimulusResponseFile"
+                "nidm:StimulusResponseFile",
+                "prov:Entity"
             ],
             "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#filename": "/sub-01/func/sub-01_task-probabilisticclassification_run-01_events.tsv",
             "nidm:Task": "probabilistic classification",
@@ -448,6 +346,115 @@
                 "@id": "nidm:_51f3608c-e44b-11e7-bf94-6c4008b8f03e"
             },
             "wasAttributedTo": "nidm:_51f364f6-e44b-11e7-9f01-6c4008b8f03e"
+        },
+        {
+            "@id": "nidm:_51f2157e-e44b-11e7-a382-6c4008b8f03e",
+            "@type": [
+                "prov:Activity",
+                "nidm:Acquisition"
+            ],
+            "association": "_:ub2bL115C31",
+            "http://purl.org/dc/terms/isPartOf": {
+                "@id": "nidm:_51eff168-e44b-11e7-a34f-6c4008b8f03e"
+            },
+            "prov:wasAssociatedWith": {
+                "@id": "nidm:_51effca8-e44b-11e7-9bb7-6c4008b8f03e"
+            }
+        },
+        {
+            "@id": "nidm:_51f35b1e-e44b-11e7-8018-6c4008b8f03e",
+            "@type": [
+                "nidm:StimulusResponseFile",
+                "prov:Entity"
+            ],
+            "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#filename": "/sub-01/func/sub-01_task-mixedeventrelatedprobe_run-02_events.tsv",
+            "nidm:Task": "mixed event-related probe",
+            "prov:wasGeneratedBy": {
+                "@id": "nidm:_51f32842-e44b-11e7-8520-6c4008b8f03e"
+            },
+            "wasAttributedTo": "nidm:_51f32ce8-e44b-11e7-ba89-6c4008b8f03e"
+        },
+        {
+            "@id": "nidm:_51f29c06-e44b-11e7-9879-6c4008b8f03e",
+            "@type": [
+                "http://semanticscience.org/ontology/sio.owl#file",
+                "prov:Entity"
+            ],
+            "http://neurolex.org/wiki/Category:DICOM_term/RepetitionTime": 2.0,
+            "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#filename": "/sub-01/func/sub-01_task-deterministicclassification_run-02_bold.nii.gz",
+            "nidm:AcquisitionModality": {
+                "@id": "nidm:MagneticResonanceImaging"
+            },
+            "nidm:AcquisitionObject": "02",
+            "nidm:Task": "deterministic classification",
+            "nidm:hasImageContrastType": {
+                "@id": "nidm:FlowWeighted"
+            },
+            "nidm:hasImageUsageType": {
+                "@id": "nidm:Functional"
+            },
+            "prov:wasGeneratedBy": {
+                "@id": "nidm:_51f2979c-e44b-11e7-8c48-6c4008b8f03e"
+            }
+        },
+        {
+            "@id": "nidm:_51f2d1b0-e44b-11e7-b0dd-6c4008b8f03e",
+            "@type": [
+                "nidm:Acquisition",
+                "prov:Activity"
+            ],
+            "association": "_:ub2bL213C31",
+            "http://purl.org/dc/terms/isPartOf": {
+                "@id": "nidm:_51eff168-e44b-11e7-a34f-6c4008b8f03e"
+            },
+            "prov:wasAssociatedWith": {
+                "@id": "nidm:_51effca8-e44b-11e7-9bb7-6c4008b8f03e"
+            }
+        },
+        {
+            "@id": "nidm:_51f32842-e44b-11e7-8520-6c4008b8f03e",
+            "@type": "prov:Activity",
+            "http://purl.org/dc/terms/isPartOf": {
+                "@id": "nidm:_51eff168-e44b-11e7-a34f-6c4008b8f03e"
+            }
+        },
+        {
+            "@id": "nidm:_51f233ec-e44b-11e7-bf25-6c4008b8f03e",
+            "@type": [
+                "http://semanticscience.org/ontology/sio.owl#file",
+                "prov:Entity"
+            ],
+            "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#filename": "/sub-01/anat/sub-01_T1w.nii.gz",
+            "nidm:AcquisitionModality": {
+                "@id": "nidm:MagneticResonanceImaging"
+            },
+            "nidm:hasImageContrastType": {
+                "@id": "nidm:T1Weighted"
+            },
+            "nidm:hasImageUsageType": {
+                "@id": "nidm:Anatomical"
+            },
+            "prov:wasGeneratedBy": {
+                "@id": "nidm:_51f22f14-e44b-11e7-9243-6c4008b8f03e"
+            }
+        },
+        {
+            "@id": "nidm:_51effca8-e44b-11e7-9bb7-6c4008b8f03e",
+            "@type": [
+                "prov:Person",
+                "prov:Agent"
+            ],
+            "https://ndar.nih.gov/api/datadictionary/v2/dataelement/src_subject_id": "sub-01"
+        },
+        {
+            "@id": "nidm:_51eff168-e44b-11e7-a34f-6c4008b8f03e",
+            "@type": [
+                "nidm:Session",
+                "prov:Activity"
+            ],
+            "http://purl.org/dc/terms/isPartOf": {
+                "@id": "nidm:_51ef050a-e44b-11e7-9e92-6c4008b8f03e"
+            }
         }
     ]
 }
