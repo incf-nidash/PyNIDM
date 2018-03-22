@@ -17,3 +17,12 @@ A Python library to manipulate the [Neuro Imaging Data Model](http://nidm.nidash
   * `cd PyNIDM`
   * `pip install -e .`
   *  you can try to run a test: `pytest`
+
+## NIDM Experiment Tools
+
+**BIDSMRI2NIDM.py**
+* **Location:** PyNIDM/nidm/experiment/tools/BIDSMRI2NIDM.py 
+
+* **Description:** This tool will convert a BIDS MRI directory tree to a NIDM-Experiment document. Currently does not properly handle arbitrary Phenotype files.  Will encode in NIDM document but namespace set to BIDS (http://bids.neuroimaging.io/) and term to simply variable name from phenotype file which won't de-reference....work in progress....
+
+* **Usage:** BIDSMRI2NIDM.py [-h] -d DIRECTORY [-jsonld] [-o OUTPUTFILE]            
