@@ -82,6 +82,22 @@ def main(argv):
     #importlib.reload(sys)
     #sys.setdefaultencoding('utf8')
 
+    project = bidsmri2project(directory)
+
+    print("Serializing NIDM graph and creating graph visualization..")
+    #serialize graph
+    #print(project.graph.get_provn())
+    with open(outputfile,'w') as f:
+        if args.jsonld:
+            f.write(project.serializeJSONLD())
+        else:
+            f.write(project.serializeTurtle())
+        #f.write(project.graph.get_provn())
+    #save a DOT graph as PNG
+    project.save_DotGraph(str(outputfile + ".png"), format="png")
+
+
+def bidsmri2project(directory):
     #Parse dataset_description.json file in BIDS directory
     if (os.path.isdir(os.path.join(directory))):
         with open(os.path.join(directory,'dataset_description.json')) as data_file:
@@ -322,17 +338,8 @@ def main(argv):
                         if os.path.isfile(data_dict):
                             acq_entity.add_attributes({Constants.BIDS["data_dictionary"]:getRelPathToBIDS(data_dict,directory)})
 
-    print("Serializing NIDM graph and creating graph visualization..")
-    #serialize graph
-    #print(project.graph.get_provn())
-    with open(outputfile,'w') as f:
-        if args.jsonld:
-            f.write(project.serializeJSONLD())
-        else:
-            f.write(project.serializeTurtle())
-        #f.write(project.graph.get_provn())
-    #save a DOT graph as PNG
-    project.save_DotGraph(str(outputfile + ".png"),format="png")
-if __name__ == "__main__":
-   main(sys.argv[1:])
+    return project
 
+
+if __name__ == "__main__":
+    main(sys.argv[1:])
