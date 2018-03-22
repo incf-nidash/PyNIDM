@@ -91,7 +91,7 @@ def main(argv):
         if args.jsonld:
             f.write(project.serializeJSONLD())
         else:
-            f.write(project.serializeTurtle())
+            f.write(project.serializeTurtle().decode('ASCII'))
         #f.write(project.graph.get_provn())
     #save a DOT graph as PNG
     project.save_DotGraph(str(outputfile + ".png"), format="png")

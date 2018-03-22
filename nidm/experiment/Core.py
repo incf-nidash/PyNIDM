@@ -329,7 +329,7 @@ class Core(object):
         "startedAtTime": { "@type": "xsd:dateTime", "@id": "prov:startedAtTime" },
         "endedAtTime": { "@type": "xsd:dateTime", "@id": "prov:endedAtTime" }
         }
-        return rdf_graph_parse.serialize(format='json-ld', context=context, indent=4).decode('ASCII')
+        return rdf_graph_parse.serialize(format='json-ld', context=context, indent=4)
 
     def save_DotGraph(self,filename,format=None):
         dot = prov_to_dot(self.graph)
