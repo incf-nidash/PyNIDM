@@ -69,6 +69,7 @@ def main(argv):
 
     parser.add_argument('-d', dest='directory', required=True, help="Path to BIDS dataset directory")
     parser.add_argument('-jsonld', '--jsonld', action='store_true', help='If flag set, output is json-ld not TURTLE')
+    parser.add_argument('-png', '--png', action='store_true', help='If flag set, tool will output PNG file of NIDM graph')
     parser.add_argument('-o', dest='outputfile', default="nidm.ttl", help="NIDM output turtle file")
     args = parser.parse_args()
 
@@ -84,6 +85,8 @@ def main(argv):
 
     project = bidsmri2project(directory)
 
+    print(project.serializeTurtle())
+
     print("Serializing NIDM graph and creating graph visualization..")
     #serialize graph
     #print(project.graph.get_provn())
@@ -94,14 +97,19 @@ def main(argv):
             f.write(project.serializeTurtle())
         #f.write(project.graph.get_provn())
     #save a DOT graph as PNG
-    project.save_DotGraph(str(outputfile + ".png"), format="png")
+    if (args.png):
+        project.save_DotGraph(str(outputfile + ".png"), format="png")
 
 
 def bidsmri2project(directory):
     #Parse dataset_description.json file in BIDS directory
     if (os.path.isdir(os.path.join(directory))):
-        with open(os.path.join(directory,'dataset_description.json')) as data_file:
-            dataset = json.load(data_file)
+        try:
+            with open(os.path.join(directory,'dataset_description.json')) as data_file:
+                dataset = json.load(data_file)
+        except OSError:
+            print("Cannot find dataset_description.json file which is required in the BIDS spec")
+            exit("-1")
     else:
         print("Error: BIDS directory %s does not exist!" %os.path.join(directory))
         exit("-1")
@@ -121,47 +129,66 @@ def bidsmri2project(directory):
                 project.add_attributes({BIDS_Constants.dataset_description[key]:dataset[key]})
         #add absolute location of BIDS directory on disk for later finding of files which are stored relatively in NIDM document
         project.add_attributes({Constants.PROV['Location']:directory})
-    #create empty dictinary for sessions where key is subject id and used later to link scans to same session as demographics
-    session={}
-    participant={}
-    #Parse participants.tsv file in BIDS directory and create study and acquisition objects
-    with open(os.path.join(directory,'participants.tsv')) as csvfile:
-        participants_data = csv.DictReader(csvfile, delimiter='\t')
-        #print(participants_data.fieldnames)
-        for row in participants_data:
-            #create session object for subject to be used for participant metadata and image data
-            #parse subject id from "sub-XXXX" string
-            subjid = row['participant_id'].split("-")
-            session[subjid[1]] = Session(project)
-
-            #add acquisition object
-            acq = AssessmentAcquisition(session=session[subjid[1]])
-
-            acq_entity = AssessmentObject(acquisition=acq)
-            participant[subjid[1]] = {}
-            participant[subjid[1]]['person'] = acq.add_person(attributes=({Constants.NIDM_SUBJECTID:row['participant_id']}))
-
-
-            #add qualified association of participant with acquisition activity
-            acq.add_qualified_association(person=participant[subjid[1]]['person'],role=Constants.NIDM_PARTICIPANT)
-
-
-
-            for key,value in row.items():
-                #for variables in participants.tsv file who have term mappings in BIDS_Constants.py use those
-                if key in BIDS_Constants.participants:
-                    #if this was the participant_id, we already handled it above creating agent / qualified association
-                    if not (BIDS_Constants.participants[key] == Constants.NIDM_SUBJECTID):
-                        acq_entity.add_attributes({BIDS_Constants.participants[key]:value})
-                #else just put variables in bids namespace since we don't know what they mean
-                else:
-                    #acq_entity.add_attributes({Constants.BIDS[quote(key)]:value})
-                    acq_entity.add_attributes({Constants.BIDS[key.replace(" ", "_")]:value})
-
 
 
     #get BIDS layout
     bids_layout = BIDSLayout(directory)
+
+
+    #create empty dictinary for sessions where key is subject id and used later to link scans to same session as demographics
+    session={}
+    participant={}
+    #Parse participants.tsv file in BIDS directory and create study and acquisition objects
+    if os.path.isfile(os.path.join(directory,'participants.tsv')):
+        with open(os.path.join(directory,'participants.tsv')) as csvfile:
+            participants_data = csv.DictReader(csvfile, delimiter='\t')
+            #print(participants_data.fieldnames)
+            for row in participants_data:
+                #create session object for subject to be used for participant metadata and image data
+                #parse subject id from "sub-XXXX" string
+                subjid = row['participant_id'].split("-")
+                session[subjid[1]] = Session(project)
+
+                #add acquisition object
+                acq = AssessmentAcquisition(session=session[subjid[1]])
+
+                acq_entity = AssessmentObject(acquisition=acq)
+                participant[subjid[1]] = {}
+                participant[subjid[1]]['person'] = acq.add_person(attributes=({Constants.NIDM_SUBJECTID:row['participant_id']}))
+
+
+                #add qualified association of participant with acquisition activity
+                acq.add_qualified_association(person=participant[subjid[1]]['person'],role=Constants.NIDM_PARTICIPANT)
+
+
+
+                for key,value in row.items():
+                    #for variables in participants.tsv file who have term mappings in BIDS_Constants.py use those
+                    if key in BIDS_Constants.participants:
+                        #if this was the participant_id, we already handled it above creating agent / qualified association
+                        if not (BIDS_Constants.participants[key] == Constants.NIDM_SUBJECTID):
+                            acq_entity.add_attributes({BIDS_Constants.participants[key]:value})
+                    #else just put variables in bids namespace since we don't know what they mean
+                    else:
+                        #acq_entity.add_attributes({Constants.BIDS[quote(key)]:value})
+                        acq_entity.add_attributes({Constants.BIDS[key.replace(" ", "_")]:value})
+    #else use bids layout to get subject ids to create NIDM persons without any other metadata
+    else:
+        for subjid in bids_layout.get_subjects():
+            session[subjid] = Session(project)
+            #add acquisition object
+            acq = AssessmentAcquisition(session=session[subjid])
+
+            acq_entity = AssessmentObject(acquisition=acq)
+            participant[subjid] = {}
+            participant[subjid]['person'] = acq.add_person(attributes=({Constants.NIDM_SUBJECTID:subjid}))
+
+
+            #add qualified association of participant with acquisition activity
+            acq.add_qualified_association(person=participant[subjid]['person'],role=Constants.NIDM_PARTICIPANT)
+
+
+
 
     #create acquisition objects for each scan for each subject
 
@@ -192,7 +219,7 @@ def bidsmri2project(directory):
             if file_tpl.modality == 'anat':
                 #do something with anatomicals
                 acq_obj = MRObject(acq)
-                   #add image contrast type
+                #add image contrast type
                 if file_tpl.type in BIDS_Constants.scans:
                     acq_obj.add_attributes({Constants.NIDM_IMAGE_CONTRAST_TYPE:BIDS_Constants.scans[file_tpl.type]})
                 else:

@@ -72,33 +72,20 @@ from github import Github, GithubException
 #            break
 #        list.config(width=width+w)
 
+def map_variables_to_terms(df,args):
+    '''
 
+    :param df: data frame with first row containing variable names
+    :param args: arguments to main function
+    :return: return dictionary mapping variable names (or columns) to terms
 
-
-def main(argv):
-    parser = ArgumentParser(description='This program will load in a CSV file and iterate over the header \
-     variable names performing an elastic search of https://scicrunch.org/ for NIDM-ReproNim \
-     tagged terms that fuzzy match the variable names.  The user will then interactively pick \
-     a term to associate with the variable name.  The resulting annotated CSV data will \
-     then be written to a NIDM data file.')
-
-    parser.add_argument('-csv', dest='csv_file', required=True, help="Path to CSV file to convert")
-    parser.add_argument('-key', dest='key', required=True, help="SciCrunch API key to use for query")
-    parser.add_argument('-nidm', dest='nidm_file', required=False, help="Optional NIDM file to add CSV->NIDM converted graph to")
-    parser.add_argument('-github',action='store_true', required=False, help='If -github flag is set, locally-defined terms will be placed in a \
-                    \"nidm-local-terms\" repository in GitHub else they will be written a local RDF file using the filename specified in \
-                    the \"-out\" parameter suffixed with \"local-terms-dd\" to indicate the local terms data dictionary (dd)')
-    parser.add_argument('-out', dest='output_file', required=True, help="Filename to save NIDM file")
-    args = parser.parse_args()
-
-    #open CSV file and load into
-    df = pd.read_csv(args.csv_file)
-
+    '''
     #dictionary mapping column name to preferred term
     column_to_terms={}
 
     #flag for whether a new term has been defined, on first occurance ask for namespace URL
     new_term=True
+
 
     #iterate over columns
     for column in df.columns:
@@ -107,17 +94,20 @@ def main(argv):
             #listb=NewListbox(root,selectmode=tk.SINGLE)
         #search term for elastic search
         search_term=column
-        #variable for numbering options returned from elastic search
-        option=1
         #loop variable for terms markup
         go_loop=True
         #set up a dictionary entry for this column
         column_to_terms[column] = {}
+
+        #flag for whether to use ancestors in Interlex query or not
+        ancestor=True
+
         #loop to find a term definition by iteratively searching scicrunch...or defining your own
         while go_loop:
-
+            #variable for numbering options returned from elastic search
+            option=1
             #for each column name, query Interlex for possible matches
-            search_result = GetNIDMTermsFromSciCrunch(args.key,search_term)
+            search_result = GetNIDMTermsFromSciCrunch(args.key,search_term,cde_only=True,ancestor=ancestor)
 
             temp=search_result.copy()
             print("Search Term: %s" %search_term)
@@ -130,17 +120,30 @@ def main(argv):
                 search_result[str(option)] = key
                 option=option+1
 
+            if ancestor:
+                #Broaden Interlex search
+                print("%d: Broaden Interlex query " %option)
+            else:
+                #Narrow Interlex search
+                print("%d: Narrow Interlex query " %option)
+            option=option+1
+
+
             #Add option to change query string
             print("%d: Change Interlex query string from: \"%s\"" %(option,column))
             option=option+1
             #Add option to define your own term
             print("%d: Define my own term for this variable" %option)
+
             print("---------------------------------------------------------------------------------------")
             #Wait for user input
             selection=input("Please select an option (1:%d) from above: \t" %(option))
 
+            #toggle use of ancestors in interlext query or not
+            if int(selection) == (option-2):
+                ancestor=not ancestor
             #check if selection is to re-run query with new search term
-            if int(selection) == (option-1):
+            elif int(selection) == (option-1):
                 #ask user for new search string
                 search_term = input("Please input new search term for CSV column: %s \t:" % column)
                 print("---------------------------------------------------------------------------------------")
@@ -172,7 +175,7 @@ def main(argv):
                         try:
                             repo=authed.get_repo('nidm-local-terms')
                             #set namespace to repo URL
-                            namespace = repo.html_url
+                            local_namespace = repo.html_url
                             print("\nnidm-local-terms repo already exists, continuing...\n")
                         except GithubException as e:
                             print("\nnidm-local-terms repo doesn't exist, creating...\n")
@@ -198,10 +201,10 @@ def main(argv):
 
 
                     else:
-                        namespace=" "
-                        while not validators.url(namespace):
+                        local_namespace=" "
+                        while not validators.url(local_namespace):
                             print("By not setting the command line flag \"-gitbug\" you have selected to store locally defined terms in a sidecar RDF file on disk")
-                            namespace = input("Please enter a valid URL for your namespace (e.g. http://nidm.nidash.org): ")
+                            local_namespace = input("Please enter a valid URL for your namespace (e.g. http://nidm.nidash.org): ")
                         #if we're out of loop then namespace was valid so change new_term variable to prevent
                         new_term=False
 
@@ -260,11 +263,36 @@ def main(argv):
                 go_loop=False
 
 
-
         #listb.pack()
         #listb.autowidth()
         #root.mainloop()
         #input("Press Enter to continue...")
+
+    return column_to_terms
+
+
+def main(argv):
+    parser = ArgumentParser(description='This program will load in a CSV file and iterate over the header \
+     variable names performing an elastic search of https://scicrunch.org/ for NIDM-ReproNim \
+     tagged terms that fuzzy match the variable names.  The user will then interactively pick \
+     a term to associate with the variable name.  The resulting annotated CSV data will \
+     then be written to a NIDM data file.')
+
+    parser.add_argument('-csv', dest='csv_file', required=True, help="Path to CSV file to convert")
+    parser.add_argument('-key', dest='key', required=True, help="SciCrunch API key to use for query")
+    parser.add_argument('-nidm', dest='nidm_file', required=False, help="Optional NIDM file to add CSV->NIDM converted graph to")
+    parser.add_argument('-github',action='store_true', required=False, help='If -github flag is set, locally-defined terms will be placed in a \
+                    \"nidm-local-terms\" repository in GitHub else they will be written a local RDF file using the filename specified in \
+                    the \"-out\" parameter suffixed with \"local-terms-dd\" to indicate the local terms data dictionary (dd)')
+    parser.add_argument('-out', dest='output_file', required=True, help="Filename to save NIDM file")
+    args = parser.parse_args()
+
+    #open CSV file and load into
+    df = pd.read_csv(args.csv_file)
+
+    #maps variables in CSV file to terms
+    column_to_terms = map_variables_to_terms(df, args)
+
 
 if __name__ == "__main__":
    main(sys.argv[1:])

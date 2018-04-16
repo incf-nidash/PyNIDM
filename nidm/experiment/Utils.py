@@ -275,7 +275,7 @@ def QuerySciCrunchTermLabel(key,query_string):
     #read json data in from temporary file
     return json.load(open(json_packet))
 
-def QuerySciCrunchElasticSearch(key,query_string,cde_only=False):
+def QuerySciCrunchElasticSearch(key,query_string,cde_only=False, anscestors=True):
     '''
     This function will perform an elastic search in SciCrunch on the [query_string] using API [key] and return the json package.
     :param key: API key from sci crunch
@@ -299,15 +299,21 @@ def QuerySciCrunchElasticSearch(key,query_string,cde_only=False):
         ('key', key),
     )
     if cde_only:
-        data = '\n{\n  "query": {\n    "bool": {\n       "must" : [\n       {  "terms" : { "type" : ["cde" ] } },\n       { "terms" : { "ancestors.ilx" : ["ilx_0115066" , "ilx_0103210", "ilx_0115072"] } },\n       { "multi_match" : {\n         "query":    "%s", \n         "fields": [ "label", "definition" ] \n       } }\n]\n    }\n  }\n}\n' %query_string
+        if anscestors:
+            data = '\n{\n  "query": {\n    "bool": {\n       "must" : [\n       {  "terms" : { "type" : ["cde" ] } },\n       { "terms" : { "ancestors.ilx" : ["ilx_0115066" , "ilx_0103210", "ilx_0115072", "ilx_0115070"] } },\n       { "multi_match" : {\n         "query":    "%s", \n         "fields": [ "label", "definition" ] \n       } }\n]\n    }\n  }\n}\n' %query_string
+        else:
+            data = '\n{\n  "query": {\n    "bool": {\n       "must" : [\n       {  "terms" : { "type" : ["cde" ] } },\n             { "multi_match" : {\n         "query":    "%s", \n         "fields": [ "label", "definition" ] \n       } }\n]\n    }\n  }\n}\n' %query_string
     else:
-        data = '\n{\n  "query": {\n    "bool": {\n       "must" : [\n       {  "terms" : { "type" : ["cde" , "term"] } },\n       { "terms" : { "ancestors.ilx" : ["ilx_0115066" , "ilx_0103210", "ilx_0115072"] } },\n       { "multi_match" : {\n         "query":    "%s", \n         "fields": [ "label", "definition" ] \n       } }\n]\n    }\n  }\n}\n' %query_string
+        if anscestors:
+            data = '\n{\n  "query": {\n    "bool": {\n       "must" : [\n       {  "terms" : { "type" : ["cde" , "term"] } },\n       { "terms" : { "ancestors.ilx" : ["ilx_0115066" , "ilx_0103210", "ilx_0115072", "ilx_0115070"] } },\n       { "multi_match" : {\n         "query":    "%s", \n         "fields": [ "label", "definition" ] \n       } }\n]\n    }\n  }\n}\n' %query_string
+        else:
+            data = '\n{\n  "query": {\n    "bool": {\n       "must" : [\n       {  "terms" : { "type" : ["cde" , "term"] } },\n              { "multi_match" : {\n         "query":    "%s", \n         "fields": [ "label", "definition" ] \n       } }\n]\n    }\n  }\n}\n' %query_string
 
     response = requests.post('https://scicrunch.org/api/1/elastic-ilx/scicrunch/term/_search#', headers=headers, params=params, data=data)
 
     return json.loads(response.text)
 
-def GetNIDMTermsFromSciCrunch(key,query_string,cde_only=False):
+def GetNIDMTermsFromSciCrunch(key,query_string,cde_only=False, ancestor=True):
     '''
     Helper function which issues elastic search query of SciCrunch using QuerySciCrunchElasticSearch function and returns terms list
     with label, definition, and preferred URLs in dictionary
@@ -315,10 +321,11 @@ def GetNIDMTermsFromSciCrunch(key,query_string,cde_only=False):
     :param query_string: arbitrary string to search for terms
     :param cde_only: default=False but if set will query CDE's only not CDE + more general terms...CDE is an instantiation of a term for
     a particular use.
+    :param ancestor: Boolean flag to tell Interlex elastic search to use ancestors (i.e. tagged terms) or not
     :return: dictionary with keys 'ilx','label','definition','preferred_url'
     '''
 
-    json_data = QuerySciCrunchElasticSearch(key, query_string,cde_only)
+    json_data = QuerySciCrunchElasticSearch(key, query_string,cde_only,ancestor)
     results={}
     #example printing term label, definition, and preferred URL
     for term in json_data['hits']['hits']:
