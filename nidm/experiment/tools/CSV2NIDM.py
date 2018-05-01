@@ -37,7 +37,7 @@
 import os,sys
 from nidm.experiment import Project,Session
 from nidm.core import Constants
-from nidm.experiment.Utils import read_nidm, GetNIDMTermsFromSciCrunch
+from nidm.experiment.Utils import read_nidm, GetNIDMTermsFromSciCrunch, fuzzy_match_nidm_term
 from nidm.experiment.Core import getUUID
 from argparse import ArgumentParser
 from os.path import  dirname, join, splitext
@@ -48,7 +48,9 @@ import pandas as pd
 import validators
 import urllib.parse
 import getpass
+import operator
 from github import Github, GithubException
+from fuzzywuzzy import fuzz
 
 
 
@@ -72,6 +74,8 @@ from github import Github, GithubException
 #            break
 #        list.config(width=width+w)
 
+
+
 def map_variables_to_terms(df,args):
     '''
 
@@ -80,11 +84,19 @@ def map_variables_to_terms(df,args):
     :return: return dictionary mapping variable names (or columns) to terms
 
     '''
+    #minimum match score for fuzzy matching NIDM terms
+    min_match_score=25
+
     #dictionary mapping column name to preferred term
     column_to_terms={}
 
     #flag for whether a new term has been defined, on first occurance ask for namespace URL
     new_term=True
+
+    #check if user supplied a JSON file and we already know a mapping for this column
+    if args.json_map:
+        #load file and
+        json_map = json.load(open(args.json_map))
 
 
     #iterate over columns
@@ -99,6 +111,22 @@ def map_variables_to_terms(df,args):
         #set up a dictionary entry for this column
         column_to_terms[column] = {}
 
+        #if we loaded a json file with existing mappings
+        if json_map:
+            #check for column in json file
+            if column in json_map:
+
+                column_to_terms[column]['label'] = json_map[column]['label']
+                column_to_terms[column]['definition'] = json_map[column]['definition']
+                column_to_terms[column]['url'] = json_map[column]['url']
+
+                print("Column %s already mapped to terms in user supplied JSON mapping file")
+                print("Label: %s" %column_to_terms[column]['label'])
+                print("Definition: %s" %column_to_terms[column]['definition'])
+                print("Url: %s" %column_to_terms[column]['url'])
+                print("---------------------------------------------------------------------------------------")
+                continue
+
         #flag for whether to use ancestors in Interlex query or not
         ancestor=True
 
@@ -106,6 +134,9 @@ def map_variables_to_terms(df,args):
         while go_loop:
             #variable for numbering options returned from elastic search
             option=1
+
+
+
             #for each column name, query Interlex for possible matches
             search_result = GetNIDMTermsFromSciCrunch(args.key,search_term,cde_only=True,ancestor=ancestor)
 
@@ -119,6 +150,39 @@ def map_variables_to_terms(df,args):
                 #listb.insert("end",search_result[key]['label']+", " +search_result[key]['definition'])
                 search_result[str(option)] = key
                 option=option+1
+
+             #if user supplied an OWL file to search in for terms
+            if (args.owl_file):
+                #Add existing NIDM Terms as possible selections which fuzzy match the search_term
+                nidm_constants_query = fuzzy_match_nidm_term(args.owl_file,search_term)
+                #nidm_constants_query = sorted(nidm_constants_query_unsorted.items(),key=operator.itemgetter(1))
+
+                for key, value in nidm_constants_query.items():
+                    if value > min_match_score:
+                        print("%d: NIDM Constant: %s \t NIDM Term: %s \t Match Score: %4.2f" %(option, key, key.localpart, value))
+                        search_result[key] = {}
+                        search_result[key]['label']=nidm_constants_query[key]['label']
+                        search_result[key]['definition']=nidm_constants_query[key]['definition']
+                        search_result[key]['preferred_url']=nidm_constants_query[key]['url']
+                        search_result[str(option)] = key
+                        option=option+1
+            #else just give a list of the NIDM constants for user to choose
+            else:
+                match_scores={}
+                for index,item in enumerate(Constants.nidm_experiment_terms):
+                    match_scores[item._str] = fuzz.ratio(search_term,item._str)
+                match_scores_sorted=sorted(match_scores.items(), key=lambda x: x[1])
+                for score in match_scores_sorted:
+                    if ( score[1] > min_match_score):
+                        for term in Constants.nidm_experiment_terms:
+                            if term._str==score[0]:
+                                search_result[term._str] = {}
+                                search_result[term._str]['label']=score[0]
+                                search_result[term._str]['definition']=score[0]
+                                search_result[term._str]['preferred_url']=term._uri
+                                search_result[str(option)] = term._str
+                                print("%d: NIDM Constant: %s \t URI: %s" %(option,score[0],term._uri))
+                                option=option+1
 
             if ancestor:
                 #Broaden Interlex search
@@ -138,6 +202,12 @@ def map_variables_to_terms(df,args):
             print("---------------------------------------------------------------------------------------")
             #Wait for user input
             selection=input("Please select an option (1:%d) from above: \t" %(option))
+
+            #Make sure user selected one of the options.  If not present user with selection input again
+            #while (isinstance(selection,str)):
+                #Wait for user input
+            #    selection=input("Please select an option (1:%d) from above: \t" %(option))
+
 
             #toggle use of ancestors in interlext query or not
             if int(selection) == (option-2):
@@ -203,21 +273,32 @@ def map_variables_to_terms(df,args):
                     else:
                         local_namespace=" "
                         while not validators.url(local_namespace):
-                            print("By not setting the command line flag \"-gitbug\" you have selected to store locally defined terms in a sidecar RDF file on disk")
+                            print("By not setting the command line flag \"-github\" you have selected to store locally defined terms in a sidecar RDF file on disk")
                             local_namespace = input("Please enter a valid URL for your namespace (e.g. http://nidm.nidash.org): ")
                         #if we're out of loop then namespace was valid so change new_term variable to prevent
                         new_term=False
 
                 #collect term information from user
                 term_label = input("Please enter a term label for this column (%s):\t" % column)
-                term_definition = input("Please enter a definition for this new term:\t")
+                term_definition = input("Please enter a definition:\t")
+                term_units = input("Please enter the units:\t")
+                term_datatype = input("Please enter the datatype:\t")
+                term_min = input("Please enter the minimum value:\t")
+                term_max = input("Please enter the maximum value:\t")
+                term_variable_name = column
+
+
                 #don't need to continue while loop because we've defined a term for this CSV column
                 go_loop=False
 
                 #if we're using Github
                 if(args.github):
                     #add term as issue
-                    issue=repo.create_issue(title=term_label, body=term_definition)
+                    body = "Label/Name: " + term_label + "\nDefinition/Description: " + term_definition + "\nUnits: " + \
+                        term_units + "\nDatatype/Value Type: " + term_datatype + "\nMinimum Value: " + term_min + \
+                        "\nMaximum Value: " + term_max + "\nVariable Name: " + term_variable_name
+
+                    issue=repo.create_issue(title=term_label, body=body)
 
                     #URL will be repo.url/issues/issue.number
 
@@ -262,6 +343,13 @@ def map_variables_to_terms(df,args):
                 #don't need to continue while loop because we've defined a term for this CSV column
                 go_loop=False
 
+         #write variable-> terms map as JSON file to disk
+        #get -out directory from command line parameter
+        dir = os.path.dirname(args.output_file)
+        with open(join(dir,os.path.splitext(args.output_file)[0] + "_vars_to_terms.json"),'w+') as fp:
+            json.dump(column_to_terms,fp)
+
+
 
         #listb.pack()
         #listb.autowidth()
@@ -280,10 +368,12 @@ def main(argv):
 
     parser.add_argument('-csv', dest='csv_file', required=True, help="Path to CSV file to convert")
     parser.add_argument('-key', dest='key', required=True, help="SciCrunch API key to use for query")
+    parser.add_argument('-json_map', dest='json_map',required=False,help="User-suppled JSON file containing variable-term mappings.")
     parser.add_argument('-nidm', dest='nidm_file', required=False, help="Optional NIDM file to add CSV->NIDM converted graph to")
     parser.add_argument('-github',action='store_true', required=False, help='If -github flag is set, locally-defined terms will be placed in a \
                     \"nidm-local-terms\" repository in GitHub else they will be written a local RDF file using the filename specified in \
                     the \"-out\" parameter suffixed with \"local-terms-dd\" to indicate the local terms data dictionary (dd)')
+    parser.add_argument('-owlfile', dest='owl_file', required=False, help='Optional OWL file to search for terms')
     parser.add_argument('-out', dest='output_file', required=True, help="Filename to save NIDM file")
     args = parser.parse_args()
 
@@ -292,6 +382,57 @@ def main(argv):
 
     #maps variables in CSV file to terms
     column_to_terms = map_variables_to_terms(df, args)
+
+
+    #If user has added an existing NIDM file as a command line parameter then add to existing file for subjects who exist in the NIDM file
+    if args.nidm_file:
+        #read in NIDM file
+        project = read_nidm(args.nidm_file)
+
+
+        #look at column_to_terms dictionary for NIDM URL for subject id  (Constants.NIDM_SUBJECTID)
+        id_field=None
+        for key, value in column_to_terms:
+            if Constants.NIDM_SUBJECTID._str == column_to_terms[key]['label']:
+                id_field=key
+
+        #if we couldn't find a subject ID field in column_to_terms, ask user
+        if id_field is None:
+            option=1
+            for column in df.columns:
+                print("%d: %s" %(option,column))
+                option=option+1
+            selection=input("Please select the subject ID field from the list above: ")
+            id_field=df[df.columns[selection]]
+
+
+        #iterate over rows in CSV file, get subject id, search NIDM document for
+        for row in df.iterrows():
+            #get subject id
+            subj_id = row[id_field]
+
+            #find agent for this subj_id in NIDM document
+
+            #add an acquisition for the phenotype data and associate with agent
+
+
+
+        #for each subject ID
+        #figure out which column is
+
+
+
+    #If user did not choose to add this data to an existing NIDM file then create a new one for the CSV data
+    #create empty project
+    #project=Project()
+
+    #add
+
+    #iterate over rows in CSV file:
+    #for index,row in df.iterrows():
+    #    for columns in df.columns():
+
+
 
 
 if __name__ == "__main__":

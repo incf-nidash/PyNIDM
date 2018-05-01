@@ -70,15 +70,13 @@ def main(argv):
     parser.add_argument('-d', dest='directory', required=True, help="Path to BIDS dataset directory")
     parser.add_argument('-jsonld', '--jsonld', action='store_true', help='If flag set, output is json-ld not TURTLE')
     parser.add_argument('-png', '--png', action='store_true', help='If flag set, tool will output PNG file of NIDM graph')
-    parser.add_argument('-o', dest='outputfile', default="nidm.ttl", help="NIDM output turtle file")
+    parser.add_argument('-o', dest='outputfile', default="nidm.ttl", help="Outputs turtle file called nidm.ttl in BIDS directory by default and adds to .bidsignore file")
+
     args = parser.parse_args()
 
     directory = args.directory
-    outputfile = args.outputfile
 
-    #if we're choosing json-ld, make sure file extension is .json
-    if args.jsonld:
-        outputfile = os.path.splitext(outputfile)[0]+".json"
+
 
     #importlib.reload(sys)
     #sys.setdefaultencoding('utf8')
@@ -90,12 +88,30 @@ def main(argv):
     print("Serializing NIDM graph and creating graph visualization..")
     #serialize graph
     #print(project.graph.get_provn())
+
+    #if args.outputfile was defined by user then use it else use default which is args.director/nidm.ttl
+    if args.outputfile == "nidm.ttl":
+        #if we're choosing json-ld, make sure file extension is .json
+        if args.jsonld:
+            outputfile=os.path.join(directory,os.path.splitext(args.outputfile)[0]+".json")
+        else:
+            outputfile=os.path.join(directory,args.outputfile)
+    else:
+        #if we're choosing json-ld, make sure file extension is .json
+        if args.jsonld:
+            outputfile = os.path.splitext(args.outputfile)[0]+".json"
+        else:
+            outputfile = args.outputfile
+
+    #serialize NIDM file
     with open(outputfile,'w') as f:
         if args.jsonld:
             f.write(project.serializeJSONLD())
         else:
             f.write(project.serializeTurtle())
-        #f.write(project.graph.get_provn())
+
+    #Add to .bidsignore
+
     #save a DOT graph as PNG
     if (args.png):
         project.save_DotGraph(str(outputfile + ".png"), format="png")
@@ -173,19 +189,19 @@ def bidsmri2project(directory):
                         #acq_entity.add_attributes({Constants.BIDS[quote(key)]:value})
                         acq_entity.add_attributes({Constants.BIDS[key.replace(" ", "_")]:value})
     #else use bids layout to get subject ids to create NIDM persons without any other metadata
-    else:
-        for subjid in bids_layout.get_subjects():
-            session[subjid] = Session(project)
+    #else:
+    #    for subjid in bids_layout.get_subjects():
+    #        session[subjid] = Session(project)
             #add acquisition object
-            acq = AssessmentAcquisition(session=session[subjid])
+            #acq = AssessmentAcquisition(session=session[subjid])
 
-            acq_entity = AssessmentObject(acquisition=acq)
-            participant[subjid] = {}
-            participant[subjid]['person'] = acq.add_person(attributes=({Constants.NIDM_SUBJECTID:subjid}))
+            #acq_entity = AssessmentObject(acquisition=acq)
+            #participant[subjid] = {}
+            #participant[subjid]['person'] = acq.add_person(attributes=({Constants.NIDM_SUBJECTID:subjid}))
 
 
             #add qualified association of participant with acquisition activity
-            acq.add_qualified_association(person=participant[subjid]['person'],role=Constants.NIDM_PARTICIPANT)
+            #acq.add_qualified_association(person=participant[subjid]['person'],role=Constants.NIDM_PARTICIPANT)
 
 
 
@@ -207,9 +223,18 @@ def bidsmri2project(directory):
         #bids_layout.get(subject=subject_id,type='scans',extensions='.tsv')
         #bids_layout.get(extensions='.tsv',return_type='obj')
 
+        #check whether sessions have been created (i.e. was there a participants.tsv file?  If not, create here
+        if not (subject_id in session):
+            session[subject_id] = Session(project)
+
         for file_tpl in bids_layout.get(subject=subject_id, extensions=['.nii', '.nii.gz']):
             #create an acquisition activity
             acq=MRAcquisition(session[subject_id])
+
+            #check whether participant (i.e. agent) for this subject already exists (i.e. if participants.tsv file exists) else create one
+            if not (subject_id in participant):
+                participant[subject_id] = {}
+                participant[subject_id]['person'] = acq.add_person(attributes=({Constants.NIDM_SUBJECTID:subject_id}))
 
             #add qualified association with person
             acq.add_qualified_association(person=participant[subject_id]['person'],role=Constants.NIDM_PARTICIPANT)

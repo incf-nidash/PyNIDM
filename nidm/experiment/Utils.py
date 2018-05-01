@@ -13,8 +13,10 @@ import prov.model as pm
 from urllib.request import urlretrieve
 from urllib.parse import quote
 import requests
-
+from fuzzywuzzy import fuzz
+from fuzzywuzzy import process
 import json
+import owlready2 as owl2
 
 #NIDM imports
 from ..core import Constants
@@ -300,9 +302,9 @@ def QuerySciCrunchElasticSearch(key,query_string,cde_only=False, anscestors=True
     )
     if cde_only:
         if anscestors:
-            data = '\n{\n  "query": {\n    "bool": {\n       "must" : [\n       {  "terms" : { "type" : ["cde" ] } },\n       { "terms" : { "ancestors.ilx" : ["ilx_0115066" , "ilx_0103210", "ilx_0115072", "ilx_0115070"] } },\n       { "multi_match" : {\n         "query":    "%s", \n         "fields": [ "label", "definition" ] \n       } }\n]\n    }\n  }\n}\n' %query_string
+            data = '\n{\n  "query": {\n    "bool": {\n       "must" : [\n       {  "term" : { "type" : "cde" } },\n       { "terms" : { "ancestors.ilx" : ["ilx_0115066" , "ilx_0103210", "ilx_0115072", "ilx_0115070"] } },\n       { "multi_match" : {\n         "query":    "%s", \n         "fields": [ "label", "definition" ] \n       } }\n]\n    }\n  }\n}\n' %query_string
         else:
-            data = '\n{\n  "query": {\n    "bool": {\n       "must" : [\n       {  "terms" : { "type" : ["cde" ] } },\n             { "multi_match" : {\n         "query":    "%s", \n         "fields": [ "label", "definition" ] \n       } }\n]\n    }\n  }\n}\n' %query_string
+            data = '\n{\n  "query": {\n    "bool": {\n       "must" : [\n       {  "term" : { "type" : "cde" } },\n             { "multi_match" : {\n         "query":    "%s", \n         "fields": [ "label", "definition" ] \n       } }\n]\n    }\n  }\n}\n' %query_string
     else:
         if anscestors:
             data = '\n{\n  "query": {\n    "bool": {\n       "must" : [\n       {  "terms" : { "type" : ["cde" , "term"] } },\n       { "terms" : { "ancestors.ilx" : ["ilx_0115066" , "ilx_0103210", "ilx_0115072", "ilx_0115070"] } },\n       { "multi_match" : {\n         "query":    "%s", \n         "fields": [ "label", "definition" ] \n       } }\n]\n    }\n  }\n}\n' %query_string
@@ -338,4 +340,33 @@ def GetNIDMTermsFromSciCrunch(key,query_string,cde_only=False, ancestor=True):
             results[term['_source']['ilx']]['definition'] = term['_source']['definition']
 
     return results
+
+def fuzzy_match_nidm_term(owl_file,query):
+    '''
+    This function performs a fuzzy match of the constants in Constants.py list nidm_experiment_terms for term constants matching the query....i
+    ideally this should really be searching the OWL file when it's ready
+    :param query: string to query
+    :return: dictionary whose key is the NIDM constant and value is the match score to the query
+    '''
+
+    #load nidm-experiment.owl file
+    owl_graph = get_ontology('file://' + owl_file).load()
+    #owl_graph = Graph()
+    #owl_graph_parse = owl_graph.parse(owl_file,format=util.guess_format(owl_file))
+
+    match_scores={}
+
+    #search for labels rdfs:label and obo:IAO_0000115 (description) for each rdf:type owl:Class
+    for term in owl_graph_parse.subjects(predicate=RDF.type, object=Constants.OWL['Class']):
+        for label in owl_graph_parse.objects(subject=term, predicate=Constants.RDFS['label']):
+            match_scores[term] = {}
+            match_scores[term]['score'] = fuzz.ratio(query,label)
+            match_scores[term]['label'] = label
+            match_scores[term]['url'] = term
+            for description in owl_graph_parse.objects(subject=term,predicate=Constants.OBO["IAO_0000115"]):
+                match_scores[term]['definition'] =description
+
+    #for term in owl_graph.classes():
+    #    print(term.get_properties())
+    return match_scores
 
