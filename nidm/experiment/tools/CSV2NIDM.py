@@ -35,10 +35,13 @@
 #**************************************************************************************
 
 import os,sys
-from nidm.experiment import Project,Session
+from nidm.experiment import Project,Session,AssessmentAcquisition,AssessmentObject
 from nidm.core import Constants
 from nidm.experiment.Utils import read_nidm, GetNIDMTermsFromSciCrunch, fuzzy_match_nidm_term
 from nidm.experiment.Core import getUUID
+from nidm.experiment.Core import Core
+from prov.model import QualifiedName
+from prov.model import Namespace as provNamespace
 from argparse import ArgumentParser
 from os.path import  dirname, join, splitext
 import json
@@ -51,7 +54,8 @@ import getpass
 import operator
 from github import Github, GithubException
 from fuzzywuzzy import fuzz
-
+from rdflib import Graph,URIRef,RDF
+from io import StringIO
 
 
 #def createDialogBox(search_results):
@@ -120,7 +124,7 @@ def map_variables_to_terms(df,args):
                 column_to_terms[column]['definition'] = json_map[column]['definition']
                 column_to_terms[column]['url'] = json_map[column]['url']
 
-                print("Column %s already mapped to terms in user supplied JSON mapping file")
+                print("Column %s already mapped to terms in user supplied JSON mapping file" %column)
                 print("Label: %s" %column_to_terms[column]['label'])
                 print("Definition: %s" %column_to_terms[column]['definition'])
                 print("Url: %s" %column_to_terms[column]['url'])
@@ -387,14 +391,18 @@ def main(argv):
     #If user has added an existing NIDM file as a command line parameter then add to existing file for subjects who exist in the NIDM file
     if args.nidm_file:
         #read in NIDM file
-        project = read_nidm(args.nidm_file)
-
+        nidm_graph = read_nidm(args.nidm_file)
+        #get list of session objects
+        session_objs=nidm_graph.get_sessions()
 
         #look at column_to_terms dictionary for NIDM URL for subject id  (Constants.NIDM_SUBJECTID)
         id_field=None
-        for key, value in column_to_terms:
+        for key, value in column_to_terms.items():
             if Constants.NIDM_SUBJECTID._str == column_to_terms[key]['label']:
                 id_field=key
+                #make sure id_field is a string for zero-padded subject ids
+                #re-read data file with constraint that key field is read as string
+                #df = pd.read_csv(args.csv_file,dtype={id_field : str})
 
         #if we couldn't find a subject ID field in column_to_terms, ask user
         if id_field is None:
@@ -404,21 +412,67 @@ def main(argv):
                 option=option+1
             selection=input("Please select the subject ID field from the list above: ")
             id_field=df[df.columns[selection]]
+            #make sure id_field is a string for zero-padded subject ids
+            #re-read data file with constraint that key field is read as string
+            #df = pd.read_csv(args.csv_file,dtype={id_field : str})
 
 
         #iterate over rows in CSV file, get subject id, search NIDM document for
-        for row in df.iterrows():
+       #for csv_index,csv_row in df.iterrows():
             #get subject id
-            subj_id = row[id_field]
+       #     subj_id = csv_row[id_field]
 
-            #find agent for this subj_id in NIDM document
+        #use RDFLib here for temporary graph making query easier
+        rdf_graph = Graph()
+        rdf_graph_parse = rdf_graph.parse(source=StringIO(nidm_graph.serializeTurtle()),format='turtle')
 
-            #add an acquisition for the phenotype data and associate with agent
+        #find subject ids and sessions in NIDM document
+        query = """SELECT DISTINCT ?session ?nidm_subj_id ?agent
+                    WHERE {
+                        ?activity prov:wasAssociatedWith ?agent ;
+                            dct:isPartOf ?session  .
+                        ?agent rdf:type prov:Agent ;
+                            ndar:src_subject_id ?nidm_subj_id .
+                    }"""
+        #print(query)
+        qres = rdf_graph_parse.query(query)
 
+
+        for row in qres:
+            print('%s \t %s' %(row[0],row[1]))
+            #find row with subject id matching agent from NIDM file
+            csv_row = df.loc[df[id_field]==type(df[id_field][0])(row[1])]
+            #check whether agent ID matches our CSV subject ID for this row while taking care of data type mismatches
+            #if (subj_id == type(subj_id)(row[1])):
+
+            session_uuid = row[0]
+            #get session object for this UUID
+            for nidm_session in session_objs:
+                if nidm_session.identifier._uri == str(session_uuid):
+                    #add an assessment acquisition for the phenotype data to session and associate with agent
+                    acq=AssessmentAcquisition(session=nidm_session)
+                    #add acquisition entity for assessment
+                    acq_entity = AssessmentObject(acquisition=acq)
+                    #add qualified association with existing agent
+                    acq.add_qualified_association(person=row[2],role=Constants.NIDM_PARTICIPANT)
+
+                    #store other data from row with columns_to_term mappings
+                    for row_variable in csv_row:
+                        #check if row_variable is subject id, if so skip it
+                        if row_variable==id_field:
+                            continue
+                        else:
+                            #get column_to_term mapping uri and add as namespace in NIDM document
+                            provNamespace(Core.safe_string(None,string=str(column_to_terms[row_variable]["label"])), column_to_terms[row_variable]["url"])
+                            acq_entity.add_attributes({QualifiedName(provNamespace(Core.safe_string(None,string=str(row_variable)), column_to_terms[row_variable]["url"]),""):csv_row[row_variable].values[0]})
+                    continue
 
 
         #for each subject ID
-        #figure out which column is
+        #figure out which column is #serialize NIDM file
+        with open(args.nidm_file,'w') as f:
+            f.write(nidm_graph.serializeTurtle())
+            nidm_graph.save_DotGraph(str(args.nidm_file + ".png"), format="png")
 
 
 
