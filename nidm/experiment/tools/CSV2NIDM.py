@@ -467,7 +467,7 @@ def main(argv):
                         else:
                             #get column_to_term mapping uri and add as namespace in NIDM document
                             provNamespace(Core.safe_string(None,string=str(column_to_terms[row_variable]["label"])), column_to_terms[row_variable]["url"])
-                            acq_entity.add_attributes({QualifiedName(provNamespace(Core.safe_string(None,string=str(row_variable)), column_to_terms[row_variable]["url"]),str(row_variable)):csv_row[row_variable].values[0]})
+                            acq_entity.add_attributes({QualifiedName(provNamespace(Core.safe_string(None,string=str(row_variable)), ""),str(row_variable)):csv_row[row_variable].values[0]})
                     continue
 
 
