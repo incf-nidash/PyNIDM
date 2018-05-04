@@ -116,7 +116,9 @@ def map_variables_to_terms(df,args):
         column_to_terms[column] = {}
 
         #if we loaded a json file with existing mappings
-        if json_map:
+        try:
+            json_map
+
             #check for column in json file
             if column in json_map:
 
@@ -130,7 +132,8 @@ def map_variables_to_terms(df,args):
                 print("Url: %s" %column_to_terms[column]['url'])
                 print("---------------------------------------------------------------------------------------")
                 continue
-
+        except NameError:
+            print("json mapping file not supplied")
         #flag for whether to use ancestors in Interlex query or not
         ancestor=True
 
@@ -464,7 +467,7 @@ def main(argv):
                         else:
                             #get column_to_term mapping uri and add as namespace in NIDM document
                             provNamespace(Core.safe_string(None,string=str(column_to_terms[row_variable]["label"])), column_to_terms[row_variable]["url"])
-                            acq_entity.add_attributes({QualifiedName(provNamespace(Core.safe_string(None,string=str(row_variable)), column_to_terms[row_variable]["url"]),""):csv_row[row_variable].values[0]})
+                            acq_entity.add_attributes({QualifiedName(provNamespace(Core.safe_string(None,string=str(row_variable)), column_to_terms[row_variable]["url"]),str(row_variable)):csv_row[row_variable].values[0]})
                     continue
 
 
