@@ -13,6 +13,7 @@ from prov.model import ProvDocument, QualifiedName
 from prov.model import Namespace as provNamespace
 
 PROV = Namespace('http://www.w3.org/ns/prov#')
+PROVONE = provNamespace('provone', 'http://purl.dataone.org/provone/2015/01/15/ontology#')
 NIDM_URL = 'http://purl.org/nidash/nidm#'
 NIDM = Namespace(NIDM_URL)
 
@@ -30,7 +31,7 @@ XSD = Namespace('http://www.w3.org/2001/XMLSchema#')
 
 OBO_URL = "http://purl.obolibrary.org/obo/"
 OBO = Namespace(OBO_URL)
-#Added by DBK for NIDM-Experiment 1/13/17
+# Added by DBK for NIDM-Experiment 1/13/17
 NFO = Namespace('http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#')
 SCR = Namespace("http://scicrunch.org/resolver/")
 NLX = Namespace("http://uri.neuinfo.org/nif/nifstd/")
@@ -48,43 +49,42 @@ SIO = Namespace("http://semanticscience.org/resource/")
 BIDS = Namespace("http://bids.neuroimaging.io/")
 
 namespaces = {
-    "prov": PROV,
-    "nidm": NIDM,
-    "niiri": NIIRI,
-    "afni": AFNI,
-    "spm": SPM,
-    "fsl": FSL,
-    "rdfs": RDFS,
-    "crypto": CRYPTO,
-    "dct": DCT,
-    "obo": OBO,
-    "nfo": NFO,
-    "dc": DC,
-    "nlx": NLX,
-    "scr": SCR,
-    "foaf": FOAF,
-    "vc": VC,
-    "dicom": DICOM,
-    "dctypes": DCTYPES,
-    "ncit": NCIT,
-    "dcat": DCAT,
-    "birnlex" : BIRNLEX,
-    "ndar" : NDAR,
-    "ncicb" : NCICB,
-    "sio" : SIO,
-    "bids" : BIDS
-    }
+	"prov": PROV,
+	"nidm": NIDM,
+	"niiri": NIIRI,
+	"afni": AFNI,
+	"spm": SPM,
+	"fsl": FSL,
+	"rdfs": RDFS,
+	"crypto": CRYPTO,
+	"dct": DCT,
+	"obo": OBO,
+	"nfo": NFO,
+	"dc": DC,
+	"nlx": NLX,
+	"scr": SCR,
+	"foaf": FOAF,
+	"vc": VC,
+	"dicom": DICOM,
+	"dctypes": DCTYPES,
+	"ncit": NCIT,
+	"dcat": DCAT,
+	"birnlex": BIRNLEX,
+	"ndar": NDAR,
+	"ncicb": NCICB,
+	"sio": SIO,
+	"bids": BIDS
+}
 
 # Empty graph used to compute qnames
 q_graph = Graph()
 for name, namespace in namespaces.items():
-    q_graph.bind(name, namespace)
+	q_graph.bind(name, namespace)
 
 # DBK Added - Empty graph using provtoolbox used to compute qnames
 p_graph = ProvDocument()
 for name, namespace in namespaces.items():
-    p_graph.add_namespace(name, namespace)
-
+	p_graph.add_namespace(name, namespace)
 
 # NIDM constants
 FSL_GAMMAHRF = FSL['FSL_0000007']
@@ -275,47 +275,47 @@ NIDM_BINOMIAL_DISTRIBUTION = NIDM['NIDM_0000005']
 NIDM_BINARY_MAP = NIDM['NIDM_0000004']
 NIDM_CONTRAST_ESTIMATION = NIDM['NIDM_0000001']
 NIDM_CONTRAST_MAP = NIDM['NIDM_0000002']
-#NIDM-Experiment##############################################################
+# NIDM-Experiment##############################################################
 NIDM_PROJECT = QualifiedName(provNamespace("nidm", NIDM), 'Project')
-NIDM_PROJECT_TYPE = QualifiedName(provNamespace("dctypes", DCTYPES),"Dataset")
-NIDM_PROJECT_IDENTIFIER = QualifiedName(provNamespace("sio", SIO),"Identifier")
-NIDM_PROJECT_NAME = QualifiedName(provNamespace("dctypes", DCTYPES),"title")
-NIDM_PROJECT_DESCRIPTION = QualifiedName(provNamespace("dct", DCT),"description")
-NIDM_PROJECT_LICENSE = QualifiedName(provNamespace("dct", DCT),"license")
-NIDM_PROJECT_URL = QualifiedName(provNamespace("sio", SIO),"URL")
-NIDM_PROJECT_REFERENCES = QualifiedName(provNamespace("dcat", DCAT),"creator")
+NIDM_PROJECT_TYPE = QualifiedName(provNamespace("dctypes", DCTYPES), "Dataset")
+NIDM_PROJECT_IDENTIFIER = QualifiedName(provNamespace("sio", SIO), "Identifier")
+NIDM_PROJECT_NAME = QualifiedName(provNamespace("dctypes", DCTYPES), "title")
+NIDM_PROJECT_DESCRIPTION = QualifiedName(provNamespace("dct", DCT), "description")
+NIDM_PROJECT_LICENSE = QualifiedName(provNamespace("dct", DCT), "license")
+NIDM_PROJECT_URL = QualifiedName(provNamespace("sio", SIO), "URL")
+NIDM_PROJECT_REFERENCES = QualifiedName(provNamespace("dcat", DCAT), "creator")
 NIDM_SESSION = QualifiedName(provNamespace("nidm", NIDM), 'Session')
 NIDM_ACQUISITION_ACTIVITY = QualifiedName(provNamespace("nidm", NIDM), "AcquisitionActivity")
 NIDM_ACQUISITION_ENTITY = QualifiedName(provNamespace("nidm", NIDM), "AcquisitionEntity")
 NIDM_MRACQUISITION_ENTITY = QualifiedName(provNamespace("nidm", NIDM), "MRAcquistionEntity")
 NIDM_DEMOGRAPHICS_ENTITY = QualifiedName(provNamespace("nidm", NIDM), "DemographicsAcquistionEntity")
 NIDM_ASSESSMENT_ENTITY = QualifiedName(provNamespace("nidm", NIDM), "AssessmentAcquistionEntity")
-#files
+# files
 NIDM_FILENAME = QualifiedName(provNamespace("nfo", NFO), "filename")
-#Roles
+# Roles
 NIDM_PI = QualifiedName(provNamespace("birnlex", BIRNLEX), "birnlex_2152")
-NIDM_COI = QualifiedName(provNamespace("birnlex", BIRNLEX),"birnlex_2199")
-NIDM_PARTICIPANT = QualifiedName(provNamespace("ncit", NCIT),"Participant")
-#Demographics
-NIDM_AGE = QualifiedName(provNamespace("ncidb",NCICB),"Age")
-NIDM_GENDER = QualifiedName(provNamespace("ndar",NDAR),"gender")
-NIDM_SEX = QualifiedName(provNamespace("ncit",NCIT),"Sex")
-NIDM_HANDEDNESS = QualifiedName(provNamespace("obo",OBO),"handedness")
-#NIDM_HANDEDNESS = OBO["PATO_0002201"] is correct term ID for handedness above
-NCICB_ETHNICITY = QualifiedName(provNamespace("ncicb",NCICB),"EthnicGroup")
-#NCICB_ETHNICITY = NCICB["C16564"] is correct term ID for ethnic group
-NIDM_DIAGNOSIS = QualifiedName(provNamespace("ncit",NCIT),"Diagnosis")
-NIDM_FAMILY_NAME = QualifiedName(provNamespace("foaf",FOAF),"familyName")
-NIDM_GIVEN_NAME = QualifiedName(provNamespace("foaf",FOAF),"givenName")
-NIDM_SUBJECTID = QualifiedName(provNamespace("ndar",NDAR),"src_subject_id")
-#MRI scan types
-NIDM_MRI_ANATOMIC_SCAN = QualifiedName(provNamespace("nidm", NIDM),"MRI_Anatomy")
-NIDM_MRI_FUNCTION_SCAN = QualifiedName(provNamespace("nidm", NIDM),"MRI_Function")
-NIDM_MRI_DWI_SCAN = QualifiedName(provNamespace("nidm", NIDM),"MRI_DWI")
-NIDM_MRI_DWI_BVAL = QualifiedName(provNamespace("nidm", NIDM),"MRI_bval")
-NIDM_MRI_DWI_BVEC = QualifiedName(provNamespace("nidm", NIDM),"MRI_bvec")
-NIDM_MRI_FUNCTION_TASK = QualifiedName(provNamespace("nidm", NIDM),"Task")
-NIDM_MRI_BOLD_EVENTS = QualifiedName(provNamespace("nidm", NIDM),"Event")
+NIDM_COI = QualifiedName(provNamespace("birnlex", BIRNLEX), "birnlex_2199")
+NIDM_PARTICIPANT = QualifiedName(provNamespace("ncit", NCIT), "Participant")
+# Demographics
+NIDM_AGE = QualifiedName(provNamespace("ncidb", NCICB), "Age")
+NIDM_GENDER = QualifiedName(provNamespace("ndar", NDAR), "gender")
+NIDM_SEX = QualifiedName(provNamespace("ncit", NCIT), "Sex")
+NIDM_HANDEDNESS = QualifiedName(provNamespace("obo", OBO), "handedness")
+# NIDM_HANDEDNESS = OBO["PATO_0002201"] is correct term ID for handedness above
+NCICB_ETHNICITY = QualifiedName(provNamespace("ncicb", NCICB), "EthnicGroup")
+# NCICB_ETHNICITY = NCICB["C16564"] is correct term ID for ethnic group
+NIDM_DIAGNOSIS = QualifiedName(provNamespace("ncit", NCIT), "Diagnosis")
+NIDM_FAMILY_NAME = QualifiedName(provNamespace("foaf", FOAF), "familyName")
+NIDM_GIVEN_NAME = QualifiedName(provNamespace("foaf", FOAF), "givenName")
+NIDM_SUBJECTID = QualifiedName(provNamespace("ndar", NDAR), "src_subject_id")
+# MRI scan types
+NIDM_MRI_ANATOMIC_SCAN = QualifiedName(provNamespace("nidm", NIDM), "MRI_Anatomy")
+NIDM_MRI_FUNCTION_SCAN = QualifiedName(provNamespace("nidm", NIDM), "MRI_Function")
+NIDM_MRI_DWI_SCAN = QualifiedName(provNamespace("nidm", NIDM), "MRI_DWI")
+NIDM_MRI_DWI_BVAL = QualifiedName(provNamespace("nidm", NIDM), "MRI_bval")
+NIDM_MRI_DWI_BVEC = QualifiedName(provNamespace("nidm", NIDM), "MRI_bvec")
+NIDM_MRI_FUNCTION_TASK = QualifiedName(provNamespace("nidm", NIDM), "Task")
+NIDM_MRI_BOLD_EVENTS = QualifiedName(provNamespace("nidm", NIDM), "Event")
 ##############################################################################
 # OBO constants
 OBO_EXAMPLE = OBO['IAO_0000112']
@@ -366,3 +366,86 @@ NLX_FMRI_PROTOCOL = NLX['birnlex_2250']
 NLX_IMAGING_INSTRUMENT = NLX['birnlex_2094']
 
 SKOS_DEFINITION = SKOS['definition']
+
+# ProvONE Constants for classes
+PROVONE_PROCESS = PROVONE['Process']
+PROVONE_USER = PROVONE['User']
+PROVONE_PROCESSEXEC = PROVONE['ProcessExec']
+PROVONE_DATA = PROVONE['Data']
+PROVONE_INPUTPORT = PROVONE['InputPort']
+PROVONE_OUTPUTPORT = PROVONE['OutputPort']
+PROVONE_DATALINK = PROVONE['DataLink']
+PROVONE_SEQCTRLLINK = PROVONE['seqCtrlLink']
+
+# ProvONE Constants for Associations
+PROVONE_USAGE = PROVONE['Usage']
+PROVONE_COMMUNICATION = PROVONE['Communication']
+PROVONE_ATTRIBUTION = PROVONE['Attribution']
+PROVONE_DERIVATION = PROVONE['Derivation']
+PROVONE_ASSOCIATION = PROVONE['Association']
+PROVONE_GENERATION = PROVONE['Generation']
+PROVONE_HASOUTPORT = PROVONE['hasOutPort']
+PROVONE_HASINPORT = PROVONE['hasInPort']
+PROVONE_HASSUBPROCESS = PROVONE['hasSubProcess']
+PROVONE_INPORTTODL = PROVONE['inPortToDL']
+PROVONE_DLTOINPORT = PROVONE['DLToInPort']
+PROVONE_OUTPORTTODL = PROVONE['outPortToDL']
+PROVONE_DLTOOUTPORT = PROVONE['DLToOutPort']
+PROVONE_CLTODESTP = PROVONE['CLtoDestP']
+PROVONE_SOURCEPTOCL = PROVONE['sourcePToCL']
+PROVONE_DATAONLINK = PROVONE['dataOnLink']
+PROVONE_HASDEFAULTPARAM = PROVONE['hasDefaultParameter']
+
+# ProvONE notation mapping
+PROVONE_N_MAP = {
+	PROVONE_PROCESS: 			u'process',
+	PROVONE_PROCESSEXEC: 		u'processExec',
+	PROVONE_DERIVATION: 		u'wasDerivedFrom',
+	PROVONE_USER: 				u'user',
+	PROVONE_ATTRIBUTION: 		u'wasAttributedTo',
+	PROVONE_ASSOCIATION: 		u'wasAssociatedWith',
+	PROVONE_GENERATION:			u'wasGeneratedBy',
+	PROVONE_COMMUNICATION:		u'wasInformedBy',
+	PROVONE_DATA:				u'data',
+	PROVONE_HASINPORT:			u'hasInPort',
+	PROVONE_INPUTPORT:			u'inputPort',
+	PROVONE_OUTPUTPORT:			u'outputPort',
+	PROVONE_HASOUTPORT:			u'hasOutPort',
+	PROVONE_HASSUBPROCESS:		u'hasSubProcess',
+	PROVONE_INPORTTODL:			u'inPortToDL',
+	PROVONE_DATALINK:			u'dataLink',
+	PROVONE_SEQCTRLLINK:		u'seqCtrlLink',
+	PROVONE_CLTODESTP:			u'CLtoDestP',
+	PROVONE_SOURCEPTOCL:		u'sourcePtoCL',
+	PROVONE_OUTPORTTODL:		u'outPortToDL',
+	PROVONE_DLTOOUTPORT:		u'DLToOutPort',
+	PROVONE_DLTOINPORT:			u'DLToInPort',
+	PROVONE_DATAONLINK:			u'dataOnLink',
+	PROVONE_HASDEFAULTPARAM: u'hasDefaultParamter',
+
+}
+
+# Identifiers for PROVONE's attributes
+PROVONE_ATTR_PROCESS = PROVONE['process']
+PROVONE_ATTR_USER = PROVONE['user']
+PROVONE_ATTR_PROCESSEXEC = PROVONE['processExec']
+PROVONE_ATTR_PLAN = PROVONE['plan']
+PROVONE_ATTR_GENERATED_DATA = PROVONE['generatedData']
+PROVONE_ATTR_USED_DATA = PROVONE['usedData']
+PROVONE_ATTR_GENERATION = PROVONE['generation']
+PROVONE_ATTR_USAGE = PROVONE['usage']
+PROVONE_ATTR_DATA = PROVONE['data']
+PROVONE_ATTR_INFORMED = PROVONE['informed']
+PROVONE_ATTR_INFORMANT = PROVONE['informant']
+PROVONE_ATTR_HASINPORT = PROVONE['hasInPort']
+PROVONE_ATTR_HASOUTPORT = PROVONE['HasOutPort']
+PROVONE_ATTR_INPUTPORT = PROVONE['InputPort']
+PROVONE_ATTR_OUTPUTPORT = PROVONE['OutputPort']
+PROVONE_ATTR_GENERATED_PROCESS = PROVONE['generatedProcess']
+PROVONE_ATTR_USED_PROCESS = PROVONE['usedProcess']
+PROVONE_ATTR_HASSUBPROCESS = PROVONE['hasSubProcess']
+PROVONE_ATTR_DATALINK = PROVONE['dataLink']
+PROVONE_ATTR_SEQCTRLLINK = PROVONE['seqCtrlLink']
+PROVONE_ATTR_CLTODESTP = PROVONE['clToDestP']
+PROVONE_ATTR_SOURCEPTOCL = PROVONE['sourcePtoCL']
+
