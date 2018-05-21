@@ -35,35 +35,50 @@
 #**************************************************************************************
 
 import os,sys
-from nidm.experiment import Project,Session
+from nidm.experiment import Project,Session,AssessmentAcquisition,AssessmentObject
 from nidm.core import Constants
-from nidm.experiment.Utils import read_nidm, GetNIDMTermsFromSciCrunch
+from nidm.experiment.Utils import read_nidm, map_variables_to_terms
+from nidm.experiment.Core import getUUID
+from nidm.experiment.Core import Core
+from prov.model import QualifiedName
+from prov.model import Namespace as provNamespace
 from argparse import ArgumentParser
 from os.path import  dirname, join, splitext
 import json
 import pandas as pd
-import tkinter as tk
-from tkinter import font
+#import tkinter as tk
+#from tkinter import font
+import validators
+import urllib.parse
+import getpass
+import operator
+from github import Github, GithubException
+from fuzzywuzzy import fuzz
+from rdflib import Graph,URIRef,RDF
+from io import StringIO
+
 
 #def createDialogBox(search_results):
-class NewListbox(tk.Listbox):
+#class NewListbox(tk.Listbox):
 
-    def autowidth(self, maxwidth=100):
-        autowidth(self, maxwidth)
+#    def autowidth(self, maxwidth=100):
+#        autowidth(self, maxwidth)
 
 
-def autowidth(list, maxwidth=100):
-    f = font.Font(font=list.cget("font"))
-    pixels = 0
-    for item in list.get(0, "end"):
-        pixels = max(pixels, f.measure(item))
-    # bump listbox size until all entries fit
-    pixels = pixels + 10
-    width = int(list.cget("width"))
-    for w in range(0, maxwidth+1, 5):
-        if list.winfo_reqwidth() >= pixels:
-            break
-        list.config(width=width+w)
+#def autowidth(list, maxwidth=100):
+#    f = font.Font(font=list.cget("font"))
+#    pixels = 0
+#    for item in list.get(0, "end"):
+#        pixels = max(pixels, f.measure(item))
+#    # bump listbox size until all entries fit
+#    pixels = pixels + 10
+#    width = int(list.cget("width"))
+#    for w in range(0, maxwidth+1, 5):
+#        if list.winfo_reqwidth() >= pixels:
+#            break
+#        list.config(width=width+w)
+
+
 
 
 
@@ -76,41 +91,173 @@ def main(argv):
 
     parser.add_argument('-csv', dest='csv_file', required=True, help="Path to CSV file to convert")
     parser.add_argument('-key', dest='key', required=True, help="SciCrunch API key to use for query")
+    parser.add_argument('-json_map', dest='json_map',required=False,help="User-suppled JSON file containing variable-term mappings.")
     parser.add_argument('-nidm', dest='nidm_file', required=False, help="Optional NIDM file to add CSV->NIDM converted graph to")
+    parser.add_argument('-github',action='store_true', required=False, help='If -github flag is set, locally-defined terms will be placed in a \
+                    \"nidm-local-terms\" repository in GitHub else they will be written a local RDF file using the filename specified in \
+                    the \"-out\" parameter suffixed with \"local-terms-dd\" to indicate the local terms data dictionary (dd)')
+    parser.add_argument('-owlfile', dest='owl_file', required=False, help='Optional OWL file to search for terms')
     parser.add_argument('-out', dest='output_file', required=True, help="Filename to save NIDM file")
     args = parser.parse_args()
 
     #open CSV file and load into
     df = pd.read_csv(args.csv_file)
 
-    #iterate over columns
-    for column in df.columns:
-        #for each column name, query Interlex for possible matches
-        search_result = GetNIDMTermsFromSciCrunch(args.key,column)
-        #tk stuff
-        #root=tk.Tk()
-        #listb=NewListbox(root,selectmode=tk.SINGLE)
-        option=1
-        for key,value in search_result.items():
-            print("%d: Label: %s \t Definition: %s \t Preferred URL: %s " %(option,search_result[key]['label'],search_result[key]['definition'],search_result[key]['preferred_url']  ))
-            #add to dialog box for user to check which one is correct 
-            #listb.insert("end",search_result[key]['label']+", " +search_result[key]['definition'])
-            option=option+1
+    #maps variables in CSV file to terms
+    column_to_terms = map_variables_to_terms(df,args.key,args.output_file,args.json_map,args.github,args.owl_file)
 
-        #Add option to change query string
-        print("%d: Change Interlex query string from: \"%s\"" %(option,column))
-        option=option+1
-        #Add option to define your own term
-        print("%d: Define my own term for this variable" %option)
-        print("---------------------------------------------------------------------------------------")
-        #Wait for user input
-        selection=input("Please select an option (1:%d) from above: \t" %(option))
 
-        print("user selected: %s" %selection)
-        #listb.pack()
-        #listb.autowidth()
-        #root.mainloop()
-        #input("Press Enter to continue...")
+
+    #If user has added an existing NIDM file as a command line parameter then add to existing file for subjects who exist in the NIDM file
+    if args.nidm_file:
+        print("Adding to NIDM file...")
+        #read in NIDM file
+        project = read_nidm(args.nidm_file)
+        #get list of session objects
+        session_objs=project.get_sessions()
+
+        #look at column_to_terms dictionary for NIDM URL for subject id  (Constants.NIDM_SUBJECTID)
+        id_field=None
+        for key, value in column_to_terms.items():
+            if Constants.NIDM_SUBJECTID._str == column_to_terms[key]['label']:
+                id_field=key
+                #make sure id_field is a string for zero-padded subject ids
+                #re-read data file with constraint that key field is read as string
+                #df = pd.read_csv(args.csv_file,dtype={id_field : str})
+
+        #if we couldn't find a subject ID field in column_to_terms, ask user
+        if id_field is None:
+            option=1
+            for column in df.columns:
+                print("%d: %s" %(option,column))
+                option=option+1
+            selection=input("Please select the subject ID field from the list above: ")
+            id_field=df[df.columns[selection]]
+            #make sure id_field is a string for zero-padded subject ids
+            #re-read data file with constraint that key field is read as string
+            #df = pd.read_csv(args.csv_file,dtype={id_field : str})
+
+
+
+        #use RDFLib here for temporary graph making query easier
+        rdf_graph = Graph()
+        rdf_graph_parse = rdf_graph.parse(source=StringIO(project.serializeTurtle()),format='turtle')
+
+        #find subject ids and sessions in NIDM document
+        query = """SELECT DISTINCT ?session ?nidm_subj_id ?agent
+                    WHERE {
+                        ?activity prov:wasAssociatedWith ?agent ;
+                            dct:isPartOf ?session  .
+                        ?agent rdf:type prov:Agent ;
+                            ndar:src_subject_id ?nidm_subj_id .
+                    }"""
+        #print(query)
+        qres = rdf_graph_parse.query(query)
+
+
+        for row in qres:
+            print('%s \t %s' %(row[0],row[1]))
+            #find row with subject id matching agent from NIDM file
+            csv_row = df.loc[df[id_field]==type(df[id_field][0])(row[1])]
+            #check whether agent ID matches our CSV subject ID for this row while taking care of data type mismatches
+            #if (subj_id == type(subj_id)(row[1])):
+
+            session_uuid = row[0]
+            #get session object for this UUID
+            for nidm_session in session_objs:
+                if nidm_session.identifier._uri == str(session_uuid):
+                    #add an assessment acquisition for the phenotype data to session and associate with agent
+                    acq=AssessmentAcquisition(session=nidm_session)
+                    #add acquisition entity for assessment
+                    acq_entity = AssessmentObject(acquisition=acq)
+                    #add qualified association with existing agent
+                    acq.add_qualified_association(person=row[2],role=Constants.NIDM_PARTICIPANT)
+
+                    #store other data from row with columns_to_term mappings
+                    for row_variable in csv_row:
+                        #check if row_variable is subject id, if so skip it
+                        if row_variable==id_field:
+                            continue
+                        else:
+                            #get column_to_term mapping uri and add as namespace in NIDM document
+                            #provNamespace(Core.safe_string(None,string=str(row_variable)), column_to_terms[row_variable]["url"])
+                            acq_entity.add_attributes({QualifiedName(provNamespace(Core.safe_string(None,string=str(row_variable)), column_to_terms[row_variable]["url"]), ""):csv_row[row_variable].values[0]})
+                    continue
+
+        #serialize NIDM file
+        with open(args.nidm_file,'w') as f:
+            print("Writing NIDM file...")
+            f.write(project.serializeTurtle())
+            project.save_DotGraph(str(args.nidm_file + ".png"), format="png")
+
+
+
+    else:
+        print("Creating NIDM file...")
+        #If user did not choose to add this data to an existing NIDM file then create a new one for the CSV data
+        #create empty project
+        project=Project()
+
+        #simply add name of file to project since we don't know anything about it
+        project.add_attributes({Constants.NIDM_FILENAME:args.csv_file})
+
+
+        #look at column_to_terms dictionary for NIDM URL for subject id  (Constants.NIDM_SUBJECTID)
+        id_field=None
+        for key, value in column_to_terms.items():
+            if Constants.NIDM_SUBJECTID._str == column_to_terms[key]['label']:
+                id_field=key
+                #make sure id_field is a string for zero-padded subject ids
+                #re-read data file with constraint that key field is read as string
+                #df = pd.read_csv(args.csv_file,dtype={id_field : str})
+
+        #if we couldn't find a subject ID field in column_to_terms, ask user
+        if id_field is None:
+            option=1
+            for column in df.columns:
+                print("%d: %s" %(option,column))
+                option=option+1
+            selection=input("Please select the subject ID field from the list above: ")
+            id_field=df[df.columns[selection]]
+
+
+        #iterate over rows and store in NIDM file
+        for csv_index, csv_row in df.iterrows():
+            #create a session object
+            session=Session(project)
+
+            #create and acquisition activity and entity
+            acq=AssessmentAcquisition(session)
+            acq_entity=AssessmentObject(acq)
+
+
+
+            #store other data from row with columns_to_term mappings
+            for row_variable,row_data in csv_row.iteritems():
+                #check if row_variable is subject id, if so skip it
+                if row_variable==id_field:
+                    #add qualified association with person
+                    acq.add_qualified_association(person= acq.add_person(attributes=({Constants.NIDM_SUBJECTID:row_data})),role=Constants.NIDM_PARTICIPANT)
+
+                    continue
+                else:
+                    #get column_to_term mapping uri and add as namespace in NIDM document
+                    acq_entity.add_attributes({QualifiedName(provNamespace(Core.safe_string(None,string=str(row_variable)), column_to_terms[row_variable]["url"]),""):row_data})
+                    #print(project.serializeTurtle())
+
+        #serialize NIDM file
+        with open(args.output_file,'w') as f:
+            print("Writing NIDM file...")
+            f.write(project.serializeTurtle())
+            project.save_DotGraph(str(args.output_file + ".png"), format="png")
+
+
+    #iterate over rows in CSV file:
+    #for index,row in df.iterrows():
+    #    for columns in df.columns():
+
+
+
 
 if __name__ == "__main__":
    main(sys.argv[1:])
