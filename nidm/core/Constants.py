@@ -6,14 +6,22 @@
 @author: David Keator <dbkeator@uci.edu>
     Added Python provtoolbox  support
     10/3/17 Modified Namespace to be QualifiedName for provtoolbox support...left most of the NIDM-Results Namespaces the same
+@author: Sanu Ann Abraham <sanuann@mit.edu>
+	05/04/2018 Added python ProvONE support
 '''
 
+import six
 from rdflib import Namespace, Graph
 from prov.model import ProvDocument, QualifiedName
 from prov.model import Namespace as provNamespace
+from prov.constants import PROV_ATTRIBUTE_QNAMES, PROV_ATTRIBUTE_LITERALS, \
+	PROV_N_MAP
 
 PROV = Namespace('http://www.w3.org/ns/prov#')
+#PROVONE = provNamespace('provone',
+# 'http://purl.dataone.org/provone/2015/01/15/ontology#')
 PROVONE = provNamespace('provone', 'http://purl.dataone.org/provone/2015/01/15/ontology#')
+
 NIDM_URL = 'http://purl.org/nidash/nidm#'
 NIDM = Namespace(NIDM_URL)
 
@@ -378,12 +386,6 @@ PROVONE_DATALINK = PROVONE['DataLink']
 PROVONE_SEQCTRLLINK = PROVONE['seqCtrlLink']
 
 # ProvONE Constants for Associations
-PROVONE_USAGE = PROVONE['Usage']
-PROVONE_COMMUNICATION = PROVONE['Communication']
-PROVONE_ATTRIBUTION = PROVONE['Attribution']
-PROVONE_DERIVATION = PROVONE['Derivation']
-PROVONE_ASSOCIATION = PROVONE['Association']
-PROVONE_GENERATION = PROVONE['Generation']
 PROVONE_HASOUTPORT = PROVONE['hasOutPort']
 PROVONE_HASINPORT = PROVONE['hasInPort']
 PROVONE_HASSUBPROCESS = PROVONE['hasSubProcess']
@@ -395,17 +397,14 @@ PROVONE_CLTODESTP = PROVONE['CLtoDestP']
 PROVONE_SOURCEPTOCL = PROVONE['sourcePToCL']
 PROVONE_DATAONLINK = PROVONE['dataOnLink']
 PROVONE_HASDEFAULTPARAM = PROVONE['hasDefaultParameter']
+PROVONE_ISPARTOF = PROVONE['isPartOf']
+PROVONE_MEMBERSHIP = PROVONE['hadMember']
 
 # ProvONE notation mapping
 PROVONE_N_MAP = {
 	PROVONE_PROCESS: 			u'process',
 	PROVONE_PROCESSEXEC: 		u'processExec',
-	PROVONE_DERIVATION: 		u'wasDerivedFrom',
 	PROVONE_USER: 				u'user',
-	PROVONE_ATTRIBUTION: 		u'wasAttributedTo',
-	PROVONE_ASSOCIATION: 		u'wasAssociatedWith',
-	PROVONE_GENERATION:			u'wasGeneratedBy',
-	PROVONE_COMMUNICATION:		u'wasInformedBy',
 	PROVONE_DATA:				u'data',
 	PROVONE_HASINPORT:			u'hasInPort',
 	PROVONE_INPUTPORT:			u'inputPort',
@@ -421,7 +420,9 @@ PROVONE_N_MAP = {
 	PROVONE_DLTOOUTPORT:		u'DLToOutPort',
 	PROVONE_DLTOINPORT:			u'DLToInPort',
 	PROVONE_DATAONLINK:			u'dataOnLink',
-	PROVONE_HASDEFAULTPARAM: u'hasDefaultParamter',
+	PROVONE_HASDEFAULTPARAM: 	u'hasDefaultParamter',
+	PROVONE_ISPARTOF:			u'isPartOf',
+	PROVONE_MEMBERSHIP:			u'hadMember',
 
 }
 
@@ -448,4 +449,52 @@ PROVONE_ATTR_DATALINK = PROVONE['dataLink']
 PROVONE_ATTR_SEQCTRLLINK = PROVONE['seqCtrlLink']
 PROVONE_ATTR_CLTODESTP = PROVONE['clToDestP']
 PROVONE_ATTR_SOURCEPTOCL = PROVONE['sourcePtoCL']
+PROVONE_ATTR_RELATED_PREXEC = PROVONE['relatedProcessExec'],
+PROVONE_ATTR_USED_PREXEC = PROVONE['usedProcessExec']
+PROVONE_ATTR_CHILD_PREXEC = PROVONE['childProcessExec']
+
+
+PROVONE_ATTRIBUTE_QNAMES = {
+	PROVONE_ATTR_PROCESS,
+	PROVONE_ATTR_USER,
+	PROVONE_ATTR_PROCESSEXEC,
+	PROVONE_ATTR_PLAN,
+	PROVONE_ATTR_GENERATED_DATA,
+	PROVONE_ATTR_USED_DATA,
+	PROVONE_ATTR_DATA,
+	PROVONE_ATTR_INFORMED,
+	PROVONE_ATTR_INFORMANT,
+	PROVONE_ATTR_HASINPORT,
+	PROVONE_ATTR_HASOUTPORT,
+	PROVONE_ATTR_INPUTPORT,
+	PROVONE_ATTR_OUTPUTPORT,
+	PROVONE_ATTR_GENERATED_PROCESS,
+	PROVONE_ATTR_USED_PROCESS,
+	PROVONE_ATTR_HASSUBPROCESS,
+	PROVONE_ATTR_DATALINK,
+	PROVONE_ATTR_SEQCTRLLINK,
+	PROVONE_ATTR_CLTODESTP,
+	PROVONE_ATTR_SOURCEPTOCL,
+	PROVONE_ATTR_RELATED_PREXEC,
+	PROVONE_ATTR_USED_PREXEC,
+	PROVONE_ATTR_CHILD_PREXEC,
+    #PROV_ATTR_COLLECTION
+}
+
+
+# Set of formal attributes of PROV records
+PROVONE_ATTRIBUTES = PROVONE_ATTRIBUTE_QNAMES | PROV_ATTRIBUTE_QNAMES | \
+											  PROV_ATTRIBUTE_LITERALS
+PROVONE_RECORD_ATTRIBUTES = list((attr, six.text_type(attr)) for attr in
+							  PROVONE_ATTRIBUTES)
+
+PROV_RECORD_IDS_MAP = dict(
+    (PROV_N_MAP[rec_type_id], rec_type_id) for rec_type_id in PROV_N_MAP
+)
+PROVONE_ID_ATTRIBUTES_MAP = dict(
+    (prov_id, attribute) for (prov_id, attribute) in PROVONE_RECORD_ATTRIBUTES
+)
+PROVONE_ATTRIBUTES_ID_MAP = dict(
+    (attribute, prov_id) for (prov_id, attribute) in PROVONE_RECORD_ATTRIBUTES
+)
 

@@ -6,26 +6,36 @@ ProvONE: http://vcvcomputing.com/provone/provone.html
 """
 
 import logging
+import os
+import io
+import shutil
+import tempfile
+import urllib.parse
 
+import nidm.core.serializers
 from prov.constants import PROV_N_MAP, PROV_ATTR_STARTTIME, PROV_ATTR_ENDTIME, \
-	PROV_ATTR_TIME
+	PROV_ATTR_TIME, PROV_DERIVATION, PROV_GENERATION, PROV_USAGE, \
+	PROV_COMMUNICATION, PROV_ASSOCIATION, PROV_ATTRIBUTION, PROV_ATTR_COLLECTION
 from prov.model import ProvEntity, ProvAgent, ProvDocument, ProvAttribution, \
 	PROV_REC_CLS, ProvActivity, _ensure_datetime, ProvAssociation, \
-	ProvCommunication, ProvDerivation, ProvRelation, ProvGeneration
+	ProvCommunication, ProvDerivation, ProvRelation, ProvGeneration, ProvUsage, \
+	ProvMembership
 from .Constants import PROVONE_N_MAP, PROVONE_PROCESS, PROVONE_INPUTPORT, \
 	PROVONE_OUTPUTPORT, PROVONE_DATA, PROVONE_DATALINK, PROVONE_SEQCTRLLINK, \
 	PROVONE_USER, PROVONE_PROCESSEXEC, PROVONE_ATTR_PROCESS, PROVONE_ATTR_USER, \
-	PROVONE_ATTRIBUTION, PROVONE_ATTR_PROCESSEXEC, PROVONE_ATTR_PLAN, \
-	PROVONE_ASSOCIATION, PROVONE_ATTR_INFORMED, PROVONE_ATTR_INFORMANT, \
-	PROVONE_COMMUNICATION, PROVONE_ATTR_GENERATED_DATA, PROVONE_ATTR_USED_DATA, \
-	PROVONE_ATTR_GENERATION, PROVONE_ATTR_USAGE, PROVONE_DERIVATION, \
-	PROVONE_ATTR_DATA, PROVONE_GENERATION, PROVONE_ATTR_INPUTPORT, \
+	PROVONE_ATTR_PROCESSEXEC, PROVONE_ATTR_PLAN, \
+	PROVONE_ATTR_INFORMED, PROVONE_ATTR_INFORMANT, \
+	PROVONE_ATTR_GENERATED_DATA, PROVONE_ATTR_USED_DATA, \
+	PROVONE_ATTR_GENERATION, PROVONE_ATTR_USAGE, \
+	PROVONE_ATTR_DATA, PROVONE_ATTR_INPUTPORT, \
 	PROVONE_HASINPORT, PROVONE_ATTR_OUTPUTPORT, PROVONE_HASOUTPORT, \
 	PROVONE_HASSUBPROCESS, PROVONE_ATTR_DATALINK, PROVONE_INPORTTODL, \
 	PROVONE_OUTPORTTODL, PROVONE_DLTOOUTPORT, PROVONE_DLTOINPORT, \
 	PROVONE_ATTR_SEQCTRLLINK, PROVONE_CLTODESTP, PROVONE_SOURCEPTOCL, \
-	PROVONE_DATAONLINK, PROVONE_HASDEFAULTPARAM, PROVONE_USAGE, \
-	PROVONE_ATTR_GENERATED_PROCESS, PROVONE_ATTR_USED_PROCESS
+	PROVONE_DATAONLINK, PROVONE_HASDEFAULTPARAM, \
+	PROVONE_ATTR_GENERATED_PROCESS, PROVONE_ATTR_USED_PROCESS, PROVONE_ISPARTOF, \
+	PROVONE_ATTR_RELATED_PREXEC, PROVONE_ATTR_USED_PREXEC, \
+	PROVONE_ATTR_CHILD_PREXEC, PROVONE_MEMBERSHIP
 
 __author__ = 'Sanu Ann Abraham'
 __email__ = 'sanuann@mit.edu'
@@ -88,19 +98,7 @@ class User(ProvAgent):
 
 
 class ProcessExec(ProvActivity):
-
-	def wasInformedBy(self, informant, attributes=None):
-		"""
-		Creates a new communication record for this activity.
-
-		:param informant: The informing activity (relationship source).
-		:param attributes: Optional other attributes as a dictionary or list
-			of tuples to be added to the record optionally (default: None).
-		"""
-		self._bundle.communication(
-			self, informant, other_attributes=attributes
-		)
-		return self
+	""" ProvONE Process Execution element. """
 
 	_prov_type = PROVONE_PROCESSEXEC
 
@@ -110,7 +108,7 @@ class Attribution(ProvAttribution):
 
 	FORMAL_ATTRIBUTES = (PROVONE_ATTR_PROCESS, PROVONE_ATTR_USER)
 
-	_prov_type = PROVONE_ATTRIBUTION
+	_prov_type = PROV_ATTRIBUTION
 
 
 class Association(ProvAssociation):
@@ -118,7 +116,7 @@ class Association(ProvAssociation):
 	FORMAL_ATTRIBUTES = (PROVONE_ATTR_PROCESSEXEC, PROVONE_ATTR_PROCESS,
 						 PROVONE_ATTR_PLAN)
 
-	_prov_type = PROVONE_ASSOCIATION
+	_prov_type = PROV_ASSOCIATION
 
 
 class Communication(ProvCommunication):
@@ -126,7 +124,7 @@ class Communication(ProvCommunication):
 
 	FORMAL_ATTRIBUTES = (PROVONE_ATTR_INFORMED, PROVONE_ATTR_INFORMANT)
 
-	_prov_type = PROVONE_COMMUNICATION
+	_prov_type = PROV_COMMUNICATION
 
 
 class Derivation(ProvDerivation):
@@ -136,7 +134,7 @@ class Derivation(ProvDerivation):
 						 PROVONE_ATTR_PROCESSEXEC, PROVONE_ATTR_GENERATION,
 						 PROVONE_ATTR_USAGE)
 
-    _prov_type = PROVONE_DERIVATION
+    _prov_type = PROV_DERIVATION
 
 
 class Generation(ProvGeneration):
@@ -144,13 +142,40 @@ class Generation(ProvGeneration):
 
     FORMAL_ATTRIBUTES = (PROVONE_ATTR_DATA, PROVONE_ATTR_PROCESSEXEC, PROV_ATTR_TIME)
 
-    _prov_type = PROVONE_GENERATION
+    #_prov_type = PROV_GENERATION
+
+
+class Usage(ProvUsage):
+    """Provenance Usage relationship."""
+
+    FORMAL_ATTRIBUTES = (PROVONE_ATTR_PROCESSEXEC, PROVONE_ATTR_DATA, PROV_ATTR_TIME)
+
+    #_prov_type = PROV_USAGE
+
+
+class Partnership(ProvRelation):
+    """Provenance Membership relationship."""
+
+    FORMAL_ATTRIBUTES = (PROVONE_ATTR_USED_PREXEC,
+						 PROVONE_ATTR_CHILD_PREXEC)
+
+    _prov_type = PROVONE_ISPARTOF
+
+
+# Component 6: Collections
+class Membership(ProvMembership):
+    """Provenance Membership relationship."""
+
+    FORMAL_ATTRIBUTES = (PROV_ATTR_COLLECTION, PROVONE_ATTR_DATA)
+
+    _prov_type = PROVONE_MEMBERSHIP
 
 
 class HasInput(ProvRelation):
 	"""ProvONE HasInput Port relationship."""
 
-	FORMAL_ATTRIBUTES = (PROVONE_ATTR_PROCESS, PROVONE_ATTR_INPUTPORT)
+	FORMAL_ATTRIBUTES = (PROVONE_ATTR_PROCESS,
+						 PROVONE_ATTR_INPUTPORT)
 
 	_prov_type = PROVONE_HASINPORT
 
@@ -166,7 +191,7 @@ class HasOutput(ProvRelation):
 class HasSubProcess(ProvRelation):
 	"""ProvONE Has SubProcess relationship."""
 
-	FORMAL_ATTRIBUTES = (PROVONE_ATTR_PROCESS, PROVONE_ATTR_PROCESS)
+	FORMAL_ATTRIBUTES = (PROVONE_ATTR_USED_PROCESS, PROVONE_ATTR_GENERATED_PROCESS)
 
 	_prov_type = PROVONE_HASSUBPROCESS
 
@@ -222,7 +247,8 @@ class SourcePtoCL(ProvRelation):
 class DataLinkage(ProvRelation):
 	""" ProvONE dataOnLink relationship """
 
-	FORMAL_ATTRIBUTES = (PROVONE_ATTR_DATA, PROVONE_DATALINK, PROVONE_ATTR_PROCESS)
+	FORMAL_ATTRIBUTES = (PROVONE_ATTR_DATA, PROVONE_ATTR_DATALINK,
+						 PROVONE_ATTR_PROCESS)
 
 	_prov_type = PROVONE_DATAONLINK
 
@@ -235,7 +261,7 @@ class Parameterization(ProvRelation):
 	_prov_type = PROVONE_HASDEFAULTPARAM
 
 
-class Workflow(Process):
+class Workflow(Process, ):
 	pass
 
 
@@ -244,11 +270,12 @@ PROV_REC_CLS.update({
 	PROVONE_PROCESS: Process,
 	PROVONE_PROCESSEXEC: ProcessExec,
 	PROVONE_DATA: Data,
-	PROVONE_ATTRIBUTION: Attribution,
-	PROVONE_ASSOCIATION: Association,
-	PROVONE_COMMUNICATION:  Communication,
-	PROVONE_DERIVATION: Derivation,
-	PROVONE_GENERATION: Generation,
+	PROV_ATTRIBUTION: Attribution,
+	PROV_ASSOCIATION: Association,
+	PROV_COMMUNICATION:  Communication,
+	PROV_DERIVATION: Derivation,
+	PROV_GENERATION: Generation,
+	PROV_USAGE: Usage,
 	PROVONE_INPUTPORT: InputPort,
 	PROVONE_HASINPORT: HasInput,
 	PROVONE_OUTPUTPORT: OutputPort,
@@ -264,6 +291,9 @@ PROV_REC_CLS.update({
 	PROVONE_DLTOINPORT: DLtoInPort,
 	PROVONE_DATAONLINK: DataLinkage,
 	PROVONE_HASDEFAULTPARAM: Parameterization,
+	PROVONE_USER: User,
+	PROVONE_ISPARTOF: Partnership,
+	PROVONE_MEMBERSHIP: Membership,
 
 })
 
@@ -320,7 +350,7 @@ class ProvONEDocument(ProvDocument):
 			of tuples to be added to the record optionally (default: None).
 		"""
 		return self.new_record(
-			PROVONE_ATTRIBUTION, identifier, {
+			PROV_ATTRIBUTION, identifier, {
 				PROVONE_ATTR_PROCESS: process_spec,
 				PROVONE_ATTR_USER: user
 			},
@@ -367,7 +397,7 @@ class ProvONEDocument(ProvDocument):
 			of tuples to be added to the record optionally (default: None).
 		"""
 		return self.new_record(
-			PROVONE_ASSOCIATION, identifier, {
+			PROV_ASSOCIATION, identifier, {
 				PROVONE_ATTR_PROCESSEXEC: process_exec,
 				PROVONE_ATTR_PROCESS: process_spec,
 				PROVONE_ATTR_PLAN: plan
@@ -400,7 +430,7 @@ class ProvONEDocument(ProvDocument):
 					  PROVONE_ATTR_GENERATION: generation,
 					  PROVONE_ATTR_USAGE: usage}
 		return self.new_record(
-			PROVONE_DERIVATION, identifier, attributes, other_attributes
+			PROV_DERIVATION, identifier, attributes, other_attributes
 		)
 
 	def generation(self, data, process_exec=None, time=None, identifier=None,
@@ -419,7 +449,7 @@ class ProvONEDocument(ProvDocument):
 			of tuples to be added to the record optionally (default: None).
 		"""
 		return self.new_record(
-			PROVONE_GENERATION, identifier, {
+			PROV_GENERATION, identifier, {
 				PROVONE_ATTR_DATA: data,
 				PROVONE_ATTR_PROCESSEXEC: process_exec,
 				PROV_ATTR_TIME: _ensure_datetime(time)
@@ -444,7 +474,7 @@ class ProvONEDocument(ProvDocument):
 			of tuples to be added to the record optionally (default: None).
 		"""
 		return self.new_record(
-			PROVONE_USAGE, identifier, {
+			PROV_USAGE, identifier, {
 				PROVONE_ATTR_PROCESSEXEC: process_exec,
 				PROVONE_ATTR_DATA: data,
 				PROV_ATTR_TIME: _ensure_datetime(time)},
@@ -463,7 +493,7 @@ class ProvONEDocument(ProvDocument):
 			of tuples to be added to the record optionally (default: None).
 		"""
 		return self.new_record(
-			PROVONE_COMMUNICATION, identifier, {
+			PROV_COMMUNICATION, identifier, {
 				PROVONE_ATTR_INFORMED: informed,
 				PROVONE_ATTR_INFORMANT: informant
 			},
@@ -534,22 +564,22 @@ class ProvONEDocument(ProvDocument):
 			other_attributes
 		)
 
-	def has_sub_process(self, generated_process, used_process, identifier=None,
+	def has_sub_process(self, used_process, generated_process, identifier=None,
 						other_attributes=None ):
 		"""
 				Creates a new has-sub-process record for a generated process from a
 				used process.
 
+				:param used_process: Process or a string identifier for the
+				used process (relationship source).
 				:param generated_process: Process or a string identifier for the
-				generated process (relationship source).
-				:param used_process: Process or a string identifier for the used
-				process (relationship destination).
-				:param identifier: Identifier for new has-sub-process record.
+				generated process (relationship destination).
+				:param identifier: Identifier for new sub-process record.
 				:param other_attributes: Optional other attributes as a dictionary or list
 					of tuples to be added to the record optionally (default: None).
 				"""
-		attributes = {PROVONE_ATTR_GENERATED_PROCESS: generated_process,
-					  PROVONE_ATTR_USED_PROCESS: used_process}
+		attributes = {PROVONE_ATTR_USED_PROCESS: used_process,
+					  PROVONE_ATTR_GENERATED_PROCESS: generated_process}
 		return self.new_record(
 			PROVONE_HASSUBPROCESS, identifier, attributes, other_attributes
 		)
@@ -701,7 +731,8 @@ class ProvONEDocument(ProvDocument):
 			},
 			other_attributes)
 
-	def dataOnLink(self, data_item, dl_link, relatedProcess=None, identifier=None,
+	def linkage(self, data_item, dl_link, related_process=None,
+					 identifier=None,
 				   other_attributes=None):
 		"""
 
@@ -709,7 +740,7 @@ class ProvONEDocument(ProvDocument):
 		relationship source).
 		:param dl_link: Data link or string identifier for the data link (
 		relationship destination).
-		:param process: Process or string identifier of the data link (default=None)
+		:param related_process: Process or string identifier of the data link (default=None)
 		:param identifier: Identifier for new data-on-link relation.
 		:param other_attributes: Optional other attributes as a dictionary or
 			list of tuples to be added to the record optionally (default: None).
@@ -719,7 +750,7 @@ class ProvONEDocument(ProvDocument):
 			PROVONE_DATAONLINK, identifier, {
 				PROVONE_ATTR_DATA: data_item,
 				PROVONE_ATTR_DATALINK: dl_link,
-				PROVONE_ATTR_PROCESS: relatedProcess,
+				PROVONE_ATTR_PROCESS: related_process,
 			},
 			other_attributes)
 
@@ -742,6 +773,79 @@ class ProvONEDocument(ProvDocument):
 			},
 			other_attributes)
 
+	def serialize(self, destination=None, format='json', **args):
+		"""
+		Serialize the :py:class:`ProvDocument` to the destination.
+
+		Available serializers can be queried by the value of
+		`:py:attr:~prov.serializers.Registry.serializers` after loading them via
+		`:py:func:~prov.serializers.Registry.load_serializers()`.
+
+		:param destination: Stream object to serialize the output to. Default is
+			`None`, which serializes as a string.
+		:param format: Serialization format (default: 'json'), defaulting to
+			PROV-JSON.
+		:return: Serialization in a string if no destination was given,
+			None otherwise.
+		"""
+		serializer = nidm.core.serializers.get(format)(self)
+		if destination is None:
+			stream = io.StringIO()
+			serializer.serialize(stream, **args)
+			return stream.getvalue()
+		if hasattr(destination, "write"):
+			stream = destination
+			serializer.serialize(stream, **args)
+		else:
+			location = destination
+			scheme, netloc, path, params, _query, fragment = urllib.parse.urlparse(location)
+			if netloc != "":
+				print("WARNING: not saving as location " +
+					  "is not a local file reference")
+				return
+			fd, name = tempfile.mkstemp()
+			stream = os.fdopen(fd, "wb")
+			serializer.serialize(stream, **args)
+			stream.close()
+			if hasattr(shutil, "move"):
+				shutil.move(name, path)
+			else:
+				shutil.copy(name, path)
+				os.remove(name)
+
+	def is_part_of(self, used_processex, child_processex, identifier=None,
+					  other_attributes=None):
+		"""
+		Creates a new is-part-of record for a process exec.
+
+		:param used_processex: The parent processExec (relationship source).
+		:param child_processex: The child processExec (relationship destination).
+		:param identifier: Identifier for new is-part-of record.
+		:param other_attributes: Optional other attributes as a dictionary or list
+			of tuples to be added to the record optionally (default: None).
+		"""
+		return self.new_record(
+			PROVONE_ISPARTOF, identifier, {
+				PROVONE_ATTR_USED_PREXEC: used_processex,
+				PROVONE_ATTR_CHILD_PREXEC: child_processex
+			},
+			other_attributes
+		)
+
+	def membership(self, collection, data):
+		"""
+		Creates a new membership record for data to a collection.
+
+		:param collection: Collection the data is to be added to.
+		:param data: Data to be added to the collection.
+		"""
+		return self.new_record(
+			PROVONE_MEMBERSHIP, None, {
+				PROV_ATTR_COLLECTION: collection,
+				PROVONE_ATTR_DATA: data
+			}
+		)
+
 	# Aliases
 	wasAttributedTo = attribution
 	wasAssociatedWith = association
@@ -755,3 +859,6 @@ class ProvONEDocument(ProvDocument):
 	CLtoDestP = control_link_to_process
 	sourcePToCL = process_to_control_link
 	hasDefaultParam = parameterization
+	dataOnLink = linkage
+	isPartOf = is_part_of
+	hadMember = membership
