@@ -239,7 +239,10 @@ class ProvONERDFSerializer(Serializer):
                 has_qualifiers = len(record.extra_attributes) > 0 or formal_qualifiers
                 for idx, (attr, value) in enumerate(all_attributes):
                     if record.is_relation():
-                        pred = URIRef(PROVONE[PROV_N_MAP[rec_type]].uri)
+                        if rec_type.namespace.prefix == 'prov':
+                            pred = URIRef(PROV[PROV_N_MAP[rec_type]].uri)
+                        else:
+                            pred = URIRef(PROVONE[PROV_N_MAP[rec_type]].uri)
                         # create bnode relation
                         if bnode is None:
                             valid_formal_indices = set()

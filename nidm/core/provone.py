@@ -15,7 +15,8 @@ import urllib.parse
 import nidm.core.serializers
 from prov.constants import PROV_N_MAP, PROV_ATTR_STARTTIME, PROV_ATTR_ENDTIME, \
 	PROV_ATTR_TIME, PROV_DERIVATION, PROV_GENERATION, PROV_USAGE, \
-	PROV_COMMUNICATION, PROV_ASSOCIATION, PROV_ATTRIBUTION, PROV_ATTR_COLLECTION
+	PROV_COMMUNICATION, PROV_ASSOCIATION, PROV_ATTRIBUTION, PROV_ATTR_COLLECTION, \
+	PROV_ATTR_USAGE, PROV_MEMBERSHIP
 from prov.model import ProvEntity, ProvAgent, ProvDocument, ProvAttribution, \
 	PROV_REC_CLS, ProvActivity, _ensure_datetime, ProvAssociation, \
 	ProvCommunication, ProvDerivation, ProvRelation, ProvGeneration, ProvUsage, \
@@ -26,7 +27,7 @@ from .Constants import PROVONE_N_MAP, PROVONE_PROCESS, PROVONE_INPUTPORT, \
 	PROVONE_ATTR_PROCESSEXEC, PROVONE_ATTR_PLAN, \
 	PROVONE_ATTR_INFORMED, PROVONE_ATTR_INFORMANT, \
 	PROVONE_ATTR_GENERATED_DATA, PROVONE_ATTR_USED_DATA, \
-	PROVONE_ATTR_GENERATION, PROVONE_ATTR_USAGE, \
+	PROVONE_ATTR_GENERATION, \
 	PROVONE_ATTR_DATA, PROVONE_ATTR_INPUTPORT, \
 	PROVONE_HASINPORT, PROVONE_ATTR_OUTPUTPORT, PROVONE_HASOUTPORT, \
 	PROVONE_HASSUBPROCESS, PROVONE_ATTR_DATALINK, PROVONE_INPORTTODL, \
@@ -132,7 +133,7 @@ class Derivation(ProvDerivation):
 
     FORMAL_ATTRIBUTES = (PROVONE_ATTR_GENERATED_DATA, PROVONE_ATTR_USED_DATA,
 						 PROVONE_ATTR_PROCESSEXEC, PROVONE_ATTR_GENERATION,
-						 PROVONE_ATTR_USAGE)
+						 PROV_ATTR_USAGE)
 
     _prov_type = PROV_DERIVATION
 
@@ -168,7 +169,7 @@ class Membership(ProvMembership):
 
     FORMAL_ATTRIBUTES = (PROV_ATTR_COLLECTION, PROVONE_ATTR_DATA)
 
-    _prov_type = PROVONE_MEMBERSHIP
+    #_prov_type = PROV_MEMBERSHIP
 
 
 class HasInput(ProvRelation):
@@ -293,7 +294,7 @@ PROV_REC_CLS.update({
 	PROVONE_HASDEFAULTPARAM: Parameterization,
 	PROVONE_USER: User,
 	PROVONE_ISPARTOF: Partnership,
-	PROVONE_MEMBERSHIP: Membership,
+	PROV_MEMBERSHIP: Membership,
 
 })
 
@@ -428,7 +429,7 @@ class ProvONEDocument(ProvDocument):
 					  PROVONE_ATTR_USED_DATA: usedData,
 					  PROVONE_ATTR_PROCESSEXEC: process_exec,
 					  PROVONE_ATTR_GENERATION: generation,
-					  PROVONE_ATTR_USAGE: usage}
+					  PROV_ATTR_USAGE: usage}
 		return self.new_record(
 			PROV_DERIVATION, identifier, attributes, other_attributes
 		)
@@ -840,7 +841,7 @@ class ProvONEDocument(ProvDocument):
 		:param data: Data to be added to the collection.
 		"""
 		return self.new_record(
-			PROVONE_MEMBERSHIP, None, {
+			PROV_MEMBERSHIP, None, {
 				PROV_ATTR_COLLECTION: collection,
 				PROVONE_ATTR_DATA: data
 			}

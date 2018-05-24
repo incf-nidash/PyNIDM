@@ -110,9 +110,6 @@ DOT_PROVONE_STYLE = {
     PROVONE_ISPARTOF: {
 		'label': 'isPartOf', 'fontsize': '10.0'
 	},
-    PROVONE_MEMBERSHIP: {
-		'label': 'hadMember', 'fontsize': '10.0'
-	},
 
     # Generic node
     0: {

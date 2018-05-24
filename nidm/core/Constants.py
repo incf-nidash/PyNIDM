@@ -18,8 +18,6 @@ from prov.constants import PROV_ATTRIBUTE_QNAMES, PROV_ATTRIBUTE_LITERALS, \
 	PROV_N_MAP
 
 PROV = Namespace('http://www.w3.org/ns/prov#')
-#PROVONE = provNamespace('provone',
-# 'http://purl.dataone.org/provone/2015/01/15/ontology#')
 PROVONE = provNamespace('provone', 'http://purl.dataone.org/provone/2015/01/15/ontology#')
 
 NIDM_URL = 'http://purl.org/nidash/nidm#'
@@ -434,7 +432,7 @@ PROVONE_ATTR_PLAN = PROVONE['plan']
 PROVONE_ATTR_GENERATED_DATA = PROVONE['generatedData']
 PROVONE_ATTR_USED_DATA = PROVONE['usedData']
 PROVONE_ATTR_GENERATION = PROVONE['generation']
-PROVONE_ATTR_USAGE = PROVONE['usage']
+#PROVONE_ATTR_USAGE = PROVONE['usage']
 PROVONE_ATTR_DATA = PROVONE['data']
 PROVONE_ATTR_INFORMED = PROVONE['informed']
 PROVONE_ATTR_INFORMANT = PROVONE['informant']
