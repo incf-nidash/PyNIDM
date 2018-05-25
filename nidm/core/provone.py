@@ -10,7 +10,7 @@ import os
 import io
 import shutil
 import tempfile
-import urllib.parse
+from six.moves.urllib.parse import urlparse
 
 import nidm.core.serializers
 from prov.constants import PROV_N_MAP, PROV_ATTR_STARTTIME, PROV_ATTR_ENDTIME, \
@@ -799,7 +799,7 @@ class ProvONEDocument(ProvDocument):
 			serializer.serialize(stream, **args)
 		else:
 			location = destination
-			scheme, netloc, path, params, _query, fragment = urllib.parse.urlparse(location)
+			scheme, netloc, path, params, _query, fragment = urlparse(location)
 			if netloc != "":
 				print("WARNING: not saving as location " +
 					  "is not a local file reference")
