@@ -19,19 +19,25 @@ class Acquisition(pm.ProvActivity,Core):
 
     """
     #constructor
-    def __init__(self, session, attributes=None):
+    def __init__(self, session, attributes=None, uuid=None):
         """
         Default contructor, creates a session activity and links to project object
 
         :param session: a session object
+        :param uuid: optional uuid...used mostly for reading in existing NIDM document
+        :param attributes: optional dictionary of attributes to add qname:value
 
         """
-        #execute default parent class constructor
-        super(Acquisition,self).__init__(session.graph, pm.QualifiedName(pm.Namespace("nidm",Constants.NIDM),getUUID()),attributes)
+        if uuid is None:
+            #execute default parent class constructor
+            super(Acquisition,self).__init__(session.graph, pm.QualifiedName(pm.Namespace("nidm",Constants.NIDM),getUUID()),attributes)
+        else:
+            super(Acquisition,self).__init__(session.graph, pm.QualifiedName(pm.Namespace("nidm",Constants.NIDM),uuid),attributes)
+
         session.graph._add_record(self)
 
-        self.add_attributes({pm.PROV_TYPE: Constants.NIDM_ACQUISITION_ACTIVITY})
-        self.add_attributes({str("dct:isPartOf"):session})
+        #self.add_attributes({pm.PROV_TYPE: Constants.NIDM_ACQUISITION_ACTIVITY})
+        #self.add_attributes({pm.QualifiedName(pm.Namespace("dct",Constants.DCT),'isPartOf'):self})
 
         #list to store acquisition objects associated with this activity
         self._acquisition_objects=[]
@@ -39,6 +45,9 @@ class Acquisition(pm.ProvActivity,Core):
 
         #carry graph object around
         self.graph = session.graph
+
+        #add acquisition to session
+        session.add_acquisition(self)
 
     def add_acquisition_object(self,acquisition_object):
         """
@@ -53,5 +62,16 @@ class Acquisition(pm.ProvActivity,Core):
         self.graph.wasGeneratedBy(acquisition_object,self)
     def get_acquisition_objects(self):
         return self._acquisition_objects
+    def acquisition_object_exists(self,uuid):
+        '''
+        Checks whether uuid is a registered acquisition object
+        :param uuid: full uuid of acquisition
+        :return: True if exists, False otherwise
+        '''
+        if uuid in self._acquisition_objects:
+            return True
+        else:
+            return False
+
     def __str__(self):
         return "NIDM-Experiment Acquisition Class"

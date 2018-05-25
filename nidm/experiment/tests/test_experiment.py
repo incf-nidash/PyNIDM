@@ -1,6 +1,7 @@
 import os,sys
 
-from nidm.experiment import Project,Session,Acquisition,AcquisitionObject,MRAcquisitionObject
+from nidm.experiment import Project,Session,MRAcquisition,MRObject, \
+    AssessmentAcquisition, AssessmentObject, DemographicsObject
 from nidm.core import Constants
 
 
@@ -29,17 +30,48 @@ def main(argv):
 
 
     #test add PI to investigation
-    project_PI = project.add_person(role=Constants.NIDM_PI,  attributes={Constants.NIDM_FAMILY_NAME:"Keator", Constants.NIDM_GIVEN_NAME:"David"})
-    
+    project_PI = project.add_person(attributes={Constants.NIDM_FAMILY_NAME:"Keator", Constants.NIDM_GIVEN_NAME:"David"})
+
+    #add qualified association of project PI to project activity
+    project.add_qualified_association(person=project_PI,role=Constants.NIDM_PI)
+
     #test add session to graph and associate with project
     session = Session(project)
-    project.add_sessions(session)
+    session.add_attributes({Constants.NIDM:"test"})
+    #project.add_sessions(session)
 
-    #test add acquisition activity to graph and associate with session
-    acq_act = Acquisition(session=session)
+    #test add MR acquisition activity / entity to graph and associate with session
+    acq_act = MRAcquisition(session=session)
     #test add acquisition object entity to graph associated with participant role NIDM_PARTICIPANT
-    acq_entity = MRAcquisitionObject(acquisition=acq_act)
-    acq_entity.add_person(role=Constants.NIDM_PARTICIPANT,attributes={Constants.NIDM_GIVEN_NAME:"George"})
+    acq_entity = MRObject(acquisition=acq_act)
+
+    #add person to graph
+    person = acq_act.add_person(attributes={Constants.NIDM_GIVEN_NAME:"George"})
+    #add qualified association of person with role NIDM_PARTICIPANT, and associated with acquistion activity
+    acq_act.add_qualified_association(person=person, role=Constants.NIDM_PARTICIPANT)
+
+
+    #test add Assessment acquisition activity / entity to graph and associate with session
+    acq_act = AssessmentAcquisition(session=session)
+    #test add acquisition object entity to graph associated with participant role NIDM_PARTICIPANT
+    acq_entity = AssessmentObject(acquisition=acq_act)
+    acq_entity.add_attributes({Constants.NIDM["Q1"]:"Q1 Answer",Constants.NIDM["Q2"]:"Q2 Answer" })
+    #associate person as participant
+    acq_act.add_qualified_association(person=person, role=Constants.NIDM_PARTICIPANT)
+
+
+    #test add DemographicsAssessment acquisition activity / entity to graph and associate with session
+    acq_act = AssessmentAcquisition(session=session)
+    #test add acquisition object entity to graph associated with participant role NIDM_PARTICIPANT
+    acq_entity = DemographicsObject(acquisition=acq_act)
+    #add new person to graph
+    person2 = acq_act.add_person(attributes={Constants.NIDM_FAMILY_NAME:"Doe", \
+            Constants.NIDM_GIVEN_NAME:"John"})
+    #associate person2 with assessment acquisition
+    acq_act.add_qualified_association(person=person2, role=Constants.NIDM_PARTICIPANT)
+
+    acq_entity.add_attributes({Constants.NIDM_AGE:60,Constants.NIDM_GENDER:"Male" })
+
 
     #save a turtle file
     with open("test.ttl",'w') as f:

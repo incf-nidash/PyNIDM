@@ -1,0 +1,3170 @@
+<?xml version="1.0"?>
+<Ontology xmlns="http://www.w3.org/2002/07/owl#"
+     xml:base="http://www.w3.org/2002/07/owl#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:xml="http://www.w3.org/XML/1998/namespace"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+    <Prefix name="ttl" IRI="http://www.semanticweb.org/owl/owlapi/turtle#"/>
+    <Prefix name="dct" IRI="http://purl.org/dc/terms/"/>
+    <Prefix name="nlx" IRI="http://neurolex.org/wiki/"/>
+    <Prefix name="obo" IRI="http://purl.obolibrary.org/obo/"/>
+    <Prefix name="owl" IRI="http://www.w3.org/2002/07/owl#"/>
+    <Prefix name="rdf" IRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#"/>
+    <Prefix name="sio" IRI="http://semanticscience.org/resource/"/>
+    <Prefix name="xml" IRI="http://www.w3.org/XML/1998/namespace"/>
+    <Prefix name="xsd" IRI="http://www.w3.org/2001/XMLSchema#"/>
+    <Prefix name="nidm" IRI="http://purl.org/nidash/nidm#"/>
+    <Prefix name="onli" IRI="http://neurolog.unice.fr/ontoneurolog/v3.0/instrument.owl#"/>
+    <Prefix name="prov" IRI="http://www.w3.org/ns/prov#"/>
+    <Prefix name="qibo" IRI="http://www.owl-ontologies.com/Ontology1298855822.owl#"/>
+    <Prefix name="rdfs" IRI="http://www.w3.org/2000/01/rdf-schema#"/>
+    <Prefix name="protege" IRI="http://protege.stanford.edu/plugins/owl/protege#"/>
+    <Prefix name="provone" IRI="http://purl.org/provone#"/>
+    <Import>http://purl.org/nidash/nidm/iao_import.owl</Import>
+    <Import>http://purl.org/nidash/nidm/sio_import.owl</Import>
+    <Import>http://purl.org/nidash/nidm/nfo_import.owl</Import>
+    <Import>http://purl.org/nidash/nidm/qibo_import.owl</Import>
+    <Import>http://purl.org/nidash/nidm/ontoneurolog_instruments_import.owl</Import>
+    <Import>http://purl.org/nidash/nidm/crypto_import.owl</Import>
+    <Import>http://purl.org/nidash/nidm/obi_import.owl</Import>
+    <Import>http://purl.org/nidash/nidm/dc_import.owl</Import>
+    <Import>http://www.w3.org/ns/prov-o-20130430</Import>
+    <Import>http://purl.org/nidash/nidm/nlx_import.owl</Import>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:SingleUnitReccording"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:Protocol"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:ImageDataReconstruction"/>
+    </Declaration>
+    <Declaration>
+        <AnnotationProperty abbreviatedIRI="provone:isPartOf"/>
+    </Declaration>
+    <Declaration>
+        <AnnotationProperty abbreviatedIRI="rdfs:isDefinedBy"/>
+    </Declaration>
+    <Declaration>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000117"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:k-spaceTraversalScheme"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:T1Weighted"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="prov:Agent"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:AcquisitionObjectQuality"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:Rectilinear"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual abbreviatedIRI="nidm:DelaySemanticVerbalLearningTest"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:Amperometry"/>
+    </Declaration>
+    <Declaration>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:DiffusionWeighted"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual abbreviatedIRI="nidm:SpatialMemorySpanTest"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:ExtracellularElectrophysiologyRecording"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual abbreviatedIRI="nidm:EdinburghHandnessTest"/>
+    </Declaration>
+    <Declaration>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000116"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual abbreviatedIRI="nidm:TrailsB"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:AcquisitionDeviceOperator"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:SharpElectrode"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual abbreviatedIRI="nidm:LetterNumberSpanTest"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:Cartesian"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty abbreviatedIRI="nidm:wasMeasuredBy"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:Acquisition"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:NuclearMagneticResonanceSpectroscopy"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:ArterialSpinLabeling"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:ResearchAssistant"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:RawAcquisitionObject"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual abbreviatedIRI="nidm:PositiveAndNegativeSyndromeScale"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:AcquisitionMethod"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual abbreviatedIRI="nidm:FacialEmotionDiscriminationTest"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual abbreviatedIRI="nidm:FingerTappingTest"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:b-VectorFile"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:ModelDesigner"/>
+    </Declaration>
+    <Declaration>
+        <AnnotationProperty abbreviatedIRI="dct:source"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="prov:Entity"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:Series"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual abbreviatedIRI="nidm:CategoryFluencyTest"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:PrincipalInvestigator"/>
+    </Declaration>
+    <Declaration>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:Functional"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="onli:scale-item"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty abbreviatedIRI="nidm:hadForScale"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual abbreviatedIRI="nidm:LetterFluencyTest"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:InformedConsentAcquisition"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual abbreviatedIRI="obo:IAO_0000136"/>
+    </Declaration>
+    <Declaration>
+        <AnnotationProperty IRI="versionInfo"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty abbreviatedIRI="nidm:hadForSubinstrument"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="prov:SoftwareAgent"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:AuxiliaryFile"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:CurrentClamp"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:T2Weighted"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="prov:Activity"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty abbreviatedIRI="nidm:hadNumericalValue"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:SpecifiedPlan"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty abbreviatedIRI="nidm:hadImageUsageType"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty abbreviatedIRI="dct:license"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:Session"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty abbreviatedIRI="dct:description"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="onli:score"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty abbreviatedIRI="prov:hadMember"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:T2StarWeighted"/>
+    </Declaration>
+    <Declaration>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:StimulusPresentationFile"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:PerformedPlan"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:SimultaneousMultisliceMethod"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:ElectrophysiologyRecording"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual abbreviatedIRI="nidm:ContinuousPerformanceTest"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:FieldPotential"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:SusceptibilityWeightedImaging"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:QuantitativeSusceptibilityMapping"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:PulseSequence"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:BehavioralDataAcquisition"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:Electrocorticography"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:Task"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:NIDM_0000155"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:b-ValueFile"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty abbreviatedIRI="prov:used"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:ProtonDensityWeighted"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:CoInvestigator"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:DemographicsDataAcquisition"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:Anatomical"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:Magnetoencephalography"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="prov:Role"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:ClinicalAssessmentAcquisitionObject"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="obo:OBI_0400107"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty abbreviatedIRI="dct:hasPart"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:ModelSpecification"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="onli:assessment-instrument"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:DemographicsInstrumentAdministrator"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual abbreviatedIRI="nidm:MazeSolvingTest"/>
+    </Declaration>
+    <Declaration>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual abbreviatedIRI="nidm:FagerstromTestForNicotineDependence"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:Subject"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual abbreviatedIRI="nidm:StroopTest"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:Structural"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:MagneticResonanceImaging"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual abbreviatedIRI="nidm:NorthAmericanAdultReadingTest"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual abbreviatedIRI="nidm:SimpsonAngusRatingScale"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:AcquisitionModality"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual abbreviatedIRI="nidm:DelayVisualFiguralLearningTest"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty abbreviatedIRI="dct:source"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:PositronEmissionTomography"/>
+    </Declaration>
+    <Declaration>
+        <AnnotationProperty abbreviatedIRI="prov:wasAssociatedWith"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:NIDM_0000154"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty abbreviatedIRI="nidm:hadForVariable"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:PresentationSoftware"/>
+    </Declaration>
+    <Declaration>
+        <AnnotationProperty abbreviatedIRI="rdfs:seeAlso"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:ParallelImaging"/>
+    </Declaration>
+    <Declaration>
+        <AnnotationProperty abbreviatedIRI="prov:wasMemberOf"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual abbreviatedIRI="nidm:CalgaryDepressionScale"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty abbreviatedIRI="dct:title"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty abbreviatedIRI="nidm:hadForProperPart"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:AcquisitionObject"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:DynamicSusceptibilityContrast"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:Outside-inSpiral"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:Electroencephalography"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="onli:scale"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:DemographicsAcquisitionObject"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:InformedConsentInstrumentAdministrator"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:IntracellularElectrophysiologyRecording"/>
+    </Declaration>
+    <Declaration>
+        <AnnotationProperty abbreviatedIRI="protege:defaultLanguage"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="onli:variable-assessment"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual abbreviatedIRI="nidm:TrailsA"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:ImageContrastType"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual abbreviatedIRI="nidm:PremorbidAdjustment"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:ReconstructedAcquisitionObject"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:NIDM_0000153"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:Inside-outSpiral"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:StimulusResponseFile"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:NuclearMagneticResonanceSpectroscopicImaging"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:ClinicalDataAcquisition"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:Project"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:DICOMTagCollection"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:ImageUsageType"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:Group"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:EchoPlanar"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:VoltageClamp"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty abbreviatedIRI="nidm:NIDM_0000010"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual abbreviatedIRI="nidm:ClinicalGlobalImpression"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual abbreviatedIRI="nidm:SocioeconomicScale"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:X-rayComputedTomography"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:FlowWeighted"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:DynamicContrastEnhanced"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty abbreviatedIRI="prov:wasCreatedBy"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:MultiUnitReccording"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="onli:instrument-based-assessment"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:DiffusionTensor"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:NIDM_0000152"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty abbreviatedIRI="nidm:hadImageContrastType"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:AssessmentInstrumentAdministrator"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual abbreviatedIRI="nidm:WisconsinCardSortingTest"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty abbreviatedIRI="nidm:wasScaleOf"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual abbreviatedIRI="nidm:SymbolDigitAssociationTest"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="prov:Collection"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="onli:instrument-variable"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:AuxiliaryFileCollection"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual abbreviatedIRI="nidm:BarnesAkathisiaScale"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:SusceptibilityWeighted"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:PatchClamp"/>
+    </Declaration>
+    <Declaration>
+        <Class abbreviatedIRI="nidm:SessionObject"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty abbreviatedIRI="prov:hadRole"/>
+    </Declaration>
+    <Declaration>
+        <AnnotationProperty IRI="synonym"/>
+    </Declaration>
+    <SubClassOf>
+        <Class abbreviatedIRI="onli:assessment-instrument"/>
+        <Class abbreviatedIRI="nidm:AcquisitionObject"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="onli:instrument-based-assessment"/>
+        <Class abbreviatedIRI="nidm:Acquisition"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="onli:instrument-variable"/>
+        <Class abbreviatedIRI="nidm:AcquisitionObject"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="onli:scale"/>
+        <Class abbreviatedIRI="sio:SIO_000078"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="onli:scale-item"/>
+        <Class abbreviatedIRI="sio:SIO_000015"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="onli:score"/>
+        <Class abbreviatedIRI="sio:SIO_000015"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="onli:variable-assessment"/>
+        <Class abbreviatedIRI="nidm:Acquisition"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="obo:OBI_0400107"/>
+        <Class abbreviatedIRI="sio:SIO_000956"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="http://purl.org/dc/dcmitype/Image"/>
+        <Class abbreviatedIRI="nidm:ReconstructedAcquisitionObject"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:Acquisition"/>
+        <Class abbreviatedIRI="prov:Activity"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:AcquisitionDeviceOperator"/>
+        <Class abbreviatedIRI="prov:Role"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:AcquisitionMethod"/>
+        <Class abbreviatedIRI="nidm:AcquisitionObjectQuality"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:AcquisitionModality"/>
+        <Class abbreviatedIRI="nidm:AcquisitionObjectQuality"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:AcquisitionObject"/>
+        <Class abbreviatedIRI="prov:Entity"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:AcquisitionObjectQuality"/>
+        <Class abbreviatedIRI="sio:SIO_000026"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:Amperometry"/>
+        <Class abbreviatedIRI="nidm:AcquisitionMethod"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:Anatomical"/>
+        <Class abbreviatedIRI="nidm:ImageUsageType"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:ArterialSpinLabeling"/>
+        <Class abbreviatedIRI="nidm:AcquisitionMethod"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:AssessmentInstrumentAdministrator"/>
+        <Class abbreviatedIRI="prov:Role"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:AuxiliaryFile"/>
+        <Class abbreviatedIRI="sio:SIO_000396"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:AuxiliaryFileCollection"/>
+        <Class abbreviatedIRI="prov:Collection"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:BehavioralDataAcquisition"/>
+        <Class abbreviatedIRI="nidm:Acquisition"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:Cartesian"/>
+        <Class abbreviatedIRI="nidm:k-spaceTraversalScheme"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:ClinicalAssessmentAcquisitionObject"/>
+        <Class abbreviatedIRI="nidm:AcquisitionObject"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:ClinicalDataAcquisition"/>
+        <Class abbreviatedIRI="nidm:Acquisition"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:CoInvestigator"/>
+        <Class abbreviatedIRI="prov:Role"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:CurrentClamp"/>
+        <Class abbreviatedIRI="nidm:AcquisitionMethod"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:DICOMTagCollection"/>
+        <Class abbreviatedIRI="prov:Collection"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:DemographicsAcquisitionObject"/>
+        <Class abbreviatedIRI="nidm:AcquisitionObject"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:DemographicsDataAcquisition"/>
+        <Class abbreviatedIRI="nidm:Acquisition"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:DemographicsInstrumentAdministrator"/>
+        <Class abbreviatedIRI="prov:Role"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:DiffusionTensor"/>
+        <Class abbreviatedIRI="nidm:ImageUsageType"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:DiffusionWeighted"/>
+        <Class abbreviatedIRI="nidm:ImageContrastType"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:DynamicContrastEnhanced"/>
+        <Class abbreviatedIRI="nidm:AcquisitionMethod"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:DynamicSusceptibilityContrast"/>
+        <Class abbreviatedIRI="nidm:AcquisitionMethod"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:EchoPlanar"/>
+        <Class abbreviatedIRI="nidm:k-spaceTraversalScheme"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:Electrocorticography"/>
+        <Class abbreviatedIRI="nidm:AcquisitionMethod"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:Electroencephalography"/>
+        <Class abbreviatedIRI="nidm:AcquisitionMethod"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:ElectrophysiologyRecording"/>
+        <Class abbreviatedIRI="nidm:AcquisitionModality"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:ExtracellularElectrophysiologyRecording"/>
+        <Class abbreviatedIRI="nidm:ElectrophysiologyRecording"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:FieldPotential"/>
+        <Class abbreviatedIRI="nidm:AcquisitionMethod"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:FlowWeighted"/>
+        <Class abbreviatedIRI="nidm:ImageContrastType"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:Functional"/>
+        <Class abbreviatedIRI="nidm:ImageUsageType"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:Group"/>
+        <Class abbreviatedIRI="prov:Collection"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:ImageContrastType"/>
+        <Class abbreviatedIRI="nidm:AcquisitionObjectQuality"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:ImageDataReconstruction"/>
+        <Class abbreviatedIRI="prov:Activity"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:ImageUsageType"/>
+        <Class abbreviatedIRI="nidm:AcquisitionObjectQuality"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:InformedConsentAcquisition"/>
+        <Class abbreviatedIRI="nidm:Acquisition"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:InformedConsentInstrumentAdministrator"/>
+        <Class abbreviatedIRI="prov:Role"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:Inside-outSpiral"/>
+        <Class abbreviatedIRI="nidm:k-spaceTraversalScheme"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:IntracellularElectrophysiologyRecording"/>
+        <Class abbreviatedIRI="nidm:ElectrophysiologyRecording"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:MagneticResonanceImaging"/>
+        <Class abbreviatedIRI="nidm:AcquisitionModality"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:Magnetoencephalography"/>
+        <Class abbreviatedIRI="nidm:AcquisitionModality"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:ModelDesigner"/>
+        <Class abbreviatedIRI="prov:Role"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:ModelSpecification"/>
+        <Class abbreviatedIRI="prov:Activity"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:MultiUnitReccording"/>
+        <Class abbreviatedIRI="nidm:AcquisitionMethod"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:NIDM_0000152"/>
+        <Class abbreviatedIRI="nidm:NIDM_0000155"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:NIDM_0000153"/>
+        <Class abbreviatedIRI="nidm:NIDM_0000155"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:NIDM_0000154"/>
+        <Class abbreviatedIRI="nidm:NIDM_0000155"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:NIDM_0000155"/>
+        <Class abbreviatedIRI="nidm:AcquisitionObjectQuality"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:NuclearMagneticResonanceSpectroscopicImaging"/>
+        <Class abbreviatedIRI="nidm:AcquisitionModality"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:NuclearMagneticResonanceSpectroscopy"/>
+        <Class abbreviatedIRI="nidm:AcquisitionModality"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:Outside-inSpiral"/>
+        <Class abbreviatedIRI="nidm:k-spaceTraversalScheme"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:ParallelImaging"/>
+        <Class abbreviatedIRI="nidm:AcquisitionMethod"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:PatchClamp"/>
+        <Class abbreviatedIRI="nidm:AcquisitionMethod"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:PerformedPlan"/>
+        <Class abbreviatedIRI="prov:Plan"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:PositronEmissionTomography"/>
+        <Class abbreviatedIRI="nidm:AcquisitionModality"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:PresentationSoftware"/>
+        <Class abbreviatedIRI="prov:SoftwareAgent"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:PrincipalInvestigator"/>
+        <Class abbreviatedIRI="prov:Role"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:Project"/>
+        <Class abbreviatedIRI="prov:Activity"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:Protocol"/>
+        <Class abbreviatedIRI="nidm:PerformedPlan"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:ProtonDensityWeighted"/>
+        <Class abbreviatedIRI="nidm:ImageContrastType"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:PulseSequence"/>
+        <Class abbreviatedIRI="prov:Collection"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:QuantitativeSusceptibilityMapping"/>
+        <Class abbreviatedIRI="nidm:ImageUsageType"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:RawAcquisitionObject"/>
+        <Class abbreviatedIRI="nidm:AcquisitionObject"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:ReconstructedAcquisitionObject"/>
+        <Class abbreviatedIRI="nidm:AcquisitionObject"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:Rectilinear"/>
+        <Class abbreviatedIRI="nidm:k-spaceTraversalScheme"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:ResearchAssistant"/>
+        <Class abbreviatedIRI="prov:Role"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:Series"/>
+        <Class abbreviatedIRI="prov:Activity"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:Session"/>
+        <Class abbreviatedIRI="prov:Activity"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:SessionObject"/>
+        <Class abbreviatedIRI="prov:Collection"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:SessionObject"/>
+        <ObjectSomeValuesFrom>
+            <ObjectProperty abbreviatedIRI="dct:hasPart"/>
+            <Class abbreviatedIRI="nidm:AcquisitionObject"/>
+        </ObjectSomeValuesFrom>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:SharpElectrode"/>
+        <Class abbreviatedIRI="nidm:AcquisitionMethod"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:SimultaneousMultisliceMethod"/>
+        <Class abbreviatedIRI="nidm:AcquisitionMethod"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:SingleUnitReccording"/>
+        <Class abbreviatedIRI="nidm:AcquisitionMethod"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:SpecifiedPlan"/>
+        <Class abbreviatedIRI="prov:Plan"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:StimulusPresentationFile"/>
+        <Class abbreviatedIRI="nidm:AuxiliaryFile"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:StimulusResponseFile"/>
+        <Class abbreviatedIRI="nidm:AuxiliaryFile"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:Structural"/>
+        <Class abbreviatedIRI="nidm:ImageUsageType"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:Subject"/>
+        <Class abbreviatedIRI="prov:Role"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:SusceptibilityWeighted"/>
+        <Class abbreviatedIRI="nidm:ImageContrastType"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:SusceptibilityWeightedImaging"/>
+        <Class abbreviatedIRI="nidm:ImageUsageType"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:T1Weighted"/>
+        <Class abbreviatedIRI="nidm:ImageContrastType"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:T2StarWeighted"/>
+        <Class abbreviatedIRI="nidm:ImageContrastType"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:T2Weighted"/>
+        <Class abbreviatedIRI="nidm:ImageContrastType"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:Task"/>
+        <Class abbreviatedIRI="prov:Activity"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:VoltageClamp"/>
+        <Class abbreviatedIRI="nidm:AcquisitionMethod"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:X-rayComputedTomography"/>
+        <Class abbreviatedIRI="nidm:AcquisitionModality"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:b-ValueFile"/>
+        <Class abbreviatedIRI="nidm:AuxiliaryFile"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:b-VectorFile"/>
+        <Class abbreviatedIRI="nidm:AuxiliaryFile"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="nidm:k-spaceTraversalScheme"/>
+        <Class abbreviatedIRI="nidm:AcquisitionObjectQuality"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="sio:SIO_000004"/>
+        <Class abbreviatedIRI="prov:Entity"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="sio:SIO_000015"/>
+        <Class abbreviatedIRI="prov:Entity"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="sio:SIO_000614"/>
+        <Class abbreviatedIRI="prov:Entity"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="sio:SIO_001000"/>
+        <Class abbreviatedIRI="nidm:Project"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="sio:SIO_001068"/>
+        <Class abbreviatedIRI="nidm:Group"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="sio:SIO_001069"/>
+        <Class abbreviatedIRI="nidm:Group"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="http://uri.neuinfo.org/nif/nifstd/birnlex_2094"/>
+        <Class abbreviatedIRI="sio:SIO_001236"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="qibo:Ex_vivo_subject"/>
+        <Class abbreviatedIRI="nidm:Subject"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="qibo:In_vitro_subject"/>
+        <Class abbreviatedIRI="nidm:Subject"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="qibo:In_vivo_subject"/>
+        <Class abbreviatedIRI="nidm:Subject"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="qibo:Phantom_experimental_subject"/>
+        <Class abbreviatedIRI="nidm:Subject"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="prov:Plan"/>
+        <Class abbreviatedIRI="sio:SIO_000091"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class abbreviatedIRI="prov:SoftwareAgent"/>
+        <Class abbreviatedIRI="prov:Agent"/>
+    </SubClassOf>
+    <ClassAssertion>
+        <Class abbreviatedIRI="onli:assessment-instrument"/>
+        <NamedIndividual abbreviatedIRI="obo:IAO_0000136"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class abbreviatedIRI="onli:assessment-instrument"/>
+        <NamedIndividual abbreviatedIRI="nidm:BarnesAkathisiaScale"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class abbreviatedIRI="onli:assessment-instrument"/>
+        <NamedIndividual abbreviatedIRI="nidm:CalgaryDepressionScale"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class abbreviatedIRI="onli:assessment-instrument"/>
+        <NamedIndividual abbreviatedIRI="nidm:CategoryFluencyTest"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class abbreviatedIRI="onli:assessment-instrument"/>
+        <NamedIndividual abbreviatedIRI="nidm:ClinicalGlobalImpression"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class abbreviatedIRI="onli:assessment-instrument"/>
+        <NamedIndividual abbreviatedIRI="nidm:ContinuousPerformanceTest"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class abbreviatedIRI="onli:assessment-instrument"/>
+        <NamedIndividual abbreviatedIRI="nidm:DelaySemanticVerbalLearningTest"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class abbreviatedIRI="onli:assessment-instrument"/>
+        <NamedIndividual abbreviatedIRI="nidm:DelayVisualFiguralLearningTest"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class abbreviatedIRI="onli:assessment-instrument"/>
+        <NamedIndividual abbreviatedIRI="nidm:EdinburghHandnessTest"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class abbreviatedIRI="onli:assessment-instrument"/>
+        <NamedIndividual abbreviatedIRI="nidm:FacialEmotionDiscriminationTest"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class abbreviatedIRI="onli:assessment-instrument"/>
+        <NamedIndividual abbreviatedIRI="nidm:FagerstromTestForNicotineDependence"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class abbreviatedIRI="onli:assessment-instrument"/>
+        <NamedIndividual abbreviatedIRI="nidm:FingerTappingTest"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class abbreviatedIRI="onli:assessment-instrument"/>
+        <NamedIndividual abbreviatedIRI="nidm:LetterFluencyTest"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class abbreviatedIRI="onli:assessment-instrument"/>
+        <NamedIndividual abbreviatedIRI="nidm:LetterNumberSpanTest"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class abbreviatedIRI="onli:assessment-instrument"/>
+        <NamedIndividual abbreviatedIRI="nidm:MazeSolvingTest"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class abbreviatedIRI="onli:assessment-instrument"/>
+        <NamedIndividual abbreviatedIRI="nidm:NorthAmericanAdultReadingTest"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class abbreviatedIRI="onli:assessment-instrument"/>
+        <NamedIndividual abbreviatedIRI="nidm:PositiveAndNegativeSyndromeScale"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class abbreviatedIRI="onli:assessment-instrument"/>
+        <NamedIndividual abbreviatedIRI="nidm:PremorbidAdjustment"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class abbreviatedIRI="onli:assessment-instrument"/>
+        <NamedIndividual abbreviatedIRI="nidm:SimpsonAngusRatingScale"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class abbreviatedIRI="onli:assessment-instrument"/>
+        <NamedIndividual abbreviatedIRI="nidm:SocioeconomicScale"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class abbreviatedIRI="onli:assessment-instrument"/>
+        <NamedIndividual abbreviatedIRI="nidm:SpatialMemorySpanTest"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class abbreviatedIRI="onli:assessment-instrument"/>
+        <NamedIndividual abbreviatedIRI="nidm:StroopTest"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class abbreviatedIRI="onli:assessment-instrument"/>
+        <NamedIndividual abbreviatedIRI="nidm:SymbolDigitAssociationTest"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class abbreviatedIRI="onli:assessment-instrument"/>
+        <NamedIndividual abbreviatedIRI="nidm:TrailsA"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class abbreviatedIRI="onli:assessment-instrument"/>
+        <NamedIndividual abbreviatedIRI="nidm:TrailsB"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class abbreviatedIRI="onli:assessment-instrument"/>
+        <NamedIndividual abbreviatedIRI="nidm:WisconsinCardSortingTest"/>
+    </ClassAssertion>
+    <ObjectPropertyRange>
+        <ObjectProperty abbreviatedIRI="nidm:NIDM_0000010"/>
+        <Class abbreviatedIRI="nidm:NIDM_0000155"/>
+    </ObjectPropertyRange>
+    <SubDataPropertyOf>
+        <DataProperty abbreviatedIRI="dct:description"/>
+        <DataProperty IRI="topDataProperty"/>
+    </SubDataPropertyOf>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:Acquisition</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:Acquisition</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">An acquisition is an activty in which data about a subject is gathered.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:Acquisition</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">Acquisition</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:AcquisitionDeviceOperator</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:AcquisitionDeviceOperator</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">An acquisition device operator is a role of an agent who/that controls the device that collects the acquisition object.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <AbbreviatedIRI>nidm:AcquisitionDeviceOperator</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">The use of who/that indicates that the agent performing this role can either be a person or another device.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:AcquisitionDeviceOperator</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">Acquisition Device Operator</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:AcquisitionMethod</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:AcquisitionMethod</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">An acquisition method is a specific form of a procedure that was used to gather data from a subject.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:AcquisitionMethod</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">Acquisition Method</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:AcquisitionModality</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:AcquisitionModality</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">An acquisition modality is a description of the general type of experiment that was used to gather data from a subject.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:AcquisitionModality</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">Acquisition Modality</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:AcquisitionObject</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:AcquisitionObject</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">An acquisition object is an entity that is gathered from a subject during an acquisition activity.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000117"/>
+        <AbbreviatedIRI>nidm:AcquisitionObject</AbbreviatedIRI>
+        <IRI>http://purl.org/nicholsn/card.ttl</IRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:AcquisitionObject</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Acquisition Object</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:AcquisitionObjectQuality</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:AcquisitionObjectQuality</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">An acquisition object quality is an quality that describes an essential feature of an object that is gathered from a subject during an acquisition activity.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:AcquisitionObjectQuality</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Acquisition Object Quality</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:Amperometry</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:Amperometry</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Amperometry is an extracellular acquisition method in electrophysiology in which an electrode is brought near a cell to detect the release of ions by vesicles.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:Amperometry</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">Amperometry</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:Anatomical</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:Anatomical</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Anatomical is a description of the usage of a given acquisition object, indicating that the purpose of the object is to provide information on the anatomy of the object on which the acquisition was performed.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:Anatomical</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">Anatomical</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:ArterialSpinLabeling</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:ArterialSpinLabeling</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Arterial spin labeling is a magnetic resonance imaging acquisition method that measures perfusion using the flow of saturated blood into a predefined area by comparing the image intensity obtained in the slice with and without the saturation pulse.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:ArterialSpinLabeling</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Arterial Spin Labeling</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:AssessmentInstrumentAdministrator</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:AssessmentInstrumentAdministrator</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">An assessment instrument administrator is role of an agent who/that either provides the instrument or collects the responses of the subject to the contents of the assessment instrument .</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <AbbreviatedIRI>nidm:AssessmentInstrumentAdministrator</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">The administrator could either be a computer-based system or a person, hence the use of who/that.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:AssessmentInstrumentAdministrator</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">Assessment Instrument Administrator</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:AuxiliaryFile</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:AuxiliaryFile</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">An auxiliary file is an information-bearing object that is either used to inform the execution of an experiment or that is generated during the execution of the experiment.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <AbbreviatedIRI>nidm:AuxiliaryFile</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">An example of a file that informs the execution of an experiment is a b-vector file in diffusion-weighted MR imaging.  An example of a file that is generated during the execution of the experiment is a stimulus response file in functional MR imaging)</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:AuxiliaryFile</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Auxiliary File</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:AuxiliaryFileCollection</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:AuxiliaryFileCollection</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">An auxiliary file collection is a grouping that contains the URI&apos;s of files that are necessary for the execution of the experiment or the processing of the data.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <AbbreviatedIRI>nidm:AuxiliaryFileCollection</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">An example of an auxiliary file collection is the b-value and b-vector files in diffusion-weighted MR imaging.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:AuxiliaryFileCollection</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Auxiliary File Collection</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="prov:wasAssociatedWith"/>
+        <AbbreviatedIRI>nidm:AuxiliaryFileCollection</AbbreviatedIRI>
+        <AbbreviatedIRI>nidm:AcquisitionObject</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:BarnesAkathisiaScale</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:BarnesAkathisiaScale</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">The Barnes akathisia scale is an assessment instrument used to assess the severity of drug-induced feelings of restlessness.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="dct:source"/>
+        <AbbreviatedIRI>nidm:BarnesAkathisiaScale</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">https://en.m.wikipedia.org/wiki/Barnes_Akathisia_Scale</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:BarnesAkathisiaScale</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Barnes Akathisia Scale</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:BehavioralDataAcquisition</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:BehavioralDataAcquisition</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">A behavioral data acquisition is an activity in which an acquisition object containing information on aspects of the behavior of a subject in response to a predefined task is collected.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:BehavioralDataAcquisition</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">Behavioral Data Acquisition</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:CalgaryDepressionScale</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:CalgaryDepressionScale</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">The Calgary Depression Scale is an assessment instrument consisting of a series of questions specifically developed to assess the level of depression in schizophrenia.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="dct:source"/>
+        <AbbreviatedIRI>nidm:CalgaryDepressionScale</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Adapted from http://www.ucalgary.ca/cdss/</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:CalgaryDepressionScale</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Calgary Depression Scale</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:Cartesian</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:Cartesian</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Cartesian is a k-space traversal scheme in MRI in which the path of the data acquisition follows a straight line parallel to one axis of the defined k-space and perpendicular to the other k=space axis.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:Cartesian</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Cartesian</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:CategoryFluencyTest</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:CategoryFluencyTest</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">The Category Fluency test is an assessment instrument in which subjects are asked to produce as many words belonging to three specific categories (e.g., animals, fruits and vegetables) in a given period of time and thereby provides a measure of the integrity of the subjects brain lexical system.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="dct:source"/>
+        <AbbreviatedIRI>nidm:CategoryFluencyTest</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">http://neurocomp.com/projects/cminds/FBIRNStudy/</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <AbbreviatedIRI>nidm:CategoryFluencyTest</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">This test is also know as: Category Instances, Category Naming, Semantic Fluency</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:CategoryFluencyTest</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Category Fluency Test</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:ClinicalAssessmentAcquisitionObject</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:ClinicalAssessmentAcquisitionObject</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">A clinical assessment object is an acquisition object that contains information on aspects of the medical condition of the subject.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:ClinicalAssessmentAcquisitionObject</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Clinical Assessment Acquisition Object</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:ClinicalDataAcquisition</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:ClinicalDataAcquisition</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">A clinical data acquisition is an activity in which an acquisition object containing information on aspects of the medical condition of the subject is collected.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:ClinicalDataAcquisition</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">Clinical Data Acquisition</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:ClinicalGlobalImpression</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:ClinicalGlobalImpression</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">The Clinical Global Impression scale(s) are assessment instruments that assign a rating number to the severity or improvement of the patient condition or to the efficacy of a given treatment at the time of assessment.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="dct:source"/>
+        <AbbreviatedIRI>nidm:ClinicalGlobalImpression</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">wikipedia</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <AbbreviatedIRI>nidm:ClinicalGlobalImpression</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">Which scale is this? There are three scales: Severity, Improvement, and Efficacy</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:ClinicalGlobalImpression</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Clinical Global Impression</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:CoInvestigator</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:CoInvestigator</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">A co-investigator is a role for a person that shares responsibility for the oversight and performance of an investigation activity.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:CoInvestigator</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">Co-Investigator</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:ContinuousPerformanceTest</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:ContinuousPerformanceTest</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">A Continuous Performance Test is an assessment instrument that measures sustained and selective attention by having the subject perform a task continuously for a given duration of time.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="dct:source"/>
+        <AbbreviatedIRI>nidm:ContinuousPerformanceTest</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">wikipedia</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:ContinuousPerformanceTest</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Continuous Performance Test</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:CurrentClamp</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:CurrentClamp</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">A current clamp is an intracellular electrophysiology acquisition method in which current is injected into a cell and the voltage generated by the cell is recorded.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:CurrentClamp</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">Current Clamp</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:DICOMTagCollection</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:DICOMTagCollection</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">A DICOM tag collection is a group of identifiers and their values that are stored in the headers of DICOM-formatted acquisition objects and that record the acquisition and reconstruction parameters for that acquisition object.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:DICOMTagCollection</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">DICOM Tag Collection</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="prov:wasAssociatedWith"/>
+        <AbbreviatedIRI>nidm:DICOMTagCollection</AbbreviatedIRI>
+        <AbbreviatedIRI>nidm:AcquisitionObject</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:DelaySemanticLearningTest</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:DelaySemanticLearningTest</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">The Delay Semantic Learning Test (Delay SLT) is an assessment instrument in which subjects are asked to recall as many words that have been presented to the subject previous to a delay period.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="dct:source"/>
+        <AbbreviatedIRI>nidm:DelaySemanticLearningTest</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">http://neurocomp.com/projects/cminds/FBIRNStudy/</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <AbbreviatedIRI>nidm:DelaySemanticLearningTest</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">The Delay SVFT is performed after an initial performance of the Semantic Learning Test and a delay period of specified duration.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:DelaySemanticLearningTest</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Delay Semantic Learning Test</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:DelayVisualFiguralLearningTest</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:DelayVisualFiguralLearningTest</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">The Delay Visual Figural Learning Test (Delay SVFT) is an assessment instrument in which subjects are asked to reproduce geometric figures that have been presented to the subject previous to a delay period.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="dct:source"/>
+        <AbbreviatedIRI>nidm:DelayVisualFiguralLearningTest</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">http://neurocomp.com/projects/cminds/FBIRNStudy/</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <AbbreviatedIRI>nidm:DelayVisualFiguralLearningTest</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">The Delay SVFT is performed after an initial performance of the Visual Figural Learning Test and a delay period of specified duration.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:DelayVisualFiguralLearningTest</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Delay Visual Figural Learning Test</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:DemographicsAcquisitionObject</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:DemographicsAcquisitionObject</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">A demographics acquisition object is an object that contains the demographic information acquired from a person in the investigation subject role.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:DemographicsAcquisitionObject</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Demographics Acquisition Object</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:DemographicsDataAcquisition</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:DemographicsDataAcquisition</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">A demographics data acquisition is an acquisition activity that collects information from a person in the investigation subject role that aids in grouping that subject with other subjects.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <AbbreviatedIRI>nidm:DemographicsDataAcquisition</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">Demographic information usually consists of date of birth, sex, country of residence, postal code, ethnicity, or a subset of these.  It may also include basic medical information about the subject such as major medical history.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:DemographicsDataAcquisition</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Demographics Data Acquisition</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:DemographicsInstrumentAdministrator</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:DemographicsInstrumentAdministrator</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">An demographics instrument administrator is the role of an agent who/that either provides the instrument or collects the responses of the subject to the contents of the assessment instrument .</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <AbbreviatedIRI>nidm:DemographicsInstrumentAdministrator</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">The administrator could either be a computer-based system or a person, hence the use of who/that.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:DemographicsInstrumentAdministrator</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Demographics Instrument Administrator</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:DiffusionTensor</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:DiffusionTensor</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Diffusion tensor is an image usage type that denotes that the acquisition object collected can be use to construct the diffusion tensor of the imaged tissue.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:DiffusionTensor</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Diffusion Tensor</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:DiffusionWeighted</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:DiffusionWeighted</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Diffusion weighted is an image contrast type in which differences in voxel intensity are based on the brownian-motion behavior of the species that generates the detected signal from that voxel.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:DiffusionWeighted</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Diffusion Weighted</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:DynamicContrastEnhanced</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:DynamicContrastEnhanced</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Dynamic contrast enhanced is a magnetic resonance imaging acquisition method in which T1-weighted images are acquired both before and then sequentially after a contrast agent has been injected in order to quantify metrics related to the permeability of the blood-brain barrier.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:DynamicContrastEnhanced</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Dynamic Contrast Enhanced</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:DynamicSusceptibilityContrast</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:DynamicSusceptibilityContrast</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Dynamic sysceptibility contrast is a magnetic resonance imaging acquisition method in which T2*-weighted images are acquired sequentially after a contrast agent has been injected in order to quantify metrics related to blood volume and flow.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:DynamicSusceptibilityContrast</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Dynamic Susceptibility Contrast</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:EchoPlanar</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:EchoPlanar</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Echo planar is a k-space traversal scheme  used to acquire the k-space data in magnetic resonance imaging in which the entirety of k-space is continuously traversed for each repetition of the pulse sequence.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:EchoPlanar</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Echo Planar</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:EdinburghHandednessInventory</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:EdinburghHandednessInventory</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">The Endinburgh Handedness Inventory is an assessment instrument used to determine which of a subjects hands is dominant in a range of everyday tasks.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="dct:source"/>
+        <AbbreviatedIRI>nidm:EdinburghHandednessInventory</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">http://neurocomp.com/projects/cminds/FBIRNStudy/</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:EdinburghHandednessInventory</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Edinburgh Handedness Inventory</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:Electrocorticography</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:Electrocorticography</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Electrocorticography (ECoG) is an electrophysiological acquisition method in which the electrical activity of the brain is measured using electrodes that are placed directly on the cortical surface of the brain.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:Electrocorticography</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">Electrocorticography</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:Electroencephalography</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:Electroencephalography</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Electroencephalography (EEG) is an electrophysiological acquisition method in which the electrical activity of the brain is measured using electrodes that are placed on the surface of the head.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:Electroencephalography</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">Electroencephalography</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:ElectrophysiologyRecording</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:ElectrophysiologyRecording</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Electrophysiology Recording is an acquisition modality in which electrical signals are recorded from one or more electrodes inserted into living tissue.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:ElectrophysiologyRecording</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">Electrophysiology Recording</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:ExtracellularElectrophysiologyRecording</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:ExtracellularElectrophysiologyRecording</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Extracellular Electrophysiology Recording is an acquisition modality in which one or more electrodes are inserted into living tissue and the electrical signals from adjacent cells are recorded.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:ExtracellularElectrophysiologyRecording</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">Extracellular Electrophysiology Recording</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:FacialEmotionDiscriminationTest</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:FacialEmotionDiscriminationTest</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">The Facial Emotion Discrimination Test is an assessment instrument in which subjects are shown pairs of facial images and the asked to determine whether the emotion conveyed by the faces are the same or different.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="dct:source"/>
+        <AbbreviatedIRI>nidm:FacialEmotionDiscriminationTest</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">http://neurocomp.com/projects/cminds/FBIRNStudy/</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:FacialEmotionDiscriminationTest</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">Facial Emotion Discrimination Test</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:FagerstromTestForNicotineDependence</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:FagerstromTestForNicotineDependence</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">The Fagerstrom Test for Nicotine Dependence is an assessment instrument for assessing the intensity of physical addiction to nicotine resulting in an ordinal measure.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="dct:source"/>
+        <AbbreviatedIRI>nidm:FagerstromTestForNicotineDependence</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">https://cde.drugabuse.gov/instrument/d7c0b0f5-b865-e4de-e040-bb89ad43202b accessed: 20161128</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:FagerstromTestForNicotineDependence</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">Fagerstrom Test for Nicotine Dependence</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:FieldPotential</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:FieldPotential</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">The field potential is an extracellular electrophysiology acquisition method in which an electrode is used to measure the voltage that is generated by synaptic activity (in neural tissue).</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:FieldPotential</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">Field Potential</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:FingerTappingTest</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:FingerTappingTest</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">The Finger Tapping Test is an assessment instrument in which a subject is asked to press a button as many times as possible in a set duration, the results of which can be used to assess motor efficiency and motor function.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="dct:source"/>
+        <AbbreviatedIRI>nidm:FingerTappingTest</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">http://neurocomp.com/projects/cminds/FBIRNStudy/</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:FingerTappingTest</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">Finger Tapping Test</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:FlowWeighted</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:FlowWeighted</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Flow weighted is an image contrast type in which differences in voxel intensity are based on the bulk motion behavior of the species that generates the detected signal from that voxel.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:FlowWeighted</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Flow Weighted</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:Functional</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:Functional</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Functional is a description of the usage of a given acquisition object, indicating that the purpose of the object is to provide information on the biological function of some aspect of the object on which the acquisition was performed.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:Functional</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Functional</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:Group</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:Group</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">A group is a collection of subjects or objects formed by the assignment of membership through the selection of one or more common characteristics.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:Group</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Group</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:ImageContrastType</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:ImageContrastType</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Image Contrast Type is an acquisition object quality that denotes the physical properties on which differences in image intensity, in an image, are based.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:ImageContrastType</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Image Contrast Type</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:ImageDataReconstruction</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:ImageDataReconstruction</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Image data reconstruction is an activity in which raw data is transformed into a matrix of values that represent the spatial distribution of intensity based on some image contrast type.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:ImageDataReconstruction</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">Image Data Reconstruction</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:ImageUsageType</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:ImageUsageType</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Image Usage Type is an acquisition object quality that denotes to what purpose the acquired object will be employed.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <AbbreviatedIRI>nidm:ImageUsageType</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Common image usage types in magnetic resonance imaging are anatomical and functional</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:ImageUsageType</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Image Usage Type</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:InformedConsentAcquisition</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:InformedConsentAcquisition</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Informed Consent Acquisition is an acquisition in which a subject is asked to agree to participate in the performance of one or more acquisitions and to the plan for the disposition of the resulting acquisition object(s).</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:InformedConsentAcquisition</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">Informed Consent Acquisition</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:InformedConsentInstrumentAdministrator</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:InformedConsentInstrumentAdministrator</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">An informed consent instrument administrator is the role of an agent who/that either provides the instrument or collects the responses of the subject to the contents of the informed consent instrument.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <AbbreviatedIRI>nidm:InformedConsentInstrumentAdministrator</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">The administrator could either be a computer-based system or a person, hence the use of who/that.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:InformedConsentInstrumentAdministrator</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">Informed Consent Instrument Administrator</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:Inside-outSpiral</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:Inside-outSpiral</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string"> Inside-out spiral is a k-space traversal scheme in which the path along which magnetic resonance imaging k-space data is acquired is in the shape of a spiral and the data at the center of k-space is acquired first.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:Inside-outSpiral</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Inside-out Spiral</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:IntracellularElectrophysiologyRecording</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:IntracellularElectrophysiologyRecording</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Intracellular Electrophysiology Recording is an activity in which electrical measurements of the interior cell environment are made.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:IntracellularElectrophysiologyRecording</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">Intracellular Electrophysiology Recording</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:LetterFluencyTest</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:LetterFluencyTest</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">The Letter Fluency test is used to evaluate the spontaneous production of words beginning with a given letter within a limited amount of time (60 seconds).</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="dct:source"/>
+        <AbbreviatedIRI>nidm:LetterFluencyTest</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">http://neurocomp.com/projects/cminds/FBIRNStudy/</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:LetterFluencyTest</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Letter Fluency Test</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:LetterNumberSpanTest</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:LetterNumberSpanTest</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">In this test of auditory working memory, sequences of mixed letters and numbers are verbally presented and the subject is required to reorganize them into a progressive or ascending order and then report the reordered sequence to the examiner.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="dct:source"/>
+        <AbbreviatedIRI>nidm:LetterNumberSpanTest</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">http://neurocomp.com/projects/cminds/FBIRNStudy/</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:LetterNumberSpanTest</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">Letter Number Span Test</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:MagneticResonanceImaging</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:MagneticResonanceImaging</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Magnetic Resonance Imaging is an acquisition modality in which radiofrequency electromagnetic radiation is used to excite nuclei of the sample or subject and the characteristics of the detected signal are used to generate intensity contrast between different spatial locations.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:MagneticResonanceImaging</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">Magnetic Resonance Imaging</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:Magnetoencephalography</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:Magnetoencephalography</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Magnetoencephalography is an acquisition modality in which the magnetic fields, resulting from electrical activity in the brain, are detected and used to elucidate the time course of brain electrical activity.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:Magnetoencephalography</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">Magnetoencephalography</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:MazeSolvingTest</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:MazeSolvingTest</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Using a pen, in the Maze Solving test, subjects attempt to find their way out of a maze by tracing a path while trying to avoid making mistakes, such as tracing to a dead end.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="dct:source"/>
+        <AbbreviatedIRI>nidm:MazeSolvingTest</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">http://neurocomp.com/projects/cminds/FBIRNStudy/</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:MazeSolvingTest</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">Maze Solving Test</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:ModelDesigner</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:ModelDesigner</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">A model designer is a role for an agent who creates the model that describes an experiment</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:ModelDesigner</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">Model Designer</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:ModelSpecification</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:ModelSpecification</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">Model specification is an activity in which the model designer creates the model that describes an experiment</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:ModelSpecification</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">Model Specification</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:MultiUnitReccording</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:MultiUnitReccording</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">Multiunit recording is an extracellular electrophysiological acquisition method in which an acquisition object is gathered using multiple recording devices.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:MultiUnitReccording</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">Multi-unit Recording</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:NIDM_0000010</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000122</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:NIDM_0000010</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">A property that associates an fMRI design with a design matrix in first-level fMRI analyses.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000116"/>
+        <AbbreviatedIRI>nidm:NIDM_0000010</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Discussed at https://github.com/incf-nidash/nidm/issues/299</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:NIDM_0000010</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">had fMRI Design</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:NIDM_0000152</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:NIDM_0000152</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">A block-based design is a fMRI design comprised of epochs of stimulus and/or behavior.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000116"/>
+        <AbbreviatedIRI>nidm:NIDM_0000152</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Discussed at https://github.com/incf-nidash/nidm/issues/299</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:NIDM_0000152</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Block-Based Design</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:NIDM_0000153</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:NIDM_0000153</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">An event-related design is a fMRI design comprised of discrete events of stimulus and/or behavior.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000116"/>
+        <AbbreviatedIRI>nidm:NIDM_0000153</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Discussed at https://github.com/incf-nidash/nidm/issues/299</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:NIDM_0000153</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Event-Related Design</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:NIDM_0000154</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:NIDM_0000154</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">A mixed design is a fMRI design comprised of both epochs &amp; discrete events of stimulus and/or behavior.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000116"/>
+        <AbbreviatedIRI>nidm:NIDM_0000154</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Discussed at https://github.com/incf-nidash/nidm/issues/299</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:NIDM_0000154</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Mixed Design</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:NIDM_0000155</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:NIDM_0000155</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">The type of stimulus presentation used in the data acquisition, one of block-based design, event-related design or mixed design.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000116"/>
+        <AbbreviatedIRI>nidm:NIDM_0000155</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Discussed at https://github.com/incf-nidash/nidm/issues/299</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:NIDM_0000155</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">fMRI Design Type</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:NorthAmericanAdultReadingTest</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:NorthAmericanAdultReadingTest</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">A method of estimating verbal IQ in patients based upon their ability to read and correctly pronounce irregular words that do not necessarily follow common or intuitive rules of phonography and orthography.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="dct:source"/>
+        <AbbreviatedIRI>nidm:NorthAmericanAdultReadingTest</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">http://neurocomp.com/projects/cminds/FBIRNStudy/</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:NorthAmericanAdultReadingTest</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">North American Reading Test</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:NuclearMagneticResonanceSpectroscopicImaging</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:NuclearMagneticResonanceSpectroscopicImaging</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Nuclear magnetic resonance spectroscopic imaging is an acquisition modality in which radiofrequency electromagnetic radiation is used to excite nuclei of the sample or subject, the characteristics of the detected signal are used to generate intensity contrast over a restricted (usually grid-like) area, and the resulting signal is displayed as a spectrum for each one of the spatially-resolved areas.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:NuclearMagneticResonanceSpectroscopicImaging</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">Nuclear Magnetic Resonance Spectroscopic Imaging</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:NuclearMagneticResonanceSpectroscopy</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:NuclearMagneticResonanceSpectroscopy</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Nuclear magnetic resonance spectroscopy is an acquisition modality in which radiofrequency electromagnetic radiation is used to excite nuclei of the sample or subject, the characteristics of the detected signal are used to generate signal intensity contrast over an entire selected volume, and the resulting signal is displayed as a signal spectrum rather than as matrix meant to be a representation of the underlying object.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <AbbreviatedIRI>nidm:NuclearMagneticResonanceSpectroscopy</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">The volume of interest may be selected either by the natural extent of the excited volume (e.g., surface coils) or by selecting for excitation, a thick slab through the use of magnetic field gradients.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:NuclearMagneticResonanceSpectroscopy</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">Nuclear Magnetic Resonance Spectroscopy</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:Outside-inSpiral</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:Outside-inSpiral</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Outside-inSpiral is a k-space traversal scheme in which the path, along which magnetic resonance imaging k-space data is acquired, is spiral and the data further away from the center of k-space is acquired first.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:Outside-inSpiral</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Outside-in Spiral</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:ParallelImaging</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:ParallelImaging</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Parallel imaging is an acquisition method used in magnetic resonance imaging to acquire the k-space data in which multiple coils are employed and the signals from each coil are disambiguated using the coil sensitivity profile.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:ParallelImaging</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Parallel Imaging</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:PatchClamp</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:PatchClamp</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Patch clamp is an intracellular electrophysiological acquisiiton method in which a micropipette tip is brought near a cell and scution applied drawing a section of cell membrane into the tip in order that ion movement or the intracellular environment can be studied.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:PatchClamp</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">Patch Clamp</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:PerformedPlan</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:PerformedPlan</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">A performed plan is a plan that is actually implemented during an acquisition activity.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:PerformedPlan</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Performed Plan</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:PositiveAndNegativeSyndromeScale</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:PositiveAndNegativeSyndromeScale</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">The Positive and Negative Syndrome Scale is an assessment instrument used for typological and dimensional assessment.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="dct:source"/>
+        <AbbreviatedIRI>nidm:PositiveAndNegativeSyndromeScale</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">http://schizophreniabulletin.oxfordjournals.org/content/13/2/261.full.pdf+html</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:PositiveAndNegativeSyndromeScale</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Positive and Negative Syndrome Scale</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:PositronEmissionTomography</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:PositronEmissionTomography</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Positron emission tomography is an acquisition modality in which a positron-emitting radioactive tracer is introduced into the subject and the gamma rays emitted after a positron-electron collision are detected and their originating position calculated.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:PositronEmissionTomography</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">Positron Emission Tomography</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:PremorbidAdjustment</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:PremorbidAdjustment</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">The Premorbid Adjustment Scale (PAS) is an assessment instrument that evaluates the degree of achievement of developmental goals at each of several periods of a subject&apos;s life before the onset of schizophrenia.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="dct:source"/>
+        <AbbreviatedIRI>nidm:PremorbidAdjustment</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">http://schizophreniabulletin.oxfordjournals.org/content/8/3/470.abstract</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:PremorbidAdjustment</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">Premorbid Adjustment Scale</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:PresentationSoftware</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:PresentationSoftware</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Presentation software is a software agent that provides the stimulus to the subject during a functional imaging (MRI, MEG, EEG) or behavioral data acquisition activity.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:PresentationSoftware</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Presentation Software</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:PrincipalInvestigator</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:PrincipalInvestigator</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">A principal investigator is a role for a person who leads an activity during which data is acquired with a specific scientific purpose.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:PrincipalInvestigator</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Principal Investigator</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:Project</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:Project</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">A project is a coordinated set of activities designed to generate data acquisition objects, with the ultimate goal of discovery or hypothesis testing.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:Project</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Project</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:Protocol</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:Protocol</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">An protocol is a performed plan that contains information necessary to acquire the desired data during a session and the acquisition device parameters that are to be used in that acquisition.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:Protocol</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Protocol</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:ProtonDensityWeighted</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:ProtonDensityWeighted</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Proton density weighted is a image contrast type in magnetic resonance imaging in which differences in voxel intensity reflect underlying differences in the number of protons in those voxels.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:ProtonDensityWeighted</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">Proton Density Weighted</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:PulseSequence</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:PulseSequence</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">A pulse sequence is a collection of commands sent to the magnetic resonance imaging or nuclear magnetic resonance hardware to control the excitation of the subject or sample and the acquisition of data.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:PulseSequence</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Pulse Sequence</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:QuantitativeSusceptibilityMapping</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:QuantitativeSusceptibilityMapping</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Quantitative susceptibility mapping is a magentic resonance imaging image-usage type in which differences in voxel intensity reflect quantitative differences magnetic susceptibilty of the underlying sample.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:QuantitativeSusceptibilityMapping</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Quantitative Susceptibility Mapping</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:RawAcquisitionObject</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:RawAcquisitionObject</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">A raw acquisition object is an acquisition object that has not yet undergone any further processing steps such asthe image reconstruction process.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:RawAcquisitionObject</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Raw Acquisition Object</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:ReconstructedAcquisitionObject</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:ReconstructedAcquisitionObject</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">A reconstructed acquisition object is an acquisition object that has undergone an image reconstruction activity resulting in a matrix of values that when viewed form an image.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:ReconstructedAcquisitionObject</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Reconstructed Acquisition Object</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:Rectilinear</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:Rectilinear</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Rectilinear is a k-space traversal scheme in magnetic resonance imaging in which the path in k-space over which the data is acquired is linear and aligned perpendicular to either the phase-encoding or frequency-encoding direction.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:Rectilinear</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Rectilinear</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty IRI="synonym"/>
+        <AbbreviatedIRI>nidm:Rectilinear</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Cartesian</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:ResearchAssistant</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">A research assistant is a role for a person who participates in laboratory- and study-related activities, but who is not leading the project in any fashion.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:ResearchAssistant</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:ResearchAssistant</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Research Assistant</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:Series</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:Series</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">A series is an activity in which data is acquired such that one acquisition takes place during the same temporal epoch.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="provone:isPartOf"/>
+        <AbbreviatedIRI>nidm:Series</AbbreviatedIRI>
+        <AbbreviatedIRI>nidm:Session</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:Series</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Series</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:Session</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:Session</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">An activity during which data is acquired from a subject by an experimenter during a single unbroken time period.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="provone:isPartOf"/>
+        <AbbreviatedIRI>nidm:Session</AbbreviatedIRI>
+        <AbbreviatedIRI>nidm:Project</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:Session</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Series</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:SessionObject</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:SessionObject</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">A session object is an entity that represents one or more acquisitions that take place during the same temporal epoch (session).</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:SessionObject</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Session Object</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:SharpElectrode</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:SharpElectrode</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Sharp electrode is intracellular electrophysiological acquisition method used for measuring the potential of the intracellular environment with minimal disturbance of that environment, in which a pipette, filled with electrolyte and with a very small opening, is inserted into the cell and the potential measured.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:SharpElectrode</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">Sharp Electrode</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:SimpsonAngusRatingScale</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:SimpsonAngusRatingScale</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">The Simpson Angus Rating Scale is an assessment instrument used to evaluate the presence and severity of parkinsonian symptomatology and focuses on rigidity rather than bradykinesia.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="dct:source"/>
+        <AbbreviatedIRI>nidm:SimpsonAngusRatingScale</AbbreviatedIRI>
+        <AbbreviatedIRI>nlx:birnlex_3047</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:SimpsonAngusRatingScale</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">Simpson Angus Rating Scale</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:SimultaneousMultisliceMethod</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000125</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:SimultaneousMultisliceMethod</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Simultaneous multislice is an acquisition method in magnetic resonance imaging used to acquire the k-space in which data from multiple slices are acquired at the same time and the coil sensitivity profiles are used to separate the data from each slice.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:SimultaneousMultisliceMethod</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Simultaneous Multislice Method</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:SingleUnitReccording</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000125</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:SingleUnitReccording</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Single-unit recording is an extracellular electrophysiological acquisition method, in which a thin electrode is introduced into the extracellular space of a sample or subject and the action potential from a single neuron is recorded.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:SingleUnitReccording</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">Single-unit Recording</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:SocioeconomicStatus</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:SocioeconomicStatus</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">The socioeconomic status is an assessment instrument used to create a single measure of a person or household using income, education, and occupation.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="dct:source"/>
+        <AbbreviatedIRI>nidm:SocioeconomicStatus</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">wikipedia</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:SocioeconomicStatus</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">SocioeconomicStatus</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:SpatialMemorySpan</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:SpatialMemorySpan</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">The Spatial Memory Span is an assessment instrument that assesses the capacity of an individual for holding a visual-spatial sequence in working memory.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="dct:source"/>
+        <AbbreviatedIRI>nidm:SpatialMemorySpan</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">fBIRN CMINDS document - not in the online version through</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <AbbreviatedIRI>nidm:SpatialMemorySpan</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">The test requires the subject to tap a sequence of boxes in the same order that they were tapped by the examiner. The sequences increase in length until the subject fails according to a given criteria.  The test is then repeated with the subject touching the boxes in the reverse order that they were touched by the examiner. Again, the sequences increase in length until the subject fails.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:SpatialMemorySpan</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">Spatial Memory Span</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:SpecifiedPlan</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:SpecifiedPlan</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">A specified plan is a plan that describes how the acquisition activity is to be carried out.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <AbbreviatedIRI>nidm:SpecifiedPlan</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">Note that this is related to nidm:PerformedPlan, which is the plan that is actually carried out.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:SpecifiedPlan</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Specified Plan</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:StimulusPresentationFile</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:StimulusPresentationFile</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">A stimulus presentation file is an auxiliary files that contains the presentation timing and/or location of the experimental stimulus (e.g., words, pictures) that are shown to the subject in a task-based assessment activity.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:StimulusPresentationFile</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Stimulus Presentation File</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:StimulusResponseFile</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:StimulusResponseFile</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">A stimulus response file is an auxiliary file that contains the recorded response of the subject to an experimental stimulus the course of a task-based assessment activity.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:StimulusResponseFile</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Stimulus Response File</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:StroopTest</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:StroopTest</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">This test measures the ease with which a person can shift his or her perceptual set to conform to changing demands and suppress a habitual response in favor of an unusual one. The subject is assessed on his or her ability to read color names compared to the ability to read the color of ink that is not congruent with the color name of the printed words.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="dct:source"/>
+        <AbbreviatedIRI>nidm:StroopTest</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">http://neurocomp.com/projects/cminds/FBIRNStudy/</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:StroopTest</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">Stroop Test</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:Structural</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:Structural</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">A stimulus response file is an auxiliary file that contains the recorded response of the subject to an experimental stimulus the course of a task-based assessment activity.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:Structural</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Stimulus Response File</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:Subject</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:Subject</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">A subject is a role for an agent (either living or non-living) which is characterized by being the object of study in an acquisition sctivity.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:Subject</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Subject</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:SusceptibilityWeighted</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:SusceptibilityWeighted</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Susceptibility weighted is a magentic resonance imaging image-contrast type in which differences in voxel intensity reflect differences in magnetic susceptibilty of the underlying sample.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:SusceptibilityWeighted</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Susceptibility Weighted</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:SusceptibilityWeightedImaging</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:SusceptibilityWeightedImaging</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Susceptibility weighted imaging is a magentic resonance imaging image-usage type in which differences in voxel intensity reflect differences in magnetic susceptibilty of the underlying sample, but are not caculated values.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:SusceptibilityWeightedImaging</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Susceptibility Weighted Imaging</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:SymbolDigitAssociationTest</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:SymbolDigitAssociationTest</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">The Symbol Digit Association Test is an assessment instrument in which the subject is asked to match a presented number with the associated symbol from rows of symbols and digits using a table that displays a pairing of each symbol with a corresponding number.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="dct:source"/>
+        <AbbreviatedIRI>nidm:SymbolDigitAssociationTest</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">http://neurocomp.com/projects/cminds/FBIRNStudy/</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:SymbolDigitAssociationTest</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">Symbol Digit Association Test</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:T1Weighted</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:T1Weighted</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">T1 weighted is an image contrast type in which differences in voxel intensity reflect differences in the spin-lattice relaxation time of the probe in the underlying sample.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:T1Weighted</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">T1 Weighted</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:T2StarWeighted</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:T2StarWeighted</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">T2-star weighted is an image contrast type in which differences in voxel intensity reflect differences in the spin-spin relaxation time  of the probe as well as the field inhomogeneities in the underlying sample.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:T2StarWeighted</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">T2-Star Weighted</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:T2Weighted</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:T2Weighted</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">T2 weighted is an image contrast type in which differences in voxel intensity reflect differences in the spin-spin relaxation time  of the probe in the underlying sample.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:T2Weighted</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">T2 Weighted</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:Task</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:Task</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">A task is an activity that is performed by a subject to elucidate some aspect of human behavior or underlying process.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:Task</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Task</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:TrailsA</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:TrailsA</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Trails A is an assessement instrument in which the subject is asked to draw lines connecting consecutively numbered circles.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="dct:source"/>
+        <AbbreviatedIRI>nidm:TrailsA</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">http://neurocomp.com/projects/cminds/FBIRNStudy/</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:TrailsA</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">Trails A</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:TrailsB</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:TrailsB</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Trails B is an assessement instrument in which the subject is asked to draw lines connecting circles with consecutively numbered and lettered circles.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="dct:source"/>
+        <AbbreviatedIRI>nidm:TrailsB</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">http://neurocomp.com/projects/cminds/FBIRNStudy/</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:TrailsB</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">Trails B</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:VoltageClamp</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:VoltageClamp</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Voltage clamp is an intracellular electrophysiological acquisition method in in which the cell membrane potential is fixed to a set value and the ionic current that crosses the cell membrane at that potential is measured.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:VoltageClamp</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">Voltage Clamp</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:WisconsinCardSortingTest</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:WisconsinCardSortingTest</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">The Wisconsin Card Sorting Test is an assessment instrument in which a subject is asked to place cards under one of the four stimulus cards that he or she believes would be a correct strategy, while receiving feedback from the test administrator as to whether the last card was placed correctly or not (though the changes the sorting strategy throughout the test).</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="dct:source"/>
+        <AbbreviatedIRI>nidm:WisconsinCardSortingTest</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">http://neurocomp.com/projects/cminds/FBIRNStudy/</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:WisconsinCardSortingTest</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">Wisconsin Card Sorting Test</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:X-rayComputedTomography</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:X-rayComputedTomography</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">X-ray Computed tomography is an acquisition modality in which an x-ray beam is scanned across a subject and the resulting data is reconstructed into two-dimensional slices or a three-dimensional volume in which the contrast is generated by the differential absorption of x-rays.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:X-rayComputedTomography</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">X-ray Computed Tomography</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty IRI="synonym"/>
+        <AbbreviatedIRI>nidm:X-rayComputedTomography</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral">Computerized Axial Tomography</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:b-ValueFile</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:b-ValueFile</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">A b-value file is an auxiliary file, used in a diffusion-weighted magnetic resonance imaging acquisition activity, that contains the b-values used to control the diffusion-sensitization weighting.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:b-ValueFile</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">b-value File</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:b-VectorFile</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:b-VectorFile</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">A b-vector file is an auxiliary file, used in a diffusion-weighted magnetic resonance imaging acquisition activity, that contains the direction vectors used to control the direction of the diffusion-sensitization weighting.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:b-VectorFile</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">b-vector File</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:hadImageContrastType</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">A property that associates an ImageContrastType with a AcquisitionObject.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000116"/>
+        <AbbreviatedIRI>nidm:hadImageContrastType</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">To be discussed</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:hadImageContrastType</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">had Image Contrast Type</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:hadImageUsageType</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">A property that associates an ImageUsageType with a AcquisitionObject.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000116"/>
+        <AbbreviatedIRI>nidm:hadImageUsageType</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">To be discussed</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:hadImageUsageType</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">had Image Usage Type</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000114"/>
+        <AbbreviatedIRI>nidm:k-spaceTraversalScheme</AbbreviatedIRI>
+        <AbbreviatedIRI>obo:IAO_0000428</AbbreviatedIRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="obo:IAO_0000115"/>
+        <AbbreviatedIRI>nidm:k-spaceTraversalScheme</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">The k-space traversal scheme is an acquisition object quality that describes, in a magnetic resonance imaging acquisition, the path in k-space along which the signal is acquired.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>nidm:k-spaceTraversalScheme</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">k-space Traversal Scheme</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:isDefinedBy"/>
+        <AbbreviatedIRI>rdfs:comment</AbbreviatedIRI>
+        <IRI>http://www.w3.org/ns/prov-o#</IRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <AbbreviatedIRI>rdfs:label</AbbreviatedIRI>
+        <Literal xml:lang="en" datatypeIRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral"></Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:isDefinedBy"/>
+        <AbbreviatedIRI>rdfs:label</AbbreviatedIRI>
+        <IRI>http://www.w3.org/ns/prov-o#</IRI>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <AbbreviatedIRI>prov:Entity</AbbreviatedIRI>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#string">Entity</Literal>
+    </AnnotationAssertion>
+</Ontology>
+
+
+
+<!-- Generated by the OWL API (version 4.2.8.20170104-2310) https://github.com/owlcs/owlapi -->
+

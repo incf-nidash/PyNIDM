@@ -1,24 +1,29 @@
 import os,sys
 import uuid
-#import validators
+
 from rdflib import Namespace
 from rdflib.namespace import XSD
 import types 
 import graphviz
+from rdflib import Graph, RDF, URIRef, util
+from rdflib.namespace import split_uri
+import validators
 
 #sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from ..core import Constants
 import prov.model as pm
 from prov.dot import prov_to_dot
+from io import StringIO
 
-def getUUID ():
-    return str(uuid.uuid1())
+
+def getUUID():
+    return "_"+str(uuid.uuid1())
 
 class Core(object):
     """Base-class for NIDM-Experimenent
 
     Typically this class is not instantiated directly.  Instantiate one of the child classes such as
-    NIDMExperimentInvestigation, NIDMExperimentImaging, NIDMExperimentAssessments, etec.
+    Project, Session, Acquisition, etec.
 
     @author: David Keator <dbkeator@uci.edu>
     @copyright: University of California, Irvine 2017
@@ -29,8 +34,8 @@ class Core(object):
         """
         Default constructor, loads empty graph and namespaces from NIDM/Scripts/Constants.py
         """
-        #make a local copy p_graph PROV document with namespaces already bound
-        self.graph = Constants.p_graph
+        #a new instance of NIDMDocument PROV document with namespaces already bound
+        self.graph = Constants.NIDMDocument()
         #make a local copy of the namespaces
         self.namespaces = Constants.namespaces
 
@@ -118,28 +123,54 @@ class Core(object):
         else:
             print("datatype not found...")
             return None
-    def add_person(self,role=None,attributes=None):
+    def add_person(self,uuid=None,attributes=None):
+        """
+        Simply adds prov:agent to graph and returns object
+        :param role:
+        :param attributes:
+        :return:
+        """
 
-        #add Person agent
-        person = self.graph.agent(Constants.namespaces["nidm"][getUUID()],other_attributes=attributes)
-
-        #create an activity for qualified association with person
-        activity = self.graph.activity(Constants.namespaces["nidm"][getUUID()])
+        if (uuid != None):
+            #add Person agent with existing uuid
+            person = self.graph.agent(Constants.namespaces["nidm"][uuid],other_attributes=attributes)
+        else:
+            #add Person agent
+            person = self.graph.agent(Constants.namespaces["nidm"][getUUID()],other_attributes=attributes)
 
         #add minimal attributes to person
         person.add_attributes({pm.PROV_TYPE: pm.PROV['Person']})
 
-        #associate person with activity for qualified association
-        assoc = self.graph.association(agent=person, activity=activity)
-        #add role for qualified association
-        assoc.add_attributes({pm.PROV_ROLE:role})
-        #connect project to person serving as role
+        #connect self to person serving as role
+        #if(isinstance(self,pm.ProvActivity)):
+        #    self.wasAssociatedWith(person)
+        #elif(isinstance(self,pm.ProvEntity)):
+        #    self.wasAttributedTo(person)
+
+        return person
+
+    def add_qualified_association(self,person,role,plan=None, attributes=None):
+        """
+        Adds a qualified association to self object
+        :param person: prov:agent to associated
+        :param role: prov:hadRole to associate
+        :param plan: optional prov:hadPlan to associate
+        :param attributes: optional attributes to add to qualified association
+        :return: association
+        """
+        #connect self to person serving as role
         if(isinstance(self,pm.ProvActivity)):
+
+            #associate person with activity for qualified association
+            assoc = self.graph.association(agent=person, activity=self, other_attributes={pm.PROV_ROLE:role})
+
+            #add wasAssociatedWith association
             self.wasAssociatedWith(person)
-        elif(isinstance(self,pm.ProvEntity)):
-            self.wasAttributedTo(person)
 
+            #add role for qualified association
+            #assoc.add_attributes({pm.PROV_ROLE:role})
 
+        return assoc
 
     def addLiteralAttribute(self, namespace_prefix, term, object, namespace_uri=None):
         """
@@ -232,6 +263,38 @@ class Core(object):
             else:
                 id.add_attributes({key:pm.Literal(attributes[key])})
 
+    def get_metadata_dict(self,NIDM_TYPE):
+        """
+        This function converts metadata to a dictionary using uris as keys
+        :param NIDM_TYPE: a prov qualified name type (e.g. Constants.NIDM_PROJECT, Constants.NIDM_SESSION, etc.)
+        :return: dictionary object containing metadata
+
+        """
+        #create empty project_metadata json object
+        metadata = {}
+
+        #use RDFLib here for temporary graph making query easier
+        rdf_graph = Graph()
+
+        rdf_graph_parse = rdf_graph.parse(source=StringIO(self.serializeTurtle()),format='turtle')
+
+        #get subject uri for object
+
+
+        uri=None
+        for s in rdf_graph_parse.subjects(predicate=RDF.type,object=URIRef(NIDM_TYPE.uri)):
+            uri=s
+
+        if uri is None:
+            print("Error finding %s in NIDM-Exp Graph" %NIDM_TYPE)
+            return metadata
+
+        #Cycle through metadata and add to json
+        for predicate, objects in rdf_graph.predicate_objects(subject=uri):
+            metadata[str(predicate)] = str(objects)
+
+        return metadata
+
     def serializeTurtle(self):
         """
         Serializes graph to Turtle format
@@ -243,7 +306,31 @@ class Core(object):
         Serializes graph to JSON-LD format
         :return: text of serialized graph in JSON-LD format
         """
-        return self.graph.serialize(format='json-ld', indent=4)
+        #workaround to get JSONLD from RDFLib...
+        rdf_graph = Graph()
+        #rdf_graph_parse = rdf_graph.parse(source=StringIO(self.serializeTurtle()),format='turtle')
+        rdf_graph_parse = rdf_graph.parse(source=StringIO(self.graph.serialize(None, format='rdf', rdf_format='ttl')),format='turtle')
+        context = {
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "prov": "http://www.w3.org/ns/prov#",
+        "nidm": "http://purl.org/nidash/nidm#",
+        "foaf": "http://xmlns.com/foaf/0.1/",
+
+        "agent": { "@type": "@id", "@id": "prov:agent" },
+        "entity": { "@type": "@id", "@id": "prov:entity" },
+        "activity": { "@type": "@id", "@id": "prov:activity" },
+        "hadPlan": { "@type": "@id", "@id": "prov:hadPlan" },
+        "hadRole": { "@type": "@id", "@id": "prov:hadRole" },
+        "wasAttributedTo": { "@type": "@id", "@id": "prov:wasAttributedTo" },
+        "association": { "@type": "@id", "@id": "prov:qualifiedAssociation" },
+        "usage": { "@type": "@id", "@id": "prov:qualifiedUsage" },
+        "generation": { "@type": "@id", "@id": "prov:qualifiedGeneration" },
+
+        "startedAtTime": { "@type": "xsd:dateTime", "@id": "prov:startedAtTime" },
+        "endedAtTime": { "@type": "xsd:dateTime", "@id": "prov:endedAtTime" }
+        }
+        return rdf_graph_parse.serialize(format='json-ld', context=context, indent=4).decode('ASCII')
+
     def save_DotGraph(self,filename,format=None):
         dot = prov_to_dot(self.graph)
         #add some logic to find nodes with dct:hasPart relation and add those edges to graph...prov_to_dot ignores these

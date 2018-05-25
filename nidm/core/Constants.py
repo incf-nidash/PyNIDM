@@ -9,7 +9,6 @@
 @author: Sanu Ann Abraham <sanuann@mit.edu>
 	05/04/2018 Added python ProvONE support
 '''
-
 import six
 from rdflib import Namespace, Graph
 from prov.model import ProvDocument, QualifiedName
@@ -37,7 +36,7 @@ XSD = Namespace('http://www.w3.org/2001/XMLSchema#')
 
 OBO_URL = "http://purl.obolibrary.org/obo/"
 OBO = Namespace(OBO_URL)
-# Added by DBK for NIDM-Experiment 1/13/17
+#Added by DBK for NIDM-Experiment 1/13/17
 NFO = Namespace('http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#')
 SCR = Namespace("http://scicrunch.org/resolver/")
 NLX = Namespace("http://uri.neuinfo.org/nif/nifstd/")
@@ -51,46 +50,50 @@ DCAT = Namespace("http://www.w3.org/ns/dcat#")
 BIRNLEX = Namespace("http://bioontology.org/projects/ontologies/birnlex/")
 NDAR = Namespace("https://ndar.nih.gov/api/datadictionary/v2/dataelement/")
 NCICB = Namespace("http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#")
-SIO = Namespace("http://semanticscience.org/resource/")
+SIO = Namespace("http://semanticscience.org/ontology/sio.owl#")
 BIDS = Namespace("http://bids.neuroimaging.io/")
+OWL = Namespace("http://www.w3.org/2002/07/owl#")
 
 namespaces = {
-	"prov": PROV,
-	"nidm": NIDM,
-	"niiri": NIIRI,
-	"afni": AFNI,
-	"spm": SPM,
-	"fsl": FSL,
-	"rdfs": RDFS,
-	"crypto": CRYPTO,
-	"dct": DCT,
-	"obo": OBO,
-	"nfo": NFO,
-	"dc": DC,
-	"nlx": NLX,
-	"scr": SCR,
-	"foaf": FOAF,
-	"vc": VC,
-	"dicom": DICOM,
-	"dctypes": DCTYPES,
-	"ncit": NCIT,
-	"dcat": DCAT,
-	"birnlex": BIRNLEX,
-	"ndar": NDAR,
-	"ncicb": NCICB,
-	"sio": SIO,
-	"bids": BIDS
-}
+   # "prov": PROV,
+    "nidm": NIDM,
+    "niiri": NIIRI,
+    "afni": AFNI,
+    "spm": SPM,
+    "fsl": FSL,
+    "rdfs": RDFS,
+    "crypto": CRYPTO,
+    "dct": DCT,
+    "obo": OBO,
+    "nfo": NFO,
+    "dc": DC,
+    "nlx": NLX,
+    "scr": SCR,
+    "foaf": FOAF,
+    "vc": VC,
+    "dicom": DICOM,
+    "dctypes": DCTYPES,
+    "ncit": NCIT,
+    "dcat": DCAT,
+    "birnlex" : BIRNLEX,
+    "ndar" : NDAR,
+    "ncicb" : NCICB,
+    "sio" : SIO,
+    "bids" : BIDS,
+    "owl" : OWL
+    }
 
 # Empty graph used to compute qnames
 q_graph = Graph()
 for name, namespace in namespaces.items():
-	q_graph.bind(name, namespace)
+    q_graph.bind(name, namespace)
 
 # DBK Added - Empty graph using provtoolbox used to compute qnames
-p_graph = ProvDocument()
-for name, namespace in namespaces.items():
-	p_graph.add_namespace(name, namespace)
+# dj: chnaged to a new class
+class NIDMDocument(ProvDocument):
+    def __init__(self, namespaces):
+        super(NIDMDocument, self).__init__(namespaces=namespaces)
+
 
 # NIDM constants
 FSL_GAMMAHRF = FSL['FSL_0000007']
@@ -283,45 +286,57 @@ NIDM_CONTRAST_ESTIMATION = NIDM['NIDM_0000001']
 NIDM_CONTRAST_MAP = NIDM['NIDM_0000002']
 # NIDM-Experiment##############################################################
 NIDM_PROJECT = QualifiedName(provNamespace("nidm", NIDM), 'Project')
-NIDM_PROJECT_TYPE = QualifiedName(provNamespace("dctypes", DCTYPES), "Dataset")
-NIDM_PROJECT_IDENTIFIER = QualifiedName(provNamespace("sio", SIO), "Identifier")
-NIDM_PROJECT_NAME = QualifiedName(provNamespace("dctypes", DCTYPES), "title")
-NIDM_PROJECT_DESCRIPTION = QualifiedName(provNamespace("dct", DCT), "description")
-NIDM_PROJECT_LICENSE = QualifiedName(provNamespace("dct", DCT), "license")
-NIDM_PROJECT_URL = QualifiedName(provNamespace("sio", SIO), "URL")
-NIDM_PROJECT_REFERENCES = QualifiedName(provNamespace("dcat", DCAT), "creator")
+#NIDM_PROJECT_TYPE = QualifiedName(provNamespace("dctypes", DCTYPES),"Dataset")
+NIDM_PROJECT_IDENTIFIER = QualifiedName(provNamespace("sio", SIO),"Identifier")
+NIDM_PROJECT_NAME = QualifiedName(provNamespace("dctypes", DCTYPES),"title")
+NIDM_PROJECT_DESCRIPTION = QualifiedName(provNamespace("dct", DCT),"description")
+NIDM_PROJECT_LICENSE = QualifiedName(provNamespace("dct", DCT),"license")
+NIDM_PROJECT_URL = QualifiedName(provNamespace("sio", SIO),"URL")
+NIDM_PROJECT_REFERENCES = QualifiedName(provNamespace("dcat", DCAT),"creator")
+NIDM_AUTHOR = QualifiedName(provNamespace("ncit", DCAT),"author")
 NIDM_SESSION = QualifiedName(provNamespace("nidm", NIDM), 'Session')
-NIDM_ACQUISITION_ACTIVITY = QualifiedName(provNamespace("nidm", NIDM), "AcquisitionActivity")
-NIDM_ACQUISITION_ENTITY = QualifiedName(provNamespace("nidm", NIDM), "AcquisitionEntity")
-NIDM_MRACQUISITION_ENTITY = QualifiedName(provNamespace("nidm", NIDM), "MRAcquistionEntity")
-NIDM_DEMOGRAPHICS_ENTITY = QualifiedName(provNamespace("nidm", NIDM), "DemographicsAcquistionEntity")
-NIDM_ASSESSMENT_ENTITY = QualifiedName(provNamespace("nidm", NIDM), "AssessmentAcquistionEntity")
-# files
+NIDM_ACQUISITION_ACTIVITY = QualifiedName(provNamespace("nidm", NIDM), "Acquisition")
+NIDM_ACQUISITION_MODALITY = QualifiedName(provNamespace("nidm",NIDM),"AcquisitionModality")
+NIDM_ASSESSMENT_ACQUISITION = QualifiedName(provNamespace("nidm", NIDM), "assessment-instrument")
+NIDM_ACQUISITION_ENTITY = QualifiedName(provNamespace("nidm", NIDM), "AcquisitionObject")
+NIDM_DEMOGRAPHICS_ENTITY = QualifiedName(provNamespace("nidm", NIDM), "DemographicsAssessment")
+NIDM_ASSESSMENT_ENTITY = QualifiedName(provNamespace("nidm", NIDM), "assessment-instrument")
+#files
 NIDM_FILENAME = QualifiedName(provNamespace("nfo", NFO), "filename")
-# Roles
+NIDM_FILE = QualifiedName(provNamespace("sio", SIO), "file")
+#Roles
 NIDM_PI = QualifiedName(provNamespace("birnlex", BIRNLEX), "birnlex_2152")
-NIDM_COI = QualifiedName(provNamespace("birnlex", BIRNLEX), "birnlex_2199")
-NIDM_PARTICIPANT = QualifiedName(provNamespace("ncit", NCIT), "Participant")
-# Demographics
-NIDM_AGE = QualifiedName(provNamespace("ncidb", NCICB), "Age")
-NIDM_GENDER = QualifiedName(provNamespace("ndar", NDAR), "gender")
-NIDM_SEX = QualifiedName(provNamespace("ncit", NCIT), "Sex")
-NIDM_HANDEDNESS = QualifiedName(provNamespace("obo", OBO), "handedness")
-# NIDM_HANDEDNESS = OBO["PATO_0002201"] is correct term ID for handedness above
-NCICB_ETHNICITY = QualifiedName(provNamespace("ncicb", NCICB), "EthnicGroup")
-# NCICB_ETHNICITY = NCICB["C16564"] is correct term ID for ethnic group
-NIDM_DIAGNOSIS = QualifiedName(provNamespace("ncit", NCIT), "Diagnosis")
-NIDM_FAMILY_NAME = QualifiedName(provNamespace("foaf", FOAF), "familyName")
-NIDM_GIVEN_NAME = QualifiedName(provNamespace("foaf", FOAF), "givenName")
-NIDM_SUBJECTID = QualifiedName(provNamespace("ndar", NDAR), "src_subject_id")
-# MRI scan types
-NIDM_MRI_ANATOMIC_SCAN = QualifiedName(provNamespace("nidm", NIDM), "MRI_Anatomy")
-NIDM_MRI_FUNCTION_SCAN = QualifiedName(provNamespace("nidm", NIDM), "MRI_Function")
-NIDM_MRI_DWI_SCAN = QualifiedName(provNamespace("nidm", NIDM), "MRI_DWI")
-NIDM_MRI_DWI_BVAL = QualifiedName(provNamespace("nidm", NIDM), "MRI_bval")
-NIDM_MRI_DWI_BVEC = QualifiedName(provNamespace("nidm", NIDM), "MRI_bvec")
-NIDM_MRI_FUNCTION_TASK = QualifiedName(provNamespace("nidm", NIDM), "Task")
-NIDM_MRI_BOLD_EVENTS = QualifiedName(provNamespace("nidm", NIDM), "Event")
+NIDM_COI = QualifiedName(provNamespace("birnlex", BIRNLEX),"birnlex_2199")
+NIDM_PARTICIPANT = QualifiedName(provNamespace("sio", SIO),"Subject")
+#Demographics
+NIDM_AGE = QualifiedName(provNamespace("ncidb",NCICB),"Age")
+NIDM_GENDER = QualifiedName(provNamespace("ndar",NDAR),"gender")
+NIDM_SEX = QualifiedName(provNamespace("ncit",NCIT),"Sex")
+NIDM_HANDEDNESS = QualifiedName(provNamespace("obo",OBO),"handedness")
+#NIDM_HANDEDNESS = OBO["PATO_0002201"] is correct term ID for handedness above
+NCICB_ETHNICITY = QualifiedName(provNamespace("ncicb",NCICB),"EthnicGroup")
+#NCICB_ETHNICITY = NCICB["C16564"] is correct term ID for ethnic group
+NIDM_DIAGNOSIS = QualifiedName(provNamespace("ncit",NCIT),"Diagnosis")
+NIDM_FAMILY_NAME = QualifiedName(provNamespace("foaf",FOAF),"familyName")
+NIDM_GIVEN_NAME = QualifiedName(provNamespace("foaf",FOAF),"givenName")
+NIDM_SUBJECTID = QualifiedName(provNamespace("ndar",NDAR),"src_subject_id")
+#MRI scan types
+NIDM_IMAGE_CONTRAST_TYPE = QualifiedName(provNamespace("nidm", NIDM),"hasImageContrastType")
+NIDM_IMAGE_USAGE_TYPE = QualifiedName(provNamespace("nidm", NIDM),"hasImageUsageType")
+NIDM_MRI = QualifiedName(provNamespace("nidm", NIDM),"MagneticResonanceImaging")
+NIDM_MRI_ANATOMIC_SCAN = QualifiedName(provNamespace("nidm", NIDM),"Anatomical")
+NIDM_MRI_STRUCTURE_SCAN = QualifiedName(provNamespace("nidm", NIDM),"Structural")
+NIDM_MRI_FUNCTION_SCAN = QualifiedName(provNamespace("nidm", NIDM),"Functional")
+NIDM_MRI_DWI_SCAN = QualifiedName(provNamespace("nidm", NIDM),"DiffusionWeighted")
+NIDM_MRI_DWI_BVAL = QualifiedName(provNamespace("nidm", NIDM),"b-value")
+NIDM_MRI_DWI_BVEC = QualifiedName(provNamespace("nidm", NIDM),"b-vector")
+NIDM_MRI_FUNCTION_TASK = QualifiedName(provNamespace("nidm", NIDM),"Task")
+NIDM_MRI_T1 = QualifiedName(provNamespace("nidm", NIDM),"T1Weighted")
+NIDM_MRI_T2 = QualifiedName(provNamespace("nidm", NIDM),"T2Weighted")
+NIDM_MRI_T2_STAR = QualifiedName(provNamespace("nidm", NIDM),"T2StarWeighted")
+NIDM_MRI_DIFFUSION_TENSOR = QualifiedName(provNamespace("nidm", NIDM),"DiffusionTensor")
+NIDM_MRI_FLOW = QualifiedName(provNamespace("nidm", NIDM),"FlowWeighted")
+NIDM_MRI_BOLD_EVENTS = QualifiedName(provNamespace("nidm", NIDM),"StimulusResponseFile")
 ##############################################################################
 # OBO constants
 OBO_EXAMPLE = OBO['IAO_0000112']
@@ -372,6 +387,7 @@ NLX_FMRI_PROTOCOL = NLX['birnlex_2250']
 NLX_IMAGING_INSTRUMENT = NLX['birnlex_2094']
 
 SKOS_DEFINITION = SKOS['definition']
+
 
 # ProvONE Constants for classes
 PROVONE_PROCESS = PROVONE['Process']
@@ -496,3 +512,51 @@ PROVONE_ATTRIBUTES_ID_MAP = dict(
     (attribute, prov_id) for (prov_id, attribute) in PROVONE_RECORD_ATTRIBUTES
 )
 
+
+
+####ADDED BY DBK to make searching NIDM-Experiment Terms easier...temporary, should be done in the OWL file#####
+nidm_experiment_terms = [NIDM_PROJECT,
+NIDM_PROJECT_IDENTIFIER,
+NIDM_PROJECT_NAME,
+NIDM_PROJECT_DESCRIPTION,
+NIDM_PROJECT_LICENSE,
+NIDM_PROJECT_URL,
+NIDM_PROJECT_REFERENCES,
+NIDM_AUTHOR,
+NIDM_SESSION,
+NIDM_ACQUISITION_ACTIVITY,
+NIDM_ACQUISITION_MODALITY,
+NIDM_ASSESSMENT_ACQUISITION,
+NIDM_ACQUISITION_ENTITY,
+NIDM_DEMOGRAPHICS_ENTITY,
+NIDM_ASSESSMENT_ENTITY,
+NIDM_FILENAME,
+NIDM_FILE,
+NIDM_PI,
+NIDM_COI,
+NIDM_PARTICIPANT,
+NIDM_AGE,
+NIDM_GENDER,
+NIDM_SEX,
+NIDM_HANDEDNESS,
+NCICB_ETHNICITY,
+NIDM_DIAGNOSIS,
+NIDM_FAMILY_NAME,
+NIDM_GIVEN_NAME,
+NIDM_SUBJECTID,
+NIDM_IMAGE_CONTRAST_TYPE,
+NIDM_IMAGE_USAGE_TYPE,
+NIDM_MRI,
+NIDM_MRI_ANATOMIC_SCAN,
+NIDM_MRI_STRUCTURE_SCAN,
+NIDM_MRI_FUNCTION_SCAN,
+NIDM_MRI_DWI_SCAN,
+NIDM_MRI_DWI_BVAL,
+NIDM_MRI_DWI_BVEC,
+NIDM_MRI_FUNCTION_TASK,
+NIDM_MRI_T1,
+NIDM_MRI_T2,
+NIDM_MRI_T2_STAR,
+NIDM_MRI_DIFFUSION_TENSOR,
+NIDM_MRI_FLOW,
+NIDM_MRI_BOLD_EVENTS]

@@ -18,26 +18,29 @@ class AcquisitionObject(pm.ProvEntity,Core):
 
     """
     #constructor
-    def __init__(self, acquisition,attributes=None):
+    def __init__(self, acquisition,attributes=None, uuid=None):
         """
         Default contructor, creates an acquisition object and links to acquisition activity object
 
         :param acquisition: a Aquisition activity object
         :param attributes: optional attributes to add to entity
+        :param uuid: optional uuid...used mostly for reading in existing NIDM document
         :return: none
 
         """
-        #execute default parent class constructor
-          #execute default parent class constructor
-        super(AcquisitionObject,self).__init__(acquisition.graph, pm.QualifiedName(pm.Namespace("nidm",Constants.NIDM),getUUID()),attributes)
+
+        if uuid is None:
+            #execute default parent class constructor
+            super(AcquisitionObject,self).__init__(acquisition.graph, pm.QualifiedName(pm.Namespace("nidm",Constants.NIDM),getUUID()),attributes)
+        else:
+            super(AcquisitionObject,self).__init__(acquisition.graph, pm.QualifiedName(pm.Namespace("nidm",Constants.NIDM),uuid),attributes)
+
         acquisition.graph._add_record(self)
 
-        #self.add_attributes({PROV_TYPE: Constants.NIDM_ACQUISITION_ENTITY})
         #carry graph object around
         self.graph = acquisition.graph
         #create link to acquisition activity
         acquisition.add_acquisition_object(self)
-
 
     def __str__(self):
         return "NIDM-Experiment AcquisitionObject Class"

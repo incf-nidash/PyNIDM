@@ -1,0 +1,2826 @@
+[
+    {
+        "@id": "http://purl.org/nidash/nidm#_88fac752-e44b-11e7-8623-6c4008b8f03e",
+        "@type": [
+            "http://www.w3.org/ns/prov#Activity",
+            "http://purl.org/nidash/nidm#Acquisition"
+        ],
+        "http://purl.org/dc/terms/isPartOf": [
+            {
+                "@id": "http://purl.org/nidash/nidm#_88f6434a-e44b-11e7-b648-6c4008b8f03e"
+            }
+        ],
+        "http://www.w3.org/ns/prov#qualifiedAssociation": [
+            {
+                "@id": "_:ub2bL569C9"
+            },
+            {
+                "@id": "_:ub2bL566C31"
+            }
+        ],
+        "http://www.w3.org/ns/prov#wasAssociatedWith": [
+            {
+                "@id": "http://purl.org/nidash/nidm#_88f65012-e44b-11e7-b9e2-6c4008b8f03e"
+            }
+        ]
+    },
+    {
+        "@id": "http://purl.org/nidash/nidm#_88fd1208-e44b-11e7-941c-6c4008b8f03e",
+        "@type": [
+            "http://www.w3.org/ns/prov#Activity",
+            "http://purl.org/nidash/nidm#Acquisition"
+        ],
+        "http://purl.org/dc/terms/isPartOf": [
+            {
+                "@id": "http://purl.org/nidash/nidm#_88f6434a-e44b-11e7-b648-6c4008b8f03e"
+            }
+        ],
+        "http://www.w3.org/ns/prov#qualifiedAssociation": [
+            {
+                "@id": "_:ub2bL547C31"
+            }
+        ],
+        "http://www.w3.org/ns/prov#wasAssociatedWith": [
+            {
+                "@id": "http://purl.org/nidash/nidm#_88f65012-e44b-11e7-b9e2-6c4008b8f03e"
+            }
+        ]
+    },
+    {
+        "@id": "http://purl.org/nidash/nidm#_88f64b64-e44b-11e7-9659-6c4008b8f03e",
+        "@type": [
+            "http://purl.org/nidash/nidm#assessment-instrument",
+            "http://www.w3.org/ns/prov#Entity"
+        ],
+        "http://bids.neuroimaging.io/ScannerSerialNumber": [
+            {
+                "@value": "35343.0"
+            }
+        ],
+        "http://bids.neuroimaging.io/T1w": [
+            {
+                "@value": "1"
+            }
+        ],
+        "http://bids.neuroimaging.io/bart": [
+            {
+                "@value": "1"
+            }
+        ],
+        "http://bids.neuroimaging.io/bht": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/dwi": [
+            {
+                "@value": "1"
+            }
+        ],
+        "http://bids.neuroimaging.io/pamenc": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/pamret": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/rest": [
+            {
+                "@value": "1"
+            }
+        ],
+        "http://bids.neuroimaging.io/scap": [
+            {
+                "@value": "1"
+            }
+        ],
+        "http://bids.neuroimaging.io/stopsignal": [
+            {
+                "@value": "1"
+            }
+        ],
+        "http://bids.neuroimaging.io/taskswitch": [
+            {
+                "@value": "1"
+            }
+        ],
+        "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#Age": [
+            {
+                "@value": "30"
+            }
+        ],
+        "http://ncitt.ncit.nih.gov/Diagnosis": [
+            {
+                "@value": "CONTROL"
+            }
+        ],
+        "http://www.w3.org/ns/prov#wasGeneratedBy": [
+            {
+                "@id": "http://purl.org/nidash/nidm#_88f64808-e44b-11e7-8e03-6c4008b8f03e"
+            }
+        ],
+        "https://ndar.nih.gov/api/datadictionary/v2/dataelement/gender": [
+            {
+                "@value": "F"
+            }
+        ]
+    },
+    {
+        "@id": "_:ub2bL577C31",
+        "@type": [
+            "http://www.w3.org/ns/prov#Association"
+        ],
+        "http://www.w3.org/ns/prov#Agent": [
+            {
+                "@id": "http://purl.org/nidash/nidm#_88f65012-e44b-11e7-b9e2-6c4008b8f03e"
+            }
+        ],
+        "http://www.w3.org/ns/prov#hadRole": [
+            {
+                "@id": "http://semanticscience.org/ontology/sio.owl#Subject"
+            }
+        ]
+    },
+    {
+        "@id": "_:ub2bL555C31",
+        "@type": [
+            "http://www.w3.org/ns/prov#Association"
+        ],
+        "http://www.w3.org/ns/prov#Agent": [
+            {
+                "@id": "http://purl.org/nidash/nidm#_88f65012-e44b-11e7-b9e2-6c4008b8f03e"
+            }
+        ],
+        "http://www.w3.org/ns/prov#hadRole": [
+            {
+                "@id": "http://semanticscience.org/ontology/sio.owl#Subject"
+            }
+        ]
+    },
+    {
+        "@id": "http://purl.org/nidash/nidm#_88f64808-e44b-11e7-8e03-6c4008b8f03e",
+        "@type": [
+            "http://purl.org/nidash/nidm#Acquisition",
+            "http://www.w3.org/ns/prov#Activity"
+        ],
+        "http://purl.org/dc/terms/isPartOf": [
+            {
+                "@id": "http://purl.org/nidash/nidm#_88f6434a-e44b-11e7-b648-6c4008b8f03e"
+            }
+        ],
+        "http://www.w3.org/ns/prov#qualifiedAssociation": [
+            {
+                "@id": "_:ub2bL339C31"
+            }
+        ],
+        "http://www.w3.org/ns/prov#wasAssociatedWith": [
+            {
+                "@id": "http://purl.org/nidash/nidm#_88f65012-e44b-11e7-b9e2-6c4008b8f03e"
+            }
+        ]
+    },
+    {
+        "@id": "http://purl.org/nidash/nidm#_88fbcb50-e44b-11e7-b47c-6c4008b8f03e",
+        "@type": [
+            "http://www.w3.org/ns/prov#Entity",
+            "http://semanticscience.org/ontology/sio.owl#file"
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/AccelNumReferenceLines": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "24"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/AccelerationFactorPE": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "2"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/AcquisitionMatrix": [
+            {
+                "@value": "64/0/0/64"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/DeviceSerialNumber": [
+            {
+                "@value": "35343"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/EchoTime": [
+            {
+                "@value": 0.03
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/EchoTrainLength": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "1"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/FlipAngle": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "90"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/ImageType": [
+            {
+                "@value": "ORIGINAL/PRIMARY/M/ND/MOSAIC"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/ImagingFrequency": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "123249486"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/InPlanePhaseEncodingDirection": [
+            {
+                "@value": "COL"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/MRAcquisitionType": [
+            {
+                "@value": "2D"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/MagneticFieldStrength": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "3"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/ManufacturerModelName": [
+            {
+                "@value": "TrioTim"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/NumberOfAverages": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "1"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/NumberOfPhaseEncodingSteps": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "63"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/PatientPosition": [
+            {
+                "@value": "HFS"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/PercentPhaseFieldOfView": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "100"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/PercentSampling": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "100"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/PixelBandwidth": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "1420"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/ProtocolName": [
+            {
+                "@value": "BOLD - TASKSWITCH"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/ReceiveCoilName": [
+            {
+                "@value": "HeadMatrix"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/RepetitionTime": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "2"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/ScanOptions": [
+            {
+                "@value": "FS"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/ScanningSequence": [
+            {
+                "@value": "EP"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/SequenceName": [
+            {
+                "@value": "*epfid2d1_64"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/SequenceVariant": [
+            {
+                "@value": "SK"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/SoftwareVersions": [
+            {
+                "@value": "syngo MR B15"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/TotalScanTimeSec": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "424"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/TransmitCoilName": [
+            {
+                "@value": "Body"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/VariableFlipAngleFlag": [
+            {
+                "@value": "N"
+            }
+        ],
+        "http://purl.org/nidash/nidm#AcquisitionModality": [
+            {
+                "@id": "http://purl.org/nidash/nidm#MagneticResonanceImaging"
+            }
+        ],
+        "http://purl.org/nidash/nidm#EffectiveEchoSpacing": [
+            {
+                "@value": 0.000395
+            }
+        ],
+        "http://purl.org/nidash/nidm#PhaseEncodingDirection": [
+            {
+                "@value": "j-"
+            }
+        ],
+        "http://purl.org/nidash/nidm#SliceTiming": [
+            {
+                "@value": "1.002501.06250.05751.120.11751.180.1751.23750.2351.29750.2951.35750.35251.4150.41251.4750.471.5350.531.59250.591.65250.64751.710.70751.770.76751.830.8251.88750.8851.94750.9425"
+            }
+        ],
+        "http://purl.org/nidash/nidm#Task": [
+            {
+                "@value": "taskswitch"
+            }
+        ],
+        "http://purl.org/nidash/nidm#hasImageContrastType": [
+            {
+                "@id": "http://purl.org/nidash/nidm#FlowWeighted"
+            }
+        ],
+        "http://purl.org/nidash/nidm#hasImageUsageType": [
+            {
+                "@id": "http://purl.org/nidash/nidm#Functional"
+            }
+        ],
+        "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#filename": [
+            {
+                "@value": "/sub-10159/func/sub-10159_task-taskswitch_bold.nii.gz"
+            }
+        ],
+        "http://www.w3.org/ns/prov#wasGeneratedBy": [
+            {
+                "@id": "http://purl.org/nidash/nidm#_88fbc650-e44b-11e7-a1b0-6c4008b8f03e"
+            }
+        ]
+    },
+    {
+        "@id": "http://purl.org/nidash/nidm#_88f9bb1c-e44b-11e7-b7cb-6c4008b8f03e",
+        "@type": [
+            "http://www.w3.org/ns/prov#Entity",
+            "http://semanticscience.org/ontology/sio.owl#file"
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/AccelNumReferenceLines": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "24"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/AccelerationFactorPE": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "2"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/AcquisitionMatrix": [
+            {
+                "@value": "64/0/0/64"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/DeviceSerialNumber": [
+            {
+                "@value": "35343"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/EchoTime": [
+            {
+                "@value": 0.03
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/EchoTrainLength": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "1"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/FlipAngle": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "90"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/ImageType": [
+            {
+                "@value": "ORIGINAL/PRIMARY/M/ND/MOSAIC"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/ImagingFrequency": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "123249925"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/InPlanePhaseEncodingDirection": [
+            {
+                "@value": "COL"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/MRAcquisitionType": [
+            {
+                "@value": "2D"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/MagneticFieldStrength": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "3"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/ManufacturerModelName": [
+            {
+                "@value": "TrioTim"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/NumberOfAverages": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "1"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/NumberOfPhaseEncodingSteps": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "63"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/PatientPosition": [
+            {
+                "@value": "HFS"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/PercentPhaseFieldOfView": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "100"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/PercentSampling": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "100"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/PixelBandwidth": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "1420"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/ProtocolName": [
+            {
+                "@value": "BOLD - BART"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/ReceiveCoilName": [
+            {
+                "@value": "HeadMatrix"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/RepetitionTime": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "2"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/ScanOptions": [
+            {
+                "@value": "FS"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/ScanningSequence": [
+            {
+                "@value": "EP"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/SequenceName": [
+            {
+                "@value": "*epfid2d1_64"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/SequenceVariant": [
+            {
+                "@value": "SK"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/SoftwareVersions": [
+            {
+                "@value": "syngo MR B15"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/TotalScanTimeSec": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "542"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/TransmitCoilName": [
+            {
+                "@value": "Body"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/VariableFlipAngleFlag": [
+            {
+                "@value": "N"
+            }
+        ],
+        "http://purl.org/nidash/nidm#AcquisitionModality": [
+            {
+                "@id": "http://purl.org/nidash/nidm#MagneticResonanceImaging"
+            }
+        ],
+        "http://purl.org/nidash/nidm#EffectiveEchoSpacing": [
+            {
+                "@value": 0.000395
+            }
+        ],
+        "http://purl.org/nidash/nidm#PhaseEncodingDirection": [
+            {
+                "@value": "j-"
+            }
+        ],
+        "http://purl.org/nidash/nidm#SliceTiming": [
+            {
+                "@value": "1.002501.06250.061.12250.11751.180.17751.240.2351.30.2951.35750.3551.41750.41251.4750.47251.5350.531.5950.591.65250.651.71250.70751.770.76751.830.82751.890.8851.94750.945"
+            }
+        ],
+        "http://purl.org/nidash/nidm#Task": [
+            {
+                "@value": "bart"
+            }
+        ],
+        "http://purl.org/nidash/nidm#hasImageContrastType": [
+            {
+                "@id": "http://purl.org/nidash/nidm#FlowWeighted"
+            }
+        ],
+        "http://purl.org/nidash/nidm#hasImageUsageType": [
+            {
+                "@id": "http://purl.org/nidash/nidm#Functional"
+            }
+        ],
+        "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#filename": [
+            {
+                "@value": "/sub-10159/func/sub-10159_task-bart_bold.nii.gz"
+            }
+        ],
+        "http://www.w3.org/ns/prov#wasGeneratedBy": [
+            {
+                "@id": "http://purl.org/nidash/nidm#_88f9b45a-e44b-11e7-b2f5-6c4008b8f03e"
+            }
+        ]
+    },
+    {
+        "@id": "http://purl.org/nidash/nidm#_88fa6508-e44b-11e7-a37d-6c4008b8f03e",
+        "@type": [
+            "http://www.w3.org/ns/prov#Entity",
+            "http://semanticscience.org/ontology/sio.owl#file"
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/AccelNumReferenceLines": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "24"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/AccelerationFactorPE": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "2"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/AcquisitionMatrix": [
+            {
+                "@value": "64/0/0/64"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/DeviceSerialNumber": [
+            {
+                "@value": "35343"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/EchoTime": [
+            {
+                "@value": 0.03
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/EchoTrainLength": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "1"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/FlipAngle": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "90"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/ImageType": [
+            {
+                "@value": "ORIGINAL/PRIMARY/M/ND/MOSAIC"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/ImagingFrequency": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "123249486"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/InPlanePhaseEncodingDirection": [
+            {
+                "@value": "COL"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/MRAcquisitionType": [
+            {
+                "@value": "2D"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/MagneticFieldStrength": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "3"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/ManufacturerModelName": [
+            {
+                "@value": "TrioTim"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/NumberOfAverages": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "1"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/NumberOfPhaseEncodingSteps": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "63"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/PatientPosition": [
+            {
+                "@value": "HFS"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/PercentPhaseFieldOfView": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "100"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/PercentSampling": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "100"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/PixelBandwidth": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "1420"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/ProtocolName": [
+            {
+                "@value": "BOLD - RESTING"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/ReceiveCoilName": [
+            {
+                "@value": "HeadMatrix"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/RepetitionTime": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "2"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/ScanOptions": [
+            {
+                "@value": "FS"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/ScanningSequence": [
+            {
+                "@value": "EP"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/SequenceName": [
+            {
+                "@value": "*epfid2d1_64"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/SequenceVariant": [
+            {
+                "@value": "SK"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/SoftwareVersions": [
+            {
+                "@value": "syngo MR B15"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/TotalScanTimeSec": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "312"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/TransmitCoilName": [
+            {
+                "@value": "Body"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/VariableFlipAngleFlag": [
+            {
+                "@value": "N"
+            }
+        ],
+        "http://purl.org/nidash/nidm#AcquisitionModality": [
+            {
+                "@id": "http://purl.org/nidash/nidm#MagneticResonanceImaging"
+            }
+        ],
+        "http://purl.org/nidash/nidm#EffectiveEchoSpacing": [
+            {
+                "@value": 0.000395
+            }
+        ],
+        "http://purl.org/nidash/nidm#PhaseEncodingDirection": [
+            {
+                "@value": "j-"
+            }
+        ],
+        "http://purl.org/nidash/nidm#SliceTiming": [
+            {
+                "@value": "1.00501.06250.061.12250.121.18250.17751.240.23751.30.2951.360.3551.41750.4151.47750.47251.5350.53251.5950.591.6550.651.71250.711.77250.76751.830.82751.890.88751.950.945"
+            }
+        ],
+        "http://purl.org/nidash/nidm#Task": [
+            {
+                "@value": "rest"
+            }
+        ],
+        "http://purl.org/nidash/nidm#hasImageContrastType": [
+            {
+                "@id": "http://purl.org/nidash/nidm#FlowWeighted"
+            }
+        ],
+        "http://purl.org/nidash/nidm#hasImageUsageType": [
+            {
+                "@id": "http://purl.org/nidash/nidm#Functional"
+            }
+        ],
+        "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#filename": [
+            {
+                "@value": "/sub-10159/func/sub-10159_task-rest_bold.nii.gz"
+            }
+        ],
+        "http://www.w3.org/ns/prov#wasGeneratedBy": [
+            {
+                "@id": "http://purl.org/nidash/nidm#_88fa5f4a-e44b-11e7-b8c4-6c4008b8f03e"
+            }
+        ]
+    },
+    {
+        "@id": "http://purl.org/nidash/nidm#_88facd68-e44b-11e7-a4a9-6c4008b8f03e",
+        "@type": [
+            "http://semanticscience.org/ontology/sio.owl#file",
+            "http://www.w3.org/ns/prov#Entity"
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/AccelNumReferenceLines": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "24"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/AccelerationFactorPE": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "2"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/AcquisitionMatrix": [
+            {
+                "@value": "64/0/0/64"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/DeviceSerialNumber": [
+            {
+                "@value": "35343"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/EchoTime": [
+            {
+                "@value": 0.03
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/EchoTrainLength": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "1"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/FlipAngle": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "90"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/ImageType": [
+            {
+                "@value": "ORIGINAL/PRIMARY/M/ND/MOSAIC"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/ImagingFrequency": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "123249486"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/InPlanePhaseEncodingDirection": [
+            {
+                "@value": "COL"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/MRAcquisitionType": [
+            {
+                "@value": "2D"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/MagneticFieldStrength": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "3"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/ManufacturerModelName": [
+            {
+                "@value": "TrioTim"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/NumberOfAverages": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "1"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/NumberOfPhaseEncodingSteps": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "63"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/PatientPosition": [
+            {
+                "@value": "HFS"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/PercentPhaseFieldOfView": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "100"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/PercentSampling": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "100"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/PixelBandwidth": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "1420"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/ProtocolName": [
+            {
+                "@value": "BOLD - SCAP"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/ReceiveCoilName": [
+            {
+                "@value": "HeadMatrix"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/RepetitionTime": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "2"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/ScanOptions": [
+            {
+                "@value": "FS"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/ScanningSequence": [
+            {
+                "@value": "EP"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/SequenceName": [
+            {
+                "@value": "*epfid2d1_64"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/SequenceVariant": [
+            {
+                "@value": "SK"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/SoftwareVersions": [
+            {
+                "@value": "syngo MR B15"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/TotalScanTimeSec": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "590"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/TransmitCoilName": [
+            {
+                "@value": "Body"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/VariableFlipAngleFlag": [
+            {
+                "@value": "N"
+            }
+        ],
+        "http://purl.org/nidash/nidm#AcquisitionModality": [
+            {
+                "@id": "http://purl.org/nidash/nidm#MagneticResonanceImaging"
+            }
+        ],
+        "http://purl.org/nidash/nidm#EffectiveEchoSpacing": [
+            {
+                "@value": 0.000395
+            }
+        ],
+        "http://purl.org/nidash/nidm#PhaseEncodingDirection": [
+            {
+                "@value": "j-"
+            }
+        ],
+        "http://purl.org/nidash/nidm#SliceTiming": [
+            {
+                "@value": "1.00501.06250.061.12250.11751.180.17751.240.2351.30.2951.35750.3551.41750.41251.4750.47251.5350.53251.5950.591.65250.651.71250.70751.77250.76751.830.82751.890.8851.94750.945"
+            }
+        ],
+        "http://purl.org/nidash/nidm#Task": [
+            {
+                "@value": "scap"
+            }
+        ],
+        "http://purl.org/nidash/nidm#hasImageContrastType": [
+            {
+                "@id": "http://purl.org/nidash/nidm#FlowWeighted"
+            }
+        ],
+        "http://purl.org/nidash/nidm#hasImageUsageType": [
+            {
+                "@id": "http://purl.org/nidash/nidm#Functional"
+            }
+        ],
+        "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#filename": [
+            {
+                "@value": "/sub-10159/func/sub-10159_task-scap_bold.nii.gz"
+            }
+        ],
+        "http://www.w3.org/ns/prov#wasGeneratedBy": [
+            {
+                "@id": "http://purl.org/nidash/nidm#_88fac752-e44b-11e7-8623-6c4008b8f03e"
+            }
+        ]
+    },
+    {
+        "@id": "http://purl.org/nidash/nidm#_88fa56f8-e44b-11e7-9474-6c4008b8f03e",
+        "@type": [
+            "http://www.w3.org/ns/prov#Entity",
+            "http://purl.org/nidash/nidm#StimulusResponseFile"
+        ],
+        "http://purl.org/nidash/nidm#Task": [
+            {
+                "@value": "bart"
+            }
+        ],
+        "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#filename": [
+            {
+                "@value": "/sub-10159/func/sub-10159_task-bart_events.tsv"
+            }
+        ],
+        "http://www.w3.org/ns/prov#wasAttributedTo": [
+            {
+                "@id": "http://purl.org/nidash/nidm#_88f9bb1c-e44b-11e7-b7cb-6c4008b8f03e"
+            }
+        ],
+        "http://www.w3.org/ns/prov#wasGeneratedBy": [
+            {
+                "@id": "http://purl.org/nidash/nidm#_88f9b45a-e44b-11e7-b2f5-6c4008b8f03e"
+            }
+        ]
+    },
+    {
+        "@id": "http://purl.org/nidash/nidm#_88f505de-e44b-11e7-b591-6c4008b8f03e",
+        "@type": [
+            "http://www.w3.org/ns/prov#Activity",
+            "http://purl.org/nidash/nidm#Project"
+        ],
+        "http://purl.org/dc/dcmitype/title": [
+            {
+                "@value": "UCLA Consortium for Neuropsychiatric Phenomics LA5c Study"
+            }
+        ],
+        "http://purl.org/dc/terms/description": [
+            {
+                "@value": "All participants received brief training on each task directly before scanning. Each participant viewed the task through MRI-compatible goggles, responded with his or her right hand on an MR-compatible button box in the scanner, and performed one run of each task while in the scanner. Stimulus presentation and timing of all stimuli and response events were achieved using Matlab (Mathworks) and the Psychtoolbox (www.psychtoolbox.org) on an Apple Powerbook."
+            }
+        ],
+        "http://purl.org/dc/terms/license": [
+            {
+                "@value": "PDDL"
+            }
+        ],
+        "http://semanticscience.org/ontology/sio.owl#Identifier": [
+            {
+                "@value": "1.0.0rc3"
+            }
+        ],
+        "http://www.w3.org/ns/dcat#author": [
+            {
+                "@value": "Bilder, RPoldrack, RCannon, TLondon, EFreimer, NCongdon, EKarlsgodt, KSabb, F"
+            }
+        ],
+        "http://www.w3.org/ns/prov#Location": [
+            {
+                "@value": "/Users/dbkeator/Documents/UCI/ReproNim/example_bids/ds000030_single_subj"
+            }
+        ]
+    },
+    {
+        "@id": "_:ub2bL566C31",
+        "@type": [
+            "http://www.w3.org/ns/prov#Association"
+        ],
+        "http://www.w3.org/ns/prov#Agent": [
+            {
+                "@id": "http://purl.org/nidash/nidm#_88f65012-e44b-11e7-b9e2-6c4008b8f03e"
+            }
+        ],
+        "http://www.w3.org/ns/prov#hadRole": [
+            {
+                "@id": "http://semanticscience.org/ontology/sio.owl#Subject"
+            }
+        ]
+    },
+    {
+        "@id": "_:ub2bL558C9",
+        "@type": [
+            "http://www.w3.org/ns/prov#Association"
+        ],
+        "http://www.w3.org/ns/prov#Agent": [
+            {
+                "@id": "http://purl.org/nidash/nidm#_88f65012-e44b-11e7-b9e2-6c4008b8f03e"
+            }
+        ],
+        "http://www.w3.org/ns/prov#hadRole": [
+            {
+                "@id": "http://semanticscience.org/ontology/sio.owl#Subject"
+            }
+        ]
+    },
+    {
+        "@id": "_:ub2bL569C9",
+        "@type": [
+            "http://www.w3.org/ns/prov#Association"
+        ],
+        "http://www.w3.org/ns/prov#Agent": [
+            {
+                "@id": "http://purl.org/nidash/nidm#_88f65012-e44b-11e7-b9e2-6c4008b8f03e"
+            }
+        ],
+        "http://www.w3.org/ns/prov#hadRole": [
+            {
+                "@id": "http://semanticscience.org/ontology/sio.owl#Subject"
+            }
+        ]
+    },
+    {
+        "@id": "_:ub2bL547C31",
+        "@type": [
+            "http://www.w3.org/ns/prov#Association"
+        ],
+        "http://www.w3.org/ns/prov#Agent": [
+            {
+                "@id": "http://purl.org/nidash/nidm#_88f65012-e44b-11e7-b9e2-6c4008b8f03e"
+            }
+        ],
+        "http://www.w3.org/ns/prov#hadRole": [
+            {
+                "@id": "http://semanticscience.org/ontology/sio.owl#Subject"
+            }
+        ]
+    },
+    {
+        "@id": "http://purl.org/nidash/nidm#_88f9b45a-e44b-11e7-b2f5-6c4008b8f03e",
+        "@type": [
+            "http://purl.org/nidash/nidm#Acquisition",
+            "http://www.w3.org/ns/prov#Activity"
+        ],
+        "http://purl.org/dc/terms/isPartOf": [
+            {
+                "@id": "http://purl.org/nidash/nidm#_88f6434a-e44b-11e7-b648-6c4008b8f03e"
+            }
+        ],
+        "http://www.w3.org/ns/prov#qualifiedAssociation": [
+            {
+                "@id": "_:ub2bL555C31"
+            },
+            {
+                "@id": "_:ub2bL558C9"
+            }
+        ],
+        "http://www.w3.org/ns/prov#wasAssociatedWith": [
+            {
+                "@id": "http://purl.org/nidash/nidm#_88f65012-e44b-11e7-b9e2-6c4008b8f03e"
+            }
+        ]
+    },
+    {
+        "@id": "http://purl.org/nidash/nidm#_88fbbf70-e44b-11e7-89a9-6c4008b8f03e",
+        "@type": [
+            "http://purl.org/nidash/nidm#StimulusResponseFile",
+            "http://www.w3.org/ns/prov#Entity"
+        ],
+        "http://purl.org/nidash/nidm#Task": [
+            {
+                "@value": "stopsignal"
+            }
+        ],
+        "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#filename": [
+            {
+                "@value": "/sub-10159/func/sub-10159_task-stopsignal_events.tsv"
+            }
+        ],
+        "http://www.w3.org/ns/prov#wasAttributedTo": [
+            {
+                "@id": "http://purl.org/nidash/nidm#_88fb4a40-e44b-11e7-b838-6c4008b8f03e"
+            }
+        ],
+        "http://www.w3.org/ns/prov#wasGeneratedBy": [
+            {
+                "@id": "http://purl.org/nidash/nidm#_88fb454a-e44b-11e7-90e0-6c4008b8f03e"
+            }
+        ]
+    },
+    {
+        "@id": "http://purl.org/nidash/nidm#_88f6434a-e44b-11e7-b648-6c4008b8f03e",
+        "@type": [
+            "http://purl.org/nidash/nidm#Session",
+            "http://www.w3.org/ns/prov#Activity"
+        ],
+        "http://purl.org/dc/terms/isPartOf": [
+            {
+                "@id": "http://purl.org/nidash/nidm#_88f505de-e44b-11e7-b591-6c4008b8f03e"
+            }
+        ]
+    },
+    {
+        "@id": "http://purl.org/nidash/nidm#_88fbc650-e44b-11e7-a1b0-6c4008b8f03e",
+        "@type": [
+            "http://purl.org/nidash/nidm#Acquisition",
+            "http://www.w3.org/ns/prov#Activity"
+        ],
+        "http://purl.org/dc/terms/isPartOf": [
+            {
+                "@id": "http://purl.org/nidash/nidm#_88f6434a-e44b-11e7-b648-6c4008b8f03e"
+            }
+        ],
+        "http://www.w3.org/ns/prov#qualifiedAssociation": [
+            {
+                "@id": "_:ub2bL591C9"
+            },
+            {
+                "@id": "_:ub2bL588C31"
+            }
+        ],
+        "http://www.w3.org/ns/prov#wasAssociatedWith": [
+            {
+                "@id": "http://purl.org/nidash/nidm#_88f65012-e44b-11e7-b9e2-6c4008b8f03e"
+            }
+        ]
+    },
+    {
+        "@id": "http://purl.org/nidash/nidm#_88fa5f4a-e44b-11e7-b8c4-6c4008b8f03e",
+        "@type": [
+            "http://purl.org/nidash/nidm#Acquisition",
+            "http://www.w3.org/ns/prov#Activity"
+        ],
+        "http://purl.org/dc/terms/isPartOf": [
+            {
+                "@id": "http://purl.org/nidash/nidm#_88f6434a-e44b-11e7-b648-6c4008b8f03e"
+            }
+        ],
+        "http://www.w3.org/ns/prov#qualifiedAssociation": [
+            {
+                "@id": "_:ub2bL405C31"
+            }
+        ],
+        "http://www.w3.org/ns/prov#wasAssociatedWith": [
+            {
+                "@id": "http://purl.org/nidash/nidm#_88f65012-e44b-11e7-b9e2-6c4008b8f03e"
+            }
+        ]
+    },
+    {
+        "@id": "http://purl.org/nidash/nidm#_88f91f54-e44b-11e7-b23f-6c4008b8f03e",
+        "@type": [
+            "http://www.w3.org/ns/prov#Activity",
+            "http://purl.org/nidash/nidm#Acquisition"
+        ],
+        "http://purl.org/dc/terms/isPartOf": [
+            {
+                "@id": "http://purl.org/nidash/nidm#_88f6434a-e44b-11e7-b648-6c4008b8f03e"
+            }
+        ],
+        "http://www.w3.org/ns/prov#qualifiedAssociation": [
+            {
+                "@id": "_:ub2bL355C31"
+            }
+        ],
+        "http://www.w3.org/ns/prov#wasAssociatedWith": [
+            {
+                "@id": "http://purl.org/nidash/nidm#_88f65012-e44b-11e7-b9e2-6c4008b8f03e"
+            }
+        ]
+    },
+    {
+        "@id": "http://purl.org/nidash/nidm#_88f92594-e44b-11e7-8a22-6c4008b8f03e",
+        "@type": [
+            "http://www.w3.org/ns/prov#Entity",
+            "http://semanticscience.org/ontology/sio.owl#file"
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/AccelerationFactorPE": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "1"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/AcquisitionMatrix": [
+            {
+                "@value": "96/0/0/96"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/DeviceSerialNumber": [
+            {
+                "@value": "35343"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/EchoTime": [
+            {
+                "@value": 0.0926
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/EchoTrainLength": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "1"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/FlipAngle": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "90"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/ImageType": [
+            {
+                "@value": "ORIGINAL/PRIMARY/M/ND/MOSAIC"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/ImagingFrequency": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "123249931"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/InPlanePhaseEncodingDirection": [
+            {
+                "@value": "COL"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/MRAcquisitionType": [
+            {
+                "@value": "2D"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/MagneticFieldStrength": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "3"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/ManufacturerModelName": [
+            {
+                "@value": "TrioTim"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/NumberOfAverages": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "1"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/NumberOfPhaseEncodingSteps": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "72"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/PatientPosition": [
+            {
+                "@value": "HFS"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/PercentPhaseFieldOfView": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "100"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/PercentSampling": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "100"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/PixelBandwidth": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "2265"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/ProtocolName": [
+            {
+                "@value": "DTI 64dir"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/ReceiveCoilName": [
+            {
+                "@value": "HeadMatrix"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/RepetitionTime": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "7"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/ScanOptions": [
+            {
+                "@value": "PFP/FS"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/ScanningSequence": [
+            {
+                "@value": "EP"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/SequenceName": [
+            {
+                "@value": "*ep_b1000#10"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/SequenceVariant": [
+            {
+                "@value": "SK/SP"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/SoftwareVersions": [
+            {
+                "@value": "syngo MR B15"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/TotalReadoutTime": [
+            {
+                "@value": 0.08831782
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/TotalScanTimeSec": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "464"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/TransmitCoilName": [
+            {
+                "@value": "Body"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/VariableFlipAngleFlag": [
+            {
+                "@value": "N"
+            }
+        ],
+        "http://purl.org/nidash/nidm#AcquisitionModality": [
+            {
+                "@id": "http://purl.org/nidash/nidm#MagneticResonanceImaging"
+            }
+        ],
+        "http://purl.org/nidash/nidm#EffectiveEchoSpacing": [
+            {
+                "@value": 0.000689983
+            }
+        ],
+        "http://purl.org/nidash/nidm#PhaseEncodingDirection": [
+            {
+                "@value": "j-"
+            }
+        ],
+        "http://purl.org/nidash/nidm#SliceTiming": [
+            {
+                "@value": "3.51503.6550.14253.7950.28253.93750.42254.07750.56254.21750.7054.35750.8454.50.9854.641.1254.781.2654.921.40755.061.54755.20251.68755.34251.82755.48251.975.62252.115.7652.255.9052.396.0452.536.1852.67256.3252.81256.46752.95256.60753.09256.74753.2356.88753.375"
+            }
+        ],
+        "http://purl.org/nidash/nidm#hasImageContrastType": [
+            {
+                "@id": "http://purl.org/nidash/nidm#DiffusionWeighted"
+            }
+        ],
+        "http://purl.org/nidash/nidm#hasImageUsageType": [
+            {
+                "@id": "http://purl.org/nidash/nidm#DiffusionTensor"
+            }
+        ],
+        "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#filename": [
+            {
+                "@value": "/sub-10159/dwi/sub-10159_dwi.nii.gz"
+            }
+        ],
+        "http://www.w3.org/ns/prov#wasGeneratedBy": [
+            {
+                "@id": "http://purl.org/nidash/nidm#_88f91f54-e44b-11e7-b23f-6c4008b8f03e"
+            }
+        ]
+    },
+    {
+        "@id": "_:ub2bL591C9",
+        "@type": [
+            "http://www.w3.org/ns/prov#Association"
+        ],
+        "http://www.w3.org/ns/prov#Agent": [
+            {
+                "@id": "http://purl.org/nidash/nidm#_88f65012-e44b-11e7-b9e2-6c4008b8f03e"
+            }
+        ],
+        "http://www.w3.org/ns/prov#hadRole": [
+            {
+                "@id": "http://semanticscience.org/ontology/sio.owl#Subject"
+            }
+        ]
+    },
+    {
+        "@id": "http://purl.org/nidash/nidm#_88fb3e4a-e44b-11e7-bef3-6c4008b8f03e",
+        "@type": [
+            "http://purl.org/nidash/nidm#StimulusResponseFile",
+            "http://www.w3.org/ns/prov#Entity"
+        ],
+        "http://purl.org/nidash/nidm#Task": [
+            {
+                "@value": "scap"
+            }
+        ],
+        "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#filename": [
+            {
+                "@value": "/sub-10159/func/sub-10159_task-scap_events.tsv"
+            }
+        ],
+        "http://www.w3.org/ns/prov#wasAttributedTo": [
+            {
+                "@id": "http://purl.org/nidash/nidm#_88facd68-e44b-11e7-a4a9-6c4008b8f03e"
+            }
+        ],
+        "http://www.w3.org/ns/prov#wasGeneratedBy": [
+            {
+                "@id": "http://purl.org/nidash/nidm#_88fac752-e44b-11e7-8623-6c4008b8f03e"
+            }
+        ]
+    },
+    {
+        "@id": "_:ub2bL355C31",
+        "@type": [
+            "http://www.w3.org/ns/prov#Association"
+        ],
+        "http://www.w3.org/ns/prov#Agent": [
+            {
+                "@id": "http://purl.org/nidash/nidm#_88f65012-e44b-11e7-b9e2-6c4008b8f03e"
+            }
+        ],
+        "http://www.w3.org/ns/prov#hadRole": [
+            {
+                "@id": "http://semanticscience.org/ontology/sio.owl#Subject"
+            }
+        ]
+    },
+    {
+        "@id": "_:ub2bL405C31",
+        "@type": [
+            "http://www.w3.org/ns/prov#Association"
+        ],
+        "http://www.w3.org/ns/prov#Agent": [
+            {
+                "@id": "http://purl.org/nidash/nidm#_88f65012-e44b-11e7-b9e2-6c4008b8f03e"
+            }
+        ],
+        "http://www.w3.org/ns/prov#hadRole": [
+            {
+                "@id": "http://semanticscience.org/ontology/sio.owl#Subject"
+            }
+        ]
+    },
+    {
+        "@id": "http://purl.org/nidash/nidm#_88fd1700-e44b-11e7-a3b9-6c4008b8f03e",
+        "@type": [
+            "http://www.w3.org/ns/prov#Entity",
+            "http://purl.org/nidash/nidm#assessment-instrument"
+        ],
+        "http://bids.neuroimaging.io/adhd1": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adhd10": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adhd11": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adhd2": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adhd3": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adhd4": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adhd5": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adhd6": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adhd7": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adhd8": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adhd9": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/data_dictionary": [
+            {
+                "@value": "/phenotype/adhd.json"
+            }
+        ],
+        "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#filename": [
+            {
+                "@value": "/phenotype/adhd.tsv"
+            }
+        ],
+        "http://www.w3.org/ns/prov#wasGeneratedBy": [
+            {
+                "@id": "http://purl.org/nidash/nidm#_88fd1208-e44b-11e7-941c-6c4008b8f03e"
+            }
+        ]
+    },
+    {
+        "@id": "_:ub2bL339C31",
+        "@type": [
+            "http://www.w3.org/ns/prov#Association"
+        ],
+        "http://www.w3.org/ns/prov#Agent": [
+            {
+                "@id": "http://purl.org/nidash/nidm#_88f65012-e44b-11e7-b9e2-6c4008b8f03e"
+            }
+        ],
+        "http://www.w3.org/ns/prov#hadRole": [
+            {
+                "@id": "http://semanticscience.org/ontology/sio.owl#Subject"
+            }
+        ]
+    },
+    {
+        "@id": "http://purl.org/nidash/nidm#_88f8dcec-e44b-11e7-8ba0-6c4008b8f03e",
+        "@type": [
+            "http://semanticscience.org/ontology/sio.owl#file",
+            "http://www.w3.org/ns/prov#Entity"
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/AccelNumReferenceLines": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "32"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/AccelerationFactorPE": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "2"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/AcquisitionMatrix": [
+            {
+                "@value": "0/256/256/0"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/DeviceSerialNumber": [
+            {
+                "@value": "35343"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/EchoTime": [
+            {
+                "@value": 0.00331
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/EchoTrainLength": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "1"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/FlipAngle": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "7"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/ImageType": [
+            {
+                "@value": "ORIGINAL/PRIMARY/M/ND/NORM"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/ImagingFrequency": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "123249959"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/InPlanePhaseEncodingDirection": [
+            {
+                "@value": "ROW"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/InversionTime": [
+            {
+                "@value": 1.1
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/MRAcquisitionType": [
+            {
+                "@value": "3D"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/MagneticFieldStrength": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "3"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/ManufacturerModelName": [
+            {
+                "@value": "TrioTim"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/NumberOfAverages": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "1"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/NumberOfPhaseEncodingSteps": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "255"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/PatientPosition": [
+            {
+                "@value": "HFS"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/PercentPhaseFieldOfView": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "100"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/PercentSampling": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "100"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/PixelBandwidth": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "200"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/ProtocolName": [
+            {
+                "@value": "MPRAGE - BWM"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/ReceiveCoilName": [
+            {
+                "@value": "HeadMatrix"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/RepetitionTime": [
+            {
+                "@value": 2.53
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/ScanOptions": [
+            {
+                "@value": "IR"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/ScanningSequence": [
+            {
+                "@value": "GR/IR"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/SequenceName": [
+            {
+                "@value": "*tfl3d1_ns"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/SequenceVariant": [
+            {
+                "@value": "SP/MP"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/SoftwareVersions": [
+            {
+                "@value": "syngo MR B15"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/TotalScanTimeSec": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "363"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/TransmitCoilName": [
+            {
+                "@value": "Body"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/VariableFlipAngleFlag": [
+            {
+                "@value": "N"
+            }
+        ],
+        "http://purl.org/nidash/nidm#AcquisitionModality": [
+            {
+                "@id": "http://purl.org/nidash/nidm#MagneticResonanceImaging"
+            }
+        ],
+        "http://purl.org/nidash/nidm#PhaseEncodingDirection": [
+            {
+                "@value": "i-"
+            }
+        ],
+        "http://purl.org/nidash/nidm#hasImageContrastType": [
+            {
+                "@id": "http://purl.org/nidash/nidm#T1Weighted"
+            }
+        ],
+        "http://purl.org/nidash/nidm#hasImageUsageType": [
+            {
+                "@id": "http://purl.org/nidash/nidm#Anatomical"
+            }
+        ],
+        "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#filename": [
+            {
+                "@value": "/sub-10159/anat/sub-10159_T1w.nii.gz"
+            }
+        ],
+        "http://www.w3.org/ns/prov#wasGeneratedBy": [
+            {
+                "@id": "http://purl.org/nidash/nidm#_88f8d72e-e44b-11e7-b1aa-6c4008b8f03e"
+            }
+        ]
+    },
+    {
+        "@id": "http://purl.org/nidash/nidm#_88fc8dc2-e44b-11e7-8952-6c4008b8f03e",
+        "@type": [
+            "http://www.w3.org/ns/prov#Activity",
+            "http://purl.org/nidash/nidm#Acquisition"
+        ],
+        "http://purl.org/dc/terms/isPartOf": [
+            {
+                "@id": "http://purl.org/nidash/nidm#_88f6434a-e44b-11e7-b648-6c4008b8f03e"
+            }
+        ],
+        "http://www.w3.org/ns/prov#qualifiedAssociation": [
+            {
+                "@id": "_:ub2bL539C31"
+            }
+        ],
+        "http://www.w3.org/ns/prov#wasAssociatedWith": [
+            {
+                "@id": "http://purl.org/nidash/nidm#_88f65012-e44b-11e7-b9e2-6c4008b8f03e"
+            }
+        ]
+    },
+    {
+        "@id": "http://purl.org/nidash/nidm#_88fb454a-e44b-11e7-90e0-6c4008b8f03e",
+        "@type": [
+            "http://purl.org/nidash/nidm#Acquisition",
+            "http://www.w3.org/ns/prov#Activity"
+        ],
+        "http://purl.org/dc/terms/isPartOf": [
+            {
+                "@id": "http://purl.org/nidash/nidm#_88f6434a-e44b-11e7-b648-6c4008b8f03e"
+            }
+        ],
+        "http://www.w3.org/ns/prov#qualifiedAssociation": [
+            {
+                "@id": "_:ub2bL580C9"
+            },
+            {
+                "@id": "_:ub2bL577C31"
+            }
+        ],
+        "http://www.w3.org/ns/prov#wasAssociatedWith": [
+            {
+                "@id": "http://purl.org/nidash/nidm#_88f65012-e44b-11e7-b9e2-6c4008b8f03e"
+            }
+        ]
+    },
+    {
+        "@id": "_:ub2bL588C31",
+        "@type": [
+            "http://www.w3.org/ns/prov#Association"
+        ],
+        "http://www.w3.org/ns/prov#Agent": [
+            {
+                "@id": "http://purl.org/nidash/nidm#_88f65012-e44b-11e7-b9e2-6c4008b8f03e"
+            }
+        ],
+        "http://www.w3.org/ns/prov#hadRole": [
+            {
+                "@id": "http://semanticscience.org/ontology/sio.owl#Subject"
+            }
+        ]
+    },
+    {
+        "@id": "http://purl.org/nidash/nidm#_88f8d72e-e44b-11e7-b1aa-6c4008b8f03e",
+        "@type": [
+            "http://www.w3.org/ns/prov#Activity",
+            "http://purl.org/nidash/nidm#Acquisition"
+        ],
+        "http://purl.org/dc/terms/isPartOf": [
+            {
+                "@id": "http://purl.org/nidash/nidm#_88f6434a-e44b-11e7-b648-6c4008b8f03e"
+            }
+        ],
+        "http://www.w3.org/ns/prov#qualifiedAssociation": [
+            {
+                "@id": "_:ub2bL347C31"
+            }
+        ],
+        "http://www.w3.org/ns/prov#wasAssociatedWith": [
+            {
+                "@id": "http://purl.org/nidash/nidm#_88f65012-e44b-11e7-b9e2-6c4008b8f03e"
+            }
+        ]
+    },
+    {
+        "@id": "http://purl.org/nidash/nidm#_88f65012-e44b-11e7-b9e2-6c4008b8f03e",
+        "@type": [
+            "http://www.w3.org/ns/prov#Agent",
+            "http://www.w3.org/ns/prov#Person"
+        ],
+        "https://ndar.nih.gov/api/datadictionary/v2/dataelement/src_subject_id": [
+            {
+                "@value": "sub-10159"
+            }
+        ]
+    },
+    {
+        "@id": "_:ub2bL580C9",
+        "@type": [
+            "http://www.w3.org/ns/prov#Association"
+        ],
+        "http://www.w3.org/ns/prov#Agent": [
+            {
+                "@id": "http://purl.org/nidash/nidm#_88f65012-e44b-11e7-b9e2-6c4008b8f03e"
+            }
+        ],
+        "http://www.w3.org/ns/prov#hadRole": [
+            {
+                "@id": "http://semanticscience.org/ontology/sio.owl#Subject"
+            }
+        ]
+    },
+    {
+        "@id": "_:ub2bL539C31",
+        "@type": [
+            "http://www.w3.org/ns/prov#Association"
+        ],
+        "http://www.w3.org/ns/prov#Agent": [
+            {
+                "@id": "http://purl.org/nidash/nidm#_88f65012-e44b-11e7-b9e2-6c4008b8f03e"
+            }
+        ],
+        "http://www.w3.org/ns/prov#hadRole": [
+            {
+                "@id": "http://semanticscience.org/ontology/sio.owl#Subject"
+            }
+        ]
+    },
+    {
+        "@id": "http://purl.org/nidash/nidm#_88fc960a-e44b-11e7-80c1-6c4008b8f03e",
+        "@type": [
+            "http://purl.org/nidash/nidm#assessment-instrument",
+            "http://www.w3.org/ns/prov#Entity"
+        ],
+        "http://bids.neuroimaging.io/adhd_b": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adhd_c_dx": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adhd_c_ina_a1": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adhd_c_ina_a2": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adhd_c_ina_a3": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adhd_c_ina_a4": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adhd_c_ina_c1": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adhd_c_ina_c3": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adhd_c_ina_c4": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adhd_c_subtype": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adhd_e_adult": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adhd_e_child": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adhd_f_adult": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adhd_f_child": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adhd_f_child_dsm": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adhd_f_child_dx": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adhd_f_child_subtype": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adult_attention": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adult_attentionseverity": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adult_duration": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adult_hyperactivity": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adult_hyperactivityseverity": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adult_impairment": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adult_totalseverity": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adult_totalsymptoms": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adultadhd1": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adultadhd10": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adultadhd11": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adultadhd12": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adultadhd13": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adultadhd14": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adultadhd15": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adultadhd16": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adultadhd17": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adultadhd18": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adultadhd19": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adultadhd2": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adultadhd20": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adultadhd21": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adultadhd22": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adultadhd23": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adultadhd24": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adultadhd25": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adultadhd26": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adultadhd27": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adultadhd28": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adultadhd29": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adultadhd3": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adultadhd30": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adultadhd31": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adultadhd32": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adultadhd33": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adultadhd34": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adultadhd35": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adultadhd36": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adultadhd37": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adultadhd38": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adultadhd39": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adultadhd4": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adultadhd5": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adultadhd6": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adultadhd7": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adultadhd8": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/adultadhd9": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/childadhd": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/childadhd1": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/childadhd10": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/childadhd11": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/childadhd12": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/childadhd13": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/childadhd14": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/childadhd15": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/childadhd16": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/childadhd17": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/childadhd18": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/childadhd19": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/childadhd2": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/childadhd20": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/childadhd20age": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/childadhd21": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/childadhd22": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/childadhd23": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/childadhd24": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/childadhd25": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/childadhd26": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/childadhd27": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/childadhd28": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/childadhd29": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/childadhd3": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/childadhd30": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/childadhd31": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/childadhd32": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/childadhd33": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/childadhd34": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/childadhd35": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/childadhd36": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/childadhd37": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/childadhd38": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/childadhd39": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/childadhd4": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/childadhd40": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/childadhd5": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/childadhd6": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/childadhd7": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/childadhd8": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/childadhd9": [
+            {
+                "@value": "n/a"
+            }
+        ],
+        "http://bids.neuroimaging.io/data_dictionary": [
+            {
+                "@value": "/phenotype/acds_adult.json"
+            }
+        ],
+        "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#filename": [
+            {
+                "@value": "/phenotype/acds_adult.tsv"
+            }
+        ],
+        "http://www.w3.org/ns/prov#wasGeneratedBy": [
+            {
+                "@id": "http://purl.org/nidash/nidm#_88fc8dc2-e44b-11e7-8952-6c4008b8f03e"
+            }
+        ]
+    },
+    {
+        "@id": "_:ub2bL347C31",
+        "@type": [
+            "http://www.w3.org/ns/prov#Association"
+        ],
+        "http://www.w3.org/ns/prov#Agent": [
+            {
+                "@id": "http://purl.org/nidash/nidm#_88f65012-e44b-11e7-b9e2-6c4008b8f03e"
+            }
+        ],
+        "http://www.w3.org/ns/prov#hadRole": [
+            {
+                "@id": "http://semanticscience.org/ontology/sio.owl#Subject"
+            }
+        ]
+    },
+    {
+        "@id": "http://purl.org/nidash/nidm#_88fb4a40-e44b-11e7-b838-6c4008b8f03e",
+        "@type": [
+            "http://www.w3.org/ns/prov#Entity",
+            "http://semanticscience.org/ontology/sio.owl#file"
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/AccelNumReferenceLines": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "24"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/AccelerationFactorPE": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "2"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/AcquisitionMatrix": [
+            {
+                "@value": "64/0/0/64"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/DeviceSerialNumber": [
+            {
+                "@value": "35343"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/EchoTime": [
+            {
+                "@value": 0.03
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/EchoTrainLength": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "1"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/FlipAngle": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "90"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/ImageType": [
+            {
+                "@value": "ORIGINAL/PRIMARY/M/ND/MOSAIC"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/ImagingFrequency": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "123249486"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/InPlanePhaseEncodingDirection": [
+            {
+                "@value": "COL"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/MRAcquisitionType": [
+            {
+                "@value": "2D"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/MagneticFieldStrength": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "3"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/ManufacturerModelName": [
+            {
+                "@value": "TrioTim"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/NumberOfAverages": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "1"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/NumberOfPhaseEncodingSteps": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "63"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/PatientPosition": [
+            {
+                "@value": "HFS"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/PercentPhaseFieldOfView": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "100"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/PercentSampling": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "100"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/PixelBandwidth": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "1420"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/ProtocolName": [
+            {
+                "@value": "BOLD - STOPSIGNAL"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/ReceiveCoilName": [
+            {
+                "@value": "HeadMatrix"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/RepetitionTime": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "2"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/ScanOptions": [
+            {
+                "@value": "FS"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/ScanningSequence": [
+            {
+                "@value": "EP"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/SequenceName": [
+            {
+                "@value": "*epfid2d1_64"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/SequenceVariant": [
+            {
+                "@value": "SK"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/SoftwareVersions": [
+            {
+                "@value": "syngo MR B15"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/TotalScanTimeSec": [
+            {
+                "@type": "http://www.w3.org/2001/XMLSchema#int",
+                "@value": "376"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/TransmitCoilName": [
+            {
+                "@value": "Body"
+            }
+        ],
+        "http://neurolex.org/wiki/Category:DICOM_term/VariableFlipAngleFlag": [
+            {
+                "@value": "N"
+            }
+        ],
+        "http://purl.org/nidash/nidm#AcquisitionModality": [
+            {
+                "@id": "http://purl.org/nidash/nidm#MagneticResonanceImaging"
+            }
+        ],
+        "http://purl.org/nidash/nidm#EffectiveEchoSpacing": [
+            {
+                "@value": 0.000395
+            }
+        ],
+        "http://purl.org/nidash/nidm#PhaseEncodingDirection": [
+            {
+                "@value": "j-"
+            }
+        ],
+        "http://purl.org/nidash/nidm#SliceTiming": [
+            {
+                "@value": "1.002501.06250.05751.120.11751.180.17751.240.2351.29750.2951.35750.35251.41750.41251.4750.47251.5350.531.59250.591.65250.651.71250.70751.770.76751.830.8251.88750.8851.94750.945"
+            }
+        ],
+        "http://purl.org/nidash/nidm#Task": [
+            {
+                "@value": "stopsignal"
+            }
+        ],
+        "http://purl.org/nidash/nidm#hasImageContrastType": [
+            {
+                "@id": "http://purl.org/nidash/nidm#FlowWeighted"
+            }
+        ],
+        "http://purl.org/nidash/nidm#hasImageUsageType": [
+            {
+                "@id": "http://purl.org/nidash/nidm#Functional"
+            }
+        ],
+        "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#filename": [
+            {
+                "@value": "/sub-10159/func/sub-10159_task-stopsignal_bold.nii.gz"
+            }
+        ],
+        "http://www.w3.org/ns/prov#wasGeneratedBy": [
+            {
+                "@id": "http://purl.org/nidash/nidm#_88fb454a-e44b-11e7-90e0-6c4008b8f03e"
+            }
+        ]
+    },
+    {
+        "@id": "http://purl.org/nidash/nidm#_88fc67ec-e44b-11e7-8e8a-6c4008b8f03e",
+        "@type": [
+            "http://www.w3.org/ns/prov#Entity",
+            "http://purl.org/nidash/nidm#StimulusResponseFile"
+        ],
+        "http://purl.org/nidash/nidm#Task": [
+            {
+                "@value": "taskswitch"
+            }
+        ],
+        "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#filename": [
+            {
+                "@value": "/sub-10159/func/sub-10159_task-taskswitch_events.tsv"
+            }
+        ],
+        "http://www.w3.org/ns/prov#wasAttributedTo": [
+            {
+                "@id": "http://purl.org/nidash/nidm#_88fbcb50-e44b-11e7-b47c-6c4008b8f03e"
+            }
+        ],
+        "http://www.w3.org/ns/prov#wasGeneratedBy": [
+            {
+                "@id": "http://purl.org/nidash/nidm#_88fbc650-e44b-11e7-a1b0-6c4008b8f03e"
+            }
+        ]
+    }
+]

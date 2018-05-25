@@ -10,7 +10,7 @@ dataset_description = {
     "Procedure" : Constants.NIDM_PROJECT_DESCRIPTION,
     "License" : Constants.NIDM_PROJECT_LICENSE,
     "ReferencesAndLinks" : Constants.NIDM_PROJECT_REFERENCES,
-    "Authors" : Constants.NIDM_PROJECT_REFERENCES
+    "Authors" : Constants.NIDM_AUTHOR
 }
 
 #BIDS Participants file -> NIDM constants mappings
@@ -19,7 +19,8 @@ participants = {
     "sex" : Constants.NIDM_GENDER,
     "age" : Constants.NIDM_AGE,
     "gender" : Constants.NIDM_GENDER,
-    "diagnosis" : Constants.NIDM_DIAGNOSIS
+    "diagnosis" : Constants.NIDM_DIAGNOSIS,
+    "handedness" : Constants.NIDM_HANDEDNESS
 }
 #scan metadata -> NIDM constants mappings
 scans = {
@@ -27,7 +28,12 @@ scans = {
     "func" : Constants.NIDM_MRI_FUNCTION_SCAN,
     "dwi" : Constants.NIDM_MRI_DWI_SCAN,
     "bval" : Constants.NIDM_MRI_DWI_BVAL,
-    "bvec" : Constants.NIDM_MRI_DWI_BVEC
+    "bvec" : Constants.NIDM_MRI_DWI_BVEC,
+    "T1w" : Constants.NIDM_MRI_T1,
+    "T2w" : Constants.NIDM_MRI_T2,
+    "inplaneT2" : Constants.NIDM_MRI_T2,
+    "bold" : Constants.NIDM_MRI_FLOW,
+    "dti" : Constants.NIDM_MRI_DIFFUSION_TENSOR
 }
 #JSON file keys
 json_keys = {
