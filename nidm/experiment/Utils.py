@@ -13,8 +13,12 @@ import prov.model as pm
 from urllib.request import urlretrieve
 from urllib.parse import quote
 import requests
-
+from fuzzywuzzy import fuzz
+from fuzzywuzzy import process
 import json
+import owlready2 as owl2
+from github import Github, GithubException
+import getpass
 
 #NIDM imports
 from ..core import Constants
@@ -275,7 +279,7 @@ def QuerySciCrunchTermLabel(key,query_string):
     #read json data in from temporary file
     return json.load(open(json_packet))
 
-def QuerySciCrunchElasticSearch(key,query_string,cde_only=False):
+def QuerySciCrunchElasticSearch(key,query_string,cde_only=False, anscestors=True):
     '''
     This function will perform an elastic search in SciCrunch on the [query_string] using API [key] and return the json package.
     :param key: API key from sci crunch
@@ -299,15 +303,21 @@ def QuerySciCrunchElasticSearch(key,query_string,cde_only=False):
         ('key', key),
     )
     if cde_only:
-        data = '\n{\n  "query": {\n    "bool": {\n       "must" : [\n       {  "terms" : { "type" : ["cde" ] } },\n       { "terms" : { "ancestors.ilx" : ["ilx_0115066" , "ilx_0103210", "ilx_0115072"] } },\n       { "multi_match" : {\n         "query":    "%s", \n         "fields": [ "label", "definition" ] \n       } }\n]\n    }\n  }\n}\n' %query_string
+        if anscestors:
+            data = '\n{\n  "query": {\n    "bool": {\n       "must" : [\n       {  "term" : { "type" : "cde" } },\n       { "terms" : { "ancestors.ilx" : ["ilx_0115066" , "ilx_0103210", "ilx_0115072", "ilx_0115070"] } },\n       { "multi_match" : {\n         "query":    "%s", \n         "fields": [ "label", "definition" ] \n       } }\n]\n    }\n  }\n}\n' %query_string
+        else:
+            data = '\n{\n  "query": {\n    "bool": {\n       "must" : [\n       {  "term" : { "type" : "cde" } },\n             { "multi_match" : {\n         "query":    "%s", \n         "fields": [ "label", "definition" ] \n       } }\n]\n    }\n  }\n}\n' %query_string
     else:
-        data = '\n{\n  "query": {\n    "bool": {\n       "must" : [\n       {  "terms" : { "type" : ["cde" , "term"] } },\n       { "terms" : { "ancestors.ilx" : ["ilx_0115066" , "ilx_0103210", "ilx_0115072"] } },\n       { "multi_match" : {\n         "query":    "%s", \n         "fields": [ "label", "definition" ] \n       } }\n]\n    }\n  }\n}\n' %query_string
+        if anscestors:
+            data = '\n{\n  "query": {\n    "bool": {\n       "must" : [\n       {  "terms" : { "type" : ["cde" , "term"] } },\n       { "terms" : { "ancestors.ilx" : ["ilx_0115066" , "ilx_0103210", "ilx_0115072", "ilx_0115070"] } },\n       { "multi_match" : {\n         "query":    "%s", \n         "fields": [ "label", "definition" ] \n       } }\n]\n    }\n  }\n}\n' %query_string
+        else:
+            data = '\n{\n  "query": {\n    "bool": {\n       "must" : [\n       {  "terms" : { "type" : ["cde" , "term"] } },\n              { "multi_match" : {\n         "query":    "%s", \n         "fields": [ "label", "definition" ] \n       } }\n]\n    }\n  }\n}\n' %query_string
 
     response = requests.post('https://scicrunch.org/api/1/elastic-ilx/scicrunch/term/_search#', headers=headers, params=params, data=data)
 
     return json.loads(response.text)
 
-def GetNIDMTermsFromSciCrunch(key,query_string,cde_only=False):
+def GetNIDMTermsFromSciCrunch(key,query_string,cde_only=False, ancestor=True):
     '''
     Helper function which issues elastic search query of SciCrunch using QuerySciCrunchElasticSearch function and returns terms list
     with label, definition, and preferred URLs in dictionary
@@ -315,20 +325,329 @@ def GetNIDMTermsFromSciCrunch(key,query_string,cde_only=False):
     :param query_string: arbitrary string to search for terms
     :param cde_only: default=False but if set will query CDE's only not CDE + more general terms...CDE is an instantiation of a term for
     a particular use.
+    :param ancestor: Boolean flag to tell Interlex elastic search to use ancestors (i.e. tagged terms) or not
     :return: dictionary with keys 'ilx','label','definition','preferred_url'
     '''
 
-    json_data = QuerySciCrunchElasticSearch(key, query_string,cde_only)
+    json_data = QuerySciCrunchElasticSearch(key, query_string,cde_only,ancestor)
     results={}
-    #example printing term label, definition, and preferred URL
-    for term in json_data['hits']['hits']:
-        #find preferred URL
-        results[term['_source']['ilx']] = {}
-        for items in term['_source']['existing_ids']:
-            if items['preferred']=='1':
-                results[term['_source']['ilx']]['preferred_url']=items['iri']
-            results[term['_source']['ilx']]['label'] = term['_source']['label']
-            results[term['_source']['ilx']]['definition'] = term['_source']['definition']
+    #check if query was successful
+    if json_data['success'] == True:
+        #example printing term label, definition, and preferred URL
+        for term in json_data['hits']['hits']:
+            #find preferred URL
+            results[term['_source']['ilx']] = {}
+            for items in term['_source']['existing_ids']:
+                if items['preferred']=='1':
+                    results[term['_source']['ilx']]['preferred_url']=items['iri']
+                results[term['_source']['ilx']]['label'] = term['_source']['label']
+                results[term['_source']['ilx']]['definition'] = term['_source']['definition']
 
     return results
 
+def fuzzy_match_nidm_term(owl_file,query):
+    '''
+    This function performs a fuzzy match of the constants in Constants.py list nidm_experiment_terms for term constants matching the query....i
+    ideally this should really be searching the OWL file when it's ready
+    :param query: string to query
+    :return: dictionary whose key is the NIDM constant and value is the match score to the query
+    '''
+
+    #load nidm-experiment.owl file
+    owl_graph = get_ontology('file://' + owl_file).load()
+    #owl_graph = Graph()
+    #owl_graph_parse = owl_graph.parse(owl_file,format=util.guess_format(owl_file))
+
+    match_scores={}
+
+    #search for labels rdfs:label and obo:IAO_0000115 (description) for each rdf:type owl:Class
+    for term in owl_graph_parse.subjects(predicate=RDF.type, object=Constants.OWL['Class']):
+        for label in owl_graph_parse.objects(subject=term, predicate=Constants.RDFS['label']):
+            match_scores[term] = {}
+            match_scores[term]['score'] = fuzz.ratio(query,label)
+            match_scores[term]['label'] = label
+            match_scores[term]['url'] = term
+            for description in owl_graph_parse.objects(subject=term,predicate=Constants.OBO["IAO_0000115"]):
+                match_scores[term]['definition'] =description
+
+    #for term in owl_graph.classes():
+    #    print(term.get_properties())
+    return match_scores
+
+
+def map_variables_to_terms(df,apikey,output_file=None,json_file=None,github=None,owl_file=None):
+    '''
+
+    :param df: data frame with first row containing variable names
+    :param json_map: optional json document with variable names as keys and minimal fields "definition","label","url"
+    :param apikey: scicrunch key for rest API queries
+    :param github: boolean flag, if set local term definitions will be added to GitHub
+    :param owl_file: optional OWL file for additional terms
+    :param output_file: output filename to save variable-> term mappings
+    :return:return dictionary mapping variable names (i.e. columns) to terms
+    '''
+    #minimum match score for fuzzy matching NIDM terms
+    min_match_score=25
+
+    #dictionary mapping column name to preferred term
+    column_to_terms={}
+
+    #flag for whether a new term has been defined, on first occurance ask for namespace URL
+    new_term=True
+
+    #check if user supplied a JSON file and we already know a mapping for this column
+    if json_file:
+        #load file and
+        #json_map = json.load(open(json_file))
+        with open(json_file,'r+') as f:
+            json_map = json.load(f)
+
+
+    #iterate over columns
+    for column in df.columns:
+            #tk stuff
+            #root=tk.Tk()
+            #listb=NewListbox(root,selectmode=tk.SINGLE)
+        #search term for elastic search
+        search_term=str(column)
+        #loop variable for terms markup
+        go_loop=True
+        #set up a dictionary entry for this column
+        column_to_terms[column] = {}
+
+        #if we loaded a json file with existing mappings
+        try:
+            json_map
+
+            #check for column in json file
+            if (json_map!= None) and (column in json_map):
+
+                column_to_terms[column]['label'] = json_map[column]['label']
+                column_to_terms[column]['definition'] = json_map[column]['definition']
+                column_to_terms[column]['url'] = json_map[column]['url']
+
+                print("Column %s already mapped to terms in user supplied JSON mapping file" %column)
+                print("Label: %s" %column_to_terms[column]['label'])
+                print("Definition: %s" %column_to_terms[column]['definition'])
+                print("Url: %s" %column_to_terms[column]['url'])
+                print("---------------------------------------------------------------------------------------")
+                continue
+        except NameError:
+            print("json mapping file not supplied")
+        #flag for whether to use ancestors in Interlex query or not
+        ancestor=True
+
+        #loop to find a term definition by iteratively searching scicrunch...or defining your own
+        while go_loop:
+            #variable for numbering options returned from elastic search
+            option=1
+
+
+
+            #for each column name, query Interlex for possible matches
+            search_result = GetNIDMTermsFromSciCrunch(apikey,search_term,cde_only=True,ancestor=ancestor)
+
+            temp=search_result.copy()
+            print("Search Term: %s" %search_term)
+            print("Search Results: ")
+            for key,value in temp.items():
+
+                print("%d: Label: %s \t Definition: %s \t Preferred URL: %s " %(option,search_result[key]['label'],search_result[key]['definition'],search_result[key]['preferred_url']  ))
+                #add to dialog box for user to check which one is correct
+                #listb.insert("end",search_result[key]['label']+", " +search_result[key]['definition'])
+                search_result[str(option)] = key
+                option=option+1
+
+             #if user supplied an OWL file to search in for terms
+            if owl_file:
+                #Add existing NIDM Terms as possible selections which fuzzy match the search_term
+                nidm_constants_query = fuzzy_match_nidm_term(args.owl_file,search_term)
+                #nidm_constants_query = sorted(nidm_constants_query_unsorted.items(),key=operator.itemgetter(1))
+
+                for key, value in nidm_constants_query.items():
+                    if value > min_match_score:
+                        print("%d: NIDM Constant: %s \t NIDM Term: %s \t Match Score: %4.2f" %(option, key, key.localpart, value))
+                        search_result[key] = {}
+                        search_result[key]['label']=nidm_constants_query[key]['label']
+                        search_result[key]['definition']=nidm_constants_query[key]['definition']
+                        search_result[key]['preferred_url']=nidm_constants_query[key]['url']
+                        search_result[str(option)] = key
+                        option=option+1
+            #else just give a list of the NIDM constants for user to choose
+            else:
+                match_scores={}
+                for index,item in enumerate(Constants.nidm_experiment_terms):
+                    match_scores[item._str] = fuzz.ratio(search_term,item._str)
+                match_scores_sorted=sorted(match_scores.items(), key=lambda x: x[1])
+                for score in match_scores_sorted:
+                    if ( score[1] > min_match_score):
+                        for term in Constants.nidm_experiment_terms:
+                            if term._str==score[0]:
+                                search_result[term._str] = {}
+                                search_result[term._str]['label']=score[0]
+                                search_result[term._str]['definition']=score[0]
+                                search_result[term._str]['preferred_url']=term._uri
+                                search_result[str(option)] = term._str
+                                print("%d: NIDM Constant: %s \t URI: %s" %(option,score[0],term._uri))
+                                option=option+1
+
+            if ancestor:
+                #Broaden Interlex search
+                print("%d: Broaden Interlex query " %option)
+            else:
+                #Narrow Interlex search
+                print("%d: Narrow Interlex query " %option)
+            option=option+1
+
+
+            #Add option to change query string
+            print("%d: Change Interlex query string from: \"%s\"" %(option,column))
+            option=option+1
+            #Add option to define your own term
+            print("%d: Define my own term for this variable" %option)
+
+            print("---------------------------------------------------------------------------------------")
+            #Wait for user input
+            selection=input("Please select an option (1:%d) from above: \t" %(option))
+
+            #Make sure user selected one of the options.  If not present user with selection input again
+            #while (isinstance(selection,str)):
+                #Wait for user input
+            #    selection=input("Please select an option (1:%d) from above: \t" %(option))
+
+
+            #toggle use of ancestors in interlext query or not
+            if int(selection) == (option-2):
+                ancestor=not ancestor
+            #check if selection is to re-run query with new search term
+            elif int(selection) == (option-1):
+                #ask user for new search string
+                search_term = input("Please input new search term for CSV column: %s \t:" % column)
+                print("---------------------------------------------------------------------------------------")
+
+            elif int(selection) == option:
+                #user wants to define their own term.  Ask for term label and definition
+                print("\nYou selected to enter a new term for CSV column: %s" % column)
+                if (new_term):
+                    #checking to see if user set command line flag -github to use github for local terms
+                    if github:
+                        print("You've selected using GitHub to store your locally defined terms.")
+                        while True:
+                            user = input("Please enter your GitHub user name: ")
+                            pw = getpass.getpass("Please enter your GitHub password: ")
+                            print("\nLogging into GitHub...")
+                            #try to logging into GitHub
+                            g=Github(user,pw)
+                            authed=g.get_user()
+                            try:
+                                #check we're logged in by checking that we can access the public repos list
+                                repo=authed.public_repos
+                                print("Success!")
+                                new_term=False
+                                break
+                            except GithubException as e:
+                                print("error logging into your github account, please try again...")
+
+                        #check to see if nidm-local-terms repo exists
+                        try:
+                            repo=authed.get_repo('nidm-local-terms')
+                            #set namespace to repo URL
+                            local_namespace = repo.html_url
+                            print("\nnidm-local-terms repo already exists, continuing...\n")
+                        except GithubException as e:
+                            print("\nnidm-local-terms repo doesn't exist, creating...\n")
+                            #try to create the repo
+                            try:
+                                repo=authed.create_repo(name='nidm-local-terms',description='Created for NIDM document local term definitions')
+                            except GithubException as e:
+                                print("Unable to create terms repo, exception: %s" % e)
+                                exit()
+                    else:
+                        local_namespace=" "
+                        while not validators.url(local_namespace):
+                            print("By not setting the command line flag \"-github\" you have selected to store locally defined terms in a sidecar RDF file on disk")
+                            local_namespace = input("Please enter a valid URL for your namespace (e.g. http://nidm.nidash.org): ")
+                        #if we're out of loop then namespace was valid so change new_term variable to prevent
+                        new_term=False
+
+                #collect term information from user
+                term_label = input("Please enter a term label for this column (%s):\t" % column)
+                term_definition = input("Please enter a definition:\t")
+                term_units = input("Please enter the units:\t")
+                term_datatype = input("Please enter the datatype:\t")
+                term_min = input("Please enter the minimum value:\t")
+                term_max = input("Please enter the maximum value:\t")
+                term_variable_name = column
+
+
+                #don't need to continue while loop because we've defined a term for this CSV column
+                go_loop=False
+
+                #if we're using Github
+                if github:
+                    #add term as issue
+                    body = "Label/Name: " + term_label + "\nDefinition/Description: " + term_definition + "\nUnits: " + \
+                        term_units + "\nDatatype/Value Type: " + term_datatype + "\nMinimum Value: " + term_min + \
+                        "\nMaximum Value: " + term_max + "\nVariable Name: " + term_variable_name
+
+                    issue=repo.create_issue(title=term_label, body=body)
+
+                    #URL will be repo.url/issues/issue.number
+
+
+                #add new term to NIDM document or OWL file (need to make this decision)
+
+                #add inputted term to column_to_term mapping dictionary
+                column_to_terms[column]['label'] = term_label
+                column_to_terms[column]['definition'] = term_definition
+                #try to guess from the data what datatype the variable might be
+
+                #Get variable range from data file and ask for user to accept range or specify another range
+
+
+
+                #generate random term id
+                #column_to_terms[column]['id'] = getUUID()
+                #column_to_terms[column]['url'] = urllib.parse.urljoin(namespace,column_to_terms[column]['id'])
+                column_to_terms[column]['url'] = issue.html_url
+
+                #print mappings
+                print("Stored mapping Column: %s ->  ")
+                print("Label: %s" %column_to_terms[column]['label'])
+                print("Definition: %s" %column_to_terms[column]['definition'])
+                print("Url: %s" %column_to_terms[column]['url'])
+                print("---------------------------------------------------------------------------------------")
+
+
+            else:
+                #add selected term to map
+                column_to_terms[column]['label'] = search_result[search_result[selection]]['label']
+                column_to_terms[column]['definition'] = search_result[search_result[selection]]['definition']
+                column_to_terms[column]['url'] = search_result[search_result[selection]]['preferred_url']
+
+                #print mappings
+                print("Stored mapping Column: %s ->  " % column)
+                print("Label: %s" %column_to_terms[column]['label'])
+                print("Definition: %s" %column_to_terms[column]['definition'])
+                print("Url: %s" %column_to_terms[column]['url'])
+                print("---------------------------------------------------------------------------------------")
+
+                #don't need to continue while loop because we've defined a term for this CSV column
+                go_loop=False
+
+         #write variable-> terms map as JSON file to disk
+        #get -out directory from command line parameter
+        if output_file!= None:
+            #dir = os.path.dirname(output_file)
+            file_path=os.path.relpath(output_file)
+            with open(file_path,'w+') as fp:
+                json.dump(column_to_terms,fp)
+
+
+
+        #listb.pack()
+        #listb.autowidth()
+        #root.mainloop()
+        #input("Press Enter to continue...")
+
+    return column_to_terms

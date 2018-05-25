@@ -19,7 +19,8 @@ participants = {
     "sex" : Constants.NIDM_GENDER,
     "age" : Constants.NIDM_AGE,
     "gender" : Constants.NIDM_GENDER,
-    "diagnosis" : Constants.NIDM_DIAGNOSIS
+    "diagnosis" : Constants.NIDM_DIAGNOSIS,
+    "handedness" : Constants.NIDM_HANDEDNESS
 }
 #scan metadata -> NIDM constants mappings
 scans = {

@@ -46,6 +46,7 @@ NDAR = Namespace("https://ndar.nih.gov/api/datadictionary/v2/dataelement/")
 NCICB = Namespace("http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#")
 SIO = Namespace("http://semanticscience.org/ontology/sio.owl#")
 BIDS = Namespace("http://bids.neuroimaging.io/")
+OWL = Namespace("http://www.w3.org/2002/07/owl#")
 
 namespaces = {
    # "prov": PROV,
@@ -72,7 +73,8 @@ namespaces = {
     "ndar" : NDAR,
     "ncicb" : NCICB,
     "sio" : SIO,
-    "bids" : BIDS
+    "bids" : BIDS,
+    "owl" : OWL
     }
 
 # Empty graph used to compute qnames
@@ -379,3 +381,51 @@ NLX_FMRI_PROTOCOL = NLX['birnlex_2250']
 NLX_IMAGING_INSTRUMENT = NLX['birnlex_2094']
 
 SKOS_DEFINITION = SKOS['definition']
+
+
+####ADDED BY DBK to make searching NIDM-Experiment Terms easier...temporary, should be done in the OWL file#####
+nidm_experiment_terms = [NIDM_PROJECT,
+NIDM_PROJECT_IDENTIFIER,
+NIDM_PROJECT_NAME,
+NIDM_PROJECT_DESCRIPTION,
+NIDM_PROJECT_LICENSE,
+NIDM_PROJECT_URL,
+NIDM_PROJECT_REFERENCES,
+NIDM_AUTHOR,
+NIDM_SESSION,
+NIDM_ACQUISITION_ACTIVITY,
+NIDM_ACQUISITION_MODALITY,
+NIDM_ASSESSMENT_ACQUISITION,
+NIDM_ACQUISITION_ENTITY,
+NIDM_DEMOGRAPHICS_ENTITY,
+NIDM_ASSESSMENT_ENTITY,
+NIDM_FILENAME,
+NIDM_FILE,
+NIDM_PI,
+NIDM_COI,
+NIDM_PARTICIPANT,
+NIDM_AGE,
+NIDM_GENDER,
+NIDM_SEX,
+NIDM_HANDEDNESS,
+NCICB_ETHNICITY,
+NIDM_DIAGNOSIS,
+NIDM_FAMILY_NAME,
+NIDM_GIVEN_NAME,
+NIDM_SUBJECTID,
+NIDM_IMAGE_CONTRAST_TYPE,
+NIDM_IMAGE_USAGE_TYPE,
+NIDM_MRI,
+NIDM_MRI_ANATOMIC_SCAN,
+NIDM_MRI_STRUCTURE_SCAN,
+NIDM_MRI_FUNCTION_SCAN,
+NIDM_MRI_DWI_SCAN,
+NIDM_MRI_DWI_BVAL,
+NIDM_MRI_DWI_BVEC,
+NIDM_MRI_FUNCTION_TASK,
+NIDM_MRI_T1,
+NIDM_MRI_T2,
+NIDM_MRI_T2_STAR,
+NIDM_MRI_DIFFUSION_TENSOR,
+NIDM_MRI_FLOW,
+NIDM_MRI_BOLD_EVENTS]
