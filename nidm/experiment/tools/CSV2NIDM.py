@@ -95,7 +95,7 @@ def main(argv):
     parser.add_argument('-nidm', dest='nidm_file', required=False, help="Optional NIDM file to add CSV->NIDM converted graph to")
     parser.add_argument('-github',dest='github', type=str, nargs='*', default = 'None', required=False, help='Use -github flag with list username,token(or pw) for storing locally-defined terms in a \
                     \"nidm-local-terms\" repository in GitHub.  If user doesn''t supply a token then user will be prompted for username/password.\n \
-                    Example: -github username,token')
+                    Example: -github username token')
     parser.add_argument('-owl', action='store_true', required=False, help='Optionally searches NIDM OWL files...internet connection required')
     parser.add_argument('-out', dest='output_file', required=True, help="Filename to save NIDM file")
     args = parser.parse_args()

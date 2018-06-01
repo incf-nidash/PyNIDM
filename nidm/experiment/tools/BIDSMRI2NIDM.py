@@ -78,8 +78,9 @@ def main(argv):
     mapvars_group = parser.add_argument_group('Map Variables to Terms')
     mapvars_group.add_argument('-json_map', '--json_map', dest='json_map',required=False,default=None,help="Optional user-suppled JSON file containing variable-term mappings.")
     mapvars_group.add_argument('-ilxkey', '--ilxkey', dest='key', required=False, default=None,  help="Interlex/SciCrunch API key to use for query")
-    mapvars_group.add_argument('-github','--github', type=str, nargs='*', default = 'None',dest='github',  required=False, help='If -github flag is set, locally-defined terms will be placed in a \
-                    \"nidm-local-terms\" repository in GitHub.')
+    mapvars_group.add_argument('-github','--github', type=str, nargs='*', default = 'None',dest='github',  required=False, help='Use -github flag with list username,token(or pw) for storing locally-defined terms in a \
+                    \"nidm-local-terms\" repository in GitHub.  If user doesn''t supply a token then user will be prompted for username/password.\n \
+                    Example: -github username token')
     mapvars_group.add_argument('-owl', action='store_true', required=False, default=None,help='Optional flag to query nidm-experiment OWL files')
     #parser.add_argument('-mapvars', '--mapvars', action='store_true', help='If flag set, variables in participant.tsv and phenotype files will be interactively mapped to terms')
     parser.add_argument('-o', dest='outputfile', default="nidm.ttl", help="Outputs turtle file called nidm.ttl in BIDS directory by default and adds to .bidsignore file")
