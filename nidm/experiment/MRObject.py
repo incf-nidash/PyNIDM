@@ -30,7 +30,7 @@ class MRObject(AcquisitionObject):
         #execute default parent class constructor
         super(MRObject,self).__init__(acquisition,attributes,uuid)
 
-        self.add_attributes({pm.PROV_TYPE: Constants.NIDM_FILE})
+        self.add_attributes({pm.PROV_TYPE: Constants.NIDM_ACQUISITION_ENTITY})
         self.add_attributes({Constants.NIDM_ACQUISITION_MODALITY: Constants.NIDM_MRI})
 
         #carry graph object around

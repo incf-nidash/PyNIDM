@@ -47,6 +47,8 @@ NCICB = Namespace("http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#")
 SIO = Namespace("http://semanticscience.org/ontology/sio.owl#")
 BIDS = Namespace("http://bids.neuroimaging.io/")
 OWL = Namespace("http://www.w3.org/2002/07/owl#")
+ONLI = Namespace("http://neurolog.unice.fr/ontoneurolog/v3.0/instrument.owl#")
+PATO = Namespace("http://purl.obolibrary.org/obo/pato#")
 
 namespaces = {
    # "prov": PROV,
@@ -74,7 +76,9 @@ namespaces = {
     "ncicb" : NCICB,
     "sio" : SIO,
     "bids" : BIDS,
-    "owl" : OWL
+    "owl" : OWL,
+    "onli" : ONLI,
+    "pato" : PATO
     }
 
 # Empty graph used to compute qnames
@@ -291,10 +295,14 @@ NIDM_AUTHOR = QualifiedName(provNamespace("ncit", DCAT),"author")
 NIDM_SESSION = QualifiedName(provNamespace("nidm", NIDM), 'Session')
 NIDM_ACQUISITION_ACTIVITY = QualifiedName(provNamespace("nidm", NIDM), "Acquisition")
 NIDM_ACQUISITION_MODALITY = QualifiedName(provNamespace("nidm",NIDM),"AcquisitionModality")
-NIDM_ASSESSMENT_ACQUISITION = QualifiedName(provNamespace("nidm", NIDM), "assessment-instrument")
+NIDM_ASSESSMENT_ACQUISITION = QualifiedName(provNamespace("onli", ONLI), "instrument-based-assessment")
 NIDM_ACQUISITION_ENTITY = QualifiedName(provNamespace("nidm", NIDM), "AcquisitionObject")
-NIDM_DEMOGRAPHICS_ENTITY = QualifiedName(provNamespace("nidm", NIDM), "DemographicsAssessment")
-NIDM_ASSESSMENT_ENTITY = QualifiedName(provNamespace("nidm", NIDM), "assessment-instrument")
+
+NIDM_DEMOGRAPHICS_ENTITY = QualifiedName(provNamespace("nidm", NIDM), "DemographicsInstrument")
+NIDM_ASSESSMENT_USAGE_TYPE = QualifiedName(provNamespace("nidm", NIDM),"AssessmentUsageType")
+
+
+NIDM_ASSESSMENT_ENTITY = QualifiedName(provNamespace("onli", ONLI), "assessment-instrument")
 #files
 NIDM_FILENAME = QualifiedName(provNamespace("nfo", NFO), "filename")
 NIDM_FILE = QualifiedName(provNamespace("sio", SIO), "file")
@@ -305,10 +313,12 @@ NIDM_PARTICIPANT = QualifiedName(provNamespace("sio", SIO),"Subject")
 #Demographics
 NIDM_AGE = QualifiedName(provNamespace("ncidb",NCICB),"Age")
 NIDM_GENDER = QualifiedName(provNamespace("ndar",NDAR),"gender")
-NIDM_SEX = QualifiedName(provNamespace("ncit",NCIT),"Sex")
+NIDM_SEX = QualifiedName(provNamespace("pato",PATO),"PhenotypicSex")
 NIDM_HANDEDNESS = QualifiedName(provNamespace("obo",OBO),"handedness")
 #NIDM_HANDEDNESS = OBO["PATO_0002201"] is correct term ID for handedness above
-NCICB_ETHNICITY = QualifiedName(provNamespace("ncicb",NCICB),"EthnicGroup")
+NIDM_ETHNICITY = QualifiedName(provNamespace("sio",SIO),"ethnicity")
+NIDM_RACE = QualifiedName(provNamespace("sio",SIO),"race")
+
 #NCICB_ETHNICITY = NCICB["C16564"] is correct term ID for ethnic group
 NIDM_DIAGNOSIS = QualifiedName(provNamespace("ncit",NCIT),"Diagnosis")
 NIDM_FAMILY_NAME = QualifiedName(provNamespace("foaf",FOAF),"familyName")
@@ -408,7 +418,8 @@ NIDM_AGE,
 NIDM_GENDER,
 NIDM_SEX,
 NIDM_HANDEDNESS,
-NCICB_ETHNICITY,
+NIDM_RACE,
+NIDM_ETHNICITY,
 NIDM_DIAGNOSIS,
 NIDM_FAMILY_NAME,
 NIDM_GIVEN_NAME,

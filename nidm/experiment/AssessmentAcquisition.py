@@ -31,6 +31,7 @@ class AssessmentAcquisition(Acquisition):
         #acquisition.graph._add_record(self)
 
         self.add_attributes({pm.PROV_TYPE: Constants.NIDM_ACQUISITION_ACTIVITY})
+        self.add_attributes({pm.PROV_TYPE: Constants.NIDM_ASSESSMENT_ACQUISITION})
 
         #carry graph object around
         self.graph = session.graph

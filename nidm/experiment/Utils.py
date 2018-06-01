@@ -10,13 +10,11 @@ from rdflib import Graph, RDF, URIRef, util, term
 from rdflib.namespace import split_uri
 import validators
 import prov.model as pm
-from urllib.request import urlretrieve
+from urllib.request import urlretrieve, urlopen, URLError
 from urllib.parse import quote
 import requests
 from fuzzywuzzy import fuzz
-from fuzzywuzzy import process
 import json
-import owlready2 as owl2
 from github import Github, GithubException
 import getpass
 
@@ -261,23 +259,6 @@ def add_metadata_for_subject (rdf_graph,subject_uri,namespaces,nidm_obj):
 
                 nidm_obj.add_attributes({predicate : get_RDFliteral_type(objects)})
 
-def QuerySciCrunchTermLabel(key,query_string):
-    '''
-    This function will query SciCrunch term labels for instance of query string
-    :param key: API key to query scicrunch.  See scicrunch.org for details, also
-            Manual: https://scicrunch.org/browse/api-docs/index.html?url=https://scicrunch.org/swagger-docs/swagger.json
-    :param query_string: term string to query scicrunch for
-    :return: JSON description of available terms matching query_string
-
-    '''
-    api_base = 'https://scicrunch.org/api/1/ilx/search/term/'
-
-    #make query string URL safe
-    qstring=quote(query_string)
-    #returns JSON as temporary file
-    json_packet,info = urlretrieve(api_base + qstring + '?key=' + key)
-    #read json data in from temporary file
-    return json.load(open(json_packet))
 
 def QuerySciCrunchElasticSearch(key,query_string,cde_only=False, anscestors=True):
     '''
@@ -293,6 +274,9 @@ def QuerySciCrunchElasticSearch(key,query_string,cde_only=False, anscestors=True
     #the "ancestors.ilx" parameter in the query data package below with new interlex IDs...
     #this allows interlex developers to dynamicall change the ancestor terms that are part of the ReproNim term trove and have this
     #query use that new information....
+
+
+    #Add check for internet connnection, if not then skip this query...return empty dictionary
 
 
     headers = {
@@ -313,7 +297,7 @@ def QuerySciCrunchElasticSearch(key,query_string,cde_only=False, anscestors=True
         else:
             data = '\n{\n  "query": {\n    "bool": {\n       "must" : [\n       {  "terms" : { "type" : ["cde" , "term"] } },\n              { "multi_match" : {\n         "query":    "%s", \n         "fields": [ "label", "definition" ] \n       } }\n]\n    }\n  }\n}\n' %query_string
 
-    response = requests.post('https://scicrunch.org/api/1/elastic-ilx/scicrunch/term/_search#', headers=headers, params=params, data=data)
+    response = requests.post('https://scicrunch.org/api/1/elastic/interlex/term/_search#', headers=headers, params=params, data=data)
 
     return json.loads(response.text)
 
@@ -332,7 +316,7 @@ def GetNIDMTermsFromSciCrunch(key,query_string,cde_only=False, ancestor=True):
     json_data = QuerySciCrunchElasticSearch(key, query_string,cde_only,ancestor)
     results={}
     #check if query was successful
-    if json_data['success'] == True:
+    if json_data['timed_out'] != True:
         #example printing term label, definition, and preferred URL
         for term in json_data['hits']['hits']:
             #find preferred URL
@@ -345,35 +329,135 @@ def GetNIDMTermsFromSciCrunch(key,query_string,cde_only=False, ancestor=True):
 
     return results
 
-def fuzzy_match_nidm_term(owl_file,query):
+def load_nidm_owl_files():
+    '''
+    This function loads the NIDM-experiment related OWL files and imports, creates a union graph and returns it.
+    :return: graph of all OWL files and imports from PyNIDM experiment
+    '''
+    #load nidm-experiment.owl file and all imports directly
+    #create empty graph
+    union_graph = Graph()
+    #check if there is an internet connection, if so load directly from https://github.com/incf-nidash/nidm-specs/tree/master/nidm/nidm-experiment/terms and
+    # https://github.com/incf-nidash/nidm-specs/tree/master/nidm/nidm-experiment/imports
+    basepath=os.path.dirname(os.path.dirname(__file__))
+    terms_path = os.path.join(basepath,"terms")
+    imports_path=os.path.join(basepath,"terms","imports")
+
+    imports=[
+            "crypto_import.ttl",
+            "dc_import.ttl",
+            "iao_import.ttl",
+            "nfo_import.ttl",
+            "nlx_import.ttl",
+            "obi_import.ttl",
+            "ontoneurolog_instruments_import.ttl",
+            "pato_import.ttl",
+            "prv_import.ttl",
+            "qibo_import.ttl",
+            "sio_import.ttl",
+            "stato_import.ttl"
+    ]
+    owls=[
+            "demographics2.owl",
+            "nidm-experiment.owl"
+    ]
+    #load each import
+    for resource in imports:
+        temp_graph = Graph()
+        try:
+
+            temp_graph.parse(os.path.join(imports_path,resource),format="turtle")
+            union_graph=union_graph+temp_graph
+
+        except Exception:
+            print("Error opening %s import file..continuing" %os.path.join(imports_path,resource))
+            continue
+
+    #load each owl file
+    for resource in owls:
+        temp_graph = Graph()
+        try:
+            temp_graph.parse(os.path.join(terms_path,resource),format="turtle")
+            union_graph=union_graph+temp_graph
+        except Exception:
+            print("Error opening %s owl file..continuing" %os.path.join(terms_path,resource))
+            continue
+
+
+    return union_graph
+
+
+def fuzzy_match_terms_from_graph(graph,query_string):
     '''
     This function performs a fuzzy match of the constants in Constants.py list nidm_experiment_terms for term constants matching the query....i
     ideally this should really be searching the OWL file when it's ready
-    :param query: string to query
+    :param query_string: string to query
     :return: dictionary whose key is the NIDM constant and value is the match score to the query
     '''
 
-    #load nidm-experiment.owl file
-    owl_graph = get_ontology('file://' + owl_file).load()
-    #owl_graph = Graph()
-    #owl_graph_parse = owl_graph.parse(owl_file,format=util.guess_format(owl_file))
 
     match_scores={}
 
     #search for labels rdfs:label and obo:IAO_0000115 (description) for each rdf:type owl:Class
-    for term in owl_graph_parse.subjects(predicate=RDF.type, object=Constants.OWL['Class']):
-        for label in owl_graph_parse.objects(subject=term, predicate=Constants.RDFS['label']):
+    for term in graph.subjects(predicate=RDF.type, object=Constants.OWL["Class"]):
+        for label in graph.objects(subject=term, predicate=Constants.RDFS['label']):
             match_scores[term] = {}
-            match_scores[term]['score'] = fuzz.ratio(query,label)
+            match_scores[term]['score'] = fuzz.token_sort_ratio(query_string,label)
             match_scores[term]['label'] = label
             match_scores[term]['url'] = term
-            for description in owl_graph_parse.objects(subject=term,predicate=Constants.OBO["IAO_0000115"]):
+            match_scores[term]['definition']=None
+            for description in graph.objects(subject=term,predicate=Constants.OBO["IAO_0000115"]):
                 match_scores[term]['definition'] =description
 
     #for term in owl_graph.classes():
     #    print(term.get_properties())
     return match_scores
 
+
+def authenticate_github(authed=None,credentials=None):
+    '''
+    This function will hangle GitHub authentication with or without a token.  If the parameter authed is defined the
+    function will check whether it's an active/valide authentication object.  If not, and username/token is supplied then
+    an authentication object will be created.  If username + token is not supplied then the user will be prompted to input
+    the information.
+    :param authed: Optional authenticaion object from PyGithub
+    :param credentials: Optional GitHub credential list username,password or username,token
+    :return: GitHub authentication object or None if unsuccessful
+
+    '''
+
+    print("GitHub authentication...")
+    indx=1
+    maxtry=5
+    while indx < maxtry:
+        if (len(credentials)>= 2):
+            #authenticate with token
+            g=Github(credentials[0],credentials[1])
+        elif (len(credentials)==1):
+            pw = getpass.getpass("Please enter your GitHub password: ")
+            g=Github(credentials[0],pw)
+        else:
+            username = input("Please enter your GitHub user name: ")
+            pw = getpass.getpass("Please enter your GitHub password: ")
+            #try to logging into GitHub
+            g=Github(username,pw)
+
+        authed=g.get_user()
+        try:
+            #check we're logged in by checking that we can access the public repos list
+            repo=authed.public_repos
+            print("Github authentication successful")
+            new_term=False
+            break
+        except GithubException as e:
+            print("error logging into your github account, please try again...")
+            indx=indx+1
+
+    if (indx == maxtry):
+        print("GitHub authentication failed.  Check your username / password / token and try again")
+        return None
+    else:
+        return authed
 
 def map_variables_to_terms(df,apikey,output_file=None,json_file=None,github=None,owl_file=None):
     '''
@@ -387,7 +471,7 @@ def map_variables_to_terms(df,apikey,output_file=None,json_file=None,github=None
     :return:return dictionary mapping variable names (i.e. columns) to terms
     '''
     #minimum match score for fuzzy matching NIDM terms
-    min_match_score=25
+    min_match_score=50
 
     #dictionary mapping column name to preferred term
     column_to_terms={}
@@ -402,6 +486,9 @@ def map_variables_to_terms(df,apikey,output_file=None,json_file=None,github=None
         with open(json_file,'r+') as f:
             json_map = json.load(f)
 
+    #Authenticate GitHub if user selected to use github
+    if github != None:
+        authed = authenticate_github(credentials=github)
 
     #iterate over columns
     for column in df.columns:
@@ -437,6 +524,10 @@ def map_variables_to_terms(df,apikey,output_file=None,json_file=None,github=None
         #flag for whether to use ancestors in Interlex query or not
         ancestor=True
 
+        #load NIDM OWL files if user requested it
+        if owl_file:
+            nidm_owl_graph = load_nidm_owl_files()
+
         #loop to find a term definition by iteratively searching scicrunch...or defining your own
         while go_loop:
             #variable for numbering options returned from elastic search
@@ -461,12 +552,12 @@ def map_variables_to_terms(df,apikey,output_file=None,json_file=None,github=None
              #if user supplied an OWL file to search in for terms
             if owl_file:
                 #Add existing NIDM Terms as possible selections which fuzzy match the search_term
-                nidm_constants_query = fuzzy_match_nidm_term(args.owl_file,search_term)
+                nidm_constants_query = fuzzy_match_terms_from_graph(nidm_owl_graph, search_term)
                 #nidm_constants_query = sorted(nidm_constants_query_unsorted.items(),key=operator.itemgetter(1))
 
-                for key, value in nidm_constants_query.items():
-                    if value > min_match_score:
-                        print("%d: NIDM Constant: %s \t NIDM Term: %s \t Match Score: %4.2f" %(option, key, key.localpart, value))
+                for key, subdict in nidm_constants_query.items():
+                    if nidm_constants_query[key]['score'] > min_match_score:
+                        print("%d: Label(NIDM Term): %s \t Definition: %s \t URL: %s" %(option, nidm_constants_query[key]['label'], nidm_constants_query[key]['definition'], nidm_constants_query[key]['url']))
                         search_result[key] = {}
                         search_result[key]['label']=nidm_constants_query[key]['label']
                         search_result[key]['definition']=nidm_constants_query[key]['definition']
@@ -491,6 +582,8 @@ def map_variables_to_terms(df,apikey,output_file=None,json_file=None,github=None
                                 print("%d: NIDM Constant: %s \t URI: %s" %(option,score[0],term._uri))
                                 option=option+1
 
+
+
             if ancestor:
                 #Broaden Interlex search
                 print("%d: Broaden Interlex query " %option)
@@ -511,9 +604,9 @@ def map_variables_to_terms(df,apikey,output_file=None,json_file=None,github=None
             selection=input("Please select an option (1:%d) from above: \t" %(option))
 
             #Make sure user selected one of the options.  If not present user with selection input again
-            #while (isinstance(selection,str)):
+            while (not selection.isdigit()):
                 #Wait for user input
-            #    selection=input("Please select an option (1:%d) from above: \t" %(option))
+                selection=input("Please select an option (1:%d) from above: \t" %(option))
 
 
             #toggle use of ancestors in interlext query or not
@@ -530,23 +623,31 @@ def map_variables_to_terms(df,apikey,output_file=None,json_file=None,github=None
                 print("\nYou selected to enter a new term for CSV column: %s" % column)
                 if (new_term):
                     #checking to see if user set command line flag -github to use github for local terms
-                    if github:
-                        print("You've selected using GitHub to store your locally defined terms.")
-                        while True:
-                            user = input("Please enter your GitHub user name: ")
-                            pw = getpass.getpass("Please enter your GitHub password: ")
-                            print("\nLogging into GitHub...")
-                            #try to logging into GitHub
-                            g=Github(user,pw)
-                            authed=g.get_user()
-                            try:
-                                #check we're logged in by checking that we can access the public repos list
-                                repo=authed.public_repos
-                                print("Success!")
-                                new_term=False
-                                break
-                            except GithubException as e:
-                                print("error logging into your github account, please try again...")
+                    if github != None:
+                        #test if authed object is still active
+                        try:
+                            #check we're logged in by checking that we can access the public repos list
+                            repo=authed.public_repos
+                        except GithubException as e:
+                            print("error logging into your github account, please try again...")
+                            authed=authenticate_github(authed=authed,credentials=github)
+
+                        #print("You've selected using GitHub to store your locally defined terms.")
+                        #while True:
+                        #    user = input("Please enter your GitHub user name: ")
+                        #    pw = getpass.getpass("Please enter your GitHub password: ")
+                        #    print("\nLogging into GitHub...")
+                        #    #try to logging into GitHub
+                        #    g=Github(user,pw)
+                        #    authed=g.get_user()
+                        #    try:
+                        #        #check we're logged in by checking that we can access the public repos list
+                        #        repo=authed.public_repos
+                        #        print("Success!")
+                        #        new_term=False
+                        #        break
+                        #    except GithubException as e:
+                        #        print("error logging into your github account, please try again...")
 
                         #check to see if nidm-local-terms repo exists
                         try:
@@ -563,6 +664,7 @@ def map_variables_to_terms(df,apikey,output_file=None,json_file=None,github=None
                                 print("Unable to create terms repo, exception: %s" % e)
                                 exit()
                     else:
+                        ####THIS PART NEEDS WORK....WHAT TO DO IF USER DID NOT WANT TO DEFINE LOCAL TERMS ON GITHUB?####
                         local_namespace=" "
                         while not validators.url(local_namespace):
                             print("By not setting the command line flag \"-github\" you have selected to store locally defined terms in a sidecar RDF file on disk")
@@ -584,32 +686,25 @@ def map_variables_to_terms(df,apikey,output_file=None,json_file=None,github=None
                 go_loop=False
 
                 #if we're using Github
-                if github:
+                if authed:
                     #add term as issue
                     body = "Label/Name: " + term_label + "\nDefinition/Description: " + term_definition + "\nUnits: " + \
                         term_units + "\nDatatype/Value Type: " + term_datatype + "\nMinimum Value: " + term_min + \
                         "\nMaximum Value: " + term_max + "\nVariable Name: " + term_variable_name
 
-                    issue=repo.create_issue(title=term_label, body=body)
+                    try:
+                        issue=repo.create_issue(title=term_label, body=body)
+                        #add inputted term to column_to_term mapping dictionary
+                        column_to_terms[column]['label'] = term_label
+                        column_to_terms[column]['definition'] = term_definition
+                        column_to_terms[column]['url'] = issue.html_url
 
-                    #URL will be repo.url/issues/issue.number
-
-
-                #add new term to NIDM document or OWL file (need to make this decision)
-
-                #add inputted term to column_to_term mapping dictionary
-                column_to_terms[column]['label'] = term_label
-                column_to_terms[column]['definition'] = term_definition
-                #try to guess from the data what datatype the variable might be
-
-                #Get variable range from data file and ask for user to accept range or specify another range
+                    except GithubException as e:
+                        print("error creating issue...\n")
+                        #try to create the repo
 
 
 
-                #generate random term id
-                #column_to_terms[column]['id'] = getUUID()
-                #column_to_terms[column]['url'] = urllib.parse.urljoin(namespace,column_to_terms[column]['id'])
-                column_to_terms[column]['url'] = issue.html_url
 
                 #print mappings
                 print("Stored mapping Column: %s ->  ")
