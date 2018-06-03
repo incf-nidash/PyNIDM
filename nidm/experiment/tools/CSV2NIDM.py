@@ -90,13 +90,13 @@ def main(argv):
      then be written to a NIDM data file.')
 
     parser.add_argument('-csv', dest='csv_file', required=True, help="Path to CSV file to convert")
-    parser.add_argument('-key', dest='key', required=True, help="SciCrunch API key to use for query")
+    parser.add_argument('-ilxkey', dest='key', required=True, help="Interlex/SciCrunch API key to use for query")
     parser.add_argument('-json_map', dest='json_map',required=False,help="User-suppled JSON file containing variable-term mappings.")
     parser.add_argument('-nidm', dest='nidm_file', required=False, help="Optional NIDM file to add CSV->NIDM converted graph to")
-    parser.add_argument('-github',action='store_true', required=False, help='If -github flag is set, locally-defined terms will be placed in a \
-                    \"nidm-local-terms\" repository in GitHub else they will be written a local RDF file using the filename specified in \
-                    the \"-out\" parameter suffixed with \"local-terms-dd\" to indicate the local terms data dictionary (dd)')
-    parser.add_argument('-owlfile', dest='owl_file', required=False, help='Optional OWL file to search for terms')
+    parser.add_argument('-github',dest='github', type=str, nargs='*', default = 'None', required=False, help='Use -github flag with list username,token(or pw) for storing locally-defined terms in a \
+                    \"nidm-local-terms\" repository in GitHub.  If user doesn''t supply a token then user will be prompted for username/password.\n \
+                    Example: -github username token')
+    parser.add_argument('-owl', action='store_true', required=False, help='Optionally searches NIDM OWL files...internet connection required')
     parser.add_argument('-out', dest='output_file', required=True, help="Filename to save NIDM file")
     args = parser.parse_args()
 
@@ -104,7 +104,7 @@ def main(argv):
     df = pd.read_csv(args.csv_file)
 
     #maps variables in CSV file to terms
-    column_to_terms = map_variables_to_terms(df,args.key,args.output_file,args.json_map,args.github,args.owl_file)
+    column_to_terms = map_variables_to_terms(df,args.key,args.output_file,args.json_map,args.github,args.owl)
 
 
 
@@ -157,32 +157,44 @@ def main(argv):
 
         for row in qres:
             print('%s \t %s' %(row[0],row[1]))
-            #find row with subject id matching agent from NIDM file
-            csv_row = df.loc[df[id_field]==type(df[id_field][0])(row[1])]
-            #check whether agent ID matches our CSV subject ID for this row while taking care of data type mismatches
-            #if (subj_id == type(subj_id)(row[1])):
+            #find row in CSV file with subject id matching agent from NIDM file
 
-            session_uuid = row[0]
-            #get session object for this UUID
-            for nidm_session in session_objs:
-                if nidm_session.identifier._uri == str(session_uuid):
-                    #add an assessment acquisition for the phenotype data to session and associate with agent
-                    acq=AssessmentAcquisition(session=nidm_session)
-                    #add acquisition entity for assessment
-                    acq_entity = AssessmentObject(acquisition=acq)
-                    #add qualified association with existing agent
-                    acq.add_qualified_association(person=row[2],role=Constants.NIDM_PARTICIPANT)
+            #csv_row = df.loc[df[id_field]==type(df[id_field][0])(row[1])]
+            #find row in CSV file with matching subject id to the agent in the NIDM file
+            #be carefull about data types...simply type-change dataframe subject id column and query to strings.
+            csv_row = df.loc[df[id_field].astype('str').str.contains(str(row[1]))]
 
-                    #store other data from row with columns_to_term mappings
-                    for row_variable in csv_row:
-                        #check if row_variable is subject id, if so skip it
-                        if row_variable==id_field:
-                            continue
-                        else:
-                            #get column_to_term mapping uri and add as namespace in NIDM document
-                            #provNamespace(Core.safe_string(None,string=str(row_variable)), column_to_terms[row_variable]["url"])
-                            acq_entity.add_attributes({QualifiedName(provNamespace(Core.safe_string(None,string=str(row_variable)), column_to_terms[row_variable]["url"]), ""):csv_row[row_variable].values[0]})
-                    continue
+            #if there was data about this subject in the NIDM file already (i.e. an agent already exists with this subject id)
+            #then add this CSV assessment data to NIDM file, else skip it....
+            if (not (len(csv_row.index)==0)):
+
+                #NIDM document sesssion uuid
+                session_uuid = row[0]
+
+                #temporary list of string-based URIs of session objects from API
+                temp = [o.identifier._uri for o in session_objs]
+                #get session object from existing NIDM file that is associated with a specific subject id
+                #nidm_session = (i for i,x in enumerate([o.identifier._uri for o in session_objs]) if x == str(session_uuid))
+                nidm_session = session_objs[temp.index(str(session_uuid))]
+                #for nidm_session in session_objs:
+                #    if nidm_session.identifier._uri == str(session_uuid):
+                #add an assessment acquisition for the phenotype data to session and associate with agent
+                acq=AssessmentAcquisition(session=nidm_session)
+                #add acquisition entity for assessment
+                acq_entity = AssessmentObject(acquisition=acq)
+                #add qualified association with existing agent
+                acq.add_qualified_association(person=row[2],role=Constants.NIDM_PARTICIPANT)
+
+                #store other data from row with columns_to_term mappings
+                for row_variable in csv_row:
+                    #check if row_variable is subject id, if so skip it
+                    if row_variable==id_field:
+                        continue
+                    else:
+                        #get column_to_term mapping uri and add as namespace in NIDM document
+                        #provNamespace(Core.safe_string(None,string=str(row_variable)), column_to_terms[row_variable]["url"])
+                        acq_entity.add_attributes({QualifiedName(provNamespace(Core.safe_string(None,string=str(row_variable)), column_to_terms[row_variable]["url"]), ""):csv_row[row_variable].values[0]})
+                continue
 
         #serialize NIDM file
         with open(args.nidm_file,'w') as f:
