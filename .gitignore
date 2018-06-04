@@ -9,7 +9,8 @@ __pycache__/
 /dist
 nidm.egg-info/
 
-idea/
+.idea/
 .DS_Store
 .project
 .settings
+.idea
