@@ -29,6 +29,7 @@ import prov.serializers.provrdf
 
 from nidm.core.Constants import PROVONE_ID_ATTRIBUTES_MAP, PROVONE
 from nidm.core.serializers import Serializer
+from nidm.core.provone import PROVONE_N_MAP
 
 __author__ = 'Sanu Ann Abraham'
 __email__ = 'sanuann@mit.edu'
@@ -242,7 +243,7 @@ class ProvONERDFSerializer(Serializer):
                         if rec_type.namespace.prefix == 'prov':
                             pred = URIRef(PROV[PROV_N_MAP[rec_type]].uri)
                         else:
-                            pred = URIRef(PROVONE[PROV_N_MAP[rec_type]].uri)
+                            pred = URIRef(PROVONE[PROVONE_N_MAP[rec_type]].uri)
                         # create bnode relation
                         if bnode is None:
                             valid_formal_indices = set()

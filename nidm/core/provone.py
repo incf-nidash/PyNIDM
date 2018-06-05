@@ -44,7 +44,8 @@ __email__ = 'sanuann@mit.edu'
 logger = logging.getLogger(__name__)
 
 # add ProvOne Notation mapping to Prov_N_MAP dict
-PROV_N_MAP.update(PROVONE_N_MAP)
+#PROV_N_MAP.update(PROVONE_N_MAP)
+PROVONE_N_MAP.update(PROV_N_MAP)
 
 
 class ProvPlan(ProvEntity):
