@@ -38,14 +38,18 @@ from nidm.experiment import Project,Session,MRAcquisition,AcquisitionObject,Demo
     AssessmentObject,MRObject
 from nidm.core import BIDS_Constants,Constants
 from prov.model import PROV_LABEL,PROV_TYPE
-
+from nidm.experiment.Utils import map_variables_to_terms
+from pandas import DataFrame
+from prov.model import QualifiedName
+from prov.model import Namespace as provNamespace
+from nidm.experiment.Core import Core
 import json
 from pprint import pprint
 import csv
 import glob
 from argparse import ArgumentParser
 from bids.grabbids import BIDSLayout
-from urllib.parse import quote
+from urllib.parse import quote, urlencode
 
 def getRelPathToBIDS(filepath, bids_root):
     """
@@ -70,36 +74,64 @@ def main(argv):
     parser.add_argument('-d', dest='directory', required=True, help="Path to BIDS dataset directory")
     parser.add_argument('-jsonld', '--jsonld', action='store_true', help='If flag set, output is json-ld not TURTLE')
     parser.add_argument('-png', '--png', action='store_true', help='If flag set, tool will output PNG file of NIDM graph')
-    parser.add_argument('-o', dest='outputfile', default="nidm.ttl", help="NIDM output turtle file")
+    #adding argument group for var->term mappings
+    mapvars_group = parser.add_argument_group('Map Variables to Terms')
+    mapvars_group.add_argument('-json_map', '--json_map', dest='json_map',required=False,default=None,help="Optional user-suppled JSON file containing variable-term mappings.")
+    mapvars_group.add_argument('-ilxkey', '--ilxkey', dest='key', required=False, default=None,  help="Interlex/SciCrunch API key to use for query")
+    mapvars_group.add_argument('-github','--github', type=str, nargs='*', default = 'None',dest='github',  required=False, help='Use -github flag with list username,token(or pw) for storing locally-defined terms in a \
+                    \"nidm-local-terms\" repository in GitHub.  If user doesn''t supply a token then user will be prompted for username/password.\n \
+                    Example: -github username token')
+    mapvars_group.add_argument('-owl', action='store_true', required=False, default=None,help='Optional flag to query nidm-experiment OWL files')
+    #parser.add_argument('-mapvars', '--mapvars', action='store_true', help='If flag set, variables in participant.tsv and phenotype files will be interactively mapped to terms')
+    parser.add_argument('-o', dest='outputfile', default="nidm.ttl", help="Outputs turtle file called nidm.ttl in BIDS directory by default and adds to .bidsignore file")
+
     args = parser.parse_args()
 
-    directory = args.directory
-    outputfile = args.outputfile
 
-    #if we're choosing json-ld, make sure file extension is .json
-    if args.jsonld:
-        outputfile = os.path.splitext(outputfile)[0]+".json"
+    directory = args.directory
+
+
 
     #importlib.reload(sys)
     #sys.setdefaultencoding('utf8')
 
-    project = bidsmri2project(directory)
+    project = bidsmri2project(directory,args)
+
+    print(project.serializeTurtle())
 
     print("Serializing NIDM graph and creating graph visualization..")
     #serialize graph
     #print(project.graph.get_provn())
+
+    #if args.outputfile was defined by user then use it else use default which is args.director/nidm.ttl
+    if args.outputfile == "nidm.ttl":
+        #if we're choosing json-ld, make sure file extension is .json
+        if args.jsonld:
+            outputfile=os.path.join(directory,os.path.splitext(args.outputfile)[0]+".json")
+        else:
+            outputfile=os.path.join(directory,args.outputfile)
+    else:
+        #if we're choosing json-ld, make sure file extension is .json
+        if args.jsonld:
+            outputfile = os.path.splitext(args.outputfile)[0]+".json"
+        else:
+            outputfile = args.outputfile
+
+    #serialize NIDM file
     with open(outputfile,'w') as f:
         if args.jsonld:
             f.write(project.serializeJSONLD())
         else:
             f.write(project.serializeTurtle())
-        #f.write(project.graph.get_provn())
+
+    #Add to .bidsignore
+
     #save a DOT graph as PNG
     if (args.png):
         project.save_DotGraph(str(outputfile + ".png"), format="png")
 
 
-def bidsmri2project(directory):
+def bidsmri2project(directory, args):
     #Parse dataset_description.json file in BIDS directory
     if (os.path.isdir(os.path.join(directory))):
         try:
@@ -140,52 +172,82 @@ def bidsmri2project(directory):
     if os.path.isfile(os.path.join(directory,'participants.tsv')):
         with open(os.path.join(directory,'participants.tsv')) as csvfile:
             participants_data = csv.DictReader(csvfile, delimiter='\t')
+
+            #logic to map variables to terms.#########################################################################################################
+
+            #first iterate over variables in dataframe and check which ones are already mapped as BIDS constants and which are not.  For those that are not
+            #we want to use the variable-term mapping functions to help the user do the mapping
+            #iterate over columns
+            mapping_list=[]
+            column_to_terms={}
+            for field in participants_data.fieldnames:
+
+                #column is not in BIDS_Constants
+                if not (field in BIDS_Constants.participants):
+                    #add column to list for column_to_terms mapping
+                    mapping_list.append(field)
+
+
+            #do variable-term mappings
+            if ( (args.json_map!=None) or (args.key != None) or (args.github != False) ):
+
+                 #if user didn't supply a json mapping file but we're doing some variable-term mapping create an empty one for column_to_terms to use
+                 if args.json_map == None:
+                    #defaults to participants.json because here we're mapping the participants.tsv file variables to terms
+                    args.json_map = os.path.isfile(os.path.join(directory,'participants.json'))
+
+                 #maps variables in CSV file to terms
+                 temp=DataFrame(columns=mapping_list)
+                 column_to_terms.update(map_variables_to_terms(df=temp,apikey=args.key,output_file=args.json_map,json_file=args.json_map,github=args.github,owl_file=args.owl))
+
+
+
             #print(participants_data.fieldnames)
             for row in participants_data:
                 #create session object for subject to be used for participant metadata and image data
                 #parse subject id from "sub-XXXX" string
-                subjid = row['participant_id'].split("-")
-                session[subjid[1]] = Session(project)
+                temp = row['participant_id'].split("-")
+                #for ambiguity in BIDS datasets.  Sometimes participant_id is sub-XXXX and othertimes it's just XXXX
+                if len(temp) > 1:
+                    subjid = temp[1]
+                else:
+                    subjid = temp[0]
+                print(subjid)
+                session[subjid] = Session(project)
 
                 #add acquisition object
-                acq = AssessmentAcquisition(session=session[subjid[1]])
+                acq = AssessmentAcquisition(session=session[subjid])
 
                 acq_entity = AssessmentObject(acquisition=acq)
-                participant[subjid[1]] = {}
-                participant[subjid[1]]['person'] = acq.add_person(attributes=({Constants.NIDM_SUBJECTID:row['participant_id']}))
+                participant[subjid] = {}
+                participant[subjid]['person'] = acq.add_person(attributes=({Constants.NIDM_SUBJECTID:row['participant_id']}))
 
 
                 #add qualified association of participant with acquisition activity
-                acq.add_qualified_association(person=participant[subjid[1]]['person'],role=Constants.NIDM_PARTICIPANT)
+                acq.add_qualified_association(person=participant[subjid]['person'],role=Constants.NIDM_PARTICIPANT)
 
 
 
                 for key,value in row.items():
-                    #for variables in participants.tsv file who have term mappings in BIDS_Constants.py use those
+                    #for variables in participants.tsv file who have term mappings in BIDS_Constants.py use those, add to json_map so we don't have to map these if user
+                    #supplied arguments to map variables
                     if key in BIDS_Constants.participants:
+
                         #if this was the participant_id, we already handled it above creating agent / qualified association
                         if not (BIDS_Constants.participants[key] == Constants.NIDM_SUBJECTID):
                             acq_entity.add_attributes({BIDS_Constants.participants[key]:value})
-                    #else just put variables in bids namespace since we don't know what they mean
+
+
+                    #else if user added -mapvars flag to command line then we'll use the variable-> term mapping procedures to help user map variables to terms (also used
+                    # in CSV2NIDM.py)
                     else:
-                        #acq_entity.add_attributes({Constants.BIDS[quote(key)]:value})
-                        acq_entity.add_attributes({Constants.BIDS[key.replace(" ", "_")]:value})
-    #else use bids layout to get subject ids to create NIDM persons without any other metadata
-    else:
-        for subjid in bids_layout.get_subjects():
-            session[subjid] = Session(project)
-            #add acquisition object
-            acq = AssessmentAcquisition(session=session[subjid])
-
-            acq_entity = AssessmentObject(acquisition=acq)
-            participant[subjid] = {}
-            participant[subjid]['person'] = acq.add_person(attributes=({Constants.NIDM_SUBJECTID:subjid}))
 
 
-            #add qualified association of participant with acquisition activity
-            acq.add_qualified_association(person=participant[subjid]['person'],role=Constants.NIDM_PARTICIPANT)
+                        if key in column_to_terms:
+                            acq_entity.add_attributes({QualifiedName(provNamespace(Core.safe_string(None,string=str(key)), column_to_terms[key]["url"]), ""):value})
+                        else:
 
-
+                            acq_entity.add_attributes({Constants.BIDS[key.replace(" ", "_")]:value})
 
 
     #create acquisition objects for each scan for each subject
@@ -205,9 +267,18 @@ def bidsmri2project(directory):
         #bids_layout.get(subject=subject_id,type='scans',extensions='.tsv')
         #bids_layout.get(extensions='.tsv',return_type='obj')
 
+        #check whether sessions have been created (i.e. was there a participants.tsv file?  If not, create here
+        if not (subject_id in session):
+            session[subject_id] = Session(project)
+
         for file_tpl in bids_layout.get(subject=subject_id, extensions=['.nii', '.nii.gz']):
             #create an acquisition activity
             acq=MRAcquisition(session[subject_id])
+
+            #check whether participant (i.e. agent) for this subject already exists (i.e. if participants.tsv file exists) else create one
+            if not (subject_id in participant):
+                participant[subject_id] = {}
+                participant[subject_id]['person'] = acq.add_person(attributes=({Constants.NIDM_SUBJECTID:subject_id}))
 
             #add qualified association with person
             acq.add_qualified_association(person=participant[subject_id]['person'],role=Constants.NIDM_PARTICIPANT)
