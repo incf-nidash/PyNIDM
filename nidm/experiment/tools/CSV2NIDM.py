@@ -93,7 +93,7 @@ def main(argv):
     parser.add_argument('-ilxkey', dest='key', required=True, help="Interlex/SciCrunch API key to use for query")
     parser.add_argument('-json_map', dest='json_map',required=False,help="User-suppled JSON file containing variable-term mappings.")
     parser.add_argument('-nidm', dest='nidm_file', required=False, help="Optional NIDM file to add CSV->NIDM converted graph to")
-    parser.add_argument('-github',dest='github', type=str, nargs='*', default = 'None', required=False, help='Use -github flag with list username,token(or pw) for storing locally-defined terms in a \
+    parser.add_argument('-github',dest='github', type=str, nargs='*', default = 'None', required=False, help='Use -github flag with username token(or pw) for storing locally-defined terms in a \
                     \"nidm-local-terms\" repository in GitHub.  If user doesn''t supply a token then user will be prompted for username/password.\n \
                     Example: -github username token')
     parser.add_argument('-owl', action='store_true', required=False, help='Optionally searches NIDM OWL files...internet connection required')
@@ -162,7 +162,9 @@ def main(argv):
             #csv_row = df.loc[df[id_field]==type(df[id_field][0])(row[1])]
             #find row in CSV file with matching subject id to the agent in the NIDM file
             #be carefull about data types...simply type-change dataframe subject id column and query to strings.
-            csv_row = df.loc[df[id_field].astype('str').str.contains(str(row[1]))]
+            #here we're removing the leading 0's from IDs because pandas.read_csv strips those unless you know ahead of
+            #time which column is the subject id....
+            csv_row = df.loc[df[id_field].astype('str').str.contains(str(row[1]).lstrip("0"))]
 
             #if there was data about this subject in the NIDM file already (i.e. an agent already exists with this subject id)
             #then add this CSV assessment data to NIDM file, else skip it....
