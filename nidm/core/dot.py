@@ -379,7 +379,6 @@ def provone_to_dot(bundle, show_nary=True, use_labels=False,
         relations = []
         for rec in records:
             if rec.is_element():
-                print("record: ",rec)
                 _add_node(rec)
             else:
                 # Saving the relations for later processing
