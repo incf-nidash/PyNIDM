@@ -29,6 +29,7 @@ from .AssessmentAcquisition import AssessmentAcquisition
 from .AssessmentObject import AssessmentObject
 from .DemographicsObject import DemographicsObject
 from .MRObject import MRObject
+import logging
 
 
 
@@ -370,7 +371,7 @@ def load_nidm_owl_files():
             union_graph=union_graph+temp_graph
 
         except Exception:
-            print("Error opening %s import file..continuing" %os.path.join(imports_path,resource))
+            logging.info("Error opening %s import file..continuing" %os.path.join(imports_path,resource))
             continue
 
     #load each owl file
@@ -380,7 +381,7 @@ def load_nidm_owl_files():
             temp_graph.parse(os.path.join(terms_path,resource),format="turtle")
             union_graph=union_graph+temp_graph
         except Exception:
-            print("Error opening %s owl file..continuing" %os.path.join(terms_path,resource))
+            logging.info("Error opening %s owl file..continuing" %os.path.join(terms_path,resource))
             continue
 
 
@@ -446,15 +447,15 @@ def authenticate_github(authed=None,credentials=None):
         try:
             #check we're logged in by checking that we can access the public repos list
             repo=authed.public_repos
-            print("Github authentication successful")
+            logging.info("Github authentication successful")
             new_term=False
             break
         except GithubException as e:
-            print("error logging into your github account, please try again...")
+            logging.info("error logging into your github account, please try again...")
             indx=indx+1
 
     if (indx == maxtry):
-        print("GitHub authentication failed.  Check your username / password / token and try again")
+        logging.critical("GitHub authentication failed.  Check your username / password / token and try again")
         return None
     else:
         return authed
