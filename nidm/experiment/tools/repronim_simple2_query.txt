@@ -1,0 +1,38 @@
+	    PREFIX nidm:<http://purl.org/nidash/nidm#>
+        PREFIX nfo:<http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#>
+        PREFIX prov:<http://www.w3.org/ns/prov#>
+        PREFIX ndar: <https://ndar.nih.gov/api/datadictionary/v2/dataelement/>
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX dct: <http://purl.org/dc/terms/>
+        PREFIX ncicb: <http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#>
+        PREFIX ndar: <https://ndar.nih.gov/api/datadictionary/v2/dataelement/>
+        PREFIX sio: <http://semanticscience.org/ontology/sio.owl#> 
+        PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+        PREFIX onli: <http://neurolog.unice.fr/ontoneurolog/v3.0/instrument.owl#>
+        
+        SELECT DISTINCT  ?ID ?Age ?Gender ?FIQ ?PIQ ?VIQ ?RootPath ?Filename 
+        WHERE {
+          {
+                ?entity rdf:type  nidm:AcquisitionObject ;
+                    prov:wasGeneratedBy ?activity ;
+                    nidm:hasImageUsageType nidm:Anatomical;
+                    nfo:filename ?Filename .
+                ?activity prov:wasAssociatedWith ?agent ;
+                    dct:isPartOf ?session .
+                ?agent ndar:src_subject_id ?ID .
+                ?ass_activity dct:isPartOf ?session.
+                ?session dct:isPartOf ?project.
+                ?project prov:Location ?RootPath .
+                ?ass_entity prov:wasGeneratedBy ?ass_activity ;
+                    rdf:type onli:assessment-instrument;
+                    ncicb:Age ?Age ;
+                    ndar:gender ?Gender ;
+                    <https://github.com/dbkeator/nidm-local-terms/issues/2> ?FIQ ;
+                    <https://github.com/dbkeator/nidm-local-terms/issues/4>  ?PIQ ;
+                    <https://github.com/dbkeator/nidm-local-terms/issues/3> ?VIQ .
+                bind(IF(?Gender ="1"^^xsd:string, "Male"^^xsd:string,"Female"^^xsd:string) as ?Gender) .
+
+            }
+            FILTER(xsd:float(?Age)>=5 && xsd:float(?Age) <=20) 
+           
+        }
