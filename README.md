@@ -70,24 +70,38 @@ A Python library to manipulate the [Neuro Imaging Data Model](http://nidm.nidash
 
     	 }
 		 
-    -h, --help            show this help message and exit
+* optional arguments: 
+	-h, --help            show this help message and exit
+	
 	-d DIRECTORY          Path to BIDS dataset directory
+	
 	-jsonld, --jsonld     If flag set, output is json-ld not TURTLE
+	
 	-png, --png           If flag set, tool will output PNG file of NIDM graph
+	
 	-bidsignore, --bidsignore
+	
 	                      If flag set, tool will add NIDM-related files to .bidsignore file
+						  
 	-o OUTPUTFILE         Outputs turtle file called nidm.ttl in BIDS directory by default
 
 	map variables to terms arguments:
+	
 	-json_map JSON_MAP, --json_map JSON_MAP
+	
 	                      Optional user-suppled JSON file containing variable-term mappings.
+						  
 	-ilxkey KEY, --ilxkey KEY
+	
 	                      Interlex/SciCrunch API key to use for query
+						  
 	-github [GITHUB [GITHUB ...]], --github [GITHUB [GITHUB ...]]
+	
 	                      Use -github flag with list username token(or pw) for storing locally-defined terms in a
 	                      nidm-local-terms repository in GitHub.  If user doesn''t supply a token then user will be prompted for username/password.
                         
 	                      Example: -github username token
+						  
 	-owl                  Optional flag to query nidm-experiment OWL files
 
 **CSV2NIDM.py**
@@ -99,21 +113,27 @@ tagged terms that fuzzy match the variable names. The user will then
 interactively pick a term to associate with the variable name. The resulting
 annotated CSV data will then be written to a NIDM data file.
 
-optional arguments:
+* optional arguments:
   -h, --help            show this help message and exit
+  
   -csv CSV_FILE         Path to CSV file to convert
+  
   -ilxkey KEY           Interlex/SciCrunch API key to use for query
-  -json_map JSON_MAP    User-suppled JSON file containing variable-term
-                        mappings.
+  
+  -json_map JSON_MAP    User-suppled JSON file containing variable-term mappings.
+  
   -nidm NIDM_FILE       Optional NIDM file to add CSV->NIDM converted graph to
+  
   -github [GITHUB [GITHUB ...]]
                         Use -github flag with username token(or pw) for
                         storing locally-defined terms in a "nidm-local-terms"
                         repository in GitHub. If user doesnt supply a token
                         then user will be prompted for username/password.
                         Example: -github username token
+						
   -owl                  Optionally searches NIDM OWL files...internet
                         connection required
+						
   -out OUTPUT_FILE      Filename to save NIDM file
 
 **nidm_query.py**
@@ -121,12 +141,16 @@ optional arguments:
 
 * **Description:** This program provides query support for NIDM-Experiment files
 
-optional arguments:
+* optional arguments:
   -h, --help            show this help message and exit
+  
   -query QUERY_FILE, --nidm QUERY_FILE
                         Text file containing a SPARQL query to execute
+						
   -nidm-list NIDM_LIST, --nidm-list NIDM_LIST
                         A comma separated list of NIDM files with full path
+						
   -o OUTPUT_FILE, --o OUTPUT_FILE
                         Optional output file (CSV) to store results of query
+						
 
