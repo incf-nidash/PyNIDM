@@ -460,15 +460,16 @@ def authenticate_github(authed=None,credentials=None):
     else:
         return authed
 
-def map_variables_to_terms(df,apikey,output_file=None,json_file=None,github=None,owl_file=None):
+def map_variables_to_terms(df,apikey,directory, output_file=None,json_file=None,github=None,owl_file=None):
     '''
 
     :param df: data frame with first row containing variable names
-    :param json_map: optional json document with variable names as keys and minimal fields "definition","label","url"
+    :param json_file: optional json document with variable names as keys and minimal fields "definition","label","url"
     :param apikey: scicrunch key for rest API queries
     :param github: boolean flag, if set local term definitions will be added to GitHub
     :param owl_file: optional OWL file for additional terms
     :param output_file: output filename to save variable-> term mappings
+    :param directory: if output_file parameter is set to None then use this directory to store default JSON mapping file if doing variable->term mappings
     :return:return dictionary mapping variable names (i.e. columns) to terms
     '''
     #minimum match score for fuzzy matching NIDM terms
@@ -486,6 +487,20 @@ def map_variables_to_terms(df,apikey,output_file=None,json_file=None,github=None
         #json_map = json.load(open(json_file))
         with open(json_file,'r+') as f:
             json_map = json.load(f)
+    #if no JSON mapping file was specified then create a default one if an apikey was specified (or github) because it
+    #means the user is going to do some variable to term mappings and the JSON file will save the dictionary out for
+    #reuse...or if the program crashes so you don't have to start over :)
+    elif apikey or github:
+        #create a json_file filename from the output file filename
+        if not output_file:
+            output_file = os.path.join(directory,"nidm_json_map.json")
+        #remove ".ttl" extension
+        else:
+            output_file = os.path.join(os.path.dirname(output_file), os.path.splitext(output_file)[0],"_json_map.json")
+        #with open(json_file, 'w') as f:
+        #    json_map = json.dumps({})
+
+
 
     #Authenticate GitHub if user selected to use github
     if github != None:
