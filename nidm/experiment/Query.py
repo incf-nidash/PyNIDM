@@ -60,7 +60,7 @@ def query_nidm(nidm_file_list,query, output_file=None):
         if first_file:
             #format query result as dataframe and return
             #for dicts in qres._get_bindings():
-            columns = qres.vars
+            columns = [str(var) for var in qres.vars]
             first_file=False
             #    break
 
