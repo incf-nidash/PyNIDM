@@ -12,7 +12,7 @@ A Python library to manipulate the [Neuro Imaging Data Model](http://nidm.nidash
 
 
 ## creating a conda environment and installing the library (tested with OSX)
-  * `conda create -n pynidm_py3 python=3 pytest graphviz -y`
+  * `conda create -n pynidm_py3 python=3`
   * `source activate pynidm_py3`
   * `cd PyNIDM`
   * `pip install -e .`
