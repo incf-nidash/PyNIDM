@@ -78,7 +78,7 @@ def query_nidm(nidm_file_list,query, output_file=None):
     return df
 
 
-def GetProjects(nidm_file_list):
+def GetProjectsUUID(nidm_file_list):
     '''
 
     :param nidm_file_list: List of one or more NIDM files to query across for list of Projects

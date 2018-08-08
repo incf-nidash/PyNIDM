@@ -13,6 +13,6 @@ def test_GetProjects():
     with open("test.ttl",'w') as f:
         f.write(project.serializeTurtle())
 
-    project_list = Query.GetProjects(["test.ttl"])
+    project_list = Query.GetProjectsUUID(["test.ttl"])
 
     assert URIRef(Constants.NIDM + "_123456") in project_list
