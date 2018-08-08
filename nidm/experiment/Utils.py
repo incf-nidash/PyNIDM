@@ -359,7 +359,6 @@ def load_nidm_owl_files():
             "stato_import.ttl"
     ]
     owls=[
-            "demographics2.owl",
             "nidm-experiment.owl"
     ]
     #load each import
