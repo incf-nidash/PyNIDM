@@ -20,6 +20,7 @@ opts = dict(name=NAME,
             author_email=AUTHOR_EMAIL,
             version=VERSION,
             packages=PACKAGES,
+            scripts=SCRIPTS,
             install_requires=REQUIRES,
             requires=REQUIRES)
 
