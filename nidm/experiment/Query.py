@@ -60,7 +60,7 @@ def query_nidm(nidm_file_list,query, output_file=None):
         if first_file:
             #format query result as dataframe and return
             #for dicts in qres._get_bindings():
-            columns = qres.vars
+            columns = [str(var) for var in qres.vars]
             first_file=False
             #    break
 
@@ -78,7 +78,7 @@ def query_nidm(nidm_file_list,query, output_file=None):
     return df
 
 
-def GetProjects(nidm_file_list):
+def GetProjectsUUID(nidm_file_list):
     '''
 
     :param nidm_file_list: List of one or more NIDM files to query across for list of Projects
@@ -101,3 +101,12 @@ def GetProjects(nidm_file_list):
     df = query_nidm(nidm_file_list,query, output_file=None)
 
     return df['uuid'].tolist()
+
+def GetProjectMetadata(nidm_file_list):
+    '''
+
+    :param nidm_file_list: List of one or more NIDM files to query across for list of Projects
+    :return: JSON document of all metadata for all Projects in nidm_file_list
+    '''
+
+    #SPAQRL
