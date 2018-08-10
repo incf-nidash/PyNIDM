@@ -81,9 +81,6 @@ class Project(pm.ProvActivity,Core):
         return self._sessions
 
 
-
-
-
     def __str__(self):
         return "NIDM-Experiment Project Class"
 

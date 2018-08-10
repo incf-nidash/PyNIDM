@@ -35,8 +35,10 @@ import uuid
 from rdflib import Graph, RDF, URIRef, util, term
 import pandas as pd
 import logging
+from .Utils import read_nidm
+from .Project import Project
 
-def query_nidm(nidm_file_list,query, output_file=None):
+def sparql_query_nidm(nidm_file_list,query, output_file=None):
 
     #query result list
     results = []
@@ -48,10 +50,10 @@ def query_nidm(nidm_file_list,query, output_file=None):
     #cycle through NIDM files, adding query result to list
     for nidm_file in nidm_file_list:
 
+        project=read_nidm(nidm_file)
         #read RDF file into temporary graph
         rdf_graph = Graph()
         rdf_graph_parse = rdf_graph.parse(nidm_file,format=util.guess_format(nidm_file))
-
 
         #execute query
         qres = rdf_graph_parse.query(query)
@@ -98,7 +100,7 @@ def GetProjectsUUID(nidm_file_list):
 
         }
     '''
-    df = query_nidm(nidm_file_list,query, output_file=None)
+    df = sparql_query_nidm(nidm_file_list,query, output_file=None)
 
     return df['uuid'].tolist()
 
@@ -109,4 +111,23 @@ def GetProjectMetadata(nidm_file_list):
     :return: JSON document of all metadata for all Projects in nidm_file_list
     '''
 
-    #SPAQRL
+    #SPAQRL query to get project metadata
+    #first get a list of project UUIDs
+    project_uuids = GetProjectsUUID(nidm_file_list)
+
+    #dictionary for output data
+    results={}
+    #for each project activity, get metadata
+    for project in project_uuids:
+        query= '''
+        SELECT distinct ?p ?o
+        where {
+                <%s> ?p ?o
+
+        }
+
+        ''' % project
+        print(query)
+        df = sparql_query_nidm(nidm_file_list,query,output_file=None)
+        results = df.to_dict()
+        print(results)
