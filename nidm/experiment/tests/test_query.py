@@ -16,8 +16,8 @@ def test_GetProjectMetadata():
     acq_obj = AssessmentObject(acq,kwargs)
 
     #save a turtle file
-    with open("test.json",'w') as f:
-        f.write(project.serializeJSONLD())
+    with open("test.ttl",'w') as f:
+        f.write(project.serializeTurtle())
 
     kwargs={Constants.NIDM_PROJECT_NAME:"FBIRN_PhaseIII",Constants.NIDM_PROJECT_IDENTIFIER:1200,Constants.NIDM_PROJECT_DESCRIPTION:"Test investigation"}
     project = Project(uuid="_654321",attributes=kwargs)
