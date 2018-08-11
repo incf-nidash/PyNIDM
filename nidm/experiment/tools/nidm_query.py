@@ -36,7 +36,7 @@ from rdflib import Graph, util
 import pandas as pd
 from argparse import ArgumentParser
 import logging
-from nidm.experiment.Query import query_nidm
+from nidm.experiment.Query import sparql_query_nidm
 
 def query(nidm_file_list,query_file, output_file):
 
@@ -47,7 +47,7 @@ def query(nidm_file_list,query_file, output_file):
     with open(query_file, 'r') as fp:
         query = fp.read()
 
-    df = query_nidm(nidm_file_list,query,output_file)
+    df = sparql_query_nidm(nidm_file_list,query,output_file)
 
 
     return df
