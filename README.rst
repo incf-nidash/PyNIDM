@@ -3,6 +3,7 @@ PyNIDM: Neuroimaging Data Model in Python
 A Python library to manipulate the [Neuroimaging Data Model](http://nidm.nidash.org). 
 
 [![Build Status](https://travis-ci.org/incf-nidash/PyNIDM.svg?branch=master)](https://travis-ci.org/incf-nidash/PyNIDM)
+| Build Status |
 
 .. contents::
 .. section-numbering::
@@ -173,4 +174,9 @@ optional arguments:
                         connection required
 						
   -out OUTPUT_FILE      Filename to save NIDM file
+
+
+.. |Build Status| image:: https://travis-ci.org/incf-nidash/PyNIDM.svg?branch=master
+    :target: https://travis-ci.org/incf-nidash/PyNIDM
+    :alt: Build status of the master branch
 
