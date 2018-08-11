@@ -310,7 +310,9 @@ class Core(object):
         rdf_graph = Graph()
         #rdf_graph_parse = rdf_graph.parse(source=StringIO(self.serializeTurtle()),format='turtle')
         rdf_graph_parse = rdf_graph.parse(source=StringIO(self.graph.serialize(None, format='rdf', rdf_format='ttl')),format='turtle')
-        context = {
+
+        #Currently I'm not using this bec
+        context1 = {
         "xsd": "http://www.w3.org/2001/XMLSchema#",
         "prov": "http://www.w3.org/ns/prov#",
         "nidm": "http://purl.org/nidash/nidm#",
@@ -327,8 +329,16 @@ class Core(object):
         "generation": { "@type": "@id", "@id": "prov:qualifiedGeneration" },
 
         "startedAtTime": { "@type": "xsd:dateTime", "@id": "prov:startedAtTime" },
-        "endedAtTime": { "@type": "xsd:dateTime", "@id": "prov:endedAtTime" }
+        "endedAtTime": { "@type": "xsd:dateTime", "@id": "prov:endedAtTime" },
+
+
         }
+
+        context2 = self.prefix_to_context()
+
+        #context = dict(context1,**context2)
+        context = context2
+
         return rdf_graph_parse.serialize(format='json-ld', context=context, indent=4).decode('ASCII')
 
     def save_DotGraph(self,filename,format=None):
@@ -338,6 +348,27 @@ class Core(object):
             dot.write(filename,format=format)
         else:
             dot.write(filename,format="pdf")
+
+    def prefix_to_context(self):
+        '''
+        This function returns a context dictionary for JSONLD export from current NIDM-Exp document....
+        :return: Context dictionary for JSONLD
+        '''
+
+        #This sets up basic contexts from namespaces in documents
+        context={}
+        for key,value in self.graph._namespaces.items():
+            context[key] = {}
+            context[key]['@type']='@id'
+            context[key]['@id']= value.uri
+
+
+        #This adds suffix part of namespaces as IDs to make things read easier in JSONLD
+        #for namespace in self.graph.namespaces:
+        #    context[namespace.qname()]='@id'
+        #    context[namespace.qname()]=namespace.qname().localpart
+
+        return context
 
     def __str__(self):
         return "NIDM-Experiment Base Class"
