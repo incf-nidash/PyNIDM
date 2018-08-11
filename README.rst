@@ -11,9 +11,9 @@ A Python library to manipulate the [Neuroimaging Data Model](http://nidm.nidash.
 Dependencies
 ============
 
-* [graphviz](http://graphviz.org) (native package):
-   * Fedora: `dnf install graphviz`
-   * OS-X: `brew install graphviz`
+* Graphviz <http://graphviz.org> (native package):
+* Fedora: `dnf install graphviz`
+* OS-X: `brew install graphviz`
 
 Creating a conda environment and installing the library (tested with OSX)
 =========================================================================
