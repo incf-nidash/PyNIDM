@@ -37,8 +37,18 @@ import pandas as pd
 from argparse import ArgumentParser
 import logging
 from nidm.experiment.Query import sparql_query_nidm
+import click
+from .click_base import cli
 
-def query(nidm_file_list,query_file, output_file):
+
+@cli.command()
+@click.option("--nidm_file_list", "-nl", required=True,
+              help="A comma separated list of NIDM files with full path")
+@click.option("--query_file", "-q", type=click.Path(exists=True), required=True,
+              help="Text file containing a SPARQL query to execute")
+@click.option("--output_file", "-o", required=False,
+              help="Optional output file (CSV) to store results of query")
+def query(nidm_file_list, query_file, output_file):
 
     #query result list
     results = []
@@ -52,23 +62,3 @@ def query(nidm_file_list,query_file, output_file):
 
     return df
 
-
-def main(argv):
-    parser = ArgumentParser(description='This program provides query support for NIDM-Experiment files')
-
-    parser.add_argument('-query', '--nidm', dest='query_file', required=True, help="Text file containing a SPARQL query to execute")
-    parser.add_argument('-nidm-list', '--nidm-list', dest='nidm_list', type=str,  required=True, help='A comma separated list of NIDM files with full path ')
-    parser.add_argument('-o', '--o', dest='output_file', default=None, required=False, help="Optional output file (CSV) to store results of query")
-
-    args = parser.parse_args()
-
-    nidm_file_list= [str(item) for item in args.nidm_list.split(',')]
-
-    #execute query
-    query_result = query(nidm_file_list,args.query_file, args.output_file)
-
-
-
-
-if __name__ == "__main__":
-    main(sys.argv[1:])
