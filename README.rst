@@ -21,10 +21,11 @@ Creating a conda environment and installing the library (tested with OSX)
 macOS
 -----  
 .. code-block:: bash
-    $ conda create -n pynidm_py3 python=3
-    $ source activate pynidm_py3
-    $ cd PyNIDM
-    $ pip install -e .
+
+	$ conda create -n pynidm_py3 python=3
+	$ source activate pynidm_py3
+	$ cd PyNIDM
+	$ pip install -e .
 
 You can try to run a test: `pytest`
 
@@ -35,7 +36,8 @@ Query
 -----
 
 .. code-block:: bash
-    $ pynidm query [OPTIONS]
+
+	$ pynidm query [OPTIONS]
 
 Options:
   -nl, --nidm_file_list TEXT  A comma separated list of NIDM files with full
