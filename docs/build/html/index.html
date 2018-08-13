@@ -1,0 +1,350 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>1   PyNIDM: Neuroimaging Data Model in Python &#8212; PyNIDM 0.1.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="pynidm-neuroimaging-data-model-in-python">
+<h1><a class="toc-backref" href="#id1">1&nbsp;&nbsp;&nbsp;PyNIDM: Neuroimaging Data Model in Python</a><a class="headerlink" href="#pynidm-neuroimaging-data-model-in-python" title="Permalink to this headline">¶</a></h1>
+<p>A Python library to manipulate the [Neuroimaging Data Model](<a class="reference external" href="http://nidm.nidash.org">http://nidm.nidash.org</a>).</p>
+<div class="toctree-wrapper compound">
+</div>
+<div class="section" id="indices-and-tables">
+<h2><a class="toc-backref" href="#id2">1.1&nbsp;&nbsp;&nbsp;Indices and tables</a><a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
+<li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></li>
+<li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
+</ul>
+<p><a class="reference external" href="https://travis-ci.org/incf-nidash/PyNIDM"><img alt="Build status of the master branch" src="https://travis-ci.org/incf-nidash/PyNIDM.svg?branch=master" /></a></p>
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="auto-toc simple">
+<li><a class="reference internal" href="#pynidm-neuroimaging-data-model-in-python" id="id1">1&nbsp;&nbsp;&nbsp;PyNIDM: Neuroimaging Data Model in Python</a><ul class="auto-toc">
+<li><a class="reference internal" href="#indices-and-tables" id="id2">1.1&nbsp;&nbsp;&nbsp;Indices and tables</a></li>
+<li><a class="reference internal" href="#dependencies" id="id3">1.2&nbsp;&nbsp;&nbsp;Dependencies</a></li>
+<li><a class="reference internal" href="#creating-a-conda-environment-and-installing-the-library-tested-with-osx" id="id4">1.3&nbsp;&nbsp;&nbsp;Creating a conda environment and installing the library (tested with OSX)</a><ul class="auto-toc">
+<li><a class="reference internal" href="#macos" id="id5">1.3.1&nbsp;&nbsp;&nbsp;macOS</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#nidm-experiment-tools" id="id6">1.4&nbsp;&nbsp;&nbsp;NIDM-Experiment Tools</a><ul class="auto-toc">
+<li><a class="reference internal" href="#query" id="id7">1.4.1&nbsp;&nbsp;&nbsp;Query</a></li>
+<li><a class="reference internal" href="#bids-mri-conversion-to-nidm" id="id8">1.4.2&nbsp;&nbsp;&nbsp;BIDS MRI Conversion to NIDM</a></li>
+<li><a class="reference internal" href="#csv-file-to-nidm-conversion" id="id9">1.4.3&nbsp;&nbsp;&nbsp;CSV File to NIDM Conversion</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="dependencies">
+<h2><a class="toc-backref" href="#id3">1.2&nbsp;&nbsp;&nbsp;Dependencies</a><a class="headerlink" href="#dependencies" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Graphviz &lt;<a class="reference external" href="http://graphviz.org">http://graphviz.org</a>&gt; (native package):</li>
+<li>Fedora: <cite>dnf install graphviz</cite></li>
+<li>OS-X: <cite>brew install graphviz</cite></li>
+</ul>
+</div>
+<div class="section" id="creating-a-conda-environment-and-installing-the-library-tested-with-osx">
+<h2><a class="toc-backref" href="#id4">1.3&nbsp;&nbsp;&nbsp;Creating a conda environment and installing the library (tested with OSX)</a><a class="headerlink" href="#creating-a-conda-environment-and-installing-the-library-tested-with-osx" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="macos">
+<h3><a class="toc-backref" href="#id5">1.3.1&nbsp;&nbsp;&nbsp;macOS</a><a class="headerlink" href="#macos" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ conda create -n pynidm_py3 <span class="nv">python</span><span class="o">=</span>3
+$ <span class="nb">source</span> activate pynidm_py3
+$ <span class="nb">cd</span> PyNIDM
+$ pip install -e .
+</pre></div>
+</div>
+<p>You can try to run a test: <cite>pytest</cite></p>
+</div>
+</div>
+<div class="section" id="nidm-experiment-tools">
+<h2><a class="toc-backref" href="#id6">1.4&nbsp;&nbsp;&nbsp;NIDM-Experiment Tools</a><a class="headerlink" href="#nidm-experiment-tools" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="query">
+<h3><a class="toc-backref" href="#id7">1.4.1&nbsp;&nbsp;&nbsp;Query</a><a class="headerlink" href="#query" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ pynidm query <span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<dl class="docutils">
+<dt>Options:</dt>
+<dd><table class="first last docutils option-list" frame="void" rules="none">
+<col class="option" />
+<col class="description" />
+<tbody valign="top">
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">-n<var>l</var></span>, <span class="option">--nidm_file_list <var>TEXT</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>A comma separated list of NIDM files with full
+path  [required]</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">-q</span>, <span class="option">--query_file <var>PATH</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>Text file containing a SPARQL query to execute
+[required]</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">-o</span>, <span class="option">--output_file <var>TEXT</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>Optional output file (CSV) to store results of
+query</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">--help</span></kbd></td>
+<td>Show this message and exit.</td></tr>
+</tbody>
+</table>
+</dd>
+</dl>
+</div>
+<div class="section" id="bids-mri-conversion-to-nidm">
+<h3><a class="toc-backref" href="#id8">1.4.2&nbsp;&nbsp;&nbsp;BIDS MRI Conversion to NIDM</a><a class="headerlink" href="#bids-mri-conversion-to-nidm" title="Permalink to this headline">¶</a></h3>
+<p>This program will convert a BIDS MRI dataset to a NIDM-Experiment RDF document.  It will parse phenotype information and simply store variables/values and link to the associated json data dictionary file.</p>
+<p>While we&#8217;re migrating to using &#8216;click&#8217;, this tools is still buried in the tools directory of the repo</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ ./nidm/experiment/tools/BIDSMRI2NIDM.py -d <span class="o">[</span>ROOT BIDS DIRECT<span class="o">]</span> -bidsignore
+</pre></div>
+</div>
+<p>Example 1:No variable-&gt;term mapping, simple BIDS dataset conversion which will add nidm.ttl file to BIDS dataset and .bidsignore file:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ ./nidm/experiment/tools/BIDSMRI2NIDM.py -d <span class="o">[</span>root directory of BIDS dataset<span class="o">]</span> -o <span class="o">[</span>PATH/nidm.ttl<span class="o">]</span>
+</pre></div>
+</div>
+<p>Example 2:No variable-&gt;term mapping, simple BIDS dataset conversion but storing nidm file somewhere else:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ ./nidm/experiment/tools/BIDSMRI2NIDM.py -d <span class="o">[</span>root directory of BIDS dataset<span class="o">]</span> -ilxkey <span class="o">[</span>Your Interlex key<span class="o">]</span> -github <span class="o">[</span>username token<span class="o">]</span> -bidsignore
+</pre></div>
+</div>
+<p>Example 3:BIDS conversion with variable-&gt;term mappings, no existing mappings available, uses Interlex for terms and github for defining terms you can&#8217;t find in Interlex (note, for now these two need to be used together)!  To get an Interlex API key you visit [SciCrunch](<a class="reference external" href="http://scicrunch.org">http://scicrunch.org</a>), register for an account, then click on &#8220;MyAccount&#8221; and &#8220;API Keys&#8221; to add a new API key for your account.  Use this API Key for the -ilxkey parameter below.  This example  adds a nidm.ttl file BIDS dataset and .bidsignore file and it will by default create you a JSON mapping file which contains the variable-&gt;term mappings you defined during the interactive, iterative activity of using this tool to map your variables to terms.  The default JSON mapping file will be called nidm_json_map.json but you can also specify this explictly using the -json_map parameter (see Example 5 below):</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ ./nidm/experiment/tools/BIDSMRI2NIDM.py -d <span class="o">[</span>root directory of BIDS dataset<span class="o">]</span> -ilxkey <span class="o">[</span>Your Interlex key<span class="o">]</span> -github <span class="o">[</span>username token<span class="o">]</span> -owl -bidsignore
+</pre></div>
+</div>
+<p>Example 4: BIDS conversion with variable-&gt;term mappings, no existing mappings available, uses Interlex + NIDM OWL file for terms and github, adds nidm.ttl file BIDS dataset and .bidsignore file:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ ./nidm/experiment/tools/BIDSMRI2NIDM.py -d <span class="o">[</span>root directory of BIDS dataset<span class="o">]</span> -json_map <span class="o">[</span>Your JSON file<span class="o">]</span> -ilxkey <span class="o">[</span>Your Interlex key<span class="o">]</span> -github <span class="o">[</span>username token<span class="o">]</span> -owl -bidsignore
+</pre></div>
+</div>
+<p>Example 5 (FULL MONTY): BIDS conversion with variable-&gt;term mappings, uses JSON mapping file first then uses Interlex + NIDM OWL file for terms and github, adds nidm.ttl file BIDS dataset and .bidsignore file:</p>
+<blockquote>
+<div><p>json mapping file has entries for each variable with mappings to formal terms.  Example:</p>
+<p>{</p>
+<blockquote>
+<div><p>&#8220;site&#8221;: {</p>
+<blockquote>
+<div><p>&#8220;definition&#8221;: &#8220;Number assigned to site&#8221;,</p>
+<p>&#8220;label&#8221;: &#8220;site_id (UC Provider Care)&#8221;,</p>
+<p>&#8220;url&#8221;: &#8220;<a class="reference external" href="http://uri.interlex.org/NDA/uris/datadictionary/elements/2031448">http://uri.interlex.org/NDA/uris/datadictionary/elements/2031448</a>&#8220;</p>
+<p>},</p>
+<p>&#8220;gender&#8221;: {</p>
+<p>&#8220;definition&#8221;: &#8220;ndar:gender&#8221;,</p>
+<p>&#8220;label&#8221;: &#8220;ndar:gender&#8221;,</p>
+<p>&#8220;url&#8221;: &#8220;<a class="reference external" href="https://ndar.nih.gov/api/datadictionary/v2/dataelement/gender">https://ndar.nih.gov/api/datadictionary/v2/dataelement/gender</a>&#8220;</p>
+<p>}</p>
+</div></blockquote>
+</div></blockquote>
+<p>}</p>
+</div></blockquote>
+<dl class="docutils">
+<dt>optional arguments:</dt>
+<dd><table class="first docutils option-list" frame="void" rules="none">
+<col class="option" />
+<col class="description" />
+<tbody valign="top">
+<tr><td class="option-group">
+<kbd><span class="option">-h</span>, <span class="option">--help</span></kbd></td>
+<td>show this help message and exit</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">-d <var>DIRECTORY</var></span></kbd></td>
+<td>Path to BIDS dataset directory</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">-j<var>sonld</var></span>, <span class="option">--jsonld</span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>If flag set, output is json-ld not TURTLE</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">-p<var>ng</var></span>, <span class="option">--png</span></kbd></td>
+<td>If flag set, tool will output PNG file of NIDM graph</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">-b<var>idsignore</var></span>, <span class="option">--bidsignore</span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>If flag set, tool will add NIDM-related files to .bidsignore file</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">-o <var>OUTPUTFILE</var></span></kbd></td>
+<td>Outputs turtle file called nidm.ttl in BIDS directory by default</td></tr>
+</tbody>
+</table>
+<p>map variables to terms arguments:</p>
+<p>-json_map JSON_MAP, &#8211;json_map JSON_MAP</p>
+<blockquote>
+<div>Optional user-suppled JSON file containing variable-term mappings.</div></blockquote>
+<p>-ilxkey KEY, &#8211;ilxkey KEY</p>
+<blockquote>
+<div>Interlex/SciCrunch API key to use for query</div></blockquote>
+<p>-github [GITHUB [GITHUB ...]], &#8211;github [GITHUB [GITHUB ...]]</p>
+<blockquote>
+<div><p>Use -github flag with list username token(or pw) for storing locally-defined terms in a
+nidm-local-terms repository in GitHub.  If user doesn&#8217;&#8216;t supply a token then user will be prompted for username/password.</p>
+<p>Example: -github username token</p>
+</div></blockquote>
+<table class="last docutils option-list" frame="void" rules="none">
+<col class="option" />
+<col class="description" />
+<tbody valign="top">
+<tr><td class="option-group">
+<kbd><span class="option">-o<var>wl</var></span></kbd></td>
+<td>Optional flag to query nidm-experiment OWL files</td></tr>
+</tbody>
+</table>
+</dd>
+</dl>
+</div>
+<div class="section" id="csv-file-to-nidm-conversion">
+<h3><a class="toc-backref" href="#id9">1.4.3&nbsp;&nbsp;&nbsp;CSV File to NIDM Conversion</a><a class="headerlink" href="#csv-file-to-nidm-conversion" title="Permalink to this headline">¶</a></h3>
+<p>This program will load in a CSV file and iterate over the header variable
+names performing an elastic search of <a class="reference external" href="https://scicrunch.org/">https://scicrunch.org/</a> for NIDM-ReproNim
+tagged terms that fuzzy match the variable names. The user will then
+interactively pick a term to associate with the variable name. The resulting
+annotated CSV data will then be written to a NIDM data file.</p>
+<p>While we&#8217;re migrating to using &#8216;click&#8217;, this tools is still buried in the tools directory of the repo</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ ./nidm/experiment/tools/CSV2NIDM.py  <span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<dl class="docutils">
+<dt>optional arguments:</dt>
+<dd><table class="first docutils option-list" frame="void" rules="none">
+<col class="option" />
+<col class="description" />
+<tbody valign="top">
+<tr><td class="option-group">
+<kbd><span class="option">-h</span>, <span class="option">--help</span></kbd></td>
+<td>show this help message and exit</td></tr>
+</tbody>
+</table>
+<p>-csv CSV_FILE         Path to CSV file to convert</p>
+<p>-ilxkey KEY           Interlex/SciCrunch API key to use for query</p>
+<p>-json_map JSON_MAP    User-suppled JSON file containing variable-term mappings.</p>
+<p>-nidm NIDM_FILE       Optional NIDM file to add CSV-&gt;NIDM converted graph to</p>
+<dl class="docutils">
+<dt>-github [GITHUB [GITHUB ...]]</dt>
+<dd>Use -github flag with username token(or pw) for
+storing locally-defined terms in a &#8220;nidm-local-terms&#8221;
+repository in GitHub. If user doesnt supply a token
+then user will be prompted for username/password.
+Example: -github username token</dd>
+</dl>
+<table class="docutils option-list" frame="void" rules="none">
+<col class="option" />
+<col class="description" />
+<tbody valign="top">
+<tr><td class="option-group">
+<kbd><span class="option">-o<var>wl</var></span></kbd></td>
+<td>Optionally searches NIDM OWL files...internet
+connection required</td></tr>
+</tbody>
+</table>
+<p class="last">-out OUTPUT_FILE      Filename to save NIDM file</p>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">1&nbsp;&nbsp;&nbsp;PyNIDM: Neuroimaging Data Model in Python</a><ul>
+<li><a class="reference internal" href="#indices-and-tables">1.1&nbsp;&nbsp;&nbsp;Indices and tables</a></li>
+<li><a class="reference internal" href="#dependencies">1.2&nbsp;&nbsp;&nbsp;Dependencies</a></li>
+<li><a class="reference internal" href="#creating-a-conda-environment-and-installing-the-library-tested-with-osx">1.3&nbsp;&nbsp;&nbsp;Creating a conda environment and installing the library (tested with OSX)</a><ul>
+<li><a class="reference internal" href="#macos">1.3.1&nbsp;&nbsp;&nbsp;macOS</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#nidm-experiment-tools">1.4&nbsp;&nbsp;&nbsp;NIDM-Experiment Tools</a><ul>
+<li><a class="reference internal" href="#query">1.4.1&nbsp;&nbsp;&nbsp;Query</a></li>
+<li><a class="reference internal" href="#bids-mri-conversion-to-nidm">1.4.2&nbsp;&nbsp;&nbsp;BIDS MRI Conversion to NIDM</a></li>
+<li><a class="reference internal" href="#csv-file-to-nidm-conversion">1.4.3&nbsp;&nbsp;&nbsp;CSV File to NIDM Conversion</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="#">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/index.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, dbkeator@uci.edu, camille.maumet@inria.fr, satrajit.ghosh@gmail.com, djarecka@gmail.com.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
