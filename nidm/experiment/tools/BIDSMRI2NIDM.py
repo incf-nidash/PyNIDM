@@ -35,7 +35,7 @@
 import sys, getopt, os
 
 from nidm.experiment import (Project, Session, MRAcquisition, AcquisitionObject, DemographicsObject,
-                             AssessmentAcquisition, AssessmentObject, MRObject, BidsMriProject)
+                             AssessmentAcquisition, AssessmentObject, MRObject, BidsMriNidm)
 from nidm.core import BIDS_Constants, Constants
 from prov.model import PROV_LABEL, PROV_TYPE
 from nidm.experiment.Utils import map_variables_to_terms
@@ -107,7 +107,7 @@ Example 5 (FULL MONTY): BIDS conversion with variable->term mappings, uses JSON 
     #importlib.reload(sys)
     #sys.setdefaultencoding('utf8')
 
-    bidsmri = BidsMriProject(directory, args.json_map, args.github, args.key, args.owl)
+    bidsmri = BidsMriNidm(directory, args.json_map, args.github, args.key, args.owl)
     project = bidsmri.project
 
     logging.info(project.serializeTurtle())
