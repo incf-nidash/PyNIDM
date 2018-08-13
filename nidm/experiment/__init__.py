@@ -8,3 +8,4 @@ from .AcquisitionObject import AcquisitionObject
 from .MRObject import MRObject
 from .DemographicsObject import DemographicsObject
 from .AssessmentObject import AssessmentObject
+from .bidsmri import BidsMriProject
