@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 #
 # PyNIDM documentation build configuration file, created by
-# sphinx-quickstart on Sat Aug 11 17:13:08 2018.
+# sphinx-quickstart on Mon Aug 13 11:52:15 2018.
 #
 # This file is execfile()d with the current directory set to its
 # containing dir.
@@ -32,12 +32,10 @@
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = ['sphinx.ext.autodoc',
-    'sphinx.ext.doctest',
     'sphinx.ext.intersphinx',
     'sphinx.ext.todo',
     'sphinx.ext.ifconfig',
-    'sphinx.ext.viewcode',
-    'sphinx.ext.githubpages']
+    'sphinx.ext.viewcode']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -53,8 +51,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'PyNIDM'
-copyright = '2018, dbkeator@uci.edu, camille.maumet@inria.fr, djarecka@gmail.com, satra@mit.edu'
-author = 'dbkeator@uci.edu, camille.maumet@inria.fr, djarecka@gmail.com, satra@mit.edu'
+copyright = '2018, dbkeator@uci.edu, camille.maumet@inria.fr, satrajit.ghosh@gmail.com, djarecka@gmail.com'
+author = 'dbkeator@uci.edu, camille.maumet@inria.fr, satrajit.ghosh@gmail.com, djarecka@gmail.com'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -75,7 +73,7 @@ language = None
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This patterns also effect to html_static_path and html_extra_path
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+exclude_patterns = []
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'
@@ -134,7 +132,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     (master_doc, 'PyNIDM.tex', 'PyNIDM Documentation',
-     'dbkeator@uci.edu, camille.maumet@inria.fr, djarecka@gmail.com, satra@mit.edu', 'manual'),
+     'dbkeator@uci.edu, camille.maumet@inria.fr, satrajit.ghosh@gmail.com, djarecka@gmail.com', 'manual'),
 ]
 
 
