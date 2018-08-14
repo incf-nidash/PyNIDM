@@ -65,6 +65,7 @@ class BidsNidm(object):
         """
         self.session = {}
         self.participant = {}
+
         #Parse participants.tsv file in BIDS directory and create study and acquisition objects
         if os.path.isfile(os.path.join(self.directory, 'participants.tsv')):
             with open(os.path.join(self.directory, 'participants.tsv')) as csvfile:
@@ -141,9 +142,6 @@ class BidsNidm(object):
                             acq_entity.add_attributes({QualifiedName(provNamespace(Core.safe_string(None,string=str(key)), column_to_terms[key]["url"]), ""):value})
                         else:
                             acq_entity.add_attributes({Constants.BIDS[key.replace(" ", "_")]:value})
-        else:
-            # TODO what happens when the participants.tsv is not present?
-            pass
 
 
     def _getRelPathToBIDS(self, filepath):
