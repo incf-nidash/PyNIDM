@@ -38,7 +38,7 @@ from argparse import ArgumentParser
 import logging
 from nidm.experiment.Query import sparql_query_nidm
 import click
-from .click_base import cli
+from nidm.experiment.tools.click_base import cli
 
 
 @cli.command()
