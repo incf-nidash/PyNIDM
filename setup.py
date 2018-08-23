@@ -20,8 +20,15 @@ opts = dict(name=NAME,
             author_email=AUTHOR_EMAIL,
             version=VERSION,
             packages=PACKAGES,
+            scripts=SCRIPTS,
             install_requires=REQUIRES,
-            requires=REQUIRES)
+            requires=REQUIRES,
+            entry_points='''
+               [console_scripts]
+               pynidm=nidm.experiment.tools.click_main:cli
+            '''
+)
+
 
 
 if __name__ == '__main__':

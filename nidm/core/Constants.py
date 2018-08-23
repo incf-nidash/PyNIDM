@@ -6,13 +6,19 @@
 @author: David Keator <dbkeator@uci.edu>
     Added Python provtoolbox  support
     10/3/17 Modified Namespace to be QualifiedName for provtoolbox support...left most of the NIDM-Results Namespaces the same
+@author: Sanu Ann Abraham <sanuann@mit.edu>
+	05/04/2018 Added python ProvONE support
 '''
-
+import six
 from rdflib import Namespace, Graph
 from prov.model import ProvDocument, QualifiedName
 from prov.model import Namespace as provNamespace
+from prov.constants import PROV_ATTRIBUTE_QNAMES, PROV_ATTRIBUTE_LITERALS, \
+	PROV_N_MAP
 
 PROV = Namespace('http://www.w3.org/ns/prov#')
+PROVONE = provNamespace('provone', 'http://purl.dataone.org/provone/2015/01/15/ontology#')
+
 NIDM_URL = 'http://purl.org/nidash/nidm#'
 NIDM = Namespace(NIDM_URL)
 
@@ -47,6 +53,8 @@ NCICB = Namespace("http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#")
 SIO = Namespace("http://semanticscience.org/ontology/sio.owl#")
 BIDS = Namespace("http://bids.neuroimaging.io/")
 OWL = Namespace("http://www.w3.org/2002/07/owl#")
+ONLI = Namespace("http://neurolog.unice.fr/ontoneurolog/v3.0/instrument.owl#")
+PATO = Namespace("http://purl.obolibrary.org/obo/pato#")
 
 namespaces = {
    # "prov": PROV,
@@ -74,7 +82,9 @@ namespaces = {
     "ncicb" : NCICB,
     "sio" : SIO,
     "bids" : BIDS,
-    "owl" : OWL
+    "owl" : OWL,
+    "onli" : ONLI,
+    "pato" : PATO
     }
 
 # Empty graph used to compute qnames
@@ -278,7 +288,7 @@ NIDM_BINOMIAL_DISTRIBUTION = NIDM['NIDM_0000005']
 NIDM_BINARY_MAP = NIDM['NIDM_0000004']
 NIDM_CONTRAST_ESTIMATION = NIDM['NIDM_0000001']
 NIDM_CONTRAST_MAP = NIDM['NIDM_0000002']
-#NIDM-Experiment##############################################################
+# NIDM-Experiment##############################################################
 NIDM_PROJECT = QualifiedName(provNamespace("nidm", NIDM), 'Project')
 #NIDM_PROJECT_TYPE = QualifiedName(provNamespace("dctypes", DCTYPES),"Dataset")
 NIDM_PROJECT_IDENTIFIER = QualifiedName(provNamespace("sio", SIO),"Identifier")
@@ -291,10 +301,14 @@ NIDM_AUTHOR = QualifiedName(provNamespace("ncit", DCAT),"author")
 NIDM_SESSION = QualifiedName(provNamespace("nidm", NIDM), 'Session')
 NIDM_ACQUISITION_ACTIVITY = QualifiedName(provNamespace("nidm", NIDM), "Acquisition")
 NIDM_ACQUISITION_MODALITY = QualifiedName(provNamespace("nidm",NIDM),"AcquisitionModality")
-NIDM_ASSESSMENT_ACQUISITION = QualifiedName(provNamespace("nidm", NIDM), "assessment-instrument")
+NIDM_ASSESSMENT_ACQUISITION = QualifiedName(provNamespace("onli", ONLI), "instrument-based-assessment")
 NIDM_ACQUISITION_ENTITY = QualifiedName(provNamespace("nidm", NIDM), "AcquisitionObject")
-NIDM_DEMOGRAPHICS_ENTITY = QualifiedName(provNamespace("nidm", NIDM), "DemographicsAssessment")
-NIDM_ASSESSMENT_ENTITY = QualifiedName(provNamespace("nidm", NIDM), "assessment-instrument")
+
+NIDM_DEMOGRAPHICS_ENTITY = QualifiedName(provNamespace("nidm", NIDM), "DemographicsInstrument")
+NIDM_ASSESSMENT_USAGE_TYPE = QualifiedName(provNamespace("nidm", NIDM),"AssessmentUsageType")
+
+
+NIDM_ASSESSMENT_ENTITY = QualifiedName(provNamespace("onli", ONLI), "assessment-instrument")
 #files
 NIDM_FILENAME = QualifiedName(provNamespace("nfo", NFO), "filename")
 NIDM_FILE = QualifiedName(provNamespace("sio", SIO), "file")
@@ -305,10 +319,12 @@ NIDM_PARTICIPANT = QualifiedName(provNamespace("sio", SIO),"Subject")
 #Demographics
 NIDM_AGE = QualifiedName(provNamespace("ncidb",NCICB),"Age")
 NIDM_GENDER = QualifiedName(provNamespace("ndar",NDAR),"gender")
-NIDM_SEX = QualifiedName(provNamespace("ncit",NCIT),"Sex")
+NIDM_SEX = QualifiedName(provNamespace("pato",PATO),"PhenotypicSex")
 NIDM_HANDEDNESS = QualifiedName(provNamespace("obo",OBO),"handedness")
 #NIDM_HANDEDNESS = OBO["PATO_0002201"] is correct term ID for handedness above
-NCICB_ETHNICITY = QualifiedName(provNamespace("ncicb",NCICB),"EthnicGroup")
+NIDM_ETHNICITY = QualifiedName(provNamespace("sio",SIO),"ethnicity")
+NIDM_RACE = QualifiedName(provNamespace("sio",SIO),"race")
+
 #NCICB_ETHNICITY = NCICB["C16564"] is correct term ID for ethnic group
 NIDM_DIAGNOSIS = QualifiedName(provNamespace("ncit",NCIT),"Diagnosis")
 NIDM_FAMILY_NAME = QualifiedName(provNamespace("foaf",FOAF),"familyName")
@@ -383,6 +399,131 @@ NLX_IMAGING_INSTRUMENT = NLX['birnlex_2094']
 SKOS_DEFINITION = SKOS['definition']
 
 
+# ProvONE Constants for classes
+PROVONE_PROCESS = PROVONE['Process']
+PROVONE_USER = PROVONE['User']
+PROVONE_PROCESSEXEC = PROVONE['ProcessExec']
+PROVONE_DATA = PROVONE['Data']
+PROVONE_INPUTPORT = PROVONE['InputPort']
+PROVONE_OUTPUTPORT = PROVONE['OutputPort']
+PROVONE_DATALINK = PROVONE['DataLink']
+PROVONE_SEQCTRLLINK = PROVONE['seqCtrlLink']
+
+# ProvONE Constants for Associations
+PROVONE_HASOUTPORT = PROVONE['hasOutPort']
+PROVONE_HASINPORT = PROVONE['hasInPort']
+PROVONE_HASSUBPROCESS = PROVONE['hasSubProcess']
+PROVONE_INPORTTODL = PROVONE['inPortToDL']
+PROVONE_DLTOINPORT = PROVONE['DLToInPort']
+PROVONE_OUTPORTTODL = PROVONE['outPortToDL']
+PROVONE_DLTOOUTPORT = PROVONE['DLToOutPort']
+PROVONE_CLTODESTP = PROVONE['CLtoDestP']
+PROVONE_SOURCEPTOCL = PROVONE['sourcePToCL']
+PROVONE_DATAONLINK = PROVONE['dataOnLink']
+PROVONE_HASDEFAULTPARAM = PROVONE['hasDefaultParameter']
+PROVONE_ISPARTOF = PROVONE['isPartOf']
+PROVONE_MEMBERSHIP = PROVONE['hadMember']
+
+# ProvONE notation mapping
+PROVONE_N_MAP = {
+	PROVONE_PROCESS: 			u'process',
+	PROVONE_PROCESSEXEC: 		u'processExec',
+	PROVONE_USER: 				u'user',
+	PROVONE_DATA:				u'data',
+	PROVONE_HASINPORT:			u'hasInPort',
+	PROVONE_INPUTPORT:			u'inputPort',
+	PROVONE_OUTPUTPORT:			u'outputPort',
+	PROVONE_HASOUTPORT:			u'hasOutPort',
+	PROVONE_HASSUBPROCESS:		u'hasSubProcess',
+	PROVONE_INPORTTODL:			u'inPortToDL',
+	PROVONE_DATALINK:			u'dataLink',
+	PROVONE_SEQCTRLLINK:		u'seqCtrlLink',
+	PROVONE_CLTODESTP:			u'CLtoDestP',
+	PROVONE_SOURCEPTOCL:		u'sourcePtoCL',
+	PROVONE_OUTPORTTODL:		u'outPortToDL',
+	PROVONE_DLTOOUTPORT:		u'DLToOutPort',
+	PROVONE_DLTOINPORT:			u'DLToInPort',
+	PROVONE_DATAONLINK:			u'dataOnLink',
+	PROVONE_HASDEFAULTPARAM: 	u'hasDefaultParamter',
+	PROVONE_ISPARTOF:			u'isPartOf',
+	PROVONE_MEMBERSHIP:			u'hadMember',
+
+}
+
+# Identifiers for PROVONE's attributes
+PROVONE_ATTR_PROCESS = PROVONE['process']
+PROVONE_ATTR_USER = PROVONE['user']
+PROVONE_ATTR_PROCESSEXEC = PROVONE['processExec']
+PROVONE_ATTR_PLAN = PROVONE['plan']
+PROVONE_ATTR_GENERATED_DATA = PROVONE['generatedData']
+PROVONE_ATTR_USED_DATA = PROVONE['usedData']
+PROVONE_ATTR_GENERATION = PROVONE['generation']
+#PROVONE_ATTR_USAGE = PROVONE['usage']
+PROVONE_ATTR_DATA = PROVONE['data']
+PROVONE_ATTR_INFORMED = PROVONE['informed']
+PROVONE_ATTR_INFORMANT = PROVONE['informant']
+PROVONE_ATTR_HASINPORT = PROVONE['hasInPort']
+PROVONE_ATTR_HASOUTPORT = PROVONE['HasOutPort']
+PROVONE_ATTR_INPUTPORT = PROVONE['InputPort']
+PROVONE_ATTR_OUTPUTPORT = PROVONE['OutputPort']
+PROVONE_ATTR_GENERATED_PROCESS = PROVONE['generatedProcess']
+PROVONE_ATTR_USED_PROCESS = PROVONE['usedProcess']
+PROVONE_ATTR_HASSUBPROCESS = PROVONE['hasSubProcess']
+PROVONE_ATTR_DATALINK = PROVONE['dataLink']
+PROVONE_ATTR_SEQCTRLLINK = PROVONE['seqCtrlLink']
+PROVONE_ATTR_CLTODESTP = PROVONE['clToDestP']
+PROVONE_ATTR_SOURCEPTOCL = PROVONE['sourcePtoCL']
+PROVONE_ATTR_RELATED_PREXEC = PROVONE['relatedProcessExec'],
+PROVONE_ATTR_USED_PREXEC = PROVONE['usedProcessExec']
+PROVONE_ATTR_CHILD_PREXEC = PROVONE['childProcessExec']
+
+
+PROVONE_ATTRIBUTE_QNAMES = {
+	PROVONE_ATTR_PROCESS,
+	PROVONE_ATTR_USER,
+	PROVONE_ATTR_PROCESSEXEC,
+	PROVONE_ATTR_PLAN,
+	PROVONE_ATTR_GENERATED_DATA,
+	PROVONE_ATTR_USED_DATA,
+	PROVONE_ATTR_DATA,
+	PROVONE_ATTR_INFORMED,
+	PROVONE_ATTR_INFORMANT,
+	PROVONE_ATTR_HASINPORT,
+	PROVONE_ATTR_HASOUTPORT,
+	PROVONE_ATTR_INPUTPORT,
+	PROVONE_ATTR_OUTPUTPORT,
+	PROVONE_ATTR_GENERATED_PROCESS,
+	PROVONE_ATTR_USED_PROCESS,
+	PROVONE_ATTR_HASSUBPROCESS,
+	PROVONE_ATTR_DATALINK,
+	PROVONE_ATTR_SEQCTRLLINK,
+	PROVONE_ATTR_CLTODESTP,
+	PROVONE_ATTR_SOURCEPTOCL,
+	PROVONE_ATTR_RELATED_PREXEC,
+	PROVONE_ATTR_USED_PREXEC,
+	PROVONE_ATTR_CHILD_PREXEC,
+    #PROV_ATTR_COLLECTION
+}
+
+
+# Set of formal attributes of PROV records
+PROVONE_ATTRIBUTES = PROVONE_ATTRIBUTE_QNAMES | PROV_ATTRIBUTE_QNAMES | \
+											  PROV_ATTRIBUTE_LITERALS
+PROVONE_RECORD_ATTRIBUTES = list((attr, six.text_type(attr)) for attr in
+							  PROVONE_ATTRIBUTES)
+
+PROV_RECORD_IDS_MAP = dict(
+    (PROV_N_MAP[rec_type_id], rec_type_id) for rec_type_id in PROV_N_MAP
+)
+PROVONE_ID_ATTRIBUTES_MAP = dict(
+    (prov_id, attribute) for (prov_id, attribute) in PROVONE_RECORD_ATTRIBUTES
+)
+PROVONE_ATTRIBUTES_ID_MAP = dict(
+    (attribute, prov_id) for (prov_id, attribute) in PROVONE_RECORD_ATTRIBUTES
+)
+
+
+
 ####ADDED BY DBK to make searching NIDM-Experiment Terms easier...temporary, should be done in the OWL file#####
 nidm_experiment_terms = [NIDM_PROJECT,
 NIDM_PROJECT_IDENTIFIER,
@@ -408,7 +549,8 @@ NIDM_AGE,
 NIDM_GENDER,
 NIDM_SEX,
 NIDM_HANDEDNESS,
-NCICB_ETHNICITY,
+NIDM_RACE,
+NIDM_ETHNICITY,
 NIDM_DIAGNOSIS,
 NIDM_FAMILY_NAME,
 NIDM_GIVEN_NAME,

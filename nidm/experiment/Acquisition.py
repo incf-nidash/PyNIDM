@@ -36,7 +36,7 @@ class Acquisition(pm.ProvActivity,Core):
 
         session.graph._add_record(self)
 
-        #self.add_attributes({pm.PROV_TYPE: Constants.NIDM_ACQUISITION_ACTIVITY})
+        self.add_attributes({pm.PROV_TYPE: Constants.NIDM_ACQUISITION_ACTIVITY})
         #self.add_attributes({pm.QualifiedName(pm.Namespace("dct",Constants.DCT),'isPartOf'):self})
 
         #list to store acquisition objects associated with this activity

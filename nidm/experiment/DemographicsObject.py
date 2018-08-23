@@ -31,7 +31,9 @@ class DemographicsObject(AcquisitionObject):
           #execute default parent class constructor
         super(DemographicsObject,self).__init__(acquisition,attributes, uuid)
 
-        self.add_attributes({pm.PROV_TYPE: Constants.NIDM_DEMOGRAPHICS_ENTITY})
+        self.add_attributes({Constants.NIDM_ASSESSMENT_USAGE_TYPE: Constants.NIDM_DEMOGRAPHICS_ENTITY})
+        self.add_attributes({pm.PROV_TYPE: Constants.NIDM_ASSESSMENT_ENTITY})
+        self.add_attributes({pm.PROV_TYPE: Constants.NIDM_ACQUISITION_ENTITY})
         #carry graph object around
         self.graph = acquisition.graph
 
