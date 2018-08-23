@@ -1,0 +1,7 @@
+#!python
+
+import sys
+from nidm.experiment.tools.nidm_query import main
+
+if __name__ == "__main__":
+    main(sys.argv)

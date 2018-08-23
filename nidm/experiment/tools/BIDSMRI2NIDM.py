@@ -43,13 +43,14 @@ from pandas import DataFrame
 from prov.model import QualifiedName
 from prov.model import Namespace as provNamespace
 from nidm.experiment.Core import Core
+from os.path import isfile
+from argparse import RawTextHelpFormatter
 import json
-from pprint import pprint
+import logging
 import csv
 import glob
 from argparse import ArgumentParser
 from bids.grabbids import BIDSLayout
-from urllib.parse import quote
 
 def getRelPathToBIDS(filepath, bids_root):
     """
@@ -67,22 +68,46 @@ def getRelPathToBIDS(filepath, bids_root):
 
 
 def main(argv):
-    parser = ArgumentParser(description='This program will convert a BIDS MRI dataset to a NIDM-Experiment \
-        RDF document.  It will parse phenotype information and simply store variables/values \
-        and link to the associated json data dictionary file.')
+    parser = ArgumentParser(description=
+"""This program will convert a BIDS MRI dataset to a NIDM-Experiment RDF document.  It will parse phenotype information and simply store variables/values and link to the associated json data dictionary file.\n\n
+Example 1: No variable->term mapping, simple BIDS dataset conversion which will add nidm.ttl file to BIDS dataset and .bidsignore file:
+\t BIDSMRI2NIDM.py -d [root directory of BIDS dataset] -bidsignore
+Example 2: No variable->term mapping, simple BIDS dataset conversion but storing nidm file somewhere else: \n
+\t BIDSMRI2NIDM.py -d [root directory of BIDS dataset] -o [PATH/nidm.ttl] \n\n
+Example 3: BIDS conversion with variable->term mappings, no existing mappings available, uses Interlex for terms and github, adds nidm.ttl file BIDS dataset and .bidsignore file: \n
+\t BIDSMRI2NIDM.py -d [root directory of BIDS dataset] -ilxkey [Your Interlex key] -github [username token] -bidsignore  \n\n
+Example 4: BIDS conversion with variable->term mappings, no existing mappings available, uses Interlex + NIDM OWL file for terms and github, adds nidm.ttl file BIDS dataset and .bidsignore file: \n
+\t BIDSMRI2NIDM.py -d [root directory of BIDS dataset] -ilxkey [Your Interlex key] -github [username token] -owl -bidsignore  \n\n
+Example 5 (FULL MONTY): BIDS conversion with variable->term mappings, uses JSON mapping file first then uses Interlex + NIDM OWL file for terms and github, adds nidm.ttl file BIDS dataset and .bidsignore file: \n
+\t BIDSMRI2NIDM.py -d [root directory of BIDS dataset] -json_map [Your JSON file] -ilxkey [Your Interlex key] -github [username token] -owl -bidsignore\n
+\t json mapping file has entries for each variable with mappings to formal terms.  Example:  \n
+    \t { \n
+    \t\t \"site\": { \n
+	\t\t \"definition\": \"Number assigned to site\", \n
+	\t\t \"label\": \"site_id (UC Provider Care)\", \n
+	\t\t \"url\": \"http://uri.interlex.org/NDA/uris/datadictionary/elements/2031448\" \n
+	\t\t }, \n
+	\t\t \"gender\": { \n
+	\t\t \"definition\": \"ndar:gender\", \n
+	\t\t \"label\": \"ndar:gender\", \n
+	\t\t \"url\": \"https://ndar.nih.gov/api/datadictionary/v2/dataelement/gender\" \n
+	\t\t } \n
+    \t }""" ,formatter_class=RawTextHelpFormatter)
 
     parser.add_argument('-d', dest='directory', required=True, help="Path to BIDS dataset directory")
     parser.add_argument('-jsonld', '--jsonld', action='store_true', help='If flag set, output is json-ld not TURTLE')
     parser.add_argument('-png', '--png', action='store_true', help='If flag set, tool will output PNG file of NIDM graph')
+    parser.add_argument('-bidsignore', '--bidsignore', action='store_true', default = False, help='If flag set, tool will add NIDM-related files to .bidsignore file')
     #adding argument group for var->term mappings
-    mapvars_group = parser.add_argument_group('Map Variables to Terms')
-    mapvars_group.add_argument('-json_map', '--json_map', dest='json_map',required=False,default=None,help="Optional user-suppled JSON file containing variable-term mappings.")
-    mapvars_group.add_argument('-key', '--key', dest='key', required=False, default=None,  help="SciCrunch API key to use for query")
-    mapvars_group.add_argument('-github','--github', action='store_true', required=False,default=False, help='If -github flag is set, locally-defined terms will be placed in a \
-                    \"nidm-local-terms\" repository in GitHub.')
-    mapvars_group.add_argument('-owlfile', dest='owl_file', required=False, default=None,help='Optional OWL file to search for terms')
+    mapvars_group = parser.add_argument_group('map variables to terms arguments')
+    mapvars_group.add_argument('-json_map', '--json_map', dest='json_map',required=False,default=False,help="Optional user-suppled JSON file containing variable-term mappings.")
+    mapvars_group.add_argument('-ilxkey', '--ilxkey', dest='key', required=False, default=None,  help="Interlex/SciCrunch API key to use for query")
+    mapvars_group.add_argument('-github','--github', type=str, nargs='*', default = None,dest='github',  required=False, help="""Use -github flag with list username token(or pw) for storing locally-defined terms in a
+    nidm-local-terms repository in GitHub.  If user doesn''t supply a token then user will be prompted for username/password.\n
+    Example: -github username token""")
+    mapvars_group.add_argument('-owl', action='store_true', required=False, default=None,help='Optional flag to query nidm-experiment OWL files')
     #parser.add_argument('-mapvars', '--mapvars', action='store_true', help='If flag set, variables in participant.tsv and phenotype files will be interactively mapped to terms')
-    parser.add_argument('-o', dest='outputfile', default="nidm.ttl", help="Outputs turtle file called nidm.ttl in BIDS directory by default and adds to .bidsignore file")
+    parser.add_argument('-o', dest='outputfile', required=False, default="nidm.ttl", help="Outputs turtle file called nidm.ttl in BIDS directory by default")
 
     args = parser.parse_args()
 
@@ -96,25 +121,34 @@ def main(argv):
 
     project = bidsmri2project(directory,args)
 
-    print(project.serializeTurtle())
+    logging.info(project.serializeTurtle())
 
-    print("Serializing NIDM graph and creating graph visualization..")
+    logging.info("Serializing NIDM graph and creating graph visualization..")
     #serialize graph
-    #print(project.graph.get_provn())
 
-    #if args.outputfile was defined by user then use it else use default which is args.director/nidm.ttl
+    #if args.outputfile was defined by user then use it else use default which is args.directory/nidm.ttl
     if args.outputfile == "nidm.ttl":
         #if we're choosing json-ld, make sure file extension is .json
         if args.jsonld:
             outputfile=os.path.join(directory,os.path.splitext(args.outputfile)[0]+".json")
+            #if flag set to add to .bidsignore then add
+            if (args.bidsignore):
+                addbidsignore(directory,os.path.splitext(args.outputfile)[0]+".json")
+
         else:
             outputfile=os.path.join(directory,args.outputfile)
+            if (args.bidsignore):
+                addbidsignore(directory,args.outputfile)
     else:
         #if we're choosing json-ld, make sure file extension is .json
         if args.jsonld:
             outputfile = os.path.splitext(args.outputfile)[0]+".json"
+            if (args.bidsignore):
+                addbidsignore(directory,os.path.splitext(args.outputfile)[0]+".json")
         else:
             outputfile = args.outputfile
+            if (args.bidsignore):
+                addbidsignore(directory,args.outputfile)
 
     #serialize NIDM file
     with open(outputfile,'w') as f:
@@ -123,11 +157,24 @@ def main(argv):
         else:
             f.write(project.serializeTurtle())
 
-    #Add to .bidsignore
 
     #save a DOT graph as PNG
     if (args.png):
         project.save_DotGraph(str(outputfile + ".png"), format="png")
+        #if flag set to add to .bidsignore then add
+        if (args.bidsignore):
+            addbidsignore(directory,os.path.basename(str(outputfile + ".png")))
+
+def addbidsignore(directory,filename_to_add):
+    logging.info("Adding file %s to %s/.bidsignore..." %(filename_to_add,directory))
+    #adds filename_to_add to .bidsignore file in directory
+    if not isfile(os.path.join(directory,".bidsignore")):
+        with open(os.path.join(directory,".bidsignore"),"w") as text_file:
+            text_file.write("%s\n" %filename_to_add)
+    else:
+        if filename_to_add not in open(os.path.join(directory,".bidsignore")).read():
+            with open(os.path.join(directory,".bidsignore"),"a") as text_file:
+                text_file.write("%s\n" %filename_to_add)
 
 
 def bidsmri2project(directory, args):
@@ -137,19 +184,17 @@ def bidsmri2project(directory, args):
             with open(os.path.join(directory,'dataset_description.json')) as data_file:
                 dataset = json.load(data_file)
         except OSError:
-            print("Cannot find dataset_description.json file which is required in the BIDS spec")
+            logging.critical("Cannot find dataset_description.json file which is required in the BIDS spec")
             exit("-1")
     else:
-        print("Error: BIDS directory %s does not exist!" %os.path.join(directory))
+        logging.critical("Error: BIDS directory %s does not exist!" %os.path.join(directory))
         exit("-1")
-    #print(dataset_data)
 
     #create project / nidm-exp doc
     project = Project()
 
     #add various attributes if they exist in BIDS dataset
     for key in dataset:
-        #print(key)
         #if key from dataset_description file is mapped to term in BIDS_Constants.py then add to NIDM object
         if key in BIDS_Constants.dataset_description:
             if type(dataset[key]) is list:
@@ -188,7 +233,7 @@ def bidsmri2project(directory, args):
 
 
             #do variable-term mappings
-            if ( (args.json_map!=None) or (args.key != None) or (args.github != False) ):
+            if ( (args.json_map!=False) or (args.key != None) or (args.github != None) ):
 
                  #if user didn't supply a json mapping file but we're doing some variable-term mapping create an empty one for column_to_terms to use
                  if args.json_map == None:
@@ -197,11 +242,10 @@ def bidsmri2project(directory, args):
 
                  #maps variables in CSV file to terms
                  temp=DataFrame(columns=mapping_list)
-                 column_to_terms.update(map_variables_to_terms(df=temp,apikey=args.key,output_file=args.json_map,json_file=args.json_map,github=args.github,owl_file=args.owl_file))
+                 column_to_terms.update(map_variables_to_terms(directory=directory, df=temp,apikey=args.key,output_file=args.json_map,json_file=args.json_map,github=args.github,owl_file=args.owl))
 
 
 
-            #print(participants_data.fieldnames)
             for row in participants_data:
                 #create session object for subject to be used for participant metadata and image data
                 #parse subject id from "sub-XXXX" string
@@ -211,7 +255,7 @@ def bidsmri2project(directory, args):
                     subjid = temp[1]
                 else:
                     subjid = temp[0]
-                print(subjid)
+                logging.info(subjid)
                 session[subjid] = Session(project)
 
                 #add acquisition object
@@ -253,7 +297,7 @@ def bidsmri2project(directory, args):
 
     #loop through all subjects in dataset
     for subject_id in bids_layout.get_subjects():
-        print("Converting subject: %s" %subject_id)
+        logging.info("Converting subject: %s" %subject_id)
         #skip .git directories...added to support datalad datasets
         if subject_id.startswith("."):
             continue
@@ -283,7 +327,7 @@ def bidsmri2project(directory, args):
             acq.add_qualified_association(person=participant[subject_id]['person'],role=Constants.NIDM_PARTICIPANT)
 
 
-            #print(file_tpl.type)
+
             if file_tpl.modality == 'anat':
                 #do something with anatomicals
                 acq_obj = MRObject(acq)
@@ -291,13 +335,13 @@ def bidsmri2project(directory, args):
                 if file_tpl.type in BIDS_Constants.scans:
                     acq_obj.add_attributes({Constants.NIDM_IMAGE_CONTRAST_TYPE:BIDS_Constants.scans[file_tpl.type]})
                 else:
-                    print("WARNING: No matching image contrast type found in BIDS_Constants.py for %s" % file_tpl.type)
+                    logging.info("WARNING: No matching image contrast type found in BIDS_Constants.py for %s" % file_tpl.type)
 
                 #add image usage type
                 if file_tpl.modality in BIDS_Constants.scans:
                     acq_obj.add_attributes({Constants.NIDM_IMAGE_USAGE_TYPE:BIDS_Constants.scans[file_tpl.modality]})
                 else:
-                    print("WARNING: No matching image usage type found in BIDS_Constants.py for %s" % file_tpl.modality)
+                    logging.info("WARNING: No matching image usage type found in BIDS_Constants.py for %s" % file_tpl.modality)
                 #add file link
                 #make relative link to
                 acq_obj.add_attributes({Constants.NIDM_FILENAME:getRelPathToBIDS(file_tpl.filename, directory)})
@@ -317,13 +361,13 @@ def bidsmri2project(directory, args):
                 if file_tpl.type in BIDS_Constants.scans:
                     acq_obj.add_attributes({Constants.NIDM_IMAGE_CONTRAST_TYPE:BIDS_Constants.scans[file_tpl.type]})
                 else:
-                    print("WARNING: No matching image contrast type found in BIDS_Constants.py for %s" % file_tpl.type)
+                    logging.info("WARNING: No matching image contrast type found in BIDS_Constants.py for %s" % file_tpl.type)
 
                 #add image usage type
                 if file_tpl.modality in BIDS_Constants.scans:
                     acq_obj.add_attributes({Constants.NIDM_IMAGE_USAGE_TYPE:BIDS_Constants.scans[file_tpl.modality]})
                 else:
-                    print("WARNING: No matching image usage type found in BIDS_Constants.py for %s" % file_tpl.modality)
+                    logging.info("WARNING: No matching image usage type found in BIDS_Constants.py for %s" % file_tpl.modality)
                 #add file link
                 acq_obj.add_attributes({Constants.NIDM_FILENAME:getRelPathToBIDS(file_tpl.filename, directory)})
                 if 'run' in file_tpl._fields:
@@ -362,13 +406,13 @@ def bidsmri2project(directory, args):
                 if file_tpl.type in BIDS_Constants.scans:
                     acq_obj.add_attributes({Constants.NIDM_IMAGE_CONTRAST_TYPE:BIDS_Constants.scans[file_tpl.type]})
                 else:
-                    print("WARNING: No matching image contrast type found in BIDS_Constants.py for %s" % file_tpl.type)
+                    logging.info("WARNING: No matching image contrast type found in BIDS_Constants.py for %s" % file_tpl.type)
 
                 #add image usage type
                 if file_tpl.modality in BIDS_Constants.scans:
                     acq_obj.add_attributes({Constants.NIDM_IMAGE_USAGE_TYPE:BIDS_Constants.scans["dti"]})
                 else:
-                    print("WARNING: No matching image usage type found in BIDS_Constants.py for %s" % file_tpl.modality)
+                    logging.info("WARNING: No matching image usage type found in BIDS_Constants.py for %s" % file_tpl.modality)
                  #add file link
                 acq_obj.add_attributes({Constants.NIDM_FILENAME:getRelPathToBIDS(file_tpl.filename, directory)})
                 if 'run' in file_tpl._fields:

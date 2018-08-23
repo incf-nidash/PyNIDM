@@ -32,6 +32,7 @@ class AssessmentObject(AcquisitionObject):
         super(AssessmentObject,self).__init__(acquisition,attributes, uuid)
 
         self.add_attributes({pm.PROV_TYPE: Constants.NIDM_ASSESSMENT_ENTITY})
+        self.add_attributes({pm.PROV_TYPE: Constants.NIDM_ACQUISITION_ENTITY})
         #carry graph object around
         self.graph = acquisition.graph
 
