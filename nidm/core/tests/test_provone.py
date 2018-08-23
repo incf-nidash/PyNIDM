@@ -1,9 +1,8 @@
-#from nidm.core.provone import ProvONEDocument
+from nidm.core.provone import ProvONEDocument
 from nidm.core import Constants
 from nidm.core.dot import provone_to_dot
 import pytest
 
-pytestmark = pytest.mark.skip(reason="had to comment provone import - was breaking tests from experiment")
 
 @pytest.fixture(scope="module")
 def doc():
