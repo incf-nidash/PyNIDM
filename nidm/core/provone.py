@@ -20,7 +20,7 @@ from prov.constants import PROV_N_MAP, PROV_ATTR_STARTTIME, PROV_ATTR_ENDTIME, \
 from prov.model import ProvEntity, ProvAgent, ProvDocument, ProvAttribution, \
 	PROV_REC_CLS, ProvActivity, _ensure_datetime, ProvAssociation, \
 	ProvCommunication, ProvDerivation, ProvRelation, ProvGeneration, ProvUsage, \
-	ProvMembership
+	ProvMembership, ProvRecord
 from .Constants import PROVONE_N_MAP, PROVONE_PROCESS, PROVONE_INPUTPORT, \
 	PROVONE_OUTPUTPORT, PROVONE_DATA, PROVONE_DATALINK, PROVONE_SEQCTRLLINK, \
 	PROVONE_USER, PROVONE_PROCESSEXEC, PROVONE_ATTR_PROCESS, PROVONE_ATTR_USER, \
@@ -43,9 +43,20 @@ __email__ = 'sanuann@mit.edu'
 
 logger = logging.getLogger(__name__)
 
-# add ProvOne Notation mapping to Prov_N_MAP dict
-#PROV_N_MAP.update(PROVONE_N_MAP)
+# update ProvOne Notation mapping with PROV_N_MAP
 PROVONE_N_MAP.update(PROV_N_MAP)
+
+
+class ProvOneRecord(ProvRecord):
+	"""Base class for PROVONE records."""
+
+	def copy(self):
+		"""
+		Return an exact copy of this record.
+		"""
+		return PROVONE_REC_CLS[self.get_type()](
+			self._bundle, self.identifier, self.attributes
+		)
 
 
 class ProvPlan(ProvEntity):
@@ -144,7 +155,7 @@ class Generation(ProvGeneration):
 
     FORMAL_ATTRIBUTES = (PROVONE_ATTR_DATA, PROVONE_ATTR_PROCESSEXEC, PROV_ATTR_TIME)
 
-    #_prov_type = PROV_GENERATION
+    _prov_type = PROV_GENERATION
 
 
 class Usage(ProvUsage):
@@ -152,7 +163,7 @@ class Usage(ProvUsage):
 
     FORMAL_ATTRIBUTES = (PROVONE_ATTR_PROCESSEXEC, PROVONE_ATTR_DATA, PROV_ATTR_TIME)
 
-    #_prov_type = PROV_USAGE
+    _prov_type = PROV_USAGE
 
 
 class Partnership(ProvRelation):
@@ -268,16 +279,17 @@ class Workflow(Process, ):
 
 
 #  Class mappings from PROVONE record type
-PROV_REC_CLS.update({
+PROVONE_REC_CLS = {
 	PROVONE_PROCESS: Process,
 	PROVONE_PROCESSEXEC: ProcessExec,
 	PROVONE_DATA: Data,
-	PROV_ATTRIBUTION: Attribution,
-	PROV_ASSOCIATION: Association,
-	PROV_COMMUNICATION:  Communication,
-	PROV_DERIVATION: Derivation,
-	PROV_GENERATION: Generation,
+	# PROV_ATTRIBUTION: Attribution,
+	# PROV_ASSOCIATION: Association,
+	# PROV_COMMUNICATION:  Communication,
+	# PROV_DERIVATION: Derivation,
+	# PROV_GENERATION: Generation,
 	PROV_USAGE: Usage,
+	# PROV_MEMBERSHIP: Membership,
 	PROVONE_INPUTPORT: InputPort,
 	PROVONE_HASINPORT: HasInput,
 	PROVONE_OUTPUTPORT: OutputPort,
@@ -295,9 +307,41 @@ PROV_REC_CLS.update({
 	PROVONE_HASDEFAULTPARAM: Parameterization,
 	PROVONE_USER: User,
 	PROVONE_ISPARTOF: Partnership,
-	PROV_MEMBERSHIP: Membership,
 
-})
+}
+
+PROVONE_REC_CLS.update(PROV_REC_CLS)
+
+# PROV_REC_CLS.update({
+# 	PROVONE_PROCESS: Process,
+# 	PROVONE_PROCESSEXEC: ProcessExec,
+# 	PROVONE_DATA: Data,
+# 	PROV_ATTRIBUTION: Attribution,
+# 	PROV_ASSOCIATION: Association,
+# 	PROV_COMMUNICATION:  Communication,
+# 	PROV_DERIVATION: Derivation,
+# 	PROV_GENERATION: Generation,
+# 	PROV_USAGE: Usage,
+# 	PROVONE_INPUTPORT: InputPort,
+# 	PROVONE_HASINPORT: HasInput,
+# 	PROVONE_OUTPUTPORT: OutputPort,
+# 	PROVONE_HASOUTPORT: HasOutput,
+# 	PROVONE_HASSUBPROCESS: HasSubProcess,
+# 	PROVONE_DATALINK: DataLink,
+# 	PROVONE_INPORTTODL: InToDL,
+# 	PROVONE_SEQCTRLLINK: SeqCtrlLink,
+# 	PROVONE_CLTODESTP: CLtoDestP,
+# 	PROVONE_SOURCEPTOCL: SourcePtoCL,
+# 	PROVONE_OUTPORTTODL: OutToDL,
+# 	PROVONE_DLTOOUTPORT: DLtoOutPort,
+# 	PROVONE_DLTOINPORT: DLtoInPort,
+# 	PROVONE_DATAONLINK: DataLinkage,
+# 	PROVONE_HASDEFAULTPARAM: Parameterization,
+# 	PROVONE_USER: User,
+# 	PROVONE_ISPARTOF: Partnership,
+# 	PROV_MEMBERSHIP: Membership,
+#
+# })
 
 
 class ProvONEDocument(ProvDocument):
@@ -847,6 +891,41 @@ class ProvONEDocument(ProvDocument):
 				PROVONE_ATTR_DATA: data
 			}
 		)
+
+	# same method as in prov/model.py with just the modification of PROVONE
+	# constants. Need to re-architect prov and then make necessary changes in
+	# provone.
+	def new_record(self, record_type, identifier, attributes=None,
+				   other_attributes=None):
+		"""
+		Creates a new record.
+
+		:param record_type: Type of record (one of :py:const:`PROVONE_REC_CLS`).
+		:param identifier: Identifier for new record.
+		:param attributes: Attributes as a dictionary or list of tuples to be added
+			to the record optionally (default: None).
+		:param other_attributes: Optional other attributes as a dictionary or list
+			of tuples to be added to the record optionally (default: None).
+		"""
+		attr_list = []
+		if attributes:
+			if isinstance(attributes, dict):
+				attr_list.extend(
+					(attr, value) for attr, value in attributes.items()
+				)
+			else:
+				# expecting a list of attributes here
+				attr_list.extend(attributes)
+		if other_attributes:
+			attr_list.extend(
+				other_attributes.items() if isinstance(other_attributes, dict)
+				else other_attributes
+			)
+		new_record = PROVONE_REC_CLS[record_type](
+			self, self.valid_qualified_name(identifier), attr_list
+		)
+		self._add_record(new_record)
+		return new_record
 
 	# Aliases
 	wasAttributedTo = attribution

@@ -33,9 +33,18 @@ def test_ispartof(doc):
                               rdf_format='ttl'))
 
 
+def test_dataonlink(doc):
+    dt2 = doc.data('dcterms:identifier:defparam2', {'rdfs:label': "filename"})
+    dl1 = doc.dataLink('dcterms:identifier:e1_e2DL')
+    # save a turtle file
+    with open("test.ttl", 'w') as f:
+        f.write(doc.serialize(format='rdf',
+                              rdf_format='ttl'))
+    doc.dataOnLink(dt2, dl1)
+
 def test_used(doc):
     pe1 = doc.processExec('dcterms:identifier:e1_ex1', "2013-08-21 13:37:53",
-                          "2013-08-21 13:37:53")
+                          "2013-08-21 16:37:53")
     dt1 = doc.data('dcterms:identifier:defparam1', {'rdfs:label': "filename",
                                                    'prov:value': "DLEM_NEE_onedeg_v1.0nc",
                                                    'wfms:type': "edu.sci.wfms.basic:File"})
@@ -45,30 +54,6 @@ def test_used(doc):
     with open("test.ttl", 'w') as f:
         f.write(doc.serialize(format='rdf',
                               rdf_format='ttl'))
-
-
-def test_wasderivedfrom(doc):
-
-    dt1 = doc.data('dcterms:identifier:defparam1', {'rdfs:label': "filename",
-                                                   'prov:value': "DLEM_NEE_onedeg_v1.0nc",
-                                                   'wfms:type': "edu.sci.wfms.basic:File"})
-    dt2 = doc.data('dcterms:identifier:defparam2', {'rdfs:label': "filename"})
-    doc.wasDerivedFrom(dt1, dt2)
-
-    # save a turtle file
-    with open("test.ttl", 'w') as f:
-        f.write(doc.serialize(format='rdf',
-                              rdf_format='ttl'))
-
-
-def test_dataonlink(doc):
-    dt2 = doc.data('dcterms:identifier:defparam2', {'rdfs:label': "filename"})
-    dl1 = doc.dataLink('dcterms:identifier:e1_e2DL')
-    # save a turtle file
-    with open("test.ttl", 'w') as f:
-        f.write(doc.serialize(format='rdf',
-                              rdf_format='ttl'))
-    doc.dataOnLink(dt2, dl1)
 
 
 def test_wasgeneratedby(doc):
@@ -115,13 +100,13 @@ def test_dltoinport(doc):
     doc.DLToInPort(dl1, i1)
 
 
-def test_documentserialize(doc):
-    # save a turtle file
-    with open("test.ttl", 'w') as f:
-        f.write(doc.serialize(format='rdf',
-                              rdf_format='ttl'))
-
-
-def test_write_to_dot(doc):
-    dot = provone_to_dot(doc)
-    dot.write_png('provone-test.png')
+# def test_documentserialize(doc):
+#     # save a turtle file
+#     with open("test.ttl", 'w') as f:
+#         f.write(doc.serialize(format='rdf',
+#                               rdf_format='ttl'))
+#
+#
+# def test_write_to_dot(doc):
+#     dot = provone_to_dot(doc)
+#     dot.write_png('provone-test.png')
