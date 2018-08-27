@@ -38,7 +38,7 @@ from argparse import ArgumentParser
 import logging
 from nidm.experiment.Query import sparql_query_nidm
 import click
-from .click_base import cli
+from nidm.experiment.tools.click_base import cli
 
 
 @cli.command()
@@ -56,8 +56,7 @@ def query(nidm_file_list, query_file, output_file):
     #read query from text fiile
     with open(query_file, 'r') as fp:
         query = fp.read()
-
-    df = sparql_query_nidm(nidm_file_list,query,output_file)
+    df = sparql_query_nidm(nidm_file_list.split(','),query,output_file)
 
 
     return df

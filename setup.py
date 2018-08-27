@@ -25,7 +25,7 @@ opts = dict(name=NAME,
             requires=REQUIRES,
             entry_points='''
                [console_scripts]
-               pynidm=nidm.experiment.tools.click:cli
+               pynidm=nidm.experiment.tools.click_main:cli
             '''
 )
 
