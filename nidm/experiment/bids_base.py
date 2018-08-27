@@ -1,6 +1,8 @@
-import os, glob, json, pdb
+import os, glob, json, csv, pdb
 import logging
+import pandas as pd
 from nidm.core import BIDS_Constants, Constants
+from nidm.experiment.Utils import map_variables_to_terms
 from nidm.experiment import (Project, Session, MRAcquisition, AcquisitionObject, DemographicsObject,
                              AssessmentAcquisition, AssessmentObject, MRObject)
 from bids.grabbids import BIDSLayout
@@ -94,7 +96,7 @@ class BidsNidm(object):
                         self.json_map = os.path.isfile(os.path.join(self.directory, 'participants.json'))
 
                      #maps variables in CSV file to terms
-                     temp = DataFrame(columns=mapping_list)
+                     temp = pd.DataFrame(columns=mapping_list)
                      column_to_terms.update(map_variables_to_terms(directory=self.directory, df=temp, apikey=self.key,
                                                                    output_file=self.json_map, json_file=self.json_map,
                                                                    github=self.github, owl_file=self.owl))

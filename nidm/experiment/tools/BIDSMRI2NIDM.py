@@ -116,6 +116,7 @@ def bidsmri2nidm(directory, jsonld, png, mapping, json_map, ilxkey, github_usern
         #TODO: don't remember what should be assumed as owl (we were planning to remove from the options)
         owl = True
     else:
+        github=None
         owl = None
 
     # if outputdir not provided, it will be set to the bids directory
@@ -127,7 +128,6 @@ def bidsmri2nidm(directory, jsonld, png, mapping, json_map, ilxkey, github_usern
     else:
         outputdir = directory
         outputdir_bidsorig = True
-
 
     bidsmri = BidsMriNidm(directory, json_map, github, ilxkey, owl)
     project = bidsmri.project
