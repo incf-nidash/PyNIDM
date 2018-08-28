@@ -358,9 +358,7 @@ def load_nidm_owl_files():
             "sio_import.ttl",
             "stato_import.ttl"
     ]
-    owls=[
-            "nidm-experiment.owl"
-    ]
+
     #load each import
     for resource in imports:
         temp_graph = Graph()
@@ -373,11 +371,15 @@ def load_nidm_owl_files():
             logging.info("Error opening %s import file..continuing" %os.path.join(imports_path,resource))
             continue
 
+    owls=[
+            "https://raw.githubusercontent.com/incf-nidash/nidm-specs/master/nidm/nidm-experiment/terms/nidm-experiment.owl"
+    ]
+
     #load each owl file
     for resource in owls:
         temp_graph = Graph()
         try:
-            temp_graph.parse(os.path.join(terms_path,resource),format="turtle")
+            temp_graph.parse(location=resource, format="turtle")
             union_graph=union_graph+temp_graph
         except Exception:
             logging.info("Error opening %s owl file..continuing" %os.path.join(terms_path,resource))
