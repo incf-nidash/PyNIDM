@@ -131,3 +131,31 @@ def GetProjectMetadata(nidm_file_list):
         df = sparql_query_nidm(nidm_file_list,query,output_file=None)
         results = df.to_dict()
         print(results)
+
+def GetProjectInstruments(nidm_file_list, project_id):
+    """
+    Returns a list of unique instrument types.  For NIDM files this is rdf:type onli:assessment-instrument
+    or related classes (e.g. nidm:NorthAmericanAdultReadingTest, nidm:PositiveAndNegativeSyndromeScale)
+    :param nidm_file_list: List of one or more NIDM files to query across for list of Projects
+    :param project_id: identifier of project you'd like to search for unique instruments
+    :return: List of unique instruments
+    """
+    query = '''
+        PREFIX prov: <http://www.w3.org/ns/prov#>
+        PREFIX sio: <http://semanticscience.org/ontology/sio.owl#>
+        PREFIX dct: <http://purl.org/dc/terms/>
+        SELECT DISTINCT  ?assessment_type
+        WHERE {
+            ?entity rdf:type  onli:assessment-instrument ;
+                rdf:type ?assessment_type .
+            ?entity prov:wasGeneratedBy/dct:isPartOf/dct:isPartOf ?project .
+            ?project sio:Identifier ?project_id .
+
+            FILTER( (!regex(str(?assessment_type), "http://www.w3.org/ns/prov#Entity")) &&  (!regex(str(?assessment_type), "http://purl.org/nidash/nidm#AcquisitionObject")) &&  (regex(str(?project_id), "%s")) )
+            }
+            ''' % project_id
+    logging.info('Query: %s', query)
+    df = sparql_query_nidm(nidm_file_list, query, output_file=None)
+    results = df.to_dict()
+    logging.info(results)
+    return df['assessment_type'].tolist()

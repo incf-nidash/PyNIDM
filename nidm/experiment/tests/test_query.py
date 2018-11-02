@@ -1,7 +1,7 @@
 from nidm.experiment import Project, Session, AssessmentAcquisition, AssessmentObject, AcquisitionObject, Query
 from nidm.core import Constants
 from rdflib import URIRef
-
+import prov.model as pm
 
 
 def test_GetProjectMetadata():
@@ -50,3 +50,28 @@ def test_GetProjects():
 
     assert URIRef(Constants.NIDM + "_123456") in project_list
 
+def test_GetProjectInstruments():
+
+    kwargs={Constants.NIDM_PROJECT_NAME:"FBIRN_PhaseII",Constants.NIDM_PROJECT_IDENTIFIER:9610,Constants.NIDM_PROJECT_DESCRIPTION:"Test investigation"}
+    project = Project(uuid="_123456",attributes=kwargs)
+
+    session = Session(project)
+    acq = AssessmentAcquisition(session)
+
+    kwargs={pm.PROV_TYPE:pm.QualifiedName(pm.Namespace("nidm",Constants.NIDM),"NorthAmericanAdultReadingTest")}
+    acq_obj = AssessmentObject(acq,kwargs)
+
+    acq2 = AssessmentAcquisition(session)
+
+    kwargs={pm.PROV_TYPE:pm.QualifiedName(pm.Namespace("nidm",Constants.NIDM),"PositiveAndNegativeSyndromeScale")}
+    acq_obj2 = AssessmentObject(acq2,kwargs)
+
+    #save a turtle file
+    with open("test.ttl",'w') as f:
+        f.write(project.serializeTurtle())
+
+
+    assessment_list = Query.GetProjectInstruments(["test.ttl"],"9610")
+
+    assert URIRef(Constants.NIDM + "NorthAmericanAdultReadingTest") in assessment_list
+    assert URIRef(Constants.NIDM + "PositiveAndNegativeSyndromeScale") in assessment_list
