@@ -17,11 +17,12 @@ class AssessmentObject(AcquisitionObject):
 
     """
     #constructor
-    def __init__(self, acquisition,attributes=None, uuid=None):
+    def __init__(self, acquisition,assessment_type=None,attributes=None, uuid=None):
         """
         Default contructor, creates an acquisition object and links to acquisition activity object
 
         :param acquisition: a Aquisition activity object
+        :param assessment_type: optional qualified name of assessment type (e.g. pm.QualifiedName(pm.Namespace("nidm",Constants.NIDM),"PositiveAndNegativeSyndromeScale"))
         :param attributes: optional attributes to add to entity
         :param uuid: optional uuid...used mostly for reading in existing NIDM document
         :return: none
@@ -33,6 +34,8 @@ class AssessmentObject(AcquisitionObject):
 
         self.add_attributes({pm.PROV_TYPE: Constants.NIDM_ASSESSMENT_ENTITY})
         self.add_attributes({pm.PROV_TYPE: Constants.NIDM_ACQUISITION_ENTITY})
+        if assessment_type is not None:
+            self.add_attributes({pm.PROV_TYPE: assessment_type})
         #carry graph object around
         self.graph = acquisition.graph
 
