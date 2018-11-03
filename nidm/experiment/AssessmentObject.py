@@ -34,7 +34,7 @@ class AssessmentObject(AcquisitionObject):
 
         self.add_attributes({pm.PROV_TYPE: Constants.NIDM_ASSESSMENT_ENTITY})
         self.add_attributes({pm.PROV_TYPE: Constants.NIDM_ACQUISITION_ENTITY})
-        if assessment_type:
+        if assessment_type is not None:
             self.add_attributes({pm.PROV_TYPE: assessment_type})
         #carry graph object around
         self.graph = acquisition.graph
