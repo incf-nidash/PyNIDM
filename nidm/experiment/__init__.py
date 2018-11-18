@@ -8,3 +8,5 @@ from .AcquisitionObject import AcquisitionObject
 from .MRObject import MRObject
 from .DemographicsObject import DemographicsObject
 from .AssessmentObject import AssessmentObject
+from .bids_base import BidsNidm
+from .bidsmri import BidsMriNidm
