@@ -10,6 +10,7 @@ def main(argv):
     #create new nidm-experiment document with project
     kwargs={Constants.NIDM_PROJECT_NAME:"FBIRN_PhaseII",Constants.NIDM_PROJECT_IDENTIFIER:9610,Constants.NIDM_PROJECT_DESCRIPTION:"Test investigation"}
     project = Project(attributes=kwargs)
+
     
     #test add string attribute with existing namespace
     #nidm_doc.addLiteralAttribute("nidm","isFun","ForMe")

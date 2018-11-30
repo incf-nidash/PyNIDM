@@ -84,5 +84,8 @@ class Project(pm.ProvActivity,Core):
     def __str__(self):
         return "NIDM-Experiment Project Class"
 
+
+
+
     sessions = property(get_sessions,add_sessions)
 
