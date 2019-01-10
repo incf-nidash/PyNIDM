@@ -14,6 +14,7 @@ def main(argv):
     args = parser.parse_args()
 
     project = read_nidm(args.nidm_file)
+    project.save_DotGraph(join(dirname(args.nidm_file),splitext(args.nidm_file)[0]+".png"),format="png")
 
     sessions = project.get_sessions()
     print("Sessions:\n %s" % sessions)

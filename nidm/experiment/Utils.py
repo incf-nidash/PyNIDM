@@ -298,7 +298,7 @@ def QuerySciCrunchElasticSearch(key,query_string,cde_only=False, anscestors=True
         else:
             data = '\n{\n  "query": {\n    "bool": {\n       "must" : [\n       {  "terms" : { "type" : ["cde" , "term"] } },\n              { "multi_match" : {\n         "query":    "%s", \n         "fields": [ "label", "definition" ] \n       } }\n]\n    }\n  }\n}\n' %query_string
 
-    response = requests.post('https://scicrunch.org/api/1/elastic/interlex/term/_search#', headers=headers, params=params, data=data)
+    response = requests.post('https://scicrunch.org/api/1/elastic-ilx/interlex/term/_search#', headers=headers, params=params, data=data)
 
     return json.loads(response.text)
 
@@ -462,7 +462,7 @@ def authenticate_github(authed=None,credentials=None):
     else:
         return authed
 
-def map_variables_to_terms(df,apikey,directory, output_file=None,json_file=None,github=None,owl_file=None):
+def map_variables_to_terms(df,apikey,directory=None, output_file=None,json_file=None,github=None,owl_file=None):
     '''
 
     :param df: data frame with first row containing variable names
@@ -484,7 +484,7 @@ def map_variables_to_terms(df,apikey,directory, output_file=None,json_file=None,
     new_term=True
 
     #check if user supplied a JSON file and we already know a mapping for this column
-    if json_file:
+    if json_file != None:
         #load file and
         #json_map = json.load(open(json_file))
         with open(json_file,'r+') as f:
