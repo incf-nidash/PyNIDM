@@ -329,7 +329,7 @@ NIDM_RACE = QualifiedName(provNamespace("sio",SIO),"race")
 NIDM_DIAGNOSIS = QualifiedName(provNamespace("ncit",NCIT),"Diagnosis")
 NIDM_FAMILY_NAME = QualifiedName(provNamespace("foaf",FOAF),"familyName")
 NIDM_GIVEN_NAME = QualifiedName(provNamespace("foaf",FOAF),"givenName")
-NIDM_SUBJECTID = QualifiedName(provNamespace("ndar",NDAR),"src_subject_id")
+NIDM_SUBJECTID = QualifiedName(provNamespace("sio",SIO),"Subject")
 #MRI scan types
 NIDM_IMAGE_CONTRAST_TYPE = QualifiedName(provNamespace("nidm", NIDM),"hasImageContrastType")
 NIDM_IMAGE_USAGE_TYPE = QualifiedName(provNamespace("nidm", NIDM),"hasImageUsageType")
