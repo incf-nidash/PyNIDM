@@ -93,7 +93,7 @@ def main(argv):
     parser.add_argument('-ilxkey', dest='key', required=True, help="Interlex/SciCrunch API key to use for query")
     parser.add_argument('-json_map', dest='json_map',required=False,help="User-suppled JSON file containing variable-term mappings.")
     parser.add_argument('-nidm', dest='nidm_file', required=False, help="Optional NIDM file to add CSV->NIDM converted graph to")
-    parser.add_argument('-github',dest='github', type=str, nargs='*', default = 'None', required=False, help='Use -github flag with username token(or pw) for storing locally-defined terms in a \
+    parser.add_argument('-github',dest='github', type=str, nargs='*', default = None, required=False, help='Use -github flag with username token(or pw) for storing locally-defined terms in a \
                     \"nidm-local-terms\" repository in GitHub.  If user doesn''t supply a token then user will be prompted for username/password.\n \
                     Example: -github username token')
     parser.add_argument('-owl', action='store_true', required=False, help='Optionally searches NIDM OWL files...internet connection required')
@@ -132,7 +132,7 @@ def main(argv):
                 print("%d: %s" %(option,column))
                 option=option+1
             selection=input("Please select the subject ID field from the list above: ")
-            id_field=df[df.columns[selection]]
+            id_field=df.columns[int(selection)-1]
             #make sure id_field is a string for zero-padded subject ids
             #re-read data file with constraint that key field is read as string
             #df = pd.read_csv(args.csv_file,dtype={id_field : str})
@@ -232,7 +232,7 @@ def main(argv):
                 print("%d: %s" %(option,column))
                 option=option+1
             selection=input("Please select the subject ID field from the list above: ")
-            id_field=df[df.columns[int(selection)]]
+            id_field=df.columns[int(selection)-1]
 
 
         #iterate over rows and store in NIDM file

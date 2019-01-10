@@ -613,9 +613,10 @@ def map_variables_to_terms(df,apikey,directory, output_file=None,json_file=None,
 
             #Add option to change query string
             print("%d: Change Interlex query string from: \"%s\"" %(option,column))
-            option=option+1
-            #Add option to define your own term
-            print("%d: Define my own term for this variable" %option)
+            if github is not None:
+                option=option+1
+                #Add option to define your own term
+                print("%d: Define my own term for this variable" %option)
 
             print("---------------------------------------------------------------------------------------")
             #Wait for user input
@@ -692,6 +693,8 @@ def map_variables_to_terms(df,apikey,directory, output_file=None,json_file=None,
 
                 #collect term information from user
                 term_label = input("Please enter a term label for this column (%s):\t" % column)
+                if term_label == '':
+                    term_label = column
                 term_definition = input("Please enter a definition:\t")
                 term_units = input("Please enter the units:\t")
                 term_datatype = input("Please enter the datatype:\t")
