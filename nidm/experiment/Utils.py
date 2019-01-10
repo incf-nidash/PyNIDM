@@ -462,7 +462,7 @@ def authenticate_github(authed=None,credentials=None):
     else:
         return authed
 
-def map_variables_to_terms(df,apikey,directory=None, output_file=None,json_file=None,github=None,owl_file=None):
+def map_variables_to_terms(df,apikey,directory, output_file=None,json_file=None,github=None,owl_file=None):
     '''
 
     :param df: data frame with first row containing variable names
@@ -498,7 +498,7 @@ def map_variables_to_terms(df,apikey,directory=None, output_file=None,json_file=
             output_file = os.path.join(directory,"nidm_json_map.json")
         #remove ".ttl" extension
         else:
-            output_file = os.path.join(os.path.dirname(output_file), os.path.splitext(output_file)[0],"_json_map.json")
+            output_file = os.path.join(os.path.dirname(output_file), os.path.splitext(os.path.basename(output_file))[0]+"_json_map.json")
         #with open(json_file, 'w') as f:
         #    json_map = json.dumps({})
 
@@ -752,8 +752,9 @@ def map_variables_to_terms(df,apikey,directory=None, output_file=None,json_file=
         #get -out directory from command line parameter
         if output_file!= None:
             #dir = os.path.dirname(output_file)
-            file_path=os.path.relpath(output_file)
-            with open(file_path,'w+') as fp:
+            #file_path=os.path.relpath(output_file)
+
+            with open(output_file,'w+') as fp:
                 json.dump(column_to_terms,fp)
 
 
