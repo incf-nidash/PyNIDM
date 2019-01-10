@@ -232,7 +232,7 @@ def main(argv):
                 print("%d: %s" %(option,column))
                 option=option+1
             selection=input("Please select the subject ID field from the list above: ")
-            id_field=df[df.columns[selection]]
+            id_field=df[df.columns[int(selection)]]
 
 
         #iterate over rows and store in NIDM file
