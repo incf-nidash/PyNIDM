@@ -104,7 +104,7 @@ def main(argv):
     df = pd.read_csv(args.csv_file)
 
     #maps variables in CSV file to terms
-    column_to_terms = map_variables_to_terms(df,args.key,args.output_file,args.json_map,args.github,args.owl)
+    column_to_terms = map_variables_to_terms(df=df,apikey=args.key,output_file=args.output_file,json_file=args.json_map,github=args.github,owl_file=args.owl)
 
 
 
