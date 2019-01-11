@@ -125,13 +125,14 @@ optional arguments:
 
 map variables to terms arguments:
 
+-owl     Optional flag to query nidm-experiment OWL files
+
 -json_map, --json_map       Optional user-suppled JSON file containing variable-term mappings
 						  
 -ilxkey, --ilxkey     Interlex/SciCrunch API key to use for query
 
--github, --github      Use -github flag with list username token(or pw) for storing locally-defined terms in a nidm-local-terms repository in GitHub.  If user doesn''t supply a token then user will be prompted for username/password: Example: -github username token
-
--owl     Optional flag to query nidm-experiment OWL files
+-github, --github      
+	Use -github flag with list username token(or pw) for storing locally-defined terms in a nidm-local-terms repository in GitHub.If user doesn't supply a token then user will be prompted for username/password. Example: -github username token.
 
 CSV File to NIDM Conversion
 ---------------------------
@@ -148,28 +149,29 @@ annotated CSV data will then be written to a NIDM data file.
     $ csv2nidm  [OPTIONS]
 
 optional arguments:
-  	-h, --help            	show this help message and exit
+
+-h, --help            show this help message and exit
+
+-csv     Path to CSV file to convert
   
-  	-csv CSV_FILE         	Path to CSV file to convert
+-ilxkey     Interlex/SciCrunch API key to use for query
   
-  	-ilxkey KEY           	Interlex/SciCrunch API key to use for query
+-json_map     User-suppled JSON file containing variable-term mappings.
   
-  	-json_map JSON_MAP   	User-suppled JSON file containing variable-term mappings.
+-nidm     Optional NIDM file to add CSV->NIDM converted graph to an existing NIDM file
+
+-owl     Optional flag to query nidm-experiment OWL files
+
+-json_map, --json_map       Optional user-suppled JSON file containing variable-term mappings
+						  
+-ilxkey, --ilxkey     Interlex/SciCrunch API key to use for query
+
+-github, --github      
+	Use -github flag with list username token(or pw) for storing locally-defined terms in a nidm-local-terms repository in GitHub.If user doesn't supply a token then user will be prompted for username/password. Example: -github username token.
   
-  	-nidm NIDM_FILE      	Optional NIDM file to add CSV->NIDM converted graph to
-  
-  	-github [GITHUB [GITHUB ...]]
-				Use -github flag with username token(or pw) for
-                        	storing locally-defined terms in a "nidm-local-terms"
-                        	repository in GitHub. If user doesnt supply a token
-                        	then user will be prompted for username/password.
-                        	Example: -github username token
-						
-  	-owl            	Optionally searches NIDM OWL files...internet
-                        	connection required
-  	-png            	Optional flag, when set a PNG image file of RDF graph
-                        	will be produced						
-  	-out OUTPUT_FILE      	Filename to save NIDM file
+-png      Optional flag, when set a PNG image file of RDF graph will be produced
+ 
+-out     Filename to save NIDM file
 
 
 .. |Build Status| image:: https://travis-ci.org/incf-nidash/PyNIDM.svg?branch=master
