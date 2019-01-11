@@ -2,7 +2,7 @@ PyNIDM: Neuroimaging Data Model in Python
 ##########################################
 A Python library to manipulate the [Neuroimaging Data Model](http://nidm.nidash.org). 
 
-|Build Status|
+|Build Status| |Docs|
 
 .. contents::
 .. section-numbering::
@@ -54,34 +54,32 @@ BIDS MRI Conversion to NIDM
 
 This program will convert a BIDS MRI dataset to a NIDM-Experiment RDF document.  It will parse phenotype information and simply store variables/values and link to the associated json data dictionary file.
 
-While we're migrating to using 'click', this tools is still buried in the tools directory of the repo
-
 .. code-block:: bash
 
-    $ ./nidm/experiment/tools/BIDSMRI2NIDM.py -d [ROOT BIDS DIRECT] -bidsignore
+    $ bidsmri2nidm -d [ROOT BIDS DIRECT] -bidsignore
  
 Example 1:No variable->term mapping, simple BIDS dataset conversion which will add nidm.ttl file to BIDS dataset and .bidsignore file:
 
 .. code-block:: bash
 
-    $ ./nidm/experiment/tools/BIDSMRI2NIDM.py -d [root directory of BIDS dataset] -o [PATH/nidm.ttl]
+    $ bidsmri2nidm -d [root directory of BIDS dataset] -o [PATH/nidm.ttl]
  
 Example 2:No variable->term mapping, simple BIDS dataset conversion but storing nidm file somewhere else: 
 
 .. code-block:: bash
 
-    $ ./nidm/experiment/tools/BIDSMRI2NIDM.py -d [root directory of BIDS dataset] -ilxkey [Your Interlex key] -github [username token] -bidsignore
+    $ bidsmri2nidm -d [root directory of BIDS dataset] -ilxkey [Your Interlex key] -github [username token] -bidsignore
 
 Example 3:BIDS conversion with variable->term mappings, no existing mappings available, uses Interlex for terms and github for defining terms you can't find in Interlex (note, for now these two need to be used together)!  To get an Interlex API key you visit [SciCrunch](http://scicrunch.org), register for an account, then click on "MyAccount" and "API Keys" to add a new API key for your account.  Use this API Key for the -ilxkey parameter below.  This example  adds a nidm.ttl file BIDS dataset and .bidsignore file and it will by default create you a JSON mapping file which contains the variable->term mappings you defined during the interactive, iterative activity of using this tool to map your variables to terms.  The default JSON mapping file will be called nidm_json_map.json but you can also specify this explictly using the -json_map parameter (see Example 5 below): 
 
 .. code-block:: bash
 
-    $ ./nidm/experiment/tools/BIDSMRI2NIDM.py -d [root directory of BIDS dataset] -ilxkey [Your Interlex key] -github [username token] -owl -bidsignore
+    $ bidsmri2nidm -d [root directory of BIDS dataset] -ilxkey [Your Interlex key] -github [username token] -owl -bidsignore
 Example 4: BIDS conversion with variable->term mappings, no existing mappings available, uses Interlex + NIDM OWL file for terms and github, adds nidm.ttl file BIDS dataset and .bidsignore file: 
 
 .. code-block:: bash
 
-    $ ./nidm/experiment/tools/BIDSMRI2NIDM.py -d [root directory of BIDS dataset] -json_map [Your JSON file] -ilxkey [Your Interlex key] -github [username token] -owl -bidsignore
+    $ bidsmri2nidm -d [root directory of BIDS dataset] -json_map [Your JSON file] -ilxkey [Your Interlex key] -github [username token] -owl -bidsignore
 
 Example 5 (FULL MONTY): BIDS conversion with variable->term mappings, uses JSON mapping file first then uses Interlex + NIDM OWL file for terms and github, adds nidm.ttl file BIDS dataset and .bidsignore file: 
 
@@ -153,11 +151,11 @@ tagged terms that fuzzy match the variable names. The user will then
 interactively pick a term to associate with the variable name. The resulting
 annotated CSV data will then be written to a NIDM data file.
 
-While we're migrating to using 'click', this tools is still buried in the tools directory of the repo
+**While we're migrating to using 'click', this tool doesn't yet support "pynidm csv2nidm"
 
 .. code-block:: bash
 
-    $ ./nidm/experiment/tools/CSV2NIDM.py  [OPTIONS]
+    $ csv2nidm  [OPTIONS]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -179,11 +177,14 @@ optional arguments:
 						
   -owl                  Optionally searches NIDM OWL files...internet
                         connection required
-						
+  -png                  Optional flag, when set a PNG image file of RDF graph
+                        will be produced						
   -out OUTPUT_FILE      Filename to save NIDM file
 
 
 .. |Build Status| image:: https://travis-ci.org/incf-nidash/PyNIDM.svg?branch=master
     :target: https://travis-ci.org/incf-nidash/PyNIDM
     :alt: Build status of the master branch
-
+.. |Docs| image:: https://readthedocs.org/projects/pynidm/badge/?version=latest&style=plastic
+    :target: https://pynidm.readthedocs.io/en/latest/
+    :alt: ReadTheDocs Documentation of master branch
