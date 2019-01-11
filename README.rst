@@ -158,28 +158,28 @@ annotated CSV data will then be written to a NIDM data file.
     $ csv2nidm  [OPTIONS]
 
 optional arguments:
-  -h, --help            show this help message and exit
+  	-h, --help            	show this help message and exit
   
-  -csv CSV_FILE         Path to CSV file to convert
+  	-csv CSV_FILE         	Path to CSV file to convert
   
-  -ilxkey KEY           Interlex/SciCrunch API key to use for query
+  	-ilxkey KEY           	Interlex/SciCrunch API key to use for query
   
-  -json_map JSON_MAP    User-suppled JSON file containing variable-term mappings.
+  	-json_map JSON_MAP   	User-suppled JSON file containing variable-term mappings.
   
-  -nidm NIDM_FILE       Optional NIDM file to add CSV->NIDM converted graph to
+  	-nidm NIDM_FILE      	Optional NIDM file to add CSV->NIDM converted graph to
   
-  -github [GITHUB [GITHUB ...]]
-                        Use -github flag with username token(or pw) for
-                        storing locally-defined terms in a "nidm-local-terms"
-                        repository in GitHub. If user doesnt supply a token
-                        then user will be prompted for username/password.
-                        Example: -github username token
+  	-github [GITHUB [GITHUB ...]]
+				Use -github flag with username token(or pw) for
+                        	storing locally-defined terms in a "nidm-local-terms"
+                        	repository in GitHub. If user doesnt supply a token
+                        	then user will be prompted for username/password.
+                        	Example: -github username token
 						
-  -owl                  Optionally searches NIDM OWL files...internet
-                        connection required
-  -png                  Optional flag, when set a PNG image file of RDF graph
-                        will be produced						
-  -out OUTPUT_FILE      Filename to save NIDM file
+  	-owl            	Optionally searches NIDM OWL files...internet
+                        	connection required
+  	-png            	Optional flag, when set a PNG image file of RDF graph
+                        	will be produced						
+  	-out OUTPUT_FILE      	Filename to save NIDM file
 
 
 .. |Build Status| image:: https://travis-ci.org/incf-nidash/PyNIDM.svg?branch=master
