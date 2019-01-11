@@ -118,18 +118,16 @@ optional arguments:
 	
 	-png, --png           If flag set, tool will output PNG file of NIDM graph
 	
-	-bidsignore, --bidsignore
-	
-	                      If flag set, tool will add NIDM-related files to .bidsignore file
+	-bidsignore, --bidsignore      If flag set, tool will add NIDM-related files to .bidsignore file
 						  
 	-o OUTPUTFILE         Outputs turtle file called nidm.ttl in BIDS directory by default
 
 map variables to terms arguments:
-	-json_map JSON_MAP, --json_map JSON_MAP	Optional user-suppled JSON file containing variable-term mappings.
+	-json_map JSON_MAP, --json_map JSON_MAP     Optional user-suppled JSON file containing variable-term mappings.
 						  
-	-ilxkey KEY, --ilxkey KEY	Interlex/SciCrunch API key to use for query
+	-ilxkey KEY, --ilxkey KEY     Interlex/SciCrunch API key to use for query
 
-	-github [GITHUB [GITHUB ...]], --github [GITHUB [GITHUB ...]]	Use -github flag with list username token(or pw) for storing locally-defined terms in a
+	-github [GITHUB [GITHUB ...]], --github [GITHUB [GITHUB ...]]      Use -github flag with list username token(or pw) for storing locally-defined terms in a
                               nidm-local-terms repository in GitHub.  If user doesn''t supply a token then user will be prompted for username/password
 	                      Example: -github username token
 						  
