@@ -40,10 +40,13 @@ Query
 	$ pynidm query [OPTIONS]
 
 Options:
-  -nl,--nidm_file_list  A comma separated list of NIDM files with full path [required]
-  -q,--query_file   Text file containing a SPARQL query to execute [required]
-  -o,--output_file   Optional output file (CSV) to store results of the query
-  --help    Show this message and exit.
+  	-nl,--nidm_file_list  A comma separated list of NIDM files with full path [required]
+
+  	-q,--query_file   Text file containing a SPARQL query to execute [required]
+  
+	-o,--output_file   Optional output file (CSV) to store results of the query
+  
+	--help    Show this message and exit.
 
 
 BIDS MRI Conversion to NIDM
