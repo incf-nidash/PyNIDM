@@ -41,13 +41,13 @@ Query
 
 Options:
 
--nl,--nidm_file_list     A comma separated list of NIDM files with full path [required]
+-nl, --nidm_file_list    A comma separated list of NIDM files with full path [required]
 
--q,--query_file     Text file containing a SPARQL query to execute [required]
- 
--o,--output_file     Optional output file (CSV) to store results of the query
- 
---help    Show this message and exit.
+-q, --query_file     Text file containing a SPARQL query to execute [required]
+
+-o, --output_file     Optional output file (CSV) to store results of the query
+
+--help    Show this message and exit
 
 
 BIDS MRI Conversion to NIDM
@@ -111,28 +111,27 @@ Example 5 (FULL MONTY): BIDS conversion with variable->term mappings, uses JSON 
     	 }
 		 
 optional arguments: 
-     -h,--help            show this help message and exit
+-h, --help            show this help message and exit
 	
-     -d DIRECTORY          Path to BIDS dataset directory
+-d DIRECTORY          Path to BIDS dataset directory
+
+-jsonld, --jsonld     If flag set, output is json-ld not TURTLE
 	
-     -jsonld,--jsonld     If flag set, output is json-ld not TURTLE
+-png, --png           If flag set, tool will output PNG file of NIDM graph
 	
-     -png,--png           If flag set, tool will output PNG file of NIDM graph
-	
-     -bidsignore,--bidsignore      If flag set, tool will add NIDM-related files to .bidsignore file
+-bidsignore, --bidsignore      If flag set, tool will add NIDM-related files to .bidsignore file
 						  
-     -o OUTPUTFILE         Outputs turtle file called nidm.ttl in BIDS directory by default
+-o OUTPUTFILE         Outputs turtle file called nidm.ttl in BIDS directory by default
 
 map variables to terms arguments:
-      -json_map JSON_MAP,--json_map       Optional user-suppled JSON file containing variable-term mappings.
-						  
-      -ilxkey KEY,--ilxkey     Interlex/SciCrunch API key to use for query
 
-      -github [GITHUB [GITHUB ...]],--github [GITHUB [GITHUB ...]]      Use -github flag with list username token(or pw) for storing locally-defined terms in a
-                              nidm-local-terms repository in GitHub.  If user doesn''t supply a token then user will be prompted for username/password
-	                      Example: -github username token
+-json_map, --json_map       Optional user-suppled JSON file containing variable-term mappings
 						  
-      -owl      Optional flag to query nidm-experiment OWL files
+-ilxkey, --ilxkey     Interlex/SciCrunch API key to use for query
+
+-github, --github      Use -github flag with list username token(or pw) for storing locally-defined terms in a nidm-local-terms repository in GitHub.  If user doesn''t supply a token then user will be prompted for username/password: Example: -github username token
+
+-owl     Optional flag to query nidm-experiment OWL files
 
 CSV File to NIDM Conversion
 ---------------------------
