@@ -5,7 +5,7 @@ from ..experiment import Acquisition
 from ..core import Constants
 import prov.model as pm
 
-class MRAcquisition(Acquisition):
+class PETAcquisition(Acquisition):
     """
         Default contructor, creates a session activity and links to project object
 
@@ -26,7 +26,7 @@ class MRAcquisition(Acquisition):
         """
         #execute default parent class constructor
           #execute default parent class constructor
-        super(MRAcquisition,self).__init__(session,attributes,uuid)
+        super(PETAcquisition,self).__init__(session,attributes,uuid)
         #acquisition.graph._add_record(self)
 
         self.add_attributes({pm.PROV_TYPE: Constants.NIDM_ACQUISITION_ACTIVITY})
@@ -36,4 +36,4 @@ class MRAcquisition(Acquisition):
 
 
     def __str__(self):
-        return "NIDM-Experiment MRI Acquisition Class"
+        return "NIDM-Experiment PET Acquisition Class"
