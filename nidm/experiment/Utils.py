@@ -1,17 +1,15 @@
 import os,sys
-import uuid
+
 
 from rdflib import Namespace
 from rdflib.namespace import XSD
 from rdflib.resource import Resource
 import types
 import graphviz
-from rdflib import Graph, RDF, URIRef, util, term
+from rdflib import Graph, RDF, URIRef, util
 from rdflib.namespace import split_uri
 import validators
 import prov.model as pm
-from urllib.request import urlretrieve, urlopen, URLError
-from urllib.parse import quote
 import requests
 from fuzzywuzzy import fuzz
 import json
@@ -27,10 +25,11 @@ from .MRAcquisition import MRAcquisition
 from .AcquisitionObject import AcquisitionObject
 from .AssessmentAcquisition import AssessmentAcquisition
 from .AssessmentObject import AssessmentObject
-from .DemographicsObject import DemographicsObject
 from .MRObject import MRObject
 import logging
 
+#Interlex stuff
+import ontquery as oq
 
 
 
@@ -330,6 +329,33 @@ def GetNIDMTermsFromSciCrunch(key,query_string,cde_only=False, ancestor=True):
 
     return results
 
+def InitializeInterlexRemote(key):
+    '''
+    This function initializes a connection to Interlex for use in adding personal data elements
+    :param key: Interlex API key
+    :return: interlex object
+    '''
+
+    InterLexRemote = oq.plugin.get('InterLex')
+
+    return InterLexRemote(api_key=key, apiEndpoint="https://beta.scicrunch.org/api/1/")
+
+def AddPDEToInterlex(ilx_obj,label,definition,comment):
+    '''
+    This function will add the PDE (personal data elements) to Interlex using the Interlex ontquery API.  
+    
+    :param interlex_obj: Object created using ontquery.plugin.get() function (see: https://github.com/tgbugs/ontquery) 
+    :param label: Label for term entity being created
+    :param definition: Definition for term entity being created
+    :param comment: Comments to help understand the object
+    :return: response from Interlex 
+    '''
+
+    return ilx_obj.add_pde(label=label, definition=definition, comment=comment, type='pde')
+
+
+    return interlex_obj
+
 def load_nidm_owl_files():
     '''
     This function loads the NIDM-experiment related OWL files and imports, creates a union graph and returns it.
@@ -462,70 +488,67 @@ def authenticate_github(authed=None,credentials=None):
     else:
         return authed
 
-def map_variables_to_terms(df,apikey,directory, output_file=None,json_file=None,github=None,owl_file=None):
+def map_variables_to_terms(df,apikey,directory, output_file=None,json_file=None,owl_file=None):
     '''
 
     :param df: data frame with first row containing variable names
     :param json_file: optional json document with variable names as keys and minimal fields "definition","label","url"
     :param apikey: scicrunch key for rest API queries
-    :param github: boolean flag, if set local term definitions will be added to GitHub
     :param owl_file: optional OWL file for additional terms
     :param output_file: output filename to save variable-> term mappings
-    :param directory: if output_file parameter is set to None then use this directory to store default JSON mapping file if doing variable->term mappings
+    :param directory: if output_file parameter is set to None then use this directory to store default JSON mapping file
+    if doing variable->term mappings
     :return:return dictionary mapping variable names (i.e. columns) to terms
     '''
-    #minimum match score for fuzzy matching NIDM terms
-    min_match_score=50
+    # minimum match score for fuzzy matching NIDM terms
+    min_match_score = 50
 
-    #dictionary mapping column name to preferred term
-    column_to_terms={}
+    # dictionary mapping column name to preferred term
+    column_to_terms = {}
 
-    #flag for whether a new term has been defined, on first occurance ask for namespace URL
-    new_term=True
+    # flag for whether a new term has been defined, on first occurance ask for namespace URL
+    new_term = True
 
-    #check if user supplied a JSON file and we already know a mapping for this column
-    if json_file != None:
-        #load file and
-        #json_map = json.load(open(json_file))
+    # check if user supplied a JSON file and we already know a mapping for this column
+    if json_file is not None:
+        # load file and
+
         with open(json_file,'r+') as f:
             json_map = json.load(f)
-    #if no JSON mapping file was specified then create a default one if an apikey was specified (or github) because it
-    #means the user is going to do some variable to term mappings and the JSON file will save the dictionary out for
-    #reuse...or if the program crashes so you don't have to start over :)
-    elif apikey or github:
-        #create a json_file filename from the output file filename
-        if not output_file:
-            output_file = os.path.join(directory,"nidm_json_map.json")
-        #remove ".ttl" extension
-        else:
-            output_file = os.path.join(os.path.dirname(output_file), os.path.splitext(os.path.basename(output_file))[0]+"_json_map.json")
-        #with open(json_file, 'w') as f:
-        #    json_map = json.dumps({})
 
+    # if no JSON mapping file was specified then create a default one for variable-term mappings
 
+    # create a json_file filename from the output file filename
+    if not output_file:
+        output_file = os.path.join(directory, "nidm_pde_terms.json")
+    # remove ".ttl" extension
+    else:
+        output_file = os.path.join(os.path.dirname(output_file), os.path.splitext(os.path.basename(output_file))[0]
+                                   + ".json")
 
-    #Authenticate GitHub if user selected to use github
-    if github != None:
-        authed = authenticate_github(credentials=github)
+    # initialize InterLex connection
+    try:
+        ilx_obj = InitializeInterlexRemote(key=apikey)
+    except GithubException as e:
+        print("error initializing InterLex connection...")
+        print("you will not be able to add new personal data elements.")
 
-    #iterate over columns
+    # iterate over columns
     for column in df.columns:
-            #tk stuff
-            #root=tk.Tk()
-            #listb=NewListbox(root,selectmode=tk.SINGLE)
-        #search term for elastic search
+
+        # search term for elastic search
         search_term=str(column)
-        #loop variable for terms markup
+        # loop variable for terms markup
         go_loop=True
-        #set up a dictionary entry for this column
+        # set up a dictionary entry for this column
         column_to_terms[column] = {}
 
-        #if we loaded a json file with existing mappings
+        # if we loaded a json file with existing mappings
         try:
             json_map
 
-            #check for column in json file
-            if (json_map!= None) and (column in json_map):
+            # check for column in json file
+            if (json_map is not None) and (column in json_map):
 
                 column_to_terms[column]['label'] = json_map[column]['label']
                 column_to_terms[column]['definition'] = json_map[column]['definition']
@@ -539,39 +562,35 @@ def map_variables_to_terms(df,apikey,directory, output_file=None,json_file=None,
                 continue
         except NameError:
             print("json mapping file not supplied")
-        #flag for whether to use ancestors in Interlex query or not
-        ancestor=True
+        # flag for whether to use ancestors in Interlex query or not
+        ancestor = True
 
-        #load NIDM OWL files if user requested it
+        # load NIDM OWL files if user requested it
         if owl_file:
             nidm_owl_graph = load_nidm_owl_files()
 
-        #loop to find a term definition by iteratively searching scicrunch...or defining your own
+        # loop to find a term definition by iteratively searching scicrunch...or defining your own
         while go_loop:
-            #variable for numbering options returned from elastic search
-            option=1
+            # variable for numbering options returned from elastic search
+            option = 1
 
+            # for each column name, query Interlex for possible matches
+            search_result = GetNIDMTermsFromSciCrunch(apikey, search_term, cde_only=True, ancestor=ancestor)
 
-
-            #for each column name, query Interlex for possible matches
-            search_result = GetNIDMTermsFromSciCrunch(apikey,search_term,cde_only=True,ancestor=ancestor)
-
-            temp=search_result.copy()
+            temp = search_result.copy()
             print("Search Term: %s" %search_term)
             print("Search Results: ")
-            for key,value in temp.items():
+            for key, value in temp.items():
 
                 print("%d: Label: %s \t Definition: %s \t Preferred URL: %s " %(option,search_result[key]['label'],search_result[key]['definition'],search_result[key]['preferred_url']  ))
-                #add to dialog box for user to check which one is correct
-                #listb.insert("end",search_result[key]['label']+", " +search_result[key]['definition'])
-                search_result[str(option)] = key
-                option=option+1
 
-             #if user supplied an OWL file to search in for terms
+                search_result[str(option)] = key
+                option = option+1
+
+            # if user supplied an OWL file to search in for terms
             if owl_file:
-                #Add existing NIDM Terms as possible selections which fuzzy match the search_term
+                # Add existing NIDM Terms as possible selections which fuzzy match the search_term
                 nidm_constants_query = fuzzy_match_terms_from_graph(nidm_owl_graph, search_term)
-                #nidm_constants_query = sorted(nidm_constants_query_unsorted.items(),key=operator.itemgetter(1))
 
                 for key, subdict in nidm_constants_query.items():
                     if nidm_constants_query[key]['score'] > min_match_score:
@@ -582,16 +601,16 @@ def map_variables_to_terms(df,apikey,directory, output_file=None,json_file=None,
                         search_result[key]['preferred_url']=nidm_constants_query[key]['url']
                         search_result[str(option)] = key
                         option=option+1
-            #else just give a list of the NIDM constants for user to choose
+            # else just give a list of the NIDM constants for user to choose
             else:
                 match_scores={}
-                for index,item in enumerate(Constants.nidm_experiment_terms):
-                    match_scores[item._str] = fuzz.ratio(search_term,item._str)
+                for index, item in enumerate(Constants.nidm_experiment_terms):
+                    match_scores[item._str] = fuzz.ratio(search_term, item._str)
                 match_scores_sorted=sorted(match_scores.items(), key=lambda x: x[1])
                 for score in match_scores_sorted:
-                    if ( score[1] > min_match_score):
+                    if score[1] > min_match_score:
                         for term in Constants.nidm_experiment_terms:
-                            if term._str==score[0]:
+                            if term._str == score[0]:
                                 search_result[term._str] = {}
                                 search_result[term._str]['label']=score[0]
                                 search_result[term._str]['definition']=score[0]
@@ -600,111 +619,84 @@ def map_variables_to_terms(df,apikey,directory, output_file=None,json_file=None,
                                 print("%d: NIDM Constant: %s \t URI: %s" %(option,score[0],term._uri))
                                 option=option+1
 
-
-
             if ancestor:
-                #Broaden Interlex search
+                # Broaden Interlex search
                 print("%d: Broaden Interlex query " %option)
             else:
-                #Narrow Interlex search
+                # Narrow Interlex search
                 print("%d: Narrow Interlex query " %option)
-            option=option+1
+            option = option+1
 
+            # Add option to change query string
+            print("%d: Change Interlex query string from: \"%s\"" % (option, column))
 
-            #Add option to change query string
-            print("%d: Change Interlex query string from: \"%s\"" %(option,column))
-            if github is not None:
-                option=option+1
-                #Add option to define your own term
-                print("%d: Define my own term for this variable" %option)
+            # Add option to define your own term
+            option = option + 1
+            print("%d: Define my own term for this variable" % option)
 
             print("---------------------------------------------------------------------------------------")
-            #Wait for user input
-            selection=input("Please select an option (1:%d) from above: \t" %(option))
+            # Wait for user input
+            selection=input("Please select an option (1:%d) from above: \t" % option)
 
-            #Make sure user selected one of the options.  If not present user with selection input again
-            while (not selection.isdigit()):
-                #Wait for user input
-                selection=input("Please select an option (1:%d) from above: \t" %(option))
+            # Make sure user selected one of the options.  If not present user with selection input again
+            while not selection.isdigit():
+                # Wait for user input
+                selection = input("Please select an option (1:%d) from above: \t" % option)
 
-
-            #toggle use of ancestors in interlext query or not
+            # toggle use of ancestors in interlext query or not
             if int(selection) == (option-2):
                 ancestor=not ancestor
-            #check if selection is to re-run query with new search term
+            # check if selection is to re-run query with new search term
             elif int(selection) == (option-1):
-                #ask user for new search string
+                # ask user for new search string
                 search_term = input("Please input new search term for CSV column: %s \t:" % column)
                 print("---------------------------------------------------------------------------------------")
 
             elif int(selection) == option:
-                #user wants to define their own term.  Ask for term label and definition
+                # user wants to define their own term.  Ask for term label and definition
                 print("\nYou selected to enter a new term for CSV column: %s" % column)
-                if (new_term):
-                    #checking to see if user set command line flag -github to use github for local terms
-                    if github != None:
-                        #test if authed object is still active
-                        try:
-                            #check we're logged in by checking that we can access the public repos list
-                            repo=authed.public_repos
-                        except GithubException as e:
-                            print("error logging into your github account, please try again...")
-                            authed=authenticate_github(authed=authed,credentials=github)
 
-                        #print("You've selected using GitHub to store your locally defined terms.")
-                        #while True:
-                        #    user = input("Please enter your GitHub user name: ")
-                        #    pw = getpass.getpass("Please enter your GitHub password: ")
-                        #    print("\nLogging into GitHub...")
-                        #    #try to logging into GitHub
-                        #    g=Github(user,pw)
-                        #    authed=g.get_user()
-                        #    try:
-                        #        #check we're logged in by checking that we can access the public repos list
-                        #        repo=authed.public_repos
-                        #        print("Success!")
-                        #        new_term=False
-                        #        break
-                        #    except GithubException as e:
-                        #        print("error logging into your github account, please try again...")
-
-                        #check to see if nidm-local-terms repo exists
-                        try:
-                            repo=authed.get_repo('nidm-local-terms')
-                            #set namespace to repo URL
-                            local_namespace = repo.html_url
-                            print("\nnidm-local-terms repo already exists, continuing...\n")
-                        except GithubException as e:
-                            print("\nnidm-local-terms repo doesn't exist, creating...\n")
-                            #try to create the repo
-                            try:
-                                repo=authed.create_repo(name='nidm-local-terms',description='Created for NIDM document local term definitions')
-                            except GithubException as e:
-                                print("Unable to create terms repo, exception: %s" % e)
-                                exit()
-                    else:
-                        ####THIS PART NEEDS WORK....WHAT TO DO IF USER DID NOT WANT TO DEFINE LOCAL TERMS ON GITHUB?####
-                        local_namespace=" "
-                        while not validators.url(local_namespace):
-                            print("By not setting the command line flag \"-github\" you have selected to store locally defined terms in a sidecar RDF file on disk")
-                            local_namespace = input("Please enter a valid URL for your namespace (e.g. http://nidm.nidash.org): ")
-                        #if we're out of loop then namespace was valid so change new_term variable to prevent
-                        new_term=False
-
-                #collect term information from user
+                # collect term information from user
                 term_label = input("Please enter a term label for this column (%s):\t" % column)
                 if term_label == '':
                     term_label = column
                 term_definition = input("Please enter a definition:\t")
                 term_units = input("Please enter the units:\t")
-                term_datatype = input("Please enter the datatype:\t")
+
+                #get datatype
+                while True:
+                    term_datatype = input("Please enter the datatype (integer,real,categorical):\t")
+                    # check datatypes if not in [integer,real,categorical] repeat until it is
+                    if (term_datatype == "integer") or (term_datatype == "real") or (term_datatype == "categorical"):
+                        break
+
+                # now check if term_datatype is categorical and if so let's get the label <-> value mappings
+                if term_datatype == "categorical":
+                    term_category = {}
+                    # ask user for the number of categories
+                    while True:
+                        num_categories = input("Please enter the number of categories/labels for this term:\t")
+                        #check if user supplied a number else repeat question
+                        try:
+                            val = int(num_categories)
+                            break
+                        except ValueError:
+                            print("That's not a number, please try again!")
+
+                    # loop over number of categories and collect information
+                    for category in range(1, num_categories):
+                        # term category dictionary has labels as keys and value associated with label as value
+                        cat_label = input("Please enter the text string label for the first category:\t")
+                        cat_value = input("Please enter the value associated with label %s:\t" % cat_label)
+                        term_category[cat_label] = cat_value
+
                 term_min = input("Please enter the minimum value:\t")
                 term_max = input("Please enter the maximum value:\t")
                 term_variable_name = column
 
 
-                #don't need to continue while loop because we've defined a term for this CSV column
-                go_loop=False
+                # don't need to continue while loop because we've defined a term for this CSV column
+                go_loop = False
 
                 #if we're using Github
                 if authed:
