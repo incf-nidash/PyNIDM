@@ -93,9 +93,6 @@ def main(argv):
     parser.add_argument('-ilxkey', dest='key', required=True, help="Interlex/SciCrunch API key to use for query")
     parser.add_argument('-json_map', dest='json_map',required=False,help="User-suppled JSON file containing variable-term mappings.")
     parser.add_argument('-nidm', dest='nidm_file', required=False, help="Optional NIDM file to add CSV->NIDM converted graph to")
-    parser.add_argument('-github',dest='github', type=str, nargs='*', default = None, required=False, help='Use -github flag with username token(or pw) for storing locally-defined terms in a \
-                    \"nidm-local-terms\" repository in GitHub.  If user doesn''t supply a token then user will be prompted for username/password.\n \
-                    Example: -github username token')
     parser.add_argument('-owl', action='store_true', required=False, help='Optionally searches NIDM OWL files...internet connection required')
     parser.add_argument('-png', action='store_true', required=False, help='Optional flag, when set a PNG image file of RDF graph will be produced')
     parser.add_argument('-out', dest='output_file', required=True, help="Filename to save NIDM file")
@@ -105,7 +102,7 @@ def main(argv):
     df = pd.read_csv(args.csv_file)
 
     #maps variables in CSV file to terms
-    column_to_terms = map_variables_to_terms(df=df,apikey=args.key,directory=dirname(args.output_file),output_file=args.output_file,json_file=args.json_map,github=args.github,owl_file=args.owl)
+    column_to_terms = map_variables_to_terms(df=df, apikey=args.key, directory=dirname(args.output_file), output_file=args.output_file, json_file=args.json_map, owl_file=args.owl)
 
 
 

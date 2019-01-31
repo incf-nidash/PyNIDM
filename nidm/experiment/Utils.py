@@ -661,7 +661,7 @@ def map_variables_to_terms(df,apikey,directory, output_file=None,json_file=None,
                 if term_label == '':
                     term_label = column
                 term_definition = input("Please enter a definition:\t")
-                term_units = input("Please enter the units:\t")
+
 
                 #get datatype
                 while True:
@@ -690,64 +690,78 @@ def map_variables_to_terms(df,apikey,directory, output_file=None,json_file=None,
                         cat_value = input("Please enter the value associated with label %s:\t" % cat_label)
                         term_category[cat_label] = cat_value
 
-                term_min = input("Please enter the minimum value:\t")
-                term_max = input("Please enter the maximum value:\t")
-                term_variable_name = column
+                # if term is not categorical then ask for min/max values.  If it is categorical then simply extract
+                # it from the term_category dictionary
+                if term_datatype is not "categorical":
+                    term_min = input("Please enter the minimum value:\t")
+                    term_max = input("Please enter the maximum value:\t")
+                    term_units = input("Please enter the units:\t")
+                else:
+                    term_min = min(term_datatype.values())
+                    term_max = max(term_datatype.values())
+                    term_units = "categorical"
 
+                # set term variable name as column from CSV file we're currently interrogating
+                term_variable_name = column
 
                 # don't need to continue while loop because we've defined a term for this CSV column
                 go_loop = False
 
-                #if we're using Github
-                if authed:
-                    #add term as issue
-                    body = "Label/Name: " + term_label + "\nDefinition/Description: " + term_definition + "\nUnits: " + \
-                        term_units + "\nDatatype/Value Type: " + term_datatype + "\nMinimum Value: " + term_min + \
-                        "\nMaximum Value: " + term_max + "\nVariable Name: " + term_variable_name
+                # Add personal data element to InterLex
+                if term_datatype is not "categorical":
+                    ilx_output = AddPDEToInterlex(ilx_obj=ilx_obj, label=term_label, definition=term_definition, comment="datatype: "
+                                     + term_datatype + ", min = " + term_min + ", max = " + term_max + ", units = " +
+                                     term_units)
+                else:
+                    ilx_output = AddPDEToInterlex(ilx_obj=ilx_obj, label=term_label, definition=term_definition, comment=
+                                     json.dumps(term_category))
 
-                    try:
-                        issue=repo.create_issue(title=term_label, body=body)
-                        #add inputted term to column_to_term mapping dictionary
-                        column_to_terms[column]['label'] = term_label
-                        column_to_terms[column]['definition'] = term_definition
-                        column_to_terms[column]['url'] = issue.html_url
-
-                    except GithubException as e:
-                        print("error creating issue...\n")
-                        #try to create the repo
-
-
+                # store term info in dictionary
+                column_to_terms[column]['label'] = term_label
+                column_to_terms[column]['definition'] = term_definition
+                column_to_terms[column]['url'] = ilx_output
+                column_to_terms[column]['datatype'] = term_datatype
+                column_to_terms[column]['units'] = term_units
+                column_to_terms[column]['min'] = term_min
+                column_to_terms[column]['max'] = term_max
+                if term_datatype is "categorical":
+                    column_to_terms[column]['categories'] = json.dumps(term_category)
 
 
-                #print mappings
+                # print mappings
                 print("Stored mapping Column: %s ->  ")
-                print("Label: %s" %column_to_terms[column]['label'])
-                print("Definition: %s" %column_to_terms[column]['definition'])
-                print("Url: %s" %column_to_terms[column]['url'])
-                print("---------------------------------------------------------------------------------------")
-
+                print("Label: %s" % column_to_terms[column]['label'])
+                print("Definition: %s" % column_to_terms[column]['definition'])
+                print("Url: %s" % column_to_terms[column]['url'])
+                print("Datatype: %s" % column_to_terms[column]['datatype'])
+                print("Units: %s" % column_to_terms[column]['units'])
+                print("Min: %s" % column_to_terms[column]['min'])
+                print("Max: %s" % column_to_terms[column]['max'])
+                if term_datatype is "categorical":
+                    print("Categories: %s" % column_to_terms[column]['categories'])
+                print("---------------------------------------------------------------------------------------")\
 
             else:
-                #add selected term to map
+                # add selected term to map
                 column_to_terms[column]['label'] = search_result[search_result[selection]]['label']
                 column_to_terms[column]['definition'] = search_result[search_result[selection]]['definition']
                 column_to_terms[column]['url'] = search_result[search_result[selection]]['preferred_url']
 
-                #print mappings
+                # print mappings
                 print("Stored mapping Column: %s ->  " % column)
-                print("Label: %s" %column_to_terms[column]['label'])
-                print("Definition: %s" %column_to_terms[column]['definition'])
-                print("Url: %s" %column_to_terms[column]['url'])
+                print("Label: %s" % column_to_terms[column]['label'])
+                print("Definition: %s" % column_to_terms[column]['definition'])
+                print("Url: %s" % column_to_terms[column]['url'])
                 print("---------------------------------------------------------------------------------------")
 
-                #don't need to continue while loop because we've defined a term for this CSV column
+                # don't need to continue while loop because we've defined a term for this CSV column
                 go_loop=False
 
-         #write variable-> terms map as JSON file to disk
-        #get -out directory from command line parameter
+        # write variable-> terms map as JSON file to disk
+        # get -out directory from command line parameter
         if output_file!= None:
-            #dir = os.path.dirname(output_file)
-            #file_path=os.path.relpath(output_file)
+            # dir = os.path.dirname(output_file)
+            # file_path=os.path.relpath(output_file)
 
             with open(output_file,'w+') as fp:
                 json.dump(column_to_terms,fp)
