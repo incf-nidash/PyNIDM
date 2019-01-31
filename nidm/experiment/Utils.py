@@ -48,13 +48,13 @@ def read_nidm(nidmDoc):
     from ..experiment.Session import Session
 
 
-    #read RDF file into temporary graph
+    # read RDF file into temporary graph
     rdf_graph = Graph()
     rdf_graph_parse = rdf_graph.parse(nidmDoc,format=util.guess_format(nidmDoc))
 
 
-    #Query graph for project metadata and create project level objects
-    #Get subject URI for project
+    # Query graph for project metadata and create project level objects
+    # Get subject URI for project
     proj_id=None
     for s in rdf_graph_parse.subjects(predicate=RDF.type,object=URIRef(Constants.NIDM_PROJECT.uri)):
         #print(s)
@@ -293,9 +293,9 @@ def QuerySciCrunchElasticSearch(key,query_string,cde_only=False, anscestors=True
             data = '\n{\n  "query": {\n    "bool": {\n       "must" : [\n       {  "term" : { "type" : "cde" } },\n             { "multi_match" : {\n         "query":    "%s", \n         "fields": [ "label", "definition" ] \n       } }\n]\n    }\n  }\n}\n' %query_string
     else:
         if anscestors:
-            data = '\n{\n  "query": {\n    "bool": {\n       "must" : [\n       {  "terms" : { "type" : ["cde" , "term"] } },\n       { "terms" : { "ancestors.ilx" : ["ilx_0115066" , "ilx_0103210", "ilx_0115072", "ilx_0115070"] } },\n       { "multi_match" : {\n         "query":    "%s", \n         "fields": [ "label", "definition" ] \n       } }\n]\n    }\n  }\n}\n' %query_string
+            data = '\n{\n  "query": {\n    "bool": {\n       "must" : [\n       {  "terms" : { "type" : ["cde" , "term", "pde"] } },\n       { "terms" : { "ancestors.ilx" : ["ilx_0115066" , "ilx_0103210", "ilx_0115072", "ilx_0115070"] } },\n       { "multi_match" : {\n         "query":    "%s", \n         "fields": [ "label", "definition" ] \n       } }\n]\n    }\n  }\n}\n' %query_string
         else:
-            data = '\n{\n  "query": {\n    "bool": {\n       "must" : [\n       {  "terms" : { "type" : ["cde" , "term"] } },\n              { "multi_match" : {\n         "query":    "%s", \n         "fields": [ "label", "definition" ] \n       } }\n]\n    }\n  }\n}\n' %query_string
+            data = '\n{\n  "query": {\n    "bool": {\n       "must" : [\n       {  "terms" : { "type" : ["cde" , "term", "pde"] } },\n              { "multi_match" : {\n         "query":    "%s", \n         "fields": [ "label", "definition" ] \n       } }\n]\n    }\n  }\n}\n' %query_string
 
     response = requests.post('https://scicrunch.org/api/1/elastic-ilx/interlex/term/_search#', headers=headers, params=params, data=data)
 
@@ -337,8 +337,9 @@ def InitializeInterlexRemote(key):
     '''
 
     InterLexRemote = oq.plugin.get('InterLex')
-
-    return InterLexRemote(api_key=key, apiEndpoint="https://beta.scicrunch.org/api/1/")
+    ilx_cli = InterLexRemote(api_key=key, apiEndpoint="https://beta.scicrunch.org/api/1/")
+    ilx_cli.setup()
+    return ilx_cli
 
 def AddPDEToInterlex(ilx_obj,label,definition,comment):
     '''
@@ -351,10 +352,9 @@ def AddPDEToInterlex(ilx_obj,label,definition,comment):
     :return: response from Interlex 
     '''
 
-    return ilx_obj.add_pde(label=label, definition=definition, comment=comment, type='pde')
+    # return ilx_obj.add_pde(label=label, definition=definition, comment=comment, type='pde')
+    return ilx_obj.add_pde(label=label, definition=definition, comment=comment)
 
-
-    return interlex_obj
 
 def load_nidm_owl_files():
     '''
@@ -657,7 +657,7 @@ def map_variables_to_terms(df,apikey,directory, output_file=None,json_file=None,
                 print("\nYou selected to enter a new term for CSV column: %s" % column)
 
                 # collect term information from user
-                term_label = input("Please enter a term label for this column (%s):\t" % column)
+                term_label = input("Please enter a term label for this column [%s]:\t" % column)
                 if term_label == '':
                     term_label = column
                 term_definition = input("Please enter a definition:\t")
@@ -684,15 +684,15 @@ def map_variables_to_terms(df,apikey,directory, output_file=None,json_file=None,
                             print("That's not a number, please try again!")
 
                     # loop over number of categories and collect information
-                    for category in range(1, num_categories):
+                    for category in range(0, int(num_categories)):
                         # term category dictionary has labels as keys and value associated with label as value
-                        cat_label = input("Please enter the text string label for the first category:\t")
-                        cat_value = input("Please enter the value associated with label %s:\t" % cat_label)
+                        cat_label = input("Please enter the text string label for the category %d:\t" % category+1)
+                        cat_value = input("Please enter the value associated with label \"%s\":\t" % cat_label)
                         term_category[cat_label] = cat_value
 
                 # if term is not categorical then ask for min/max values.  If it is categorical then simply extract
                 # it from the term_category dictionary
-                if term_datatype is not "categorical":
+                if term_datatype != "categorical":
                     term_min = input("Please enter the minimum value:\t")
                     term_max = input("Please enter the maximum value:\t")
                     term_units = input("Please enter the units:\t")
@@ -719,7 +719,7 @@ def map_variables_to_terms(df,apikey,directory, output_file=None,json_file=None,
                 # store term info in dictionary
                 column_to_terms[column]['label'] = term_label
                 column_to_terms[column]['definition'] = term_definition
-                column_to_terms[column]['url'] = ilx_output
+                column_to_terms[column]['url'] = ilx_output.iri
                 column_to_terms[column]['datatype'] = term_datatype
                 column_to_terms[column]['units'] = term_units
                 column_to_terms[column]['min'] = term_min
@@ -729,6 +729,7 @@ def map_variables_to_terms(df,apikey,directory, output_file=None,json_file=None,
 
 
                 # print mappings
+                print()
                 print("Stored mapping Column: %s ->  ")
                 print("Label: %s" % column_to_terms[column]['label'])
                 print("Definition: %s" % column_to_terms[column]['definition'])
