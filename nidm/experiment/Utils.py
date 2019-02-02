@@ -339,6 +339,7 @@ def InitializeInterlexRemote(key):
     InterLexRemote = oq.plugin.get('InterLex')
     ilx_cli = InterLexRemote(api_key=key, apiEndpoint="https://beta.scicrunch.org/api/1/")
     ilx_cli.setup()
+
     return ilx_cli
 
 def AddPDEToInterlex(ilx_obj,label,definition,comment):
@@ -660,6 +661,11 @@ def map_variables_to_terms(df,apikey,directory, output_file=None,json_file=None,
                 term_label = input("Please enter a term label for this column [%s]:\t" % column)
                 if term_label == '':
                     term_label = column
+
+                # WIP do a quick query of Interlex to see if term already exists with that label. If so show user
+                # If user says it's the correct term then use it and stop dialog with user about new term
+
+
                 term_definition = input("Please enter a definition:\t")
 
 
@@ -684,9 +690,9 @@ def map_variables_to_terms(df,apikey,directory, output_file=None,json_file=None,
                             print("That's not a number, please try again!")
 
                     # loop over number of categories and collect information
-                    for category in range(0, int(num_categories)):
+                    for category in range(1, int(num_categories)+1):
                         # term category dictionary has labels as keys and value associated with label as value
-                        cat_label = input("Please enter the text string label for the category %d:\t" % category+1)
+                        cat_label = input("Please enter the text string label for the category %d:\t" % category)
                         cat_value = input("Please enter the value associated with label \"%s\":\t" % cat_label)
                         term_category[cat_label] = cat_value
 
@@ -697,8 +703,8 @@ def map_variables_to_terms(df,apikey,directory, output_file=None,json_file=None,
                     term_max = input("Please enter the maximum value:\t")
                     term_units = input("Please enter the units:\t")
                 else:
-                    term_min = min(term_datatype.values())
-                    term_max = max(term_datatype.values())
+                    term_min = min(term_category.values())
+                    term_max = max(term_category.values())
                     term_units = "categorical"
 
                 # set term variable name as column from CSV file we're currently interrogating
@@ -708,7 +714,7 @@ def map_variables_to_terms(df,apikey,directory, output_file=None,json_file=None,
                 go_loop = False
 
                 # Add personal data element to InterLex
-                if term_datatype is not "categorical":
+                if term_datatype != 'categorical':
                     ilx_output = AddPDEToInterlex(ilx_obj=ilx_obj, label=term_label, definition=term_definition, comment="datatype: "
                                      + term_datatype + ", min = " + term_min + ", max = " + term_max + ", units = " +
                                      term_units)
@@ -724,13 +730,13 @@ def map_variables_to_terms(df,apikey,directory, output_file=None,json_file=None,
                 column_to_terms[column]['units'] = term_units
                 column_to_terms[column]['min'] = term_min
                 column_to_terms[column]['max'] = term_max
-                if term_datatype is "categorical":
+                if term_datatype == 'categorical':
                     column_to_terms[column]['categories'] = json.dumps(term_category)
 
 
                 # print mappings
                 print()
-                print("Stored mapping Column: %s ->  ")
+                print("Stored mapping Column: %s ->  " % column)
                 print("Label: %s" % column_to_terms[column]['label'])
                 print("Definition: %s" % column_to_terms[column]['definition'])
                 print("Url: %s" % column_to_terms[column]['url'])
@@ -738,9 +744,13 @@ def map_variables_to_terms(df,apikey,directory, output_file=None,json_file=None,
                 print("Units: %s" % column_to_terms[column]['units'])
                 print("Min: %s" % column_to_terms[column]['min'])
                 print("Max: %s" % column_to_terms[column]['max'])
-                if term_datatype is "categorical":
+                if term_datatype == 'categorical':
                     print("Categories: %s" % column_to_terms[column]['categories'])
                 print("---------------------------------------------------------------------------------------")\
+
+                # don't need to continue while loop because we've defined a term for this CSV column
+                go_loop=False
+
 
             else:
                 # add selected term to map
@@ -755,7 +765,7 @@ def map_variables_to_terms(df,apikey,directory, output_file=None,json_file=None,
                 print("Url: %s" % column_to_terms[column]['url'])
                 print("---------------------------------------------------------------------------------------")
 
-                # don't need to continue while loop because we've defined a term for this CSV column
+                # don't need to continue while loop because we've selected a term for this CSV column
                 go_loop=False
 
         # write variable-> terms map as JSON file to disk
