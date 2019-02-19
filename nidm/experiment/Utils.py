@@ -335,14 +335,17 @@ def InitializeInterlexRemote(key):
     :param key: Interlex API key
     :return: interlex object
     '''
-
+    endpoint = "https://scicrunch.org/api/1/"
+    # beta endpoint for testing
+    # endpoint = "https://beta.scicrunch.org/api/1/"
+    
     InterLexRemote = oq.plugin.get('InterLex')
-    ilx_cli = InterLexRemote(api_key=key, apiEndpoint="https://beta.scicrunch.org/api/1/")
+    ilx_cli = InterLexRemote(api_key=key, apiEndpoint=endpoint)
     ilx_cli.setup()
 
     return ilx_cli
 
-def AddPDEToInterlex(ilx_obj,label,definition,comment):
+def AddPDEToInterlex(ilx_obj,label,definition,units, min, max, datatype, categorymappings=None):
     '''
     This function will add the PDE (personal data elements) to Interlex using the Interlex ontquery API.  
     
@@ -353,8 +356,35 @@ def AddPDEToInterlex(ilx_obj,label,definition,comment):
     :return: response from Interlex 
     '''
 
+    # Interlex uris for predicates, tmp_ prefix dor beta endpoing, ilx_ for production
+    prefix='ilx'
+    # for beta testing
+    # prefix = 'tmp'
+    uri_datatype = 'http://uri.interlex.org/base/' + prefix + '_0382131'
+    uri_units = 'http://uri.interlex.org/base/' + prefix + '_0382130'
+    uri_min = 'http://uri.interlex.org/base/' + prefix + '_0382133'
+    uri_max = 'http://uri.interlex.org/base/' + prefix + '_0382132'
+    uri_category = 'http://uri.interlex.org/base/' + prefix + '_0382129'
+
+
     # return ilx_obj.add_pde(label=label, definition=definition, comment=comment, type='pde')
-    return ilx_obj.add_pde(label=label, definition=definition, comment=comment)
+    if categorymappings is not None:
+        tmp = ilx_obj.add_pde(label=label, definition=definition, predicates = {
+            uri_datatype : datatype,
+            uri_units : units,
+            uri_min : min,
+            uri_max : max,
+            uri_category : categorymappings
+        })
+    else:
+        tmp = ilx_obj.add_pde(label=label, definition=definition, predicates = {
+
+            uri_datatype : datatype,
+            uri_units : units,
+            uri_min : min,
+            uri_max : max
+        })
+    return tmp
 
 
 def load_nidm_owl_files():
@@ -575,18 +605,24 @@ def map_variables_to_terms(df,apikey,directory, output_file=None,json_file=None,
             # variable for numbering options returned from elastic search
             option = 1
 
+
+
             # for each column name, query Interlex for possible matches
             search_result = GetNIDMTermsFromSciCrunch(apikey, search_term, cde_only=True, ancestor=ancestor)
 
             temp = search_result.copy()
-            print("Search Term: %s" %search_term)
-            print("Search Results: ")
+            #print("Search Term: %s" %search_term)
+            print()
+            print("InterLex Terms:")
+            #print("Search Results: ")
             for key, value in temp.items():
 
                 print("%d: Label: %s \t Definition: %s \t Preferred URL: %s " %(option,search_result[key]['label'],search_result[key]['definition'],search_result[key]['preferred_url']  ))
 
                 search_result[str(option)] = key
                 option = option+1
+
+
 
             # if user supplied an OWL file to search in for terms
             if owl_file:
@@ -715,12 +751,11 @@ def map_variables_to_terms(df,apikey,directory, output_file=None,json_file=None,
 
                 # Add personal data element to InterLex
                 if term_datatype != 'categorical':
-                    ilx_output = AddPDEToInterlex(ilx_obj=ilx_obj, label=term_label, definition=term_definition, comment="datatype: "
-                                     + term_datatype + ", min = " + term_min + ", max = " + term_max + ", units = " +
-                                     term_units)
+                    ilx_output = AddPDEToInterlex(ilx_obj=ilx_obj, label=term_label, definition=term_definition, min=term_min,
+                                max=term_max, units=term_units, datatype=term_datatype)
                 else:
-                    ilx_output = AddPDEToInterlex(ilx_obj=ilx_obj, label=term_label, definition=term_definition, comment=
-                                     json.dumps(term_category))
+                    ilx_output = AddPDEToInterlex(ilx_obj=ilx_obj, label=term_label, definition=term_definition, min=term_min,
+                                max=term_max, units=term_units, datatype=term_datatype,categorymappings=json.dumps(term_category))
 
                 # store term info in dictionary
                 column_to_terms[column]['label'] = term_label
