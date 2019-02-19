@@ -338,7 +338,7 @@ def InitializeInterlexRemote(key):
     endpoint = "https://scicrunch.org/api/1/"
     # beta endpoint for testing
     # endpoint = "https://beta.scicrunch.org/api/1/"
-    
+
     InterLexRemote = oq.plugin.get('InterLex')
     ilx_cli = InterLexRemote(api_key=key, apiEndpoint=endpoint)
     ilx_cli.setup()
