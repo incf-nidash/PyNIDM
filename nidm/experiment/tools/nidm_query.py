@@ -58,6 +58,9 @@ def query(nidm_file_list, query_file, output_file):
         query = fp.read()
     df = sparql_query_nidm(nidm_file_list.split(','),query,output_file)
 
-
     return df
 
+
+# it can be used calling the script `python nidm_query.py -nl ... -q ..
+if __name__ == "__main__":
+    query()

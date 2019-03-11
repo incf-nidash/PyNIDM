@@ -56,5 +56,5 @@ MINOR = _version_minor
 MICRO = _version_micro
 VERSION = __version__
 REQUIRES = ["prov", "rdflib", "graphviz", "pydotplus", "pydot", "validators", "requests", "fuzzywuzzy", "pygithub",
-            "pandas", "pybids", "duecredit", "pytest", "graphviz", "click"]
+            "pandas", "pybids", "duecredit", "pytest", "graphviz", "click", "ontquery"]
 SCRIPTS = ["bin/nidm_query", "bin/BIDSMRI2NIDM", "bin/CSV2NIDM"]

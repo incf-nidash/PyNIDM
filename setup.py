@@ -20,13 +20,12 @@ opts = dict(name=NAME,
             author_email=AUTHOR_EMAIL,
             version=VERSION,
             packages=PACKAGES,
-            dependency_links=['git+https://github.com/tgbugs/ontquery.giti@master#egg=ontquery'],
             scripts=SCRIPTS,
             install_requires=REQUIRES,
             requires=REQUIRES,
             entry_points='''
                [console_scripts]
-               pynidm=nidm.experiment.tools.click:cli
+               nidm=nidm.experiment.tools.click_main:cli
             '''
 )
 
