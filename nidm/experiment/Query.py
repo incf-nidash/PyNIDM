@@ -60,7 +60,7 @@ def sparql_query_nidm(nidm_file_list,query, output_file=None, return_graph=False
     #cycle through NIDM files, adding query result to list
     for nidm_file in nidm_file_list:
 
-        project=read_nidm(nidm_file)
+        # project=read_nidm(nidm_file)
         #read RDF file into temporary graph
         rdf_graph = Graph()
         rdf_graph_parse = rdf_graph.parse(nidm_file,format=util.guess_format(nidm_file))
@@ -131,6 +131,71 @@ def GetProjectsUUID(nidm_file_list):
 
     return df['uuid'].tolist()
 
+def testprojectmeta(nidm_file_list):
+
+    import json
+
+    query = '''
+         prefix nidm: <http://purl.org/nidash/nidm#>
+         prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+         select distinct ?uuid ?p ?o
+
+         where {
+ 	        ?uuid rdf:type nidm:Project ;
+	   	    ?p  ?o .
+         }
+
+
+    '''
+
+    df =sparql_query_nidm(nidm_file_list,query, output_file=None)
+
+    output_json = {}
+    for index,row in df.iterrows():
+        if row['uuid'] not in output_json:
+            output_json[row['uuid']] = {}
+
+        output_json[row['uuid']][row['p']] = row['o']
+
+    return json.dumps(output_json)
+
+def GetProjectSessionsMetadata(nidm_file_list, project_uuid):
+
+    import json
+
+    query = '''
+
+        prefix nidm: <http://purl.org/nidash/nidm#>
+        prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        prefix dct: <http://purl.org/dc/terms/>
+
+        select distinct ?session_uuid ?p ?o
+
+        where {
+ 	        ?session_uuid  dct:isPartOf  <%s> ;
+ 	            ?p ?o .
+        }
+
+    ''' % project_uuid
+
+    df =sparql_query_nidm(nidm_file_list,query, output_file=None)
+
+    #outermost dictionary
+    output_json = {}
+    for index,row in df.iterrows():
+        if project_uuid not in output_json:
+            #creates dictionary for project UUID
+            output_json[project_uuid] = {}
+        if row['session_uuid'] not in output_json[project_uuid]:
+            #creates a dictionary under project_uuid dictionary for session
+            output_json[project_uuid][row['session_uuid']] = {}
+
+        output_json[project_uuid][row['session_uuid']][row['p']] = row['o']
+
+    return json.dumps(output_json)
+
+
 def GetProjectMetadata(nidm_file_list):
     '''
 
@@ -146,6 +211,21 @@ def GetProjectMetadata(nidm_file_list):
     results=Graph()
     #for each project activity, get metadata
     for project in project_uuids:
+
+        # query='''
+
+        # prefix nidm: <http://purl.org/nidash/nidm#>
+        # prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+        # select distinct ?uuid ?p ?o
+
+        # where {
+ 	    #    ?uuid rdf:type nidm:Project ;
+	   	#    ?p  ?o .
+        # }'''
+
+
+        project_uuids = "test"
         query= '''
         #SELECT distinct ?p ?o
         CONSTRUCT {
@@ -157,6 +237,8 @@ def GetProjectMetadata(nidm_file_list):
         }
 
         ''' % (project,project)
+
+        print("my variable is named: %s" % project_uuids)
 
         #query= '''
 
@@ -185,7 +267,7 @@ def GetProjectMetadata(nidm_file_list):
 
         #now we need to iterate over the result and convert it to a better looking dictionary to ultimately be returned as JSON
 
-        #temporarily we'll simply serialize the union graph as JSON-LD...
+            #temporarily we'll simply serialize the union graph as JSON-LD...
         return results
 
 
