@@ -550,12 +550,12 @@ def map_variables_to_terms(df,apikey,directory, output_file=None,json_file=None,
     # if no JSON mapping file was specified then create a default one for variable-term mappings
 
     # create a json_file filename from the output file filename
-    if not output_file:
+    if output_file is None:
         output_file = os.path.join(directory, "nidm_pde_terms.json")
     # remove ".ttl" extension
-    else:
-        output_file = os.path.join(os.path.dirname(output_file), os.path.splitext(os.path.basename(output_file))[0]
-                                   + ".json")
+    # else:
+    #    output_file = os.path.join(os.path.dirname(output_file), os.path.splitext(os.path.basename(output_file))[0]
+    #                               + ".json")
 
     # initialize InterLex connection
     try:
@@ -600,7 +600,7 @@ def map_variables_to_terms(df,apikey,directory, output_file=None,json_file=None,
         if owl_file:
             nidm_owl_graph = load_nidm_owl_files()
 
-        # loop to find a term definition by iteratively searching scicrunch...or defining your own
+        # loop to find a term definition by iteratively searching InterLex...or defining your own
         while go_loop:
             # variable for numbering options returned from elastic search
             option = 1
@@ -805,15 +805,24 @@ def map_variables_to_terms(df,apikey,directory, output_file=None,json_file=None,
 
         # write variable-> terms map as JSON file to disk
         # get -out directory from command line parameter
-        if output_file!= None:
+        # this is to be sure we've written out our work so far in case user ctrl-c exists program or it crashes
+        # will have saved the output
+        if output_file is not None:
             # dir = os.path.dirname(output_file)
             # file_path=os.path.relpath(output_file)
-
+            print("writing %s " %output_file)
             with open(output_file,'w+') as fp:
                 json.dump(column_to_terms,fp)
 
 
-
+    # write variable-> terms map as JSON file to disk
+    # get -out directory from command line parameter
+    if output_file is not None:
+        # dir = os.path.dirname(output_file)
+        # file_path=os.path.relpath(output_file)
+        print("writing %s " %output_file)
+        with open(output_file,'w+') as fp:
+            json.dump(column_to_terms,fp)
         #listb.pack()
         #listb.autowidth()
         #root.mainloop()

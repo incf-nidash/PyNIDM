@@ -43,7 +43,7 @@ from pandas import DataFrame
 from prov.model import QualifiedName
 from prov.model import Namespace as provNamespace
 from nidm.experiment.Core import Core
-from os.path import isfile
+from os.path import isfile,join
 from argparse import RawTextHelpFormatter
 import json
 import logging
@@ -51,6 +51,9 @@ import csv
 import glob
 from argparse import ArgumentParser
 from bids.grabbids import BIDSLayout
+# Python program to find SHA256 hash string of a file
+import hashlib
+
 
 def getRelPathToBIDS(filepath, bids_root):
     """
@@ -66,6 +69,19 @@ def getRelPathToBIDS(filepath, bids_root):
     return(os.path.join(relpath,file))
 
 
+def getsha512(filename):
+    """
+    This function computes the SHA512 sum of a file
+    :param filename: path+filename of file to compute SHA512 sum for
+    :return: hexidecimal sha512 sum of file.
+    """
+    sha512_hash = hashlib.sha512()
+    with open(filename,"rb") as f:
+        # Read and update hash string value in blocks of 4K
+        for byte_block in iter(lambda: f.read(4096),b""):
+            sha512_hash.update(byte_block)
+    return sha512_hash.hexdigest()
+
 
 def main(argv):
     parser = ArgumentParser(description=
@@ -74,12 +90,12 @@ Example 1: No variable->term mapping, simple BIDS dataset conversion which will 
 \t BIDSMRI2NIDM.py -d [root directory of BIDS dataset] -bidsignore
 Example 2: No variable->term mapping, simple BIDS dataset conversion but storing nidm file somewhere else: \n
 \t BIDSMRI2NIDM.py -d [root directory of BIDS dataset] -o [PATH/nidm.ttl] \n\n
-Example 3: BIDS conversion with variable->term mappings, no existing mappings available, uses Interlex for terms and github, adds nidm.ttl file BIDS dataset and .bidsignore file: \n
-\t BIDSMRI2NIDM.py -d [root directory of BIDS dataset] -ilxkey [Your Interlex key] -github [username token] -bidsignore  \n\n
-Example 4: BIDS conversion with variable->term mappings, no existing mappings available, uses Interlex + NIDM OWL file for terms and github, adds nidm.ttl file BIDS dataset and .bidsignore file: \n
-\t BIDSMRI2NIDM.py -d [root directory of BIDS dataset] -ilxkey [Your Interlex key] -github [username token] -owl -bidsignore  \n\n
-Example 5 (FULL MONTY): BIDS conversion with variable->term mappings, uses JSON mapping file first then uses Interlex + NIDM OWL file for terms and github, adds nidm.ttl file BIDS dataset and .bidsignore file: \n
-\t BIDSMRI2NIDM.py -d [root directory of BIDS dataset] -json_map [Your JSON file] -ilxkey [Your Interlex key] -github [username token] -owl -bidsignore\n
+Example 3: BIDS conversion with variable->term mappings, no existing mappings available, uses Interlex for terms, adds nidm.ttl file BIDS dataset and .bidsignore file: \n
+\t BIDSMRI2NIDM.py -d [root directory of BIDS dataset] -ilxkey [Your Interlex key] -bidsignore  \n\n
+Example 4: BIDS conversion with variable->term mappings, no existing mappings available, uses Interlex + NIDM OWL file for terms, adds nidm.ttl file BIDS dataset and .bidsignore file: \n
+\t BIDSMRI2NIDM.py -d [root directory of BIDS dataset] -ilxkey [Your Interlex key] -owl -bidsignore  \n\n
+Example 5 (FULL MONTY): BIDS conversion with variable->term mappings, uses JSON mapping file first then uses Interlex + NIDM OWL file for terms, adds nidm.ttl file BIDS dataset and .bidsignore file: \n
+\t BIDSMRI2NIDM.py -d [root directory of BIDS dataset] -json_map [Your JSON file] -ilxkey [Your Interlex key] -owl -bidsignore\n
 \t json mapping file has entries for each variable with mappings to formal terms.  Example:  \n
     \t { \n
     \t\t \"site\": { \n
@@ -101,10 +117,7 @@ Example 5 (FULL MONTY): BIDS conversion with variable->term mappings, uses JSON 
     #adding argument group for var->term mappings
     mapvars_group = parser.add_argument_group('map variables to terms arguments')
     mapvars_group.add_argument('-json_map', '--json_map', dest='json_map',required=False,default=False,help="Optional user-suppled JSON file containing variable-term mappings.")
-    mapvars_group.add_argument('-ilxkey', '--ilxkey', dest='key', required=False, default=None,  help="Interlex/SciCrunch API key to use for query")
-    mapvars_group.add_argument('-github','--github', type=str, nargs='*', default = None,dest='github',  required=False, help="""Use -github flag with list username token(or pw) for storing locally-defined terms in a
-    nidm-local-terms repository in GitHub.  If user doesn''t supply a token then user will be prompted for username/password.\n
-    Example: -github username token""")
+    mapvars_group.add_argument('-ilxkey', '--ilxkey', dest='key', required=False, default=None,  help="Interlex/SciCrunch API key to use for query and adding terms")
     mapvars_group.add_argument('-owl', action='store_true', required=False, default=None,help='Optional flag to query nidm-experiment OWL files')
     #parser.add_argument('-mapvars', '--mapvars', action='store_true', help='If flag set, variables in participant.tsv and phenotype files will be interactively mapped to terms')
     parser.add_argument('-o', dest='outputfile', required=False, default="nidm.ttl", help="Outputs turtle file called nidm.ttl in BIDS directory by default")
@@ -233,7 +246,7 @@ def bidsmri2project(directory, args):
 
 
             #do variable-term mappings
-            if ( (args.json_map!=False) or (args.key != None) or (args.github != None) ):
+            if ( (args.json_map!=False) or (args.key != None) ):
 
                  #if user didn't supply a json mapping file but we're doing some variable-term mapping create an empty one for column_to_terms to use
                  if args.json_map == None:
@@ -242,8 +255,7 @@ def bidsmri2project(directory, args):
 
                  #maps variables in CSV file to terms
                  temp=DataFrame(columns=mapping_list)
-                 column_to_terms.update(map_variables_to_terms(directory=directory, df=temp,apikey=args.key,output_file=args.json_map,json_file=args.json_map,github=args.github,owl_file=args.owl))
-
+                 column_to_terms.update(map_variables_to_terms(directory=directory, df=temp,apikey=args.key,output_file=os.path.join(directory,'participants.json'),json_file=args.json_map,owl_file=args.owl))
 
 
             for row in participants_data:
@@ -345,6 +357,12 @@ def bidsmri2project(directory, args):
                 #add file link
                 #make relative link to
                 acq_obj.add_attributes({Constants.NIDM_FILENAME:getRelPathToBIDS(file_tpl.filename, directory)})
+
+                #add sha512 sum
+                if isfile(join(directory,file_tpl.filename)):
+                    acq_obj.add_attributes({Constants.CRYPTO_SHA512:getsha512(join(directory,file_tpl.filename))})
+                else:
+                    logging.info("WARNINGL file %s doesn't exist! No SHA512 sum stored in NIDM files..." %join(directory,file_tpl.filename))
                 #get associated JSON file if exists
                 json_data = bids_layout.get_metadata(file_tpl.filename)
                 if json_data:
@@ -370,6 +388,12 @@ def bidsmri2project(directory, args):
                     logging.info("WARNING: No matching image usage type found in BIDS_Constants.py for %s" % file_tpl.modality)
                 #add file link
                 acq_obj.add_attributes({Constants.NIDM_FILENAME:getRelPathToBIDS(file_tpl.filename, directory)})
+                #add sha512 sum
+                if isfile(join(directory,file_tpl.filename)):
+                    acq_obj.add_attributes({Constants.CRYPTO_SHA512:getsha512(join(directory,file_tpl.filename))})
+                else:
+                    logging.info("WARNINGL file %s doesn't exist! No SHA512 sum stored in NIDM files..." %join(directory,file_tpl.filename))
+
                 if 'run' in file_tpl._fields:
                     acq_obj.add_attributes({BIDS_Constants.json_keys["run"]:file_tpl.run})
 
@@ -415,6 +439,12 @@ def bidsmri2project(directory, args):
                     logging.info("WARNING: No matching image usage type found in BIDS_Constants.py for %s" % file_tpl.modality)
                  #add file link
                 acq_obj.add_attributes({Constants.NIDM_FILENAME:getRelPathToBIDS(file_tpl.filename, directory)})
+                #add sha512 sum
+                if isfile(join(directory,file_tpl.filename)):
+                    acq_obj.add_attributes({Constants.CRYPTO_SHA512:getsha512(join(directory,file_tpl.filename))})
+                else:
+                    logging.info("WARNINGL file %s doesn't exist! No SHA512 sum stored in NIDM files..." %join(directory,file_tpl.filename))
+
                 if 'run' in file_tpl._fields:
                     acq_obj.add_attributes({BIDS_Constants.json_keys["run"]:file_tpl.run})
 
@@ -436,10 +466,20 @@ def bidsmri2project(directory, args):
                 acq_obj_bval.add_attributes({PROV_TYPE:BIDS_Constants.scans["bval"]})
                 #add file link to bval files
                 acq_obj_bval.add_attributes({Constants.NIDM_FILENAME:getRelPathToBIDS(bids_layout.get_bval(file_tpl.filename), directory)})
+                #add sha512 sum
+                if isfile(join(directory,file_tpl.filename)):
+                    acq_obj_bval.add_attributes({Constants.CRYPTO_SHA512:getsha512(join(directory,file_tpl.filename))})
+                else:
+                    logging.info("WARNINGL file %s doesn't exist! No SHA512 sum stored in NIDM files..." %join(directory,file_tpl.filename))
                 acq_obj_bvec = AcquisitionObject(acq)
                 acq_obj_bvec.add_attributes({PROV_TYPE:BIDS_Constants.scans["bvec"]})
                 #add file link to bvec files
                 acq_obj_bvec.add_attributes({Constants.NIDM_FILENAME:getRelPathToBIDS(bids_layout.get_bvec(file_tpl.filename),directory)})
+                if isfile(join(directory,file_tpl.filename)):
+                    #add sha512 sum
+                    acq_obj_bvec.add_attributes({Constants.CRYPTO_SHA512:getsha512(join(directory,file_tpl.filename))})
+                else:
+                    logging.info("WARNINGL file %s doesn't exist! No SHA512 sum stored in NIDM files..." %join(directory,file_tpl.filename))
 
                 #link bval and bvec acquisition object entities together or is their association with DWI scan...
 
