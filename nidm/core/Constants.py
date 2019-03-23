@@ -347,6 +347,7 @@ NIDM_MRI_T2_STAR = QualifiedName(provNamespace("nidm", NIDM),"T2StarWeighted")
 NIDM_MRI_DIFFUSION_TENSOR = QualifiedName(provNamespace("nidm", NIDM),"DiffusionTensor")
 NIDM_MRI_FLOW = QualifiedName(provNamespace("nidm", NIDM),"FlowWeighted")
 NIDM_MRI_BOLD_EVENTS = QualifiedName(provNamespace("nidm", NIDM),"StimulusResponseFile")
+CRYPTO_SHA512  =QualifiedName(provNamespace("crypto", CRYPTO),"sha512")
 ##############################################################################
 # OBO constants
 OBO_EXAMPLE = OBO['IAO_0000112']
