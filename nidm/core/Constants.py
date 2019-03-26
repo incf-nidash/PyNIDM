@@ -26,6 +26,8 @@ NIIRI = Namespace('http://iri.nidash.org/')
 AFNI = Namespace('http://purl.org/nidash/afni#')
 SPM = Namespace('http://purl.org/nidash/spm#')
 FSL = Namespace('http://purl.org/nidash/fsl#')
+FREESURFER = Namespace('https://surfer.nmr.mgh.harvard.edu/')
+ANTS = Namespace('http://stnava.github.io/ANTs/')
 RDFS = Namespace('http://www.w3.org/2000/01/rdf-schema#')
 CRYPTO = Namespace('http://id.loc.gov/vocabulary/preservation/\
 cryptographicHashFunctions#')
@@ -63,6 +65,8 @@ namespaces = {
     "afni": AFNI,
     "spm": SPM,
     "fsl": FSL,
+	"freesurfer": FREESURFER,
+	"ants": ANTS,
     "rdfs": RDFS,
     "crypto": CRYPTO,
     "dct": DCT,
