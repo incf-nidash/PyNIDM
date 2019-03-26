@@ -292,12 +292,14 @@ def main(argv):
                             nidmdoc.graph.wasAssociatedWith(activity=software_activity[software_key],agent=software_agent[software_key])
 
                     #check if we have an entity for storing this particular variable for this subject and software else create one
-                    if software_activity[software_key] not in entity.keys():
+                    if software_activity[software_key].identifier.localpart + participant_agent[participant_id].identifier.localpart not in entity.keys():
                         #create an entity to store brain volume data for this participant
-                        entity[software_activity[software_key]] = nidmdoc.graph.entity( QualifiedName(provNamespace("nidm",Constants.NIDM),getUUID()))
+                        entity[software_activity[software_key].identifier.localpart + participant_agent[participant_id].identifier.localpart] = nidmdoc.graph.entity( QualifiedName(provNamespace("nidm",Constants.NIDM),getUUID()))
+                        #add wasGeneratedBy association to activity
+                        nidmdoc.graph.wasGeneratedBy(entity=entity[software_activity[software_key].identifier.localpart + participant_agent[participant_id].identifier.localpart], activity=software_activity[software_key])
 
                     #get column_to_term mapping uri and add as namespace in NIDM document
-                    entity[software_activity[software_key]].add_attributes({QualifiedName(provNamespace(Core.safe_string(None,string=str(row_variable)), column_to_terms[row_variable.split(".")[0]]["url"]),""):row_data})
+                    entity[software_activity[software_key].identifier.localpart + participant_agent[participant_id].identifier.localpart].add_attributes({QualifiedName(provNamespace(Core.safe_string(None,string=str(row_variable)), column_to_terms[row_variable.split(".")[0]]["url"]),""):row_data})
                     #print(project.serializeTurtle())
 
         #serialize NIDM file
