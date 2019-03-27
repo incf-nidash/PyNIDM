@@ -254,6 +254,7 @@ def main(argv):
         software_activity={}
         participant_agent={}
         entity={}
+        first_row=True
         #iterate over rows and store in NIDM file
         for csv_index, csv_row in df.iterrows():
 
@@ -302,12 +303,21 @@ def main(argv):
                     entity[software_activity[software_key].identifier.localpart + participant_agent[participant_id].identifier.localpart].add_attributes({QualifiedName(provNamespace(Core.safe_string(None,string=str(row_variable)), column_to_terms[row_variable.split(".")[0]]["url"]),""):row_data})
                     #print(project.serializeTurtle())
 
+       	    if first_row:
+	        #serialize NIDM file
+                #with open(args.output_file,'w') as f:
+                #   print("Writing NIDM file...")
+                #   f.write(nidmdoc.serializeTurtle())
+                if args.png:
+                    nidmdoc.save_DotGraph(str(args.output_file + ".pdf"), format="pdf")
+                first_row=False
+
         #serialize NIDM file
         with open(args.output_file,'w') as f:
             print("Writing NIDM file...")
             f.write(nidmdoc.serializeTurtle())
-            if args.png:
-                nidmdoc.save_DotGraph(str(args.output_file + ".png"), format="png")
+            #if args.png:
+            #    nidmdoc.save_DotGraph(str(args.output_file + ".png"), format="png")
 
 
 if __name__ == "__main__":
