@@ -519,6 +519,32 @@ def authenticate_github(authed=None,credentials=None):
     else:
         return authed
 
+def getSubjIDColumn(column_to_terms,df):
+    '''
+    This function returns column number from CSV file that matches subjid.  If it can't automatically
+    detect it based on the Constants.NIDM_SUBJECTID term (i.e. if the user selected a different term
+    to annotate subject ID then it asks the user.
+    :param column_to_terms: json variable->term mapping dictionary made by nidm.experiment.Utils.map_variables_to_terms
+    :param df: dataframe of CSV file with tabular data to convert to RDF.
+    :return: subject ID column number in CSV dataframe
+    '''
+
+    #look at column_to_terms dictionary for NIDM URL for subject id  (Constants.NIDM_SUBJECTID)
+    id_field=None
+    for key, value in column_to_terms.items():
+        if Constants.NIDM_SUBJECTID._str == column_to_terms[key]['label']:
+            id_field=key
+
+    #if we couldn't find a subject ID field in column_to_terms, ask user
+    if id_field is None:
+        option=1
+        for column in df.columns:
+            print("%d: %s" %(option,column))
+            option=option+1
+        selection=input("Please select the subject ID field from the list above: ")
+        id_field=df.columns[int(selection)-1]
+    return id_field
+
 def map_variables_to_terms(df,apikey,directory, output_file=None,json_file=None,owl_file=None):
     '''
 
@@ -760,7 +786,7 @@ def map_variables_to_terms(df,apikey,directory, output_file=None,json_file=None,
                 # store term info in dictionary
                 column_to_terms[column]['label'] = term_label
                 column_to_terms[column]['definition'] = term_definition
-                column_to_terms[column]['url'] = ilx_output.iri
+                column_to_terms[column]['url'] = ilx_output.iri + "#"
                 column_to_terms[column]['datatype'] = term_datatype
                 column_to_terms[column]['units'] = term_units
                 column_to_terms[column]['min'] = term_min
