@@ -50,7 +50,7 @@ import logging
 import csv
 import glob
 from argparse import ArgumentParser
-from bids.grabbids import BIDSLayout
+from bids import BIDSLayout
 # Python program to find SHA256 hash string of a file
 import hashlib
 
