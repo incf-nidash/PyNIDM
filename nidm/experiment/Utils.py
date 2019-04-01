@@ -293,9 +293,9 @@ def QuerySciCrunchElasticSearch(key,query_string,cde_only=False, anscestors=True
             data = '\n{\n  "query": {\n    "bool": {\n       "must" : [\n       {  "term" : { "type" : "cde" } },\n             { "multi_match" : {\n         "query":    "%s", \n         "fields": [ "label", "definition" ] \n       } }\n]\n    }\n  }\n}\n' %query_string
     else:
         if anscestors:
-            data = '\n{\n  "query": {\n    "bool": {\n       "must" : [\n       {  "terms" : { "type" : ["cde" , "term", "pde"] } },\n       { "terms" : { "ancestors.ilx" : ["ilx_0115066" , "ilx_0103210", "ilx_0115072", "ilx_0115070"] } },\n       { "multi_match" : {\n         "query":    "%s", \n         "fields": [ "label", "definition" ] \n       } }\n]\n    }\n  }\n}\n' %query_string
+            data = '\n{\n  "query": {\n    "bool": {\n       "must" : [\n       {  "terms" : { "type" : ["cde" , "pde"] } },\n       { "terms" : { "ancestors.ilx" : ["ilx_0115066" , "ilx_0103210", "ilx_0115072", "ilx_0115070"] } },\n       { "multi_match" : {\n         "query":    "%s", \n         "fields": [ "label", "definition" ] \n       } }\n]\n    }\n  }\n}\n' %query_string
         else:
-            data = '\n{\n  "query": {\n    "bool": {\n       "must" : [\n       {  "terms" : { "type" : ["cde" , "term", "pde"] } },\n              { "multi_match" : {\n         "query":    "%s", \n         "fields": [ "label", "definition" ] \n       } }\n]\n    }\n  }\n}\n' %query_string
+            data = '\n{\n  "query": {\n    "bool": {\n       "must" : [\n       {  "terms" : { "type" : ["cde" , "pde"] } },\n              { "multi_match" : {\n         "query":    "%s", \n         "fields": [ "label", "definition" ] \n       } }\n]\n    }\n  }\n}\n' %query_string
 
     response = requests.post('https://scicrunch.org/api/1/elastic-ilx/interlex/term/_search#', headers=headers, params=params, data=data)
 
@@ -638,16 +638,31 @@ def map_variables_to_terms(df,apikey,directory, output_file=None,json_file=None,
 
             temp = search_result.copy()
             #print("Search Term: %s" %search_term)
-            print()
-            print("InterLex Terms:")
-            #print("Search Results: ")
-            for key, value in temp.items():
+            if len(temp)!=0:
+                print()
+                print("InterLex Terms (CDEs):")
+                #print("Search Results: ")
+                for key, value in temp.items():
 
-                print("%d: Label: %s \t Definition: %s \t Preferred URL: %s " %(option,search_result[key]['label'],search_result[key]['definition'],search_result[key]['preferred_url']  ))
+                    print("%d: Label: %s \t Definition: %s \t Preferred URL: %s " %(option,search_result[key]['label'],search_result[key]['definition'],search_result[key]['preferred_url']  ))
 
-                search_result[str(option)] = key
-                option = option+1
+                    search_result[str(option)] = key
+                    option = option+1
 
+            # for each column name, query Interlex for possible matches
+            search_result.update(GetNIDMTermsFromSciCrunch(apikey, search_term, cde_only=False, ancestor=False))
+            temp = search_result.copy()
+
+            if len(temp)!=0:
+                print()
+                print("InterLex Terms (PDEs):")
+                #print("Search Results: ")
+                for key, value in temp.items():
+
+                    print("%d: Label: %s \t Definition: %s \t Preferred URL: %s " %(option,search_result[key]['label'],search_result[key]['definition'],search_result[key]['preferred_url']  ))
+
+                    search_result[str(option)] = key
+                    option = option+1
 
 
             # if user supplied an OWL file to search in for terms
