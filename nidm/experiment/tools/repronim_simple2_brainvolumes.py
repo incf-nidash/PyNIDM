@@ -209,20 +209,21 @@ def main(argv):
         print("Adding to NIDM file...")
         #read in NIDM file
         project = read_nidm(args.nidm_file)
-        #get list of session objects
-        session_objs=project.get_sessions()
 
         #use RDFLib here for temporary graph making query easier
         rdf_graph = Graph()
         rdf_graph_parse = rdf_graph.parse(source=StringIO(project.serializeTurtle()),format='turtle')
 
         #find subject ids and sessions in NIDM document
-        query = """SELECT DISTINCT ?session ?nidm_subj_id ?agent
+        query = """SELECT DISTINCT ?session ?nidm_subj_id ?agent ?entity
                     WHERE {
                         ?activity prov:wasAssociatedWith ?agent ;
                             dct:isPartOf ?session  .
+                        ?entity prov:wasGeneratedBy ?activity ;
+                            nidm:hasImageUsageType nidm:Anatomical .
                         ?agent rdf:type prov:Agent ;
                             ndar:src_subject_id ?nidm_subj_id .
+
                     }"""
         #print(query)
         qres = rdf_graph_parse.query(query)
@@ -241,24 +242,25 @@ def main(argv):
             csv_row = df.loc[df[id_field].astype('str').str.contains(str(row[1]).lstrip("0"))]
 
             #if there was data about this subject in the NIDM file already (i.e. an agent already exists with this subject id)
-            #then add this CSV data to NIDM file, else skip it....
+            #then add this brain volumes data to NIDM file, else skip it....
             if (not (len(csv_row.index)==0)):
 
-
-                 #NIDM document sesssion uuid
-                session_uuid = row[0]
-
-                #temporary list of string-based URIs of session objects from API
-                temp = [o.identifier._uri for o in session_objs]
-
-
-                #get session object from existing NIDM file that is associated with a specific subject id
-                #nidm_session = (i for i,x in enumerate([o.identifier._uri for o in session_objs]) if x == str(session_uuid))
-                nidm_session = session_objs[temp.index(str(session_uuid))]
+                #Here we're sure we have an agent in the NIDM graph that corresponds to the participant in the
+                #brain volumes data.  We don't know which AcquisitionObject (entity) describes the T1-weighted scans
+                #used for the project.  Since we don't have the SHA512 sums in the brain volumes data (YET) we can't
+                #really verify that it's a particular T1-weighted scan that was used for the brain volumes but we're
+                #simply, for the moment, going to assume it's the activity/session returned by the above query
+                #where we've specifically asked for the entity which has a nidm:hasImageUsageType nidm:Anatomical
 
 
-                #add an assessment acquisition for the phenotype data to session and associate with agent
-                acq=AssessmentAcquisition(session=nidm_session)
+
+                #NIDM document entity uuid which has a nidm:hasImageUsageType nidm:Anatomical
+                entity_uuid = row[3]
+
+
+
+
+
 
 
                 #add acquisition entity for assessment
