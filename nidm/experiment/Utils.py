@@ -260,13 +260,12 @@ def add_metadata_for_subject (rdf_graph,subject_uri,namespaces,nidm_obj):
                 nidm_obj.add_attributes({predicate : get_RDFliteral_type(objects)})
 
 
-def QuerySciCrunchElasticSearch(key,query_string,cde_only=False, anscestors=True):
+def QuerySciCrunchElasticSearch(key,query_string,type='cde', anscestors=True):
     '''
     This function will perform an elastic search in SciCrunch on the [query_string] using API [key] and return the json package.
     :param key: API key from sci crunch
     :param query_string: arbitrary string to search for terms
-    :param cde_only: default=False but if set will query CDE's only not CDE + more general terms...CDE is an instantiation of a term for
-    a particular use.
+    :param type: default is 'CDE'.  Acceptible values are 'cde' or 'pde'.
     :return: json document of results form elastic search
     '''
 
@@ -286,34 +285,37 @@ def QuerySciCrunchElasticSearch(key,query_string,cde_only=False, anscestors=True
     params = (
         ('key', key),
     )
-    if cde_only:
+    if type is 'cde':
         if anscestors:
             data = '\n{\n  "query": {\n    "bool": {\n       "must" : [\n       {  "term" : { "type" : "cde" } },\n       { "terms" : { "ancestors.ilx" : ["ilx_0115066" , "ilx_0103210", "ilx_0115072", "ilx_0115070"] } },\n       { "multi_match" : {\n         "query":    "%s", \n         "fields": [ "label", "definition" ] \n       } }\n]\n    }\n  }\n}\n' %query_string
         else:
             data = '\n{\n  "query": {\n    "bool": {\n       "must" : [\n       {  "term" : { "type" : "cde" } },\n             { "multi_match" : {\n         "query":    "%s", \n         "fields": [ "label", "definition" ] \n       } }\n]\n    }\n  }\n}\n' %query_string
-    else:
+    elif type is 'pde':
         if anscestors:
-            data = '\n{\n  "query": {\n    "bool": {\n       "must" : [\n       {  "terms" : { "type" : ["cde" , "pde"] } },\n       { "terms" : { "ancestors.ilx" : ["ilx_0115066" , "ilx_0103210", "ilx_0115072", "ilx_0115070"] } },\n       { "multi_match" : {\n         "query":    "%s", \n         "fields": [ "label", "definition" ] \n       } }\n]\n    }\n  }\n}\n' %query_string
+            data = '\n{\n  "query": {\n    "bool": {\n       "must" : [\n       {  "terms" : { "type" : ["pde"] } },\n       { "terms" : { "ancestors.ilx" : ["ilx_0115066" , "ilx_0103210", "ilx_0115072", "ilx_0115070"] } },\n       { "multi_match" : {\n         "query":    "%s", \n         "fields": [ "label", "definition" ] \n       } }\n]\n    }\n  }\n}\n' %query_string
         else:
-            data = '\n{\n  "query": {\n    "bool": {\n       "must" : [\n       {  "terms" : { "type" : ["cde" , "pde"] } },\n              { "multi_match" : {\n         "query":    "%s", \n         "fields": [ "label", "definition" ] \n       } }\n]\n    }\n  }\n}\n' %query_string
+            data = '\n{\n  "query": {\n    "bool": {\n       "must" : [\n       {  "terms" : { "type" : [ "pde"] } },\n              { "multi_match" : {\n         "query":    "%s", \n         "fields": [ "label", "definition" ] \n       } }\n]\n    }\n  }\n}\n' %query_string
+    else:
+        print("ERROR: Valid types for SciCrunch query are 'cde' or 'pde'.  You set type: %s " %type)
+        print("ERROR: in function Utils.py/QuerySciCrunchElasticSearch")
+        exit(1)
 
     response = requests.post('https://scicrunch.org/api/1/elastic-ilx/interlex/term/_search#', headers=headers, params=params, data=data)
 
     return json.loads(response.text)
 
-def GetNIDMTermsFromSciCrunch(key,query_string,cde_only=False, ancestor=True):
+def GetNIDMTermsFromSciCrunch(key,query_string,type='cde', ancestor=True):
     '''
     Helper function which issues elastic search query of SciCrunch using QuerySciCrunchElasticSearch function and returns terms list
     with label, definition, and preferred URLs in dictionary
     :param key: API key from sci crunch
     :param query_string: arbitrary string to search for terms
-    :param cde_only: default=False but if set will query CDE's only not CDE + more general terms...CDE is an instantiation of a term for
-    a particular use.
+    :param type: should be 'cde' or 'pde' for the moment
     :param ancestor: Boolean flag to tell Interlex elastic search to use ancestors (i.e. tagged terms) or not
     :return: dictionary with keys 'ilx','label','definition','preferred_url'
     '''
 
-    json_data = QuerySciCrunchElasticSearch(key, query_string,cde_only,ancestor)
+    json_data = QuerySciCrunchElasticSearch(key, query_string,type,ancestor)
     results={}
     #check if query was successful
     if json_data['timed_out'] != True:
@@ -650,7 +652,8 @@ def map_variables_to_terms(df,apikey,directory, output_file=None,json_file=None,
                     option = option+1
 
             # for each column name, query Interlex for possible matches
-            search_result.update(GetNIDMTermsFromSciCrunch(apikey, search_term, cde_only=False, ancestor=False))
+            pde_result = GetNIDMTermsFromSciCrunch(apikey, search_term, cde_only=False, ancestor=ancestor)
+            search_result.update(pde_result)
             temp = search_result.copy()
 
             if len(temp)!=0:
