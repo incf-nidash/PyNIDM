@@ -102,7 +102,10 @@ def main(argv):
     df = pd.read_csv(args.csv_file)
 
     #maps variables in CSV file to terms
-    column_to_terms = map_variables_to_terms(df=df, apikey=args.key, directory=dirname(args.output_file), output_file=args.output_file, json_file=args.json_map, owl_file=args.owl)
+    if args.owl is not False:
+        column_to_terms = map_variables_to_terms(df=df, apikey=args.key, directory=dirname(args.output_file), output_file=args.output_file, json_file=args.json_map, owl_file=args.owl)
+    else:
+        column_to_terms = map_variables_to_terms(df=df, apikey=args.key, directory=dirname(args.output_file), output_file=args.output_file, json_file=args.json_map)
 
 
 
