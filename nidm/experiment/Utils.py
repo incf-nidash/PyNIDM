@@ -682,12 +682,17 @@ def map_variables_to_terms(df,apikey,directory, output_file=None,json_file=None,
             # Add existing NIDM Terms as possible selections which fuzzy match the search_term
             nidm_constants_query = fuzzy_match_terms_from_graph(nidm_owl_graph, search_term)
 
-            if len(nidm_constants_query) != 0:
-                print()
-                print("NIDM Terms:")
 
+
+            first_nidm_term=True
             for key, subdict in nidm_constants_query.items():
                 if nidm_constants_query[key]['score'] > min_match_score:
+                    if first_nidm_term:
+                        print()
+                        print("NIDM Terms:")
+                        first_nidm_term=False
+
+
                     print("%d: Label(NIDM Term): %s \t Definition: %s \t URL: %s" %(option, nidm_constants_query[key]['label'], nidm_constants_query[key]['definition'], nidm_constants_query[key]['url']))
                     search_result[key] = {}
                     search_result[key]['label']=nidm_constants_query[key]['label']
