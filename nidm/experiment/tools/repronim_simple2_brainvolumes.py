@@ -56,13 +56,14 @@ import json
 import pandas as pd
 from rdflib import Graph,URIRef,RDF
 import numpy as np
+from io import StringIO
 
 def column_index(df, query_cols):
     cols = df.columns.values
     sidx = np.argsort(cols)
     return sidx[np.searchsorted(cols,query_cols,sorter=sidx)]
 
-def add_brainvolume_data(nidmdoc, df, id_field, source_row, column_to_terms, png_file=None, output_file=None, root_act=None):
+def add_brainvolume_data(nidmdoc, df, id_field, source_row, column_to_terms, png_file=None, output_file=None, root_act=None, nidm_graph=None):
     '''
 
     :param nidmdoc:
@@ -79,74 +80,180 @@ def add_brainvolume_data(nidmdoc, df, id_field, source_row, column_to_terms, png
     software_activity={}
     participant_agent={}
     entity={}
-    first_row=True
-    #iterate over rows and store in NIDM file
-    for csv_index, csv_row in df.iterrows():
 
-        #store other data from row with columns_to_term mappings
-        for row_variable,row_data in csv_row.iteritems():
+    #this function can be used for both creating a brainvolumes NIDM file from scratch or adding brain volumes to
+    #existing NIDM file.  The following logic basically determines which route to take...
 
-            #check if row_variable is subject id, if so check whether we have an agent for this participant
-            if row_variable==id_field:
-                #store participant id for later use in processing the data for this row
-                participant_id = row_data
-                #if there is no agent for the participant then add one
-                if row_data not in participant_agent.keys():
-                    #add an agent for this person
-                    participant_agent[row_data] = nidmdoc.graph.agent(QualifiedName(provNamespace("nidm",Constants.NIDM),getUUID()),other_attributes=({Constants.NIDM_SUBJECTID:row_data}))
-                continue
-            else:
+    #if an existing NIDM graph is passed as a parameter then add to existing file
+    if nidm_file is None:
+        first_row=True
+        #iterate over rows and store in NIDM file
+        for csv_index, csv_row in df.iterrows():
 
-                #get source software matching this column deal with duplicate variables in source_row and pandas changing duplicate names
-                software_key = source_row.columns[[column_index(df,row_variable)]]._values[0].split(".")[0]
+            #store other data from row with columns_to_term mappings
+            for row_variable,row_data in csv_row.iteritems():
 
-                #see if we already have a software_activity for this agent
-                if software_key not in software_activity.keys():
+                #check if row_variable is subject id, if so check whether we have an agent for this participant
+                if row_variable==id_field:
+                    #store participant id for later use in processing the data for this row
+                    participant_id = row_data
+                    #if there is no agent for the participant then add one
+                    if row_data not in participant_agent.keys():
+                        #add an agent for this person
+                        participant_agent[row_data] = nidmdoc.graph.agent(QualifiedName(provNamespace("nidm",Constants.NIDM),getUUID()),other_attributes=({Constants.NIDM_SUBJECTID:row_data}))
+                    continue
+                else:
 
-                    #create an activity for the computation...simply a placeholder for more extensive provenance
-                    software_activity[software_key] = nidmdoc.graph.activity(QualifiedName(provNamespace("nidm",Constants.NIDM),getUUID()),other_attributes={Constants.NIDM_PROJECT_DESCRIPTION:"brain volume computation"})
+                    #get source software matching this column deal with duplicate variables in source_row and pandas changing duplicate names
+                    software_key = source_row.columns[[column_index(df,row_variable)]]._values[0].split(".")[0]
 
-                    if root_act is not None:
-                        #associate activity with activity of brain volumes creation (root-level activity)
-                        software_activity[software_key].add_attributes({QualifiedName(provNamespace("dct",Constants.DCT),'isPartOf'):root_act})
+                    #see if we already have a software_activity for this agent
+                    if software_key not in software_activity.keys():
 
-                    #associate this activity with the participant
-                    nidmdoc.graph.association(activity=software_activity[software_key],agent=participant_agent[participant_id],other_attributes={PROV_ROLE:Constants.NIDM_PARTICIPANT})
-                    nidmdoc.graph.wasAssociatedWith(activity=software_activity[software_key],agent=participant_agent[participant_id])
+                        #create an activity for the computation...simply a placeholder for more extensive provenance
+                        software_activity[software_key] = nidmdoc.graph.activity(QualifiedName(provNamespace("nidm",Constants.NIDM),getUUID()),other_attributes={Constants.NIDM_PROJECT_DESCRIPTION:"brain volume computation"})
 
-                    #check if there's an associated software agent and if not, create one
-                    if software_key not in software_agent.keys():
-                        #create an agent
-                        software_agent[software_key] = nidmdoc.graph.agent(QualifiedName(provNamespace("nidm",Constants.NIDM),getUUID()),other_attributes={'prov:type':QualifiedName(provNamespace(Core.safe_string(None,string=str("Neuroimaging Analysis Software")),Constants.NIDM_NEUROIMAGING_ANALYSIS_SOFTWARE),""),
-                                                                QualifiedName(provNamespace(Core.safe_string(None,string=str("Neuroimaging Analysis Software")),Constants.NIDM_NEUROIMAGING_ANALYSIS_SOFTWARE),""):software_key } )
-                        #create qualified association with brain volume computation activity
-                        nidmdoc.graph.association(activity=software_activity[software_key],agent=software_agent[software_key],other_attributes={PROV_ROLE:QualifiedName(provNamespace(Core.safe_string(None,string=str("Neuroimaging Analysis Software")),Constants.NIDM_NEUROIMAGING_ANALYSIS_SOFTWARE),"")})
-                        nidmdoc.graph.wasAssociatedWith(activity=software_activity[software_key],agent=software_agent[software_key])
+                        if root_act is not None:
+                            #associate activity with activity of brain volumes creation (root-level activity)
+                            software_activity[software_key].add_attributes({QualifiedName(provNamespace("dct",Constants.DCT),'isPartOf'):root_act})
 
-                #check if we have an entity for storing this particular variable for this subject and software else create one
-                if software_activity[software_key].identifier.localpart + participant_agent[participant_id].identifier.localpart not in entity.keys():
-                    #create an entity to store brain volume data for this participant
-                    entity[software_activity[software_key].identifier.localpart + participant_agent[participant_id].identifier.localpart] = nidmdoc.graph.entity( QualifiedName(provNamespace("nidm",Constants.NIDM),getUUID()))
-                    #add wasGeneratedBy association to activity
-                    nidmdoc.graph.wasGeneratedBy(entity=entity[software_activity[software_key].identifier.localpart + participant_agent[participant_id].identifier.localpart], activity=software_activity[software_key])
+                        #associate this activity with the participant
+                        nidmdoc.graph.association(activity=software_activity[software_key],agent=participant_agent[participant_id],other_attributes={PROV_ROLE:Constants.NIDM_PARTICIPANT})
+                        nidmdoc.graph.wasAssociatedWith(activity=software_activity[software_key],agent=participant_agent[participant_id])
 
-                #get column_to_term mapping uri and add as namespace in NIDM document
-                entity[software_activity[software_key].identifier.localpart + participant_agent[participant_id].identifier.localpart].add_attributes({QualifiedName(provNamespace(Core.safe_string(None,string=str(row_variable)), column_to_terms[row_variable.split(".")[0]]["url"]),""):row_data})
-                #print(project.serializeTurtle())
+                        #check if there's an associated software agent and if not, create one
+                        if software_key not in software_agent.keys():
+                            #create an agent
+                            software_agent[software_key] = nidmdoc.graph.agent(QualifiedName(provNamespace("nidm",Constants.NIDM),getUUID()),other_attributes={'prov:type':QualifiedName(provNamespace(Core.safe_string(None,string=str("Neuroimaging Analysis Software")),Constants.NIDM_NEUROIMAGING_ANALYSIS_SOFTWARE),""),
+                                                                    QualifiedName(provNamespace(Core.safe_string(None,string=str("Neuroimaging Analysis Software")),Constants.NIDM_NEUROIMAGING_ANALYSIS_SOFTWARE),""):software_key } )
+                            #create qualified association with brain volume computation activity
+                            nidmdoc.graph.association(activity=software_activity[software_key],agent=software_agent[software_key],other_attributes={PROV_ROLE:QualifiedName(provNamespace(Core.safe_string(None,string=str("Neuroimaging Analysis Software")),Constants.NIDM_NEUROIMAGING_ANALYSIS_SOFTWARE),"")})
+                            nidmdoc.graph.wasAssociatedWith(activity=software_activity[software_key],agent=software_agent[software_key])
+
+                    #check if we have an entity for storing this particular variable for this subject and software else create one
+                    if software_activity[software_key].identifier.localpart + participant_agent[participant_id].identifier.localpart not in entity.keys():
+                        #create an entity to store brain volume data for this participant
+                        entity[software_activity[software_key].identifier.localpart + participant_agent[participant_id].identifier.localpart] = nidmdoc.graph.entity( QualifiedName(provNamespace("nidm",Constants.NIDM),getUUID()))
+                        #add wasGeneratedBy association to activity
+                        nidmdoc.graph.wasGeneratedBy(entity=entity[software_activity[software_key].identifier.localpart + participant_agent[participant_id].identifier.localpart], activity=software_activity[software_key])
+
+                    #get column_to_term mapping uri and add as namespace in NIDM document
+                    entity[software_activity[software_key].identifier.localpart + participant_agent[participant_id].identifier.localpart].add_attributes({QualifiedName(provNamespace(Core.safe_string(None,string=str(row_variable)), column_to_terms[row_variable.split(".")[0]]["url"]),""):row_data})
+                    #print(project.serializeTurtle())
 
 
-        #just for debugging.  resulting graph is too big right now for DOT graph creation so here I'm simply creating
-        #a DOT graph for the processing of 1 row of the brain volumes CSV file so we can at least visually see the
-        #model
-        if png_file is not None:
-            if first_row:
-    	        #serialize NIDM file
-                #with open(args.output_file,'w') as f:
-                #   print("Writing NIDM file...")
-                #   f.write(nidmdoc.serializeTurtle())
-                if png_file:
-                    nidmdoc.save_DotGraph(str(output_file + ".pdf"), format="pdf")
-                first_row=False
+            #just for debugging.  resulting graph is too big right now for DOT graph creation so here I'm simply creating
+            #a DOT graph for the processing of 1 row of the brain volumes CSV file so we can at least visually see the
+            #model
+            if png_file is not None:
+                if first_row:
+                    #serialize NIDM file
+                    #with open(args.output_file,'w') as f:
+                    #   print("Writing NIDM file...")
+                    #   f.write(nidmdoc.serializeTurtle())
+                    if png_file:
+                        nidmdoc.save_DotGraph(str(output_file + ".pdf"), format="pdf")
+                    first_row=False
+    else:
+        #logic to add to existing graph
+
+        #find subject ids and sessions in NIDM document
+        query = """SELECT DISTINCT ?session ?nidm_subj_id ?agent ?entity
+                    WHERE {
+                        ?activity prov:wasAssociatedWith ?agent ;
+                            dct:isPartOf ?session  .
+                        ?entity prov:wasGeneratedBy ?activity ;
+                            nidm:hasImageUsageType nidm:Anatomical .
+                        ?agent rdf:type prov:Agent ;
+                            ndar:src_subject_id ?nidm_subj_id .
+
+                    }"""
+        #print(query)
+        qres = nidm_graph.query(query)
+
+
+
+        for row in qres:
+            print('%s \t %s' %(row[0],row[1]))
+            #find row in CSV file with subject id matching agent from NIDM file
+
+            #csv_row = df.loc[df[id_field]==type(df[id_field][0])(row[1])]
+            #find row in CSV file with matching subject id to the agent in the NIDM file
+            #be carefull about data types...simply type-change dataframe subject id column and query to strings.
+            #here we're removing the leading 0's from IDs because pandas.read_csv strips those unless you know ahead of
+            #time which column is the subject id....
+            csv_row = df.loc[df[id_field].astype('str').str.contains(str(row[1]).lstrip("0"))]
+
+            #if there was data about this subject in the NIDM file already (i.e. an agent already exists with this subject id)
+            #then add this brain volumes data to NIDM file, else skip it....
+            if (not (len(csv_row.index)==0)):
+
+                #Here we're sure we have an agent in the NIDM graph that corresponds to the participant in the
+                #brain volumes data.  We don't know which AcquisitionObject (entity) describes the T1-weighted scans
+                #used for the project.  Since we don't have the SHA512 sums in the brain volumes data (YET) we can't
+                #really verify that it's a particular T1-weighted scan that was used for the brain volumes but we're
+                #simply, for the moment, going to assume it's the activity/session returned by the above query
+                #where we've specifically asked for the entity which has a nidm:hasImageUsageType nidm:Anatomical
+
+
+
+                #NIDM document entity uuid which has a nidm:hasImageUsageType nidm:Anatomical
+                #this is the entity that is associated with the brain volume report for this participant
+                entity_uuid = row[3]
+
+                #Now we need to set up the entities/activities, etc. to add the brain volume data for this row of the
+                #CSV file and link it to the above entity and the agent for this participant which is row[0]
+                #store other data from row with columns_to_term mappings
+                for row_variable,row_data in csv_row.iteritems():
+
+                    #check if row_variable is subject id, if so check whether we have an agent for this participant
+                    if row_variable==id_field:
+                        #store participant id for later use in processing the data for this row
+                        participant_id = row_data
+                        #if there is no agent for the participant then add one
+                        if row_data not in participant_agent.keys():
+                            #add an agent for this person
+                            participant_agent[row_data] = nidmdoc.graph.agent(QualifiedName(provNamespace("nidm",Constants.NIDM),getUUID()),other_attributes=({Constants.NIDM_SUBJECTID:row_data}))
+                        continue
+                    else:
+
+                        #get source software matching this column deal with duplicate variables in source_row and pandas changing duplicate names
+                        software_key = source_row.columns[[column_index(df,row_variable)]]._values[0].split(".")[0]
+
+                        #see if we already have a software_activity for this agent
+                        if software_key not in software_activity.keys():
+
+                            #create an activity for the computation...simply a placeholder for more extensive provenance
+                            software_activity[software_key] = nidmdoc.graph.activity(QualifiedName(provNamespace("nidm",Constants.NIDM),getUUID()),other_attributes={Constants.NIDM_PROJECT_DESCRIPTION:"brain volume computation"})
+
+                            if root_act is not None:
+                                #associate activity with activity of brain volumes creation (root-level activity)
+                                software_activity[software_key].add_attributes({QualifiedName(provNamespace("dct",Constants.DCT),'isPartOf'):root_act})
+                            #associate this activity with the participant
+                            nidmdoc.graph.association(activity=software_activity[software_key],agent=participant_agent[participant_id],other_attributes={PROV_ROLE:Constants.NIDM_PARTICIPANT})
+                            nidmdoc.graph.wasAssociatedWith(activity=software_activity[software_key],agent=participant_agent[participant_id])
+
+                            #check if there's an associated software agent and if not, create one
+                            if software_key not in software_agent.keys():
+                                #create an agent
+                                software_agent[software_key] = nidmdoc.graph.agent(QualifiedName(provNamespace("nidm",Constants.NIDM),getUUID()),other_attributes={'prov:type':QualifiedName(provNamespace(Core.safe_string(None,string=str("Neuroimaging Analysis Software")),Constants.NIDM_NEUROIMAGING_ANALYSIS_SOFTWARE),""),
+                                                                            QualifiedName(provNamespace(Core.safe_string(None,string=str("Neuroimaging Analysis Software")),Constants.NIDM_NEUROIMAGING_ANALYSIS_SOFTWARE),""):software_key } )
+                                #create qualified association with brain volume computation activity
+                                nidmdoc.graph.association(activity=software_activity[software_key],agent=software_agent[software_key],other_attributes={PROV_ROLE:QualifiedName(provNamespace(Core.safe_string(None,string=str("Neuroimaging Analysis Software")),Constants.NIDM_NEUROIMAGING_ANALYSIS_SOFTWARE),"")})
+                                nidmdoc.graph.wasAssociatedWith(activity=software_activity[software_key],agent=software_agent[software_key])
+
+                        #check if we have an entity for storing this particular variable for this subject and software else create one
+                        if software_activity[software_key].identifier.localpart + participant_agent[participant_id].identifier.localpart not in entity.keys():
+                            #create an entity to store brain volume data for this participant
+                            entity[software_activity[software_key].identifier.localpart + participant_agent[participant_id].identifier.localpart] = nidmdoc.graph.entity( QualifiedName(provNamespace("nidm",Constants.NIDM),getUUID()))
+                            #add wasGeneratedBy association to activity
+                            nidmdoc.graph.wasGeneratedBy(entity=entity[software_activity[software_key].identifier.localpart + participant_agent[participant_id].identifier.localpart], activity=software_activity[software_key])
+
+                        #get column_to_term mapping uri and add as namespace in NIDM document
+                        entity[software_activity[software_key].identifier.localpart + participant_agent[participant_id].identifier.localpart].add_attributes({QualifiedName(provNamespace(Core.safe_string(None,string=str(row_variable)), column_to_terms[row_variable.split(".")[0]]["url"]),""):row_data})
+                        #print(project.serializeTurtle())
+
+
 
 
 def main(argv):
@@ -205,7 +312,7 @@ def main(argv):
     # WIP!!!#########################################################################################
     #go line by line through CSV file creating NIDM structures
     #If user has added an existing NIDM file as a command line parameter then add to existing file for subjects who exist in the NIDM file
-    if args.nidm_file:
+    if args.nidm_file is not None:
         print("Adding to NIDM file...")
         #read in NIDM file
         project = read_nidm(args.nidm_file)
@@ -214,36 +321,50 @@ def main(argv):
         rdf_graph = Graph()
         rdf_graph_parse = rdf_graph.parse(source=StringIO(project.serializeTurtle()),format='turtle')
 
-        #find subject ids and sessions in NIDM document
-        query = """SELECT DISTINCT ?session ?nidm_subj_id ?agent ?entity
-                    WHERE {
-                        ?activity prov:wasAssociatedWith ?agent ;
-                            dct:isPartOf ?session  .
-                        ?entity prov:wasGeneratedBy ?activity ;
-                            nidm:hasImageUsageType nidm:Anatomical .
-                        ?agent rdf:type prov:Agent ;
-                            ndar:src_subject_id ?nidm_subj_id .
+        root_act = rdf_graph_parse.activity(QualifiedName(provNamespace("nidm",Constants.NIDM),getUUID()),other_attributes={Constants.NIDM_PROJECT_DESCRIPTION:"Brain volumes provenance document"})
 
-                    }"""
-        #print(query)
-        qres = rdf_graph_parse.query(query)
+        #this function sucks...more thought needed for version that works with adding to existing NIDM file versus creating a new NIDM file....
+        add_brainvolume_data(nidmdoc=rdf_graph_parse,df=df,id_field=id_field,root_act=root_act,column_to_terms=column_to_terms,png_file=args.png,output_file=args.output_file,source_row=source_row,nidm_graph=rdf_graph_parse)
+
+        #serialize NIDM file
+        with open(args.output_file,'w') as f:
+            print("Writing NIDM file...")
+            f.write(rdf_graph_parse.serializeTurtle())
+            #if args.png:
+            #    nidmdoc.save_DotGraph(str(args.output_file + ".png"), format="png")
 
 
 
-        for row in qres:
-            print('%s \t %s' %(row[0],row[1]))
-            #find row in CSV file with subject id matching agent from NIDM file
+#        #find subject ids and sessions in NIDM document
+#        query = """SELECT DISTINCT ?session ?nidm_subj_id ?agent ?entity
+#                    WHERE {
+#                        ?activity prov:wasAssociatedWith ?agent ;
+#                            dct:isPartOf ?session  .
+#                        ?entity prov:wasGeneratedBy ?activity ;
+#                            nidm:hasImageUsageType nidm:Anatomical .
+#                        ?agent rdf:type prov:Agent ;
+#                            ndar:src_subject_id ?nidm_subj_id .
+#
+#                    }"""
+#        #print(query)
+#        qres = rdf_graph_parse.query(query)
 
-            #csv_row = df.loc[df[id_field]==type(df[id_field][0])(row[1])]
-            #find row in CSV file with matching subject id to the agent in the NIDM file
-            #be carefull about data types...simply type-change dataframe subject id column and query to strings.
-            #here we're removing the leading 0's from IDs because pandas.read_csv strips those unless you know ahead of
-            #time which column is the subject id....
-            csv_row = df.loc[df[id_field].astype('str').str.contains(str(row[1]).lstrip("0"))]
 
-            #if there was data about this subject in the NIDM file already (i.e. an agent already exists with this subject id)
-            #then add this brain volumes data to NIDM file, else skip it....
-            if (not (len(csv_row.index)==0)):
+
+#        for row in qres:
+#            print('%s \t %s' %(row[0],row[1]))
+#            #find row in CSV file with subject id matching agent from NIDM file
+
+#            #csv_row = df.loc[df[id_field]==type(df[id_field][0])(row[1])]
+#            #find row in CSV file with matching subject id to the agent in the NIDM file
+#            #be carefull about data types...simply type-change dataframe subject id column and query to strings.
+#            #here we're removing the leading 0's from IDs because pandas.read_csv strips those unless you know ahead of
+#            #time which column is the subject id....
+#            csv_row = df.loc[df[id_field].astype('str').str.contains(str(row[1]).lstrip("0"))]
+
+#            #if there was data about this subject in the NIDM file already (i.e. an agent already exists with this subject id)
+#            #then add this brain volumes data to NIDM file, else skip it....
+#            if (not (len(csv_row.index)==0)):
 
                 #Here we're sure we have an agent in the NIDM graph that corresponds to the participant in the
                 #brain volumes data.  We don't know which AcquisitionObject (entity) describes the T1-weighted scans
@@ -255,35 +376,37 @@ def main(argv):
 
 
                 #NIDM document entity uuid which has a nidm:hasImageUsageType nidm:Anatomical
-                entity_uuid = row[3]
+                #this is the entity that is associated with the brain volume report for this participant
+#                entity_uuid = row[3]
 
-
+                #Now we need to set up the entities/activities, etc. to add the brain volume data for this row of the
+                #CSV file and link it to the above entity and the agent for this participant which is row[0]
 
 
 
 
 
                 #add acquisition entity for assessment
-                acq_entity = AssessmentObject(acquisition=acq)
+#                acq_entity = AssessmentObject(acquisition=acq)
                 #add qualified association with existing agent
-                acq.add_qualified_association(person=row[2],role=Constants.NIDM_PARTICIPANT)
+#                acq.add_qualified_association(person=row[2],role=Constants.NIDM_PARTICIPANT)
 
-                #store other data from row with columns_to_term mappings
-                for row_variable in csv_row:
+#                #store other data from row with columns_to_term mappings
+#                for row_variable in csv_row:
                     #check if row_variable is subject id, if so skip it
-                    if row_variable==id_field:
-                        continue
-                    else:
+#                    if row_variable==id_field:
+#                        continue
+#                    else:
                         #get column_to_term mapping uri and add as namespace in NIDM document
                         #provNamespace(Core.safe_string(None,string=str(row_variable)), column_to_terms[row_variable]["url"])
-                        acq_entity.add_attributes({QualifiedName(provNamespace(Core.safe_string(None,string=str(row_variable)), column_to_terms[row_variable]["url"]), ""):csv_row[row_variable].values[0]})
-                continue
+#                        acq_entity.add_attributes({QualifiedName(provNamespace(Core.safe_string(None,string=str(row_variable)), column_to_terms[row_variable]["url"]), ""):csv_row[row_variable].values[0]})
+#                continue
 
-        #serialize NIDM file
-        with open(args.nidm_file,'w') as f:
-            print("Writing NIDM file...")
-            f.write(project.serializeTurtle())
-            project.save_DotGraph(str(args.nidm_file + ".png"), format="png")
+#        #serialize NIDM file
+#        with open(args.nidm_file,'w') as f:
+#            print("Writing NIDM file...")
+#            f.write(project.serializeTurtle())
+#            project.save_DotGraph(str(args.nidm_file + ".png"), format="png")
     ##############################################################################################################################
 
 
