@@ -131,6 +131,35 @@ def GetProjectsUUID(nidm_file_list):
 
     return df['uuid'].tolist()
 
+def GetProjectsIdentifiers(nidm_file_list):
+    '''
+
+    :param nidm_file_list: List of one or more NIDM files to query across for list of Projects
+    :return: dataframe with two columns: "project_uuid" and "project_dentifier"
+    '''
+
+
+
+    #SPARQL query to get project UUIDs
+    query = '''
+        PREFIX sio: <http://semanticscience.org/ontology/sio.owl#>
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX nidm:<http://purl.org/nidash/nidm#>
+
+        SELECT distinct ?project_uuid ?project_identifier
+        Where {
+            {
+                ?project_uuid rdf:type nidm:Project .
+                ?project_uuid sio:Identifier ?project_identifier  
+            }
+        }
+    '''
+    df = sparql_query_nidm(nidm_file_list,query, output_file=None)
+    print (df)
+
+    return df
+
+
 def testprojectmeta(nidm_file_list):
 
     import json
