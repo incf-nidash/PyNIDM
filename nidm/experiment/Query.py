@@ -155,7 +155,6 @@ def GetProjectsIdentifiers(nidm_file_list):
         }
     '''
     df = sparql_query_nidm(nidm_file_list,query, output_file=None)
-    print (df)
 
     return df
 
@@ -286,8 +285,7 @@ def GetProjectMetadata(nidm_file_list):
         #try:
         #    results
         #except NameError:
-            #results = df.to_dict()
-
+            #results = df.to_dict()g
 
         #    results = df
         #else:
