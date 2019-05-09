@@ -295,8 +295,14 @@ def QuerySciCrunchElasticSearch(key,query_string,type='cde', anscestors=True):
             data = '\n{\n  "query": {\n    "bool": {\n       "must" : [\n       {  "term" : { "type" : "pde" } },\n       { "terms" : { "ancestors.ilx" : ["ilx_0115066" , "ilx_0103210", "ilx_0115072", "ilx_0115070"] } },\n       { "multi_match" : {\n         "query":    "%s", \n         "fields": [ "label", "definition" ] \n       } }\n]\n    }\n  }\n}\n' %query_string
         else:
             data = '\n{\n  "query": {\n    "bool": {\n       "must" : [\n       {  "term" : { "type" : "pde" } },\n              { "multi_match" : {\n         "query":    "%s", \n         "fields": [ "label", "definition" ] \n       } }\n]\n    }\n  }\n}\n' %query_string
+    elif type is 'fde':
+        if anscestors:
+            data = '\n{\n  "query": {\n    "bool": {\n       "must" : [\n       {  "term" : { "type" : "fde" } },\n       { "terms" : { "ancestors.ilx" : ["ilx_0115066" , "ilx_0103210", "ilx_0115072", "ilx_0115070"] } },\n       { "multi_match" : {\n         "query":    "%s", \n         "fields": [ "label", "definition" ] \n       } }\n]\n    }\n  }\n}\n' %query_string
+        else:
+            data = '\n{\n  "query": {\n    "bool": {\n       "must" : [\n       {  "term" : { "type" : "fde" } },\n              { "multi_match" : {\n         "query":    "%s", \n         "fields": [ "label", "definition" ] \n       } }\n]\n    }\n  }\n}\n' %query_string
+
     else:
-        print("ERROR: Valid types for SciCrunch query are 'cde' or 'pde'.  You set type: %s " %type)
+        print("ERROR: Valid types for SciCrunch query are 'cde','pde', or 'fde'.  You set type: %s " %type)
         print("ERROR: in function Utils.py/QuerySciCrunchElasticSearch")
         exit(1)
 
@@ -643,13 +649,13 @@ def map_variables_to_terms(df,apikey,directory, output_file=None,json_file=None,
             print("Query String: %s " %search_term)
 
             # for each column name, query Interlex for possible matches
-            search_result = GetNIDMTermsFromSciCrunch(apikey, search_term, type='cde', ancestor=ancestor)
+            search_result = GetNIDMTermsFromSciCrunch(apikey, search_term, type='fde', ancestor=ancestor)
 
             temp = search_result.copy()
             #print("Search Term: %s" %search_term)
             if len(temp)!=0:
 
-                print("InterLex Terms (CDEs):")
+                print("InterLex Terms (FDEs):")
                 #print("Search Results: ")
                 for key, value in temp.items():
 
@@ -657,6 +663,24 @@ def map_variables_to_terms(df,apikey,directory, output_file=None,json_file=None,
 
                     search_result[str(option)] = key
                     option = option+1
+
+            # for each column name, query Interlex for possible matches
+            cde_result = GetNIDMTermsFromSciCrunch(apikey, search_term, type='cde', ancestor=ancestor)
+            if len(cde_result) != 0:
+                search_result.update(cde_result)
+                temp = search_result.copy()
+
+                if len(temp)!=0:
+                    print()
+                    print("InterLex Terms (CDEs):")
+                    #print("Search Results: ")
+                    for key, value in temp.items():
+
+                        print("%d: Label: %s \t Definition: %s \t Preferred URL: %s " %(option,search_result[key]['label'],search_result[key]['definition'],search_result[key]['preferred_url']  ))
+
+                        search_result[str(option)] = key
+                        option = option+1
+
 
             # for each column name, query Interlex for possible matches
             pde_result = GetNIDMTermsFromSciCrunch(apikey, search_term, type='pde', ancestor=ancestor)
