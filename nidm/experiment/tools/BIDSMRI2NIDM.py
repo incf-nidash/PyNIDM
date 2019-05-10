@@ -340,20 +340,20 @@ def bidsmri2project(directory, args):
 
 
 
-            if file_tpl.modality == 'anat':
+            if file_tpl.entities['datatype']=='anat':
                 #do something with anatomicals
                 acq_obj = MRObject(acq)
                 #add image contrast type
-                if file_tpl.type in BIDS_Constants.scans:
-                    acq_obj.add_attributes({Constants.NIDM_IMAGE_CONTRAST_TYPE:BIDS_Constants.scans[file_tpl.type]})
+                if file_tpl.entities['suffix'] in BIDS_Constants.scans:
+                    acq_obj.add_attributes({Constants.NIDM_IMAGE_CONTRAST_TYPE:BIDS_Constants.scans[file_tpl.entities['suffix']]})
                 else:
-                    logging.info("WARNING: No matching image contrast type found in BIDS_Constants.py for %s" % file_tpl.type)
+                    logging.info("WARNING: No matching image contrast type found in BIDS_Constants.py for %s" % file_tpl.entities['suffix'])
 
                 #add image usage type
-                if file_tpl.modality in BIDS_Constants.scans:
-                    acq_obj.add_attributes({Constants.NIDM_IMAGE_USAGE_TYPE:BIDS_Constants.scans[file_tpl.modality]})
+                if file_tpl.entities['datatype'] in BIDS_Constants.scans:
+                    acq_obj.add_attributes({Constants.NIDM_IMAGE_USAGE_TYPE:BIDS_Constants.scans[file_tpl.entities['datatype']]})
                 else:
-                    logging.info("WARNING: No matching image usage type found in BIDS_Constants.py for %s" % file_tpl.modality)
+                    logging.info("WARNING: No matching image usage type found in BIDS_Constants.py for %s" % file_tpl.entities['datatype'])
                 #add file link
                 #make relative link to
                 acq_obj.add_attributes({Constants.NIDM_FILENAME:getRelPathToBIDS(file_tpl.filename, directory)})
@@ -364,7 +364,7 @@ def bidsmri2project(directory, args):
                 else:
                     logging.info("WARNINGL file %s doesn't exist! No SHA512 sum stored in NIDM files..." %join(directory,file_tpl.filename))
                 #get associated JSON file if exists
-                json_data = bids_layout.get_metadata(file_tpl.filename)
+                json_data = (bids_layout.get(suffix=file_tpl.entities['suffix'],subject=subject_id))[0].metadata
                 if json_data:
                     for key in json_data:
                         if key in BIDS_Constants.json_keys:
@@ -372,20 +372,20 @@ def bidsmri2project(directory, args):
                                 acq_obj.add_attributes({BIDS_Constants.json_keys[key.replace(" ", "_")]:''.join(str(e) for e in json_data[key])})
                             else:
                                 acq_obj.add_attributes({BIDS_Constants.json_keys[key.replace(" ", "_")]:json_data[key]})
-            elif file_tpl.modality == 'func':
+            elif file_tpl.entities['datatype'] == 'func':
                 #do something with functionals
                 acq_obj = MRObject(acq)
                 #add image contrast type
-                if file_tpl.type in BIDS_Constants.scans:
-                    acq_obj.add_attributes({Constants.NIDM_IMAGE_CONTRAST_TYPE:BIDS_Constants.scans[file_tpl.type]})
+                if file_tpl.entities['suffix'] in BIDS_Constants.scans:
+                    acq_obj.add_attributes({Constants.NIDM_IMAGE_CONTRAST_TYPE:BIDS_Constants.scans[file_tpl.entities['suffix']]})
                 else:
-                    logging.info("WARNING: No matching image contrast type found in BIDS_Constants.py for %s" % file_tpl.type)
+                    logging.info("WARNING: No matching image contrast type found in BIDS_Constants.py for %s" % file_tpl.entities['suffix'])
 
                 #add image usage type
-                if file_tpl.modality in BIDS_Constants.scans:
-                    acq_obj.add_attributes({Constants.NIDM_IMAGE_USAGE_TYPE:BIDS_Constants.scans[file_tpl.modality]})
+                if file_tpl.entities['datatype'] in BIDS_Constants.scans:
+                    acq_obj.add_attributes({Constants.NIDM_IMAGE_USAGE_TYPE:BIDS_Constants.scans[file_tpl.entities['datatype']]})
                 else:
-                    logging.info("WARNING: No matching image usage type found in BIDS_Constants.py for %s" % file_tpl.modality)
+                    logging.info("WARNING: No matching image usage type found in BIDS_Constants.py for %s" % file_tpl.entities['datatype'])
                 #add file link
                 acq_obj.add_attributes({Constants.NIDM_FILENAME:getRelPathToBIDS(file_tpl.filename, directory)})
                 #add sha512 sum
@@ -394,11 +394,11 @@ def bidsmri2project(directory, args):
                 else:
                     logging.info("WARNINGL file %s doesn't exist! No SHA512 sum stored in NIDM files..." %join(directory,file_tpl.filename))
 
-                if 'run' in file_tpl._fields:
-                    acq_obj.add_attributes({BIDS_Constants.json_keys["run"]:file_tpl.run})
+                if 'run' in file_tpl.entities:
+                    acq_obj.add_attributes({BIDS_Constants.json_keys["run"]:file_tpl.entities['run']})
 
                 #get associated JSON file if exists
-                json_data = bids_layout.get_metadata(file_tpl.filename)
+                json_data = (bids_layout.get(suffix=file_tpl.entities['suffix'],subject=subject_id))[0].metadata
 
                 if json_data:
                     for key in json_data:
@@ -409,10 +409,10 @@ def bidsmri2project(directory, args):
                                 acq_obj.add_attributes({BIDS_Constants.json_keys[key.replace(" ", "_")]:json_data[key]})
 
                 #get associated events TSV file
-                if 'run' in file_tpl._fields:
-                    events_file = bids_layout.get(subject=subject_id, extensions=['.tsv'],modality=file_tpl.modality,task=file_tpl.task,run=file_tpl.run)
+                if 'run' in file_tpl.entities:
+                    events_file = bids_layout.get(subject=subject_id, extensions=['.tsv'],modality=file_tpl.entities['datatype'],task=file_tpl.entities['task'],run=file_tpl.entities['run'])
                 else:
-                    events_file = bids_layout.get(subject=subject_id, extensions=['.tsv'],modality=file_tpl.modality,task=file_tpl.task)
+                    events_file = bids_layout.get(subject=subject_id, extensions=['.tsv'],modality=file_tpl.entities['datatype'],task=file_tpl.entities['task'])
                 #if there is an events file then this is task-based so create an acquisition object for the task file and link
                 if events_file:
                     #for now create acquisition object and link it to the associated scan
@@ -423,20 +423,20 @@ def bidsmri2project(directory, args):
                     #link it to appropriate MR acquisition entity
                     events_obj.wasAttributedTo(acq_obj)
 
-            elif file_tpl.modality == 'dwi':
+            elif file_tpl.entities['datatype'] == 'dwi':
                 #do stuff with with dwi scans...
                 acq_obj = MRObject(acq)
                    #add image contrast type
-                if file_tpl.type in BIDS_Constants.scans:
-                    acq_obj.add_attributes({Constants.NIDM_IMAGE_CONTRAST_TYPE:BIDS_Constants.scans[file_tpl.type]})
+                if file_tpl.entities['suffix'] in BIDS_Constants.scans:
+                    acq_obj.add_attributes({Constants.NIDM_IMAGE_CONTRAST_TYPE:BIDS_Constants.scans[file_tpl.entities['suffix']]})
                 else:
-                    logging.info("WARNING: No matching image contrast type found in BIDS_Constants.py for %s" % file_tpl.type)
+                    logging.info("WARNING: No matching image contrast type found in BIDS_Constants.py for %s" % file_tpl.entities['suffix'])
 
                 #add image usage type
-                if file_tpl.modality in BIDS_Constants.scans:
+                if file_tpl.entities['datatype'] in BIDS_Constants.scans:
                     acq_obj.add_attributes({Constants.NIDM_IMAGE_USAGE_TYPE:BIDS_Constants.scans["dti"]})
                 else:
-                    logging.info("WARNING: No matching image usage type found in BIDS_Constants.py for %s" % file_tpl.modality)
+                    logging.info("WARNING: No matching image usage type found in BIDS_Constants.py for %s" % file_tpl.entities['datatype'])
                  #add file link
                 acq_obj.add_attributes({Constants.NIDM_FILENAME:getRelPathToBIDS(file_tpl.filename, directory)})
                 #add sha512 sum
@@ -449,7 +449,7 @@ def bidsmri2project(directory, args):
                     acq_obj.add_attributes({BIDS_Constants.json_keys["run"]:file_tpl.run})
 
                 #get associated JSON file if exists
-                json_data = bids_layout.get_metadata(file_tpl.filename)
+                json_data = (bids_layout.get(suffix=file_tpl.entities['suffix'],subject=subject_id))[0].metadata
 
                 if json_data:
                     for key in json_data:

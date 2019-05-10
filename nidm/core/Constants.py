@@ -16,6 +16,8 @@ from prov.model import Namespace as provNamespace
 from prov.constants import PROV_ATTRIBUTE_QNAMES, PROV_ATTRIBUTE_LITERALS, \
 	PROV_N_MAP
 
+
+
 PROV = Namespace('http://www.w3.org/ns/prov#')
 PROVONE = provNamespace('provone', 'http://purl.dataone.org/provone/2015/01/15/ontology#')
 
@@ -94,13 +96,16 @@ namespaces = {
 # Empty graph used to compute qnames
 q_graph = Graph()
 for name, namespace in namespaces.items():
-    q_graph.bind(name, namespace)
+	q_graph.bind(name, namespace)
 
 # DBK Added - Empty graph using provtoolbox used to compute qnames
 # dj: chnaged to a new class
 class NIDMDocument(ProvDocument):
-    def __init__(self, namespaces):
-        super(NIDMDocument, self).__init__(namespaces=namespaces)
+	def __init__(self, namespaces=None):
+		if namespaces is not None:
+			super(NIDMDocument, self).__init__(namespaces=namespaces)
+		else:
+			super(NIDMDocument, self).__init__()
 
 
 # NIDM constants

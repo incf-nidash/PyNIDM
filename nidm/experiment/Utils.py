@@ -260,13 +260,12 @@ def add_metadata_for_subject (rdf_graph,subject_uri,namespaces,nidm_obj):
                 nidm_obj.add_attributes({predicate : get_RDFliteral_type(objects)})
 
 
-def QuerySciCrunchElasticSearch(key,query_string,cde_only=False, anscestors=True):
+def QuerySciCrunchElasticSearch(key,query_string,type='cde', anscestors=True):
     '''
     This function will perform an elastic search in SciCrunch on the [query_string] using API [key] and return the json package.
     :param key: API key from sci crunch
     :param query_string: arbitrary string to search for terms
-    :param cde_only: default=False but if set will query CDE's only not CDE + more general terms...CDE is an instantiation of a term for
-    a particular use.
+    :param type: default is 'CDE'.  Acceptible values are 'cde' or 'pde'.
     :return: json document of results form elastic search
     '''
 
@@ -286,34 +285,43 @@ def QuerySciCrunchElasticSearch(key,query_string,cde_only=False, anscestors=True
     params = (
         ('key', key),
     )
-    if cde_only:
+    if type is 'cde':
         if anscestors:
             data = '\n{\n  "query": {\n    "bool": {\n       "must" : [\n       {  "term" : { "type" : "cde" } },\n       { "terms" : { "ancestors.ilx" : ["ilx_0115066" , "ilx_0103210", "ilx_0115072", "ilx_0115070"] } },\n       { "multi_match" : {\n         "query":    "%s", \n         "fields": [ "label", "definition" ] \n       } }\n]\n    }\n  }\n}\n' %query_string
         else:
             data = '\n{\n  "query": {\n    "bool": {\n       "must" : [\n       {  "term" : { "type" : "cde" } },\n             { "multi_match" : {\n         "query":    "%s", \n         "fields": [ "label", "definition" ] \n       } }\n]\n    }\n  }\n}\n' %query_string
-    else:
+    elif type is 'pde':
         if anscestors:
-            data = '\n{\n  "query": {\n    "bool": {\n       "must" : [\n       {  "terms" : { "type" : ["cde" , "term", "pde"] } },\n       { "terms" : { "ancestors.ilx" : ["ilx_0115066" , "ilx_0103210", "ilx_0115072", "ilx_0115070"] } },\n       { "multi_match" : {\n         "query":    "%s", \n         "fields": [ "label", "definition" ] \n       } }\n]\n    }\n  }\n}\n' %query_string
+            data = '\n{\n  "query": {\n    "bool": {\n       "must" : [\n       {  "term" : { "type" : "pde" } },\n       { "terms" : { "ancestors.ilx" : ["ilx_0115066" , "ilx_0103210", "ilx_0115072", "ilx_0115070"] } },\n       { "multi_match" : {\n         "query":    "%s", \n         "fields": [ "label", "definition" ] \n       } }\n]\n    }\n  }\n}\n' %query_string
         else:
-            data = '\n{\n  "query": {\n    "bool": {\n       "must" : [\n       {  "terms" : { "type" : ["cde" , "term", "pde"] } },\n              { "multi_match" : {\n         "query":    "%s", \n         "fields": [ "label", "definition" ] \n       } }\n]\n    }\n  }\n}\n' %query_string
+            data = '\n{\n  "query": {\n    "bool": {\n       "must" : [\n       {  "term" : { "type" : "pde" } },\n              { "multi_match" : {\n         "query":    "%s", \n         "fields": [ "label", "definition" ] \n       } }\n]\n    }\n  }\n}\n' %query_string
+    elif type is 'fde':
+        if anscestors:
+            data = '\n{\n  "query": {\n    "bool": {\n       "must" : [\n       {  "term" : { "type" : "fde" } },\n       { "terms" : { "ancestors.ilx" : ["ilx_0115066" , "ilx_0103210", "ilx_0115072", "ilx_0115070"] } },\n       { "multi_match" : {\n         "query":    "%s", \n         "fields": [ "label", "definition" ] \n       } }\n]\n    }\n  }\n}\n' %query_string
+        else:
+            data = '\n{\n  "query": {\n    "bool": {\n       "must" : [\n       {  "term" : { "type" : "fde" } },\n              { "multi_match" : {\n         "query":    "%s", \n         "fields": [ "label", "definition" ] \n       } }\n]\n    }\n  }\n}\n' %query_string
+
+    else:
+        print("ERROR: Valid types for SciCrunch query are 'cde','pde', or 'fde'.  You set type: %s " %type)
+        print("ERROR: in function Utils.py/QuerySciCrunchElasticSearch")
+        exit(1)
 
     response = requests.post('https://scicrunch.org/api/1/elastic-ilx/interlex/term/_search#', headers=headers, params=params, data=data)
 
     return json.loads(response.text)
 
-def GetNIDMTermsFromSciCrunch(key,query_string,cde_only=False, ancestor=True):
+def GetNIDMTermsFromSciCrunch(key,query_string,type='cde', ancestor=True):
     '''
     Helper function which issues elastic search query of SciCrunch using QuerySciCrunchElasticSearch function and returns terms list
     with label, definition, and preferred URLs in dictionary
     :param key: API key from sci crunch
     :param query_string: arbitrary string to search for terms
-    :param cde_only: default=False but if set will query CDE's only not CDE + more general terms...CDE is an instantiation of a term for
-    a particular use.
+    :param type: should be 'cde' or 'pde' for the moment
     :param ancestor: Boolean flag to tell Interlex elastic search to use ancestors (i.e. tagged terms) or not
     :return: dictionary with keys 'ilx','label','definition','preferred_url'
     '''
 
-    json_data = QuerySciCrunchElasticSearch(key, query_string,cde_only,ancestor)
+    json_data = QuerySciCrunchElasticSearch(key, query_string,type,ancestor)
     results={}
     #check if query was successful
     if json_data['timed_out'] != True:
@@ -545,13 +553,14 @@ def getSubjIDColumn(column_to_terms,df):
         id_field=df.columns[int(selection)-1]
     return id_field
 
-def map_variables_to_terms(df,apikey,directory, output_file=None,json_file=None,owl_file=None):
+def map_variables_to_terms(df,apikey,directory, output_file=None,json_file=None,owl_file='nidm'):
     '''
 
     :param df: data frame with first row containing variable names
     :param json_file: optional json document with variable names as keys and minimal fields "definition","label","url"
     :param apikey: scicrunch key for rest API queries
-    :param owl_file: optional OWL file for additional terms
+    :param owl_file: if owl_file is default parameter then NIDM OWL files are loaded (internet connection required) else
+    local owl file is loaded pointed to by parameter...e.g. owl_file='/.../.../my_owl_file
     :param output_file: output filename to save variable-> term mappings
     :param directory: if output_file parameter is set to None then use this directory to store default JSON mapping file
     if doing variable->term mappings
@@ -623,64 +632,115 @@ def map_variables_to_terms(df,apikey,directory, output_file=None,json_file=None,
         ancestor = True
 
         # load NIDM OWL files if user requested it
-        if owl_file:
+        if owl_file=='nidm':
             nidm_owl_graph = load_nidm_owl_files()
+
+        # else load user-supplied owl file
+        else:
+            nidm_owl_graph = Graph()
+            nidm_owl_graph.parse(location=owl_file)
 
         # loop to find a term definition by iteratively searching InterLex...or defining your own
         while go_loop:
             # variable for numbering options returned from elastic search
             option = 1
 
-
+            print()
+            print("Query String: %s " %search_term)
 
             # for each column name, query Interlex for possible matches
-            search_result = GetNIDMTermsFromSciCrunch(apikey, search_term, cde_only=True, ancestor=ancestor)
+            search_result = GetNIDMTermsFromSciCrunch(apikey, search_term, type='fde', ancestor=ancestor)
 
             temp = search_result.copy()
             #print("Search Term: %s" %search_term)
-            print()
-            print("InterLex Terms:")
-            #print("Search Results: ")
-            for key, value in temp.items():
+            if len(temp)!=0:
 
-                print("%d: Label: %s \t Definition: %s \t Preferred URL: %s " %(option,search_result[key]['label'],search_result[key]['definition'],search_result[key]['preferred_url']  ))
+                print("InterLex Terms (FDEs):")
+                #print("Search Results: ")
+                for key, value in temp.items():
 
-                search_result[str(option)] = key
-                option = option+1
+                    print("%d: Label: %s \t Definition: %s \t Preferred URL: %s " %(option,search_result[key]['label'],search_result[key]['definition'],search_result[key]['preferred_url']  ))
 
+                    search_result[str(option)] = key
+                    option = option+1
+
+            # for each column name, query Interlex for possible matches
+            cde_result = GetNIDMTermsFromSciCrunch(apikey, search_term, type='cde', ancestor=ancestor)
+            if len(cde_result) != 0:
+                search_result.update(cde_result)
+                temp = search_result.copy()
+
+                if len(temp)!=0:
+                    print()
+                    print("InterLex Terms (CDEs):")
+                    #print("Search Results: ")
+                    for key, value in temp.items():
+
+                        print("%d: Label: %s \t Definition: %s \t Preferred URL: %s " %(option,search_result[key]['label'],search_result[key]['definition'],search_result[key]['preferred_url']  ))
+
+                        search_result[str(option)] = key
+                        option = option+1
+
+
+            # for each column name, query Interlex for possible matches
+            pde_result = GetNIDMTermsFromSciCrunch(apikey, search_term, type='pde', ancestor=ancestor)
+            if len(pde_result) != 0:
+                search_result.update(pde_result)
+                temp = search_result.copy()
+
+                if len(temp)!=0:
+                    print()
+                    print("InterLex Terms (PDEs):")
+                    #print("Search Results: ")
+                    for key, value in temp.items():
+
+                        print("%d: Label: %s \t Definition: %s \t Preferred URL: %s " %(option,search_result[key]['label'],search_result[key]['definition'],search_result[key]['preferred_url']  ))
+
+                        search_result[str(option)] = key
+                        option = option+1
 
 
             # if user supplied an OWL file to search in for terms
-            if owl_file:
-                # Add existing NIDM Terms as possible selections which fuzzy match the search_term
-                nidm_constants_query = fuzzy_match_terms_from_graph(nidm_owl_graph, search_term)
+            #if owl_file:
 
-                for key, subdict in nidm_constants_query.items():
-                    if nidm_constants_query[key]['score'] > min_match_score:
-                        print("%d: Label(NIDM Term): %s \t Definition: %s \t URL: %s" %(option, nidm_constants_query[key]['label'], nidm_constants_query[key]['definition'], nidm_constants_query[key]['url']))
-                        search_result[key] = {}
-                        search_result[key]['label']=nidm_constants_query[key]['label']
-                        search_result[key]['definition']=nidm_constants_query[key]['definition']
-                        search_result[key]['preferred_url']=nidm_constants_query[key]['url']
-                        search_result[str(option)] = key
-                        option=option+1
+            # Add existing NIDM Terms as possible selections which fuzzy match the search_term
+            nidm_constants_query = fuzzy_match_terms_from_graph(nidm_owl_graph, search_term)
+
+
+
+            first_nidm_term=True
+            for key, subdict in nidm_constants_query.items():
+                if nidm_constants_query[key]['score'] > min_match_score:
+                    if first_nidm_term:
+                        print()
+                        print("NIDM Terms:")
+                        first_nidm_term=False
+
+
+                    print("%d: Label(NIDM Term): %s \t Definition: %s \t URL: %s" %(option, nidm_constants_query[key]['label'], nidm_constants_query[key]['definition'], nidm_constants_query[key]['url']))
+                    search_result[key] = {}
+                    search_result[key]['label']=nidm_constants_query[key]['label']
+                    search_result[key]['definition']=nidm_constants_query[key]['definition']
+                    search_result[key]['preferred_url']=nidm_constants_query[key]['url']
+                    search_result[str(option)] = key
+                    option=option+1
             # else just give a list of the NIDM constants for user to choose
-            else:
-                match_scores={}
-                for index, item in enumerate(Constants.nidm_experiment_terms):
-                    match_scores[item._str] = fuzz.ratio(search_term, item._str)
-                match_scores_sorted=sorted(match_scores.items(), key=lambda x: x[1])
-                for score in match_scores_sorted:
-                    if score[1] > min_match_score:
-                        for term in Constants.nidm_experiment_terms:
-                            if term._str == score[0]:
-                                search_result[term._str] = {}
-                                search_result[term._str]['label']=score[0]
-                                search_result[term._str]['definition']=score[0]
-                                search_result[term._str]['preferred_url']=term._uri
-                                search_result[str(option)] = term._str
-                                print("%d: NIDM Constant: %s \t URI: %s" %(option,score[0],term._uri))
-                                option=option+1
+            #else:
+            #    match_scores={}
+            #    for index, item in enumerate(Constants.nidm_experiment_terms):
+            #        match_scores[item._str] = fuzz.ratio(search_term, item._str)
+            #    match_scores_sorted=sorted(match_scores.items(), key=lambda x: x[1])
+            #    for score in match_scores_sorted:
+            #        if score[1] > min_match_score:
+            #            for term in Constants.nidm_experiment_terms:
+            #                if term._str == score[0]:
+            #                    search_result[term._str] = {}
+            #                    search_result[term._str]['label']=score[0]
+            #                    search_result[term._str]['definition']=score[0]
+            #                    search_result[term._str]['preferred_url']=term._uri
+            #                    search_result[str(option)] = term._str
+            #                    print("%d: NIDM Constant: %s \t URI: %s" %(option,score[0],term._uri))
+            #                    option=option+1
 
             if ancestor:
                 # Broaden Interlex search
@@ -691,7 +751,7 @@ def map_variables_to_terms(df,apikey,directory, output_file=None,json_file=None,
             option = option+1
 
             # Add option to change query string
-            print("%d: Change Interlex query string from: \"%s\"" % (option, column))
+            print("%d: Change Interlex query string from: \"%s\"" % (option, search_term))
 
             # Add option to define your own term
             option = option + 1
