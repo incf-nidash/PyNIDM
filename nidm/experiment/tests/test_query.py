@@ -1,7 +1,8 @@
-from nidm.experiment import Project, Session, AssessmentAcquisition, AssessmentObject, AcquisitionObject, Query
+from nidm.experiment import Project, Session, AssessmentAcquisition, AssessmentObject, Acquisition, AcquisitionObject, Query
 from nidm.core import Constants
 from rdflib import URIRef
 import prov.model as pm
+from os import remove
 
 
 def test_GetProjectMetadata():
@@ -34,6 +35,7 @@ def test_GetProjectMetadata():
     #assert URIRef((Constants.NIDM_PROJECT_DESCRIPTION + "Test investigation")) in test
     #assert URIRef((Constants.NIDM_PROJECT_DESCRIPTION + "Test investigation2")) in test
 
+    remove("test2.ttl")
 
 
 def test_GetProjects():
@@ -48,7 +50,32 @@ def test_GetProjects():
 
     project_list = Query.GetProjectsUUID(["test.ttl"])
 
+    remove("test.ttl")
     assert URIRef(Constants.NIDM + "_123456") in project_list
+
+def test_GetParticipantIDs():
+
+    kwargs={Constants.NIDM_PROJECT_NAME:"FBIRN_PhaseII",Constants.NIDM_PROJECT_IDENTIFIER:9610,Constants.NIDM_PROJECT_DESCRIPTION:"Test investigation"}
+    project = Project(uuid="_123456",attributes=kwargs)
+    session = Session(uuid="_13579",project=project)
+    acq = Acquisition(uuid="_15793",session=session)
+    acq2 = Acquisition(uuid="_15795",session=session)
+
+    person=acq.add_person(attributes=({Constants.NIDM_SUBJECTID:"9999"}))
+    acq.add_qualified_association(person=person,role=Constants.NIDM_PARTICIPANT)
+
+    person2=acq2.add_person(attributes=({Constants.NIDM_SUBJECTID:"8888"}))
+    acq2.add_qualified_association(person=person2,role=Constants.NIDM_PARTICIPANT)
+
+    #save a turtle file
+    with open("test.ttl",'w') as f:
+        f.write(project.serializeTurtle())
+
+    participant_list = Query.GetParticipantIDs(["test.ttl"])
+
+    remove("test.ttl")
+    assert (participant_list['ID'].str.contains('9999').any())
+    assert (participant_list['ID'].str.contains('8888').any())
 
 def test_GetProjectInstruments():
 
@@ -72,6 +99,8 @@ def test_GetProjectInstruments():
 
 
     assessment_list = Query.GetProjectInstruments(["test.ttl"],"9610")
+
+    #remove("test.ttl")
 
     assert URIRef(Constants.NIDM + "NorthAmericanAdultReadingTest") in assessment_list
     assert URIRef(Constants.NIDM + "PositiveAndNegativeSyndromeScale") in assessment_list

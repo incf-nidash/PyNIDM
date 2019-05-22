@@ -107,7 +107,7 @@ def sparql_query_nidm(nidm_file_list,query, output_file=None, return_graph=False
         return qres_graph
 
 
-def GetProjectsUUID(nidm_file_list):
+def GetProjectsUUID(nidm_file_list,output_file=None):
     '''
 
     :param nidm_file_list: List of one or more NIDM files to query across for list of Projects
@@ -127,7 +127,7 @@ def GetProjectsUUID(nidm_file_list):
 
         }
     '''
-    df = sparql_query_nidm(nidm_file_list,query, output_file=None)
+    df = sparql_query_nidm(nidm_file_list,query, output_file=output_file)
 
     return df['uuid'].tolist()
 
@@ -278,24 +278,65 @@ def GetProjectInstruments(nidm_file_list, project_id):
     or related classes (e.g. nidm:NorthAmericanAdultReadingTest, nidm:PositiveAndNegativeSyndromeScale)
     :param nidm_file_list: List of one or more NIDM files to query across for list of Projects
     :param project_id: identifier of project you'd like to search for unique instruments
-    :return: List of unique instruments
+    :return: Dataframe of instruments and project titles
     """
     query = '''
         PREFIX prov: <http://www.w3.org/ns/prov#>
         PREFIX sio: <http://semanticscience.org/ontology/sio.owl#>
         PREFIX dct: <http://purl.org/dc/terms/>
-        SELECT DISTINCT  ?assessment_type
+        prefix onli: <http://neurolog.unice.fr/ontoneurolog/v3.0/instrument.owl#>
+        prefix dctypes: <http://purl.org/dc/dcmitype/>
+
+        SELECT  DISTINCT ?project_title ?assessment_type
         WHERE {
             ?entity rdf:type  onli:assessment-instrument ;
                 rdf:type ?assessment_type .
             ?entity prov:wasGeneratedBy/dct:isPartOf/dct:isPartOf ?project .
-            ?project sio:Identifier ?project_id .
 
-            FILTER( (!regex(str(?assessment_type), "http://www.w3.org/ns/prov#Entity")) &&  (!regex(str(?assessment_type), "http://purl.org/nidash/nidm#AcquisitionObject")) &&  (regex(str(?project_id), "%s")) )
+            ?project dctypes:title ?project_title .
+
+
+
+            FILTER( (!regex(str(?assessment_type), "http://www.w3.org/ns/prov#Entity")) &&  (!regex(str(?assessment_type), "http://purl.org/nidash/nidm#AcquisitionObject")) &&  (regex(str(?project), "%s")) )
             }
             ''' % project_id
     logging.info('Query: %s', query)
     df = sparql_query_nidm(nidm_file_list, query, output_file=None)
     results = df.to_dict()
     logging.info(results)
-    return df['assessment_type'].tolist()
+    #return df['assessment_type'].tolist()
+    return df
+
+
+
+def GetParticipantIDs(nidm_file_list,output_file=None):
+    '''
+    This query will return a list of all prov:agent entity UUIDs that prov:hadRole sio:Subject or Constants.NIDM_PARTICIPANT
+    :param nidm_file_list: List of one or more NIDM files to query across for list of Projects
+    :return: list of Constants.NIDM_PARTICIPANT UUIDs and Constants.NIDM_SUBJECTID
+    '''
+
+    query = '''
+
+        PREFIX prov:<http://www.w3.org/ns/prov#>
+        PREFIX sio: <http://semanticscience.org/ontology/sio.owl#>
+        PREFIX ndar: <https://ndar.nih.gov/api/datadictionary/v2/dataelement/>
+
+        SELECT DISTINCT ?uuid ?ID
+        WHERE {
+
+            ?activity rdf:type prov:Activity ;
+		        prov:qualifiedAssociation _:blanknode .
+
+	        _:blanknode prov:hadRole %s ;
+                 prov:agent ?uuid  .
+
+	        ?uuid %s ?ID .
+
+        }
+    ''' %(Constants.NIDM_PARTICIPANT,Constants.NIDM_SUBJECTID)
+
+    df = sparql_query_nidm(nidm_file_list,query, output_file=output_file)
+
+    return df
+
