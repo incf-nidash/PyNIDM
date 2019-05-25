@@ -313,6 +313,21 @@ NIDM_ACQUISITION_MODALITY = QualifiedName(provNamespace("nidm",NIDM),"hadAcquisi
 NIDM_ASSESSMENT_ACQUISITION = QualifiedName(provNamespace("onli", ONLI), "instrument-based-assessment")
 NIDM_ACQUISITION_ENTITY = QualifiedName(provNamespace("nidm", NIDM), "AcquisitionObject")
 
+NIDM_PROJECT_SOURCE = QualifiedName(provNamespace("dctypes", DCTYPES), "source")
+NIDM_HAD_NUMERICAL_VALUE = QualifiedName(provNamespace("nidm", NIDM), "hadNumericalValue")
+NIDM_BATH_SOLUTION = QualifiedName(provNamespace("nidm", NIDM), "BathSolution")
+NIDM_CELL_TYPE = QualifiedName(provNamespace("nidm", NIDM), "CellType")
+NIDM_CHANNEL_NUMBER = QualifiedName(provNamespace("nidm", NIDM), "ChannelNumber")
+NIDM_ELECTRODE_IMPEDANCE = QualifiedName(provNamespace("nidm", NIDM), "ElectrodeImpedance")
+NIDM_GROUP_LABEL = QualifiedName(provNamespace("nidm", NIDM), "GroupLabel")
+NIDM_HOLLOW_ELECTRODE_SOLUTION = QualifiedName(provNamespace("nidm", NIDM), "HollowElectrodeSolution")
+NIDM_HAD_IMAGE_CONTRACT_TYPE = QualifiedName(provNamespace("nidm", NIDM), "hadImageContractType")
+NIDM_HAD_IMAGE_USAGE_TYPE = QualifiedName(provNamespace("nidm", NIDM), "hadImageUsageType")
+NIDM_NUBMER_OF_CHANNELS = QualifiedName(provNamespace("nidm", NIDM), "NubmerOfChannels")
+NIDM_APPLIED_FILTER = QualifiedName(provNamespace("nidm", NIDM), "AppliedFilter")
+NIDM_SOLUTION_FLOW_SPEED = QualifiedName(provNamespace("nidm", NIDM), "SolutionFlowSpeed")
+NIDM_RECORDING_LOCATION = QualifiedName(provNamespace("nidm", NIDM), "RecordingLocation")
+
 NIDM_DEMOGRAPHICS_ENTITY = QualifiedName(provNamespace("nidm", NIDM), "DemographicsInstrument")
 NIDM_ASSESSMENT_USAGE_TYPE = QualifiedName(provNamespace("nidm", NIDM),"AssessmentUsageType")
 
