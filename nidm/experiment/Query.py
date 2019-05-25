@@ -38,7 +38,8 @@ import logging
 from .Utils import read_nidm
 from .Project import Project
 from nidm.core import Constants
-from json import dumps
+from json import dumps, loads
+import re
 
 def sparql_query_nidm(nidm_file_list,query, output_file=None, return_graph=False):
     '''
@@ -304,8 +305,7 @@ def GetProjectInstruments(nidm_file_list, project_id):
     df = sparql_query_nidm(nidm_file_list, query, output_file=None)
     results = df.to_dict()
     logging.info(results)
-    #return df['assessment_type'].tolist()
-    return df
+   return df
 
 
 
@@ -340,3 +340,149 @@ def GetParticipantIDs(nidm_file_list,output_file=None):
 
     return df
 
+
+def GetProjectsMetadata(nidm_file_list):
+    '''
+     :param nidm_file_list: List of one or more NIDM files to query for project meta data
+    :return: dataframe with two columns: "project_uuid" and "project_dentifier"
+    '''
+
+    query = '''
+        PREFIX sio: <http://semanticscience.org/ontology/sio.owl#>
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX nidm:<http://purl.org/nidash/nidm#>
+         SELECT DISTINCT ?property ?o ?s WHERE {{ ?s a nidm:Project . ?s ?property ?o }}
+    '''
+    df = sparql_query_nidm(nidm_file_list, query, output_file=None)
+
+    projects = {}
+    arr = df.values
+
+    for row in arr:
+        field = str(row[0])
+        value = str(row[1])
+        project = str(row[2])
+        if project not in projects:
+            projects[str(project)] = {}
+        # if field in field_whitelist:
+        projects[str(project)][field] = value
+
+    return (dumps({'projects': compressForJSONResponse(projects)}))
+
+
+def GetProjectsComputedMetadata(nidm_file_list):
+    '''
+     :param nidm_file_list: List of one or more NIDM files to query across for list of Projects
+    :return: dataframe with two columns: "project_uuid" and "project_dentifier"
+    '''
+
+    meta_data = loads(GetProjectsMetadata(nidm_file_list))
+    ExtractProjectSummary(meta_data, nidm_file_list)
+    compressed_meta_data = compressForJSONResponse(meta_data)
+
+    return (dumps(compressed_meta_data))
+
+
+def ExtractProjectSummary(meta_data, nidm_file_list):
+    '''
+
+    :param meta_data: a dictionary of projects containing their meta data as pulled from the nidm_file_list
+    :param nidm_file_list: List of NIDM files
+    :return:
+    '''
+    query = '''
+    PREFIX nidm:<http://purl.org/nidash/nidm#>
+        PREFIX prov: <http://www.w3.org/ns/prov#>
+        PREFIX ncicb: <http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#>
+        PREFIX ndar: <https://ndar.nih.gov/api/datadictionary/v2/dataelement/>
+        PREFIX obo: <http://purl.obolibrary.org/obo/>
+        PREFIX dct: <http://purl.org/dc/terms/>
+        SELECT DISTINCT ?id ?age ?gender ?hand ?assessment ?project
+        WHERE {
+          ?assessment prov:wasGeneratedBy ?acq .
+          ?acq prov:wasAssociatedWith ?person .
+          ?assessment ncicb:Age ?age .
+          ?assessment ndar:gender ?gender .
+          ?assessment obo:handedness ?hand .
+          ?person ndar:src_subject_id ?id .
+          ?acq dct:isPartOf ?activity .
+          ?activity dct:isPartOf ?project .
+          ?project a nidm:Project
+        }
+      '''
+
+    df = sparql_query_nidm(nidm_file_list, query, output_file=None)
+    projects = meta_data['projects']
+
+    arr = df.values
+    key = str(Constants.NIDM_NUMBER_OF_SUBJECTS)
+    for project_id, project in projects.items():
+        project[key] = 0
+        project['age_max'] = 0
+        project['age_min'] = sys.maxsize
+        project[str(Constants.NIDM_GENDER)] = []
+
+    for row in arr:
+        project_id = matchPrefix( str(row[5]) ) # 5th column is the project UUID
+        projects[project_id][str(Constants.NIDM_NUMBER_OF_SUBJECTS)] += 1
+
+        age = float(row[1])  # 1st column is age
+        projects[project_id]['age_min'] = min(age, projects[project_id]['age_min'])
+        projects[project_id]['age_max'] = max(age, projects[project_id]['age_max'])
+
+        gender = str(row[2])  # col 2 is gender
+        if gender not in projects[project_id][str(Constants.NIDM_GENDER)]:
+            projects[project_id][str(Constants.NIDM_GENDER)].append(gender)
+
+
+def expandNIDMAbbreviation(shortKey) -> str:
+    '''
+    Takes a shorthand identifier such as dct:description and returns the 
+    full URI http://purl.org/dc/terms/description
+
+    :param shortKey:
+    :type shortKey: str
+    :return:
+    '''
+    skey = str(shortKey)
+    match = re.search(r"^([^:]+):([^:]+)$", skey)
+    if match:
+        newkey = Constants.namespaces[match.group(1)] + match.group(2)
+    return newkey
+
+def compressForJSONResponse(data) -> dict:
+    '''
+    Takes a Dictionary and shortens any key by replacing a full URI with
+    the NIDM prefix
+
+    :param data: Data to seach for long URIs that can be replaced with prefixes
+    :return: Dictionary
+    '''
+    new_dict = {}
+
+    if isinstance(data,dict):
+        for key, value in data.items():
+            new_dict[matchPrefix(key)] = compressForJSONResponse(value)
+    else:
+        return data
+
+    return new_dict
+
+def matchPrefix(possible_URI) -> str:
+    '''
+    If the possible_URI is found in Constants.namespaces it will
+    be replaced with the prefix
+
+    :param possible_URI: URI string to look at
+    :type possible_URI: str
+    :return: Returns a
+    '''
+    for k, n in Constants.namespaces.items():
+        if possible_URI.startswith(n):
+            return "{}:{}".format(k, possible_URI.replace(n, ""))
+
+    # also check the NIDM prefix
+    if possible_URI.startswith(Constants.NIDM_URL):
+        return "{}:{}".format("nidm:", possible_URI.replace(Constants.NIDM_URL, ""))
+
+    return possible_URI
