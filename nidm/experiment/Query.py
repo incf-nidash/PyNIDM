@@ -304,7 +304,7 @@ def GetProjectInstruments(nidm_file_list, project_id):
     df = sparql_query_nidm(nidm_file_list, query, output_file=None)
     results = df.to_dict()
     logging.info(results)
-    #return df['assessment_type'].tolist()
+
     return df
 
 
