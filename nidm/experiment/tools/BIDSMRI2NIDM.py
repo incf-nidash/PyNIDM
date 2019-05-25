@@ -123,9 +123,10 @@ Example 5 (FULL MONTY): BIDS conversion with variable->term mappings, uses JSON 
     parser.add_argument('-o', dest='outputfile', required=False, default="nidm.ttl", help="Outputs turtle file called nidm.ttl in BIDS directory by default")
 
     args = parser.parse_args()
-
-
     directory = args.directory
+
+    if args.owl is None:
+        args.owl = 'nidm'
 
 
 
@@ -356,22 +357,22 @@ def bidsmri2project(directory, args):
                     logging.info("WARNING: No matching image usage type found in BIDS_Constants.py for %s" % file_tpl.entities['datatype'])
                 #add file link
                 #make relative link to
-                acq_obj.add_attributes({Constants.NIDM_FILENAME:getRelPathToBIDS(file_tpl.filename, directory)})
+                acq_obj.add_attributes({Constants.NIDM_FILENAME:getRelPathToBIDS(join(file_tpl.dirname,file_tpl.filename), directory)})
 
                 #add sha512 sum
-                if isfile(join(directory,file_tpl.filename)):
-                    acq_obj.add_attributes({Constants.CRYPTO_SHA512:getsha512(join(directory,file_tpl.filename))})
+                if isfile(join(directory,file_tpl.dirname,file_tpl.filename)):
+                    acq_obj.add_attributes({Constants.CRYPTO_SHA512:getsha512(join(directory,file_tpl.dirname,file_tpl.filename))})
                 else:
-                    logging.info("WARNINGL file %s doesn't exist! No SHA512 sum stored in NIDM files..." %join(directory,file_tpl.filename))
+                    logging.info("WARNINGL file %s doesn't exist! No SHA512 sum stored in NIDM files..." %join(directory,file_tpl.dirname,file_tpl.filename))
                 #get associated JSON file if exists
                 json_data = (bids_layout.get(suffix=file_tpl.entities['suffix'],subject=subject_id))[0].metadata
-                if json_data:
-                    for key in json_data:
+                if len(json_data.info)>0:
+                    for key in json_data.info.items():
                         if key in BIDS_Constants.json_keys:
-                            if type(json_data[key]) is list:
-                                acq_obj.add_attributes({BIDS_Constants.json_keys[key.replace(" ", "_")]:''.join(str(e) for e in json_data[key])})
+                            if type(json_data.info[key]) is list:
+                                acq_obj.add_attributes({BIDS_Constants.json_keys[key.replace(" ", "_")]:''.join(str(e) for e in json_data.info[key])})
                             else:
-                                acq_obj.add_attributes({BIDS_Constants.json_keys[key.replace(" ", "_")]:json_data[key]})
+                                acq_obj.add_attributes({BIDS_Constants.json_keys[key.replace(" ", "_")]:json_data.info[key]})
             elif file_tpl.entities['datatype'] == 'func':
                 #do something with functionals
                 acq_obj = MRObject(acq)
@@ -386,13 +387,13 @@ def bidsmri2project(directory, args):
                     acq_obj.add_attributes({Constants.NIDM_IMAGE_USAGE_TYPE:BIDS_Constants.scans[file_tpl.entities['datatype']]})
                 else:
                     logging.info("WARNING: No matching image usage type found in BIDS_Constants.py for %s" % file_tpl.entities['datatype'])
-                #add file link
-                acq_obj.add_attributes({Constants.NIDM_FILENAME:getRelPathToBIDS(file_tpl.filename, directory)})
-                #add sha512 sum
-                if isfile(join(directory,file_tpl.filename)):
-                    acq_obj.add_attributes({Constants.CRYPTO_SHA512:getsha512(join(directory,file_tpl.filename))})
+                #make relative link to
+                acq_obj.add_attributes({Constants.NIDM_FILENAME:getRelPathToBIDS(join(file_tpl.dirname,file_tpl.filename), directory)})
+                 #add sha512 sum
+                if isfile(join(directory,file_tpl.dirname,file_tpl.filename)):
+                    acq_obj.add_attributes({Constants.CRYPTO_SHA512:getsha512(join(directory,file_tpl.dirname,file_tpl.filename))})
                 else:
-                    logging.info("WARNINGL file %s doesn't exist! No SHA512 sum stored in NIDM files..." %join(directory,file_tpl.filename))
+                    logging.info("WARNINGL file %s doesn't exist! No SHA512 sum stored in NIDM files..." %join(directory,file_tpl.dirname,file_tpl.filename))
 
                 if 'run' in file_tpl.entities:
                     acq_obj.add_attributes({BIDS_Constants.json_keys["run"]:file_tpl.entities['run']})
@@ -400,14 +401,13 @@ def bidsmri2project(directory, args):
                 #get associated JSON file if exists
                 json_data = (bids_layout.get(suffix=file_tpl.entities['suffix'],subject=subject_id))[0].metadata
 
-                if json_data:
-                    for key in json_data:
+                if len(json_data.info)>0:
+                    for key in json_data.info.items():
                         if key in BIDS_Constants.json_keys:
-                            if type(json_data[key]) is list:
-                                acq_obj.add_attributes({BIDS_Constants.json_keys[key.replace(" ", "_")]:''.join(str(e) for e in json_data[key])})
+                            if type(json_data.info[key]) is list:
+                                acq_obj.add_attributes({BIDS_Constants.json_keys[key.replace(" ", "_")]:''.join(str(e) for e in json_data.info[key])})
                             else:
-                                acq_obj.add_attributes({BIDS_Constants.json_keys[key.replace(" ", "_")]:json_data[key]})
-
+                                acq_obj.add_attributes({BIDS_Constants.json_keys[key.replace(" ", "_")]:json_data.info[key]})
                 #get associated events TSV file
                 if 'run' in file_tpl.entities:
                     events_file = bids_layout.get(subject=subject_id, extensions=['.tsv'],modality=file_tpl.entities['datatype'],task=file_tpl.entities['task'],run=file_tpl.entities['run'])
@@ -437,13 +437,13 @@ def bidsmri2project(directory, args):
                     acq_obj.add_attributes({Constants.NIDM_IMAGE_USAGE_TYPE:BIDS_Constants.scans["dti"]})
                 else:
                     logging.info("WARNING: No matching image usage type found in BIDS_Constants.py for %s" % file_tpl.entities['datatype'])
-                 #add file link
-                acq_obj.add_attributes({Constants.NIDM_FILENAME:getRelPathToBIDS(file_tpl.filename, directory)})
+                #make relative link to
+                acq_obj.add_attributes({Constants.NIDM_FILENAME:getRelPathToBIDS(join(file_tpl.dirname,file_tpl.filename), directory)})
                 #add sha512 sum
-                if isfile(join(directory,file_tpl.filename)):
-                    acq_obj.add_attributes({Constants.CRYPTO_SHA512:getsha512(join(directory,file_tpl.filename))})
+                if isfile(join(directory,file_tpl.dirname,file_tpl.filename)):
+                    acq_obj.add_attributes({Constants.CRYPTO_SHA512:getsha512(join(directory,file_tpl.dirname,file_tpl.filename))})
                 else:
-                    logging.info("WARNINGL file %s doesn't exist! No SHA512 sum stored in NIDM files..." %join(directory,file_tpl.filename))
+                    logging.info("WARNINGL file %s doesn't exist! No SHA512 sum stored in NIDM files..." %join(directory,file_tpl.dirname,file_tpl.filename))
 
                 if 'run' in file_tpl._fields:
                     acq_obj.add_attributes({BIDS_Constants.json_keys["run"]:file_tpl.run})
@@ -451,35 +451,34 @@ def bidsmri2project(directory, args):
                 #get associated JSON file if exists
                 json_data = (bids_layout.get(suffix=file_tpl.entities['suffix'],subject=subject_id))[0].metadata
 
-                if json_data:
-                    for key in json_data:
+                if len(json_data.info)>0:
+                    for key in json_data.info.items():
                         if key in BIDS_Constants.json_keys:
-                            if type(json_data[key]) is list:
-                                acq_obj.add_attributes({BIDS_Constants.json_keys[key.replace(" ", "_")]:''.join(str(e) for e in json_data[key])})
+                            if type(json_data.info[key]) is list:
+                                acq_obj.add_attributes({BIDS_Constants.json_keys[key.replace(" ", "_")]:''.join(str(e) for e in json_data.info[key])})
                             else:
-                                acq_obj.add_attributes({BIDS_Constants.json_keys[key.replace(" ", "_")]:json_data[key]})
-
+                                acq_obj.add_attributes({BIDS_Constants.json_keys[key.replace(" ", "_")]:json_data.info[key]})
                 #for bval and bvec files, what to do with those?
 
                 #for now, create new generic acquisition objects, link the files, and associate with the one for the DWI scan?
                 acq_obj_bval = AcquisitionObject(acq)
                 acq_obj_bval.add_attributes({PROV_TYPE:BIDS_Constants.scans["bval"]})
                 #add file link to bval files
-                acq_obj_bval.add_attributes({Constants.NIDM_FILENAME:getRelPathToBIDS(bids_layout.get_bval(file_tpl.filename), directory)})
+                acq_obj_bval.add_attributes({Constants.NIDM_FILENAME:getRelPathToBIDS(join(file_tpl.dirname,bids_layout.get_bval(file_tpl.filename)), directory)})
                 #add sha512 sum
-                if isfile(join(directory,file_tpl.filename)):
-                    acq_obj_bval.add_attributes({Constants.CRYPTO_SHA512:getsha512(join(directory,file_tpl.filename))})
+                if isfile(join(directory,file_tpl.dirname,file_tpl.filename)):
+                    acq_obj_bval.add_attributes({Constants.CRYPTO_SHA512:getsha512(join(directory,file_tpl.dirname,file_tpl.filename))})
                 else:
-                    logging.info("WARNINGL file %s doesn't exist! No SHA512 sum stored in NIDM files..." %join(directory,file_tpl.filename))
+                    logging.info("WARNINGL file %s doesn't exist! No SHA512 sum stored in NIDM files..." %join(directory,file_tpl.dirname,file_tpl.filename))
                 acq_obj_bvec = AcquisitionObject(acq)
                 acq_obj_bvec.add_attributes({PROV_TYPE:BIDS_Constants.scans["bvec"]})
                 #add file link to bvec files
-                acq_obj_bvec.add_attributes({Constants.NIDM_FILENAME:getRelPathToBIDS(bids_layout.get_bvec(file_tpl.filename),directory)})
-                if isfile(join(directory,file_tpl.filename)):
+                acq_obj_bvec.add_attributes({Constants.NIDM_FILENAME:getRelPathToBIDS(join(file_tpl.dirname,bids_layout.get_bvec(file_tpl.filename)),directory)})
+                if isfile(join(directory,file_tpl.dirname,file_tpl.filename)):
                     #add sha512 sum
-                    acq_obj_bvec.add_attributes({Constants.CRYPTO_SHA512:getsha512(join(directory,file_tpl.filename))})
+                    acq_obj_bvec.add_attributes({Constants.CRYPTO_SHA512:getsha512(join(directory,file_tpl.dirname,file_tpl.filename))})
                 else:
-                    logging.info("WARNINGL file %s doesn't exist! No SHA512 sum stored in NIDM files..." %join(directory,file_tpl.filename))
+                    logging.info("WARNINGL file %s doesn't exist! No SHA512 sum stored in NIDM files..." %join(directory,file_tpl.dirname,file_tpl.filename))
 
                 #link bval and bvec acquisition object entities together or is their association with DWI scan...
 
