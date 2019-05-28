@@ -37,7 +37,7 @@ import pandas as pd
 from argparse import ArgumentParser
 import logging
 import csv
-from nidm.experiment.Query import sparql_query_nidm, GetParticipantIDs,GetProjectInstruments,GetProjectsUUID
+from nidm.experiment.Query import sparql_query_nidm, GetParticipantIDs,GetProjectInstruments,GetProjectsUUID,GetInstrumentVariables
 import click
 from nidm.experiment.tools.click_base import cli
 
@@ -51,9 +51,11 @@ from nidm.experiment.tools.click_base import cli
               help="Parameter, if set, query will return participant IDs and prov:agent entity IDs")
 @click.option("--get_instruments", "-i", is_flag=True,required=False,
               help="Parameter, if set, query will return list of onli:assessment-instrument:")
+@click.option("--get_instrument_vars", "-iv", is_flag=True,required=False,
+              help="Parameter, if set, query will return list of onli:assessment-instrument: variables")
 @click.option("--output_file", "-o", required=False,
               help="Optional output file (CSV) to store results of query")
-def query(nidm_file_list, query_file, output_file, get_participants,get_instruments):
+def query(nidm_file_list, query_file, output_file, get_participants,get_instruments,get_instrument_vars):
 
     #query result list
     results = []
@@ -81,6 +83,26 @@ def query(nidm_file_list, query_file, output_file, get_participants,get_instrume
             #    wr.writerow(df)
 
             #pd.DataFrame.from_records(df,columns=["Instruments"]).to_csv(output_file)
+        else:
+            print(df)
+    elif get_instrument_vars:
+        #first get all project UUIDs then iterate and get instruments adding to output dataframe
+        project_list = GetProjectsUUID(nidm_file_list.split(','))
+        count=1
+        for project in project_list:
+            if count == 1:
+                df = GetInstrumentVariables(nidm_file_list.split(','),project_id=project)
+                count+=1
+            else:
+                df = df.append(GetInstrumentVariables(nidm_file_list.split(','),project_id=project))
+
+        #write dataframe
+        #if output file parameter specified
+        if (output_file is not None):
+
+            df.to_csv(output_file)
+        else:
+            print(df)
     else:
         #read query from text fiile
         with open(query_file, 'r') as fp:
