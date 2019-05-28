@@ -169,7 +169,7 @@ def add_brainvolume_data(nidmdoc, df, id_field, source_row, column_to_terms, png
                         ?activity prov:wasAssociatedWith ?agent ;
                             dct:isPartOf ?session  .
                         ?entity prov:wasGeneratedBy ?activity ;
-                            nidm:hasImageUsageType nidm:Anatomical .
+                            nidm:hadImageUsageType nidm:Anatomical .
                         ?agent rdf:type prov:Agent ;
                             ndar:src_subject_id ?nidm_subj_id .
 

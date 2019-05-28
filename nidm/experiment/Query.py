@@ -398,6 +398,7 @@ def ExtractProjectSummary(meta_data, nidm_file_list):
         PREFIX ndar: <https://ndar.nih.gov/api/datadictionary/v2/dataelement/>
         PREFIX obo: <http://purl.obolibrary.org/obo/>
         PREFIX dct: <http://purl.org/dc/terms/>
+
         SELECT DISTINCT ?id ?age ?gender ?hand ?assessment ?project
         WHERE {
           ?assessment prov:wasGeneratedBy ?acq .
