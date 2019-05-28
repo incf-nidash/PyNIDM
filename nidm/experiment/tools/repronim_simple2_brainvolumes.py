@@ -169,7 +169,7 @@ def add_brainvolume_data(nidmdoc, df, id_field, source_row, column_to_terms, png
                         ?activity prov:wasAssociatedWith ?agent ;
                             dct:isPartOf ?session  .
                         ?entity prov:wasGeneratedBy ?activity ;
-                            nidm:hasImageUsageType nidm:Anatomical .
+                            nidm:hadImageUsageType nidm:Anatomical .
                         ?agent rdf:type prov:Agent ;
                             ndar:src_subject_id ?nidm_subj_id .
 
@@ -272,14 +272,14 @@ def add_brainvolume_data(nidmdoc, df, id_field, source_row, column_to_terms, png
             #just for debugging.  resulting graph is too big right now for DOT graph creation so here I'm simply creating
             #a DOT graph for the processing of 1 row of the brain volumes CSV file so we can at least visually see the
             #model
-            if png_file is not None:
-                if first_row:
+            #if png_file is not None:
+            #    if first_row:
                     #serialize NIDM file
                     #with open(args.output_file,'w') as f:
                     #   print("Writing NIDM file...")
                     #   f.write(nidmdoc.serializeTurtle())
-                    nidmdoc.save_DotGraph(str(output_file + ".pdf"), format="pdf")
-                    first_row=False
+            #        nidmdoc.save_DotGraph(str(output_file + ".pdf"), format="pdf")
+            #        first_row=False
 
 
 
@@ -452,8 +452,10 @@ def main(argv):
         with open(args.output_file,'w') as f:
             print("Writing NIDM file...")
             f.write(nidmdoc.serializeTurtle())
-            #if args.png:
+            if args.png:
             #    nidmdoc.save_DotGraph(str(args.output_file + ".png"), format="png")
+
+                nidmdoc.save_DotGraph(str(args.output_file + ".pdf"), format="pdf")
 
 
 if __name__ == "__main__":

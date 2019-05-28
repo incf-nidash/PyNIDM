@@ -636,7 +636,7 @@ def map_variables_to_terms(df,apikey,directory, output_file=None,json_file=None,
             nidm_owl_graph = load_nidm_owl_files()
 
         # else load user-supplied owl file
-        else:
+        elif owl_file is not None:
             nidm_owl_graph = Graph()
             nidm_owl_graph.parse(location=owl_file)
 
@@ -793,9 +793,9 @@ def map_variables_to_terms(df,apikey,directory, output_file=None,json_file=None,
 
                 #get datatype
                 while True:
-                    term_datatype = input("Please enter the datatype (integer,real,categorical):\t")
+                    term_datatype = input("Please enter the datatype (string,integer,real,categorical):\t")
                     # check datatypes if not in [integer,real,categorical] repeat until it is
-                    if (term_datatype == "integer") or (term_datatype == "real") or (term_datatype == "categorical"):
+                    if (term_datatype == "string") or (term_datatype == "integer") or (term_datatype == "real") or (term_datatype == "categorical"):
                         break
 
                 # now check if term_datatype is categorical and if so let's get the label <-> value mappings
