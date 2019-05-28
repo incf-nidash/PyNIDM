@@ -309,6 +309,41 @@ def GetProjectInstruments(nidm_file_list, project_id):
 
     return df
 
+def GetInstrumentVariables(nidm_file_list, project_id):
+    '''
+    This function will return a comprehensive list of variables as part of any project instrument
+    :param nidm_file_list: List of one or more NIDM files to query across for list of Projects
+    :param project_id: identifier of project you'd like to search for unique instruments
+    :return: Dataframe of instruments, project titles, and variables
+    '''
+    query = '''
+        PREFIX prov: <http://www.w3.org/ns/prov#>
+        PREFIX sio: <http://semanticscience.org/ontology/sio.owl#>
+        PREFIX dct: <http://purl.org/dc/terms/>
+        prefix onli: <http://neurolog.unice.fr/ontoneurolog/v3.0/instrument.owl#>
+        prefix dctypes: <http://purl.org/dc/dcmitype/>
+
+        SELECT  DISTINCT ?project_title ?assessment_type ?variables
+        WHERE {
+            ?entity rdf:type  onli:assessment-instrument ;
+                rdf:type ?assessment_type ;
+                ?variables ?value .
+            ?entity prov:wasGeneratedBy/dct:isPartOf/dct:isPartOf ?project .
+
+            ?project dctypes:title ?project_title .
+
+
+
+            FILTER( (!regex(str(?assessment_type), "http://www.w3.org/ns/prov#Entity")) &&  (!regex(str(?assessment_type), "http://purl.org/nidash/nidm#AcquisitionObject")) &&  (regex(str(?project), "%s")) )
+            }
+            ''' % project_id
+    logging.info('Query: %s', query)
+    df = sparql_query_nidm(nidm_file_list, query, output_file=None)
+    results = df.to_dict()
+    logging.info(results)
+
+
+    return df
 
 def GetParticipantIDs(nidm_file_list,output_file=None):
     '''
