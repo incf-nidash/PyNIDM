@@ -107,7 +107,7 @@ class Core(object):
 
     def safe_string(self, string):
         return string.strip().replace(" ","_").replace("-", "_").replace(",", "_").replace("(", "_").replace(")","_")\
-            .replace("'","_").replace("/", "_")
+            .replace("'","_").replace("/", "_").replace("#","num")
 
 
 
