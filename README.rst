@@ -1,3 +1,4 @@
+.. image:: Logo.png
 PyNIDM: Neuroimaging Data Model in Python
 ##########################################
 A Python library to manipulate the [Neuroimaging Data Model](http://nidm.nidash.org). 
