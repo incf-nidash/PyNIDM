@@ -349,7 +349,11 @@ def InitializeInterlexRemote(key):
 
     InterLexRemote = oq.plugin.get('InterLex')
     ilx_cli = InterLexRemote(api_key=key, apiEndpoint=endpoint)
-    ilx_cli.setup()
+    try:
+        ilx_cli.setup()
+    except Exception as e:
+        print("error initializing InterLex connection...")
+        print("you will not be able to add new personal data elements.")
 
     return ilx_cli
 
@@ -595,9 +599,24 @@ def map_variables_to_terms(df,apikey,directory, output_file=None,json_file=None,
     # initialize InterLex connection
     try:
         ilx_obj = InitializeInterlexRemote(key=apikey)
-    except GithubException as e:
-        print("error initializing InterLex connection...")
-        print("you will not be able to add new personal data elements.")
+    except Exception as e:
+        print("ERROR: initializing InterLex connection...")
+        print("You will not be able to add new personal data elements.")
+        ilx_obj=None
+    # load NIDM OWL files if user requested it
+    if owl_file=='nidm':
+        try:
+            nidm_owl_graph = load_nidm_owl_files()
+        except Exception as e:
+            print()
+            print("ERROR: initializing internet connection to NIDM OWL files...")
+            print("You will not be able to select terms from NIDM OWL files.")
+            nidm_owl_graph = None
+
+    # else load user-supplied owl file
+    elif owl_file is not None:
+        nidm_owl_graph = Graph()
+        nidm_owl_graph.parse(location=owl_file)
 
     # iterate over columns
     for column in df.columns:
@@ -631,14 +650,35 @@ def map_variables_to_terms(df,apikey,directory, output_file=None,json_file=None,
         # flag for whether to use ancestors in Interlex query or not
         ancestor = True
 
-        # load NIDM OWL files if user requested it
-        if owl_file=='nidm':
-            nidm_owl_graph = load_nidm_owl_files()
 
-        # else load user-supplied owl file
-        elif owl_file is not None:
-            nidm_owl_graph = Graph()
-            nidm_owl_graph.parse(location=owl_file)
+
+        #Before we run anything here if both InterLex and NIDM OWL file access is down we should just alert
+        #the user and return cause we're not going to be able to do really anything
+        if (nidm_owl_graph is None) and (ilx_obj is None):
+            print("Both InterLex and NIDM OWL file access is not possible")
+            print("Check your internet connection and try again or supply a JSON mapping file with all the variables "
+                  "mapped to terms")
+            return column_to_terms
+
+
+        #added for an automatic mapping of participant_id, subject_id, and variants
+        if ( ("participant_id" in search_term.lower()) or ("subject_id" in search_term.lower()) or
+            (("participant" in search_term.lower()) and ("id" in search_term.lower())) or
+            (("subject" in search_term.lower()) and ("id" in search_term.lower())) ):
+
+            #map this term to Constants.NIDM_SUBJECTID
+            column_to_terms[column]['label'] = search_term
+            column_to_terms[column]['definition'] = "subject/participant identifier"
+            column_to_terms[column]['url'] = Constants.NIDM_SUBJECTID._str
+
+            print("Variable %s automatically mapped to participant/subject idenfier" %search_term)
+            print("Label: %s" %column_to_terms[column]['label'])
+            print("Definition: %s" %column_to_terms[column]['definition'])
+            print("Url: %s" %column_to_terms[column]['url'])
+            print("---------------------------------------------------------------------------------------")
+            # don't need to continue while loop because we've defined a term for this CSV column
+            go_loop=False
+            continue
 
         # loop to find a term definition by iteratively searching InterLex...or defining your own
         while go_loop:
@@ -648,31 +688,16 @@ def map_variables_to_terms(df,apikey,directory, output_file=None,json_file=None,
             print()
             print("Query String: %s " %search_term)
 
-            # for each column name, query Interlex for possible matches
-            search_result = GetNIDMTermsFromSciCrunch(apikey, search_term, type='fde', ancestor=ancestor)
 
-            temp = search_result.copy()
-            #print("Search Term: %s" %search_term)
-            if len(temp)!=0:
+            if ilx_obj is not None:
+                # for each column name, query Interlex for possible matches
+                search_result = GetNIDMTermsFromSciCrunch(apikey, search_term, type='fde', ancestor=ancestor)
 
-                print("InterLex Terms (FDEs):")
-                #print("Search Results: ")
-                for key, value in temp.items():
-
-                    print("%d: Label: %s \t Definition: %s \t Preferred URL: %s " %(option,search_result[key]['label'],search_result[key]['definition'],search_result[key]['preferred_url']  ))
-
-                    search_result[str(option)] = key
-                    option = option+1
-
-            # for each column name, query Interlex for possible matches
-            cde_result = GetNIDMTermsFromSciCrunch(apikey, search_term, type='cde', ancestor=ancestor)
-            if len(cde_result) != 0:
-                search_result.update(cde_result)
                 temp = search_result.copy()
-
+                #print("Search Term: %s" %search_term)
                 if len(temp)!=0:
-                    print()
-                    print("InterLex Terms (CDEs):")
+
+                    print("InterLex Terms (FDEs):")
                     #print("Search Results: ")
                     for key, value in temp.items():
 
@@ -681,49 +706,71 @@ def map_variables_to_terms(df,apikey,directory, output_file=None,json_file=None,
                         search_result[str(option)] = key
                         option = option+1
 
+                # for each column name, query Interlex for possible matches
+                cde_result = GetNIDMTermsFromSciCrunch(apikey, search_term, type='cde', ancestor=ancestor)
+                if len(cde_result) != 0:
+                    #only update search_result with new terms.  This handles what I consider a bug in InterLex queries
+                    #where FDE and CDE queries return the same terms.
+                    search_result.update(cde_result)
+                    #temp = search_result.copy()
+                    temp = cde_result.copy()
 
-            # for each column name, query Interlex for possible matches
-            pde_result = GetNIDMTermsFromSciCrunch(apikey, search_term, type='pde', ancestor=ancestor)
-            if len(pde_result) != 0:
-                search_result.update(pde_result)
-                temp = search_result.copy()
+                    if len(temp)!=0:
+                        print()
+                        print("InterLex Terms (CDEs):")
+                        #print("Search Results: ")
+                        for key, value in temp.items():
 
-                if len(temp)!=0:
-                    print()
-                    print("InterLex Terms (PDEs):")
-                    #print("Search Results: ")
-                    for key, value in temp.items():
+                            print("%d: Label: %s \t Definition: %s \t Preferred URL: %s " %(option,search_result[key]['label'],search_result[key]['definition'],search_result[key]['preferred_url']  ))
 
-                        print("%d: Label: %s \t Definition: %s \t Preferred URL: %s " %(option,search_result[key]['label'],search_result[key]['definition'],search_result[key]['preferred_url']  ))
+                            search_result[str(option)] = key
+                            option = option+1
 
-                        search_result[str(option)] = key
-                        option = option+1
+
+                # for each column name, query Interlex for possible matches
+                pde_result = GetNIDMTermsFromSciCrunch(apikey, search_term, type='pde', ancestor=ancestor)
+                if len(pde_result) != 0:
+                    search_result.update(pde_result)
+                    #temp = search_result.copy()
+                    temp = pde_result.copy()
+
+                    if len(temp)!=0:
+                        print()
+                        print("InterLex Terms (PDEs):")
+                        #print("Search Results: ")
+                        for key, value in temp.items():
+
+                            print("%d: Label: %s \t Definition: %s \t Preferred URL: %s " %(option,search_result[key]['label'],search_result[key]['definition'],search_result[key]['preferred_url']  ))
+
+                            search_result[str(option)] = key
+                            option = option+1
 
 
             # if user supplied an OWL file to search in for terms
             #if owl_file:
 
-            # Add existing NIDM Terms as possible selections which fuzzy match the search_term
-            nidm_constants_query = fuzzy_match_terms_from_graph(nidm_owl_graph, search_term)
+            if nidm_owl_graph is not None:
+                # Add existing NIDM Terms as possible selections which fuzzy match the search_term
+                nidm_constants_query = fuzzy_match_terms_from_graph(nidm_owl_graph, search_term)
 
 
 
-            first_nidm_term=True
-            for key, subdict in nidm_constants_query.items():
-                if nidm_constants_query[key]['score'] > min_match_score:
-                    if first_nidm_term:
-                        print()
-                        print("NIDM Terms:")
-                        first_nidm_term=False
+                first_nidm_term=True
+                for key, subdict in nidm_constants_query.items():
+                    if nidm_constants_query[key]['score'] > min_match_score:
+                        if first_nidm_term:
+                            print()
+                            print("NIDM Terms:")
+                            first_nidm_term=False
 
 
-                    print("%d: Label(NIDM Term): %s \t Definition: %s \t URL: %s" %(option, nidm_constants_query[key]['label'], nidm_constants_query[key]['definition'], nidm_constants_query[key]['url']))
-                    search_result[key] = {}
-                    search_result[key]['label']=nidm_constants_query[key]['label']
-                    search_result[key]['definition']=nidm_constants_query[key]['definition']
-                    search_result[key]['preferred_url']=nidm_constants_query[key]['url']
-                    search_result[str(option)] = key
-                    option=option+1
+                        print("%d: Label(NIDM Term): %s \t Definition: %s \t URL: %s" %(option, nidm_constants_query[key]['label'], nidm_constants_query[key]['definition'], nidm_constants_query[key]['url']))
+                        search_result[key] = {}
+                        search_result[key]['label']=nidm_constants_query[key]['label']
+                        search_result[key]['definition']=nidm_constants_query[key]['definition']
+                        search_result[key]['preferred_url']=nidm_constants_query[key]['url']
+                        search_result[str(option)] = key
+                        option=option+1
             # else just give a list of the NIDM constants for user to choose
             #else:
             #    match_scores={}
@@ -766,7 +813,7 @@ def map_variables_to_terms(df,apikey,directory, output_file=None,json_file=None,
                 # Wait for user input
                 selection = input("Please select an option (1:%d) from above: \t" % option)
 
-            # toggle use of ancestors in interlext query or not
+            # toggle use of ancestors in interlex query or not
             if int(selection) == (option-2):
                 ancestor=not ancestor
             # check if selection is to re-run query with new search term
