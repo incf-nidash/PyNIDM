@@ -57,5 +57,6 @@ MICRO = _version_micro
 VERSION = __version__
 REQUIRES = ["prov", "rdflib", "graphviz", "pydotplus", "pydot", "validators", "requests", "fuzzywuzzy", "pygithub",
             "pandas", "pybids", "duecredit", "pytest", "graphviz", "click", "ontquery"]
-INSTALL_REQUIRES = ["rdflib-jsonld"]
+INSTALL_REQUIRES = ["prov", "rdflib", "graphviz", "pydotplus", "pydot", "validators", "requests", "fuzzywuzzy", "pygithub",
+            "pandas", "pybids", "duecredit", "pytest", "graphviz", "click", "ontquery","rdflib-jsonld"]
 SCRIPTS = ["bin/nidm_query", "bin/BIDSMRI2NIDM", "bin/CSV2NIDM","bin/nidm_utils"]
