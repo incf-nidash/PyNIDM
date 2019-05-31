@@ -3,7 +3,7 @@ import os.path
 
 # Format expected by setup.py and doc/source/conf.py: string of form "X.Y.Z"
 _version_major = 0
-_version_minor = 1
+_version_minor = 2
 _version_micro = ''  # use '' for first of series, number for 1 and above
 _version_extra = 'dev'
 # _version_extra = ''  # Uncomment this for full releases
@@ -28,7 +28,7 @@ CLASSIFIERS = ["Development Status :: 3 - Alpha",
 
 # Description should be a one-liner:
 # TODO
-description = "NIDM: a Python NI-DM library"
+description = "NIDM: a Python NIDM library"
 # Long description will go up on the pypi page
 long_description = """
 NIDM
@@ -57,4 +57,5 @@ MICRO = _version_micro
 VERSION = __version__
 REQUIRES = ["prov", "rdflib", "graphviz", "pydotplus", "pydot", "validators", "requests", "fuzzywuzzy", "pygithub",
             "pandas", "pybids", "duecredit", "pytest", "graphviz", "click", "ontquery"]
-SCRIPTS = ["bin/nidm_query", "bin/BIDSMRI2NIDM", "bin/CSV2NIDM"]
+install_requires = ["rdflib-jsonld"]
+SCRIPTS = ["bin/nidm_query", "bin/BIDSMRI2NIDM", "bin/CSV2NIDM","bin/nidm_utils"]
