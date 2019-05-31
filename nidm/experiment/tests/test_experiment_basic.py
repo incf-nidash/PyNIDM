@@ -1,6 +1,7 @@
 import os,sys
 import pytest, pdb
-
+from os import remove
+import json
 from nidm.experiment import Project, Session, Acquisition, AcquisitionObject
 from nidm.core import Constants
 
@@ -178,6 +179,24 @@ def test_session_noparameters():
     assert len(proj.graph.get_records()) == 2
 
 
+def test_jsonld_exports():
+
+    kwargs={Constants.NIDM_PROJECT_NAME:"FBIRN_PhaseII",Constants.NIDM_PROJECT_IDENTIFIER:9610,Constants.NIDM_PROJECT_DESCRIPTION:"Test investigation"}
+    project = Project(uuid="_123456",attributes=kwargs)
+
+
+    #save a turtle file
+    with open("test.json",'w') as f:
+        f.write(project.serializeJSONLD())
+
+    #load in JSON file
+    with open("test.json") as json_file:
+        data = json.load(json_file)
+
+
+    assert(data["Identifier"]['@value'] == "9610")
+    #WIP  Read back in json-ld file and check that we have the project info
+    #remove("test.json")
 
 
 #TODO: checking
