@@ -77,13 +77,11 @@ Example 3:BIDS conversion with variable->term mappings, no existing mappings ava
 .. code-block:: bash
 
     $ bidsmri2nidm -d [root directory of BIDS dataset] -ilxkey [Your Interlex key] -owl -bidsignore
-Example 4: BIDS conversion with variable->term mappings, no existing mappings available, uses Interlex + NIDM OWL file for terms, adds nidm.ttl file BIDS dataset and .bidsignore file: 
+Example 4: (FULL MONTY): BIDS conversion with variable->term mappings, uses JSON mapping file first then uses Interlex + NIDM OWL file for terms, adds nidm.ttl file BIDS dataset and .bidsignore file: 
 
 .. code-block:: bash
 
-    $ bidsmri2nidm -d [root directory of BIDS dataset] -json_map [Your JSON file] -ilxkey [Your Interlex key] -owl -bidsignore
-
-Example 5 (FULL MONTY): BIDS conversion with variable->term mappings, uses JSON mapping file first then uses Interlex + NIDM OWL file for terms, adds nidm.ttl file BIDS dataset and .bidsignore file: 
+    $ bidsmri2nidm -d [root directory of BIDS dataset] -json_map [Your JSON file] -ilxkey [Your Interlex key] -bidsignore
 
 	 json mapping file has entries for each variable with mappings to formal terms.  Example:  
 
@@ -126,21 +124,19 @@ optional arguments:
 
 map variables to terms arguments:
 
--owl     Optional flag to query nidm-experiment OWL files
-
 -json_map, --json_map       Optional user-suppled JSON file containing variable-term mappings
 						  
 -ilxkey, --ilxkey     Interlex/SciCrunch API key to use for query
 
-CSV File to NIDM Conversion
----------------------------
+CSV File to NIDM and BIDS JSON Sidecar Conversion
+-------------------------------------------------
 This program will load in a CSV file and iterate over the header variable
 names performing an elastic search of https://scicrunch.org/ for NIDM-ReproNim
 tagged terms that fuzzy match the variable names. The user will then
 interactively pick a term to associate with the variable name. The resulting
 annotated CSV data will then be written to a NIDM data file.
 
-**While we're migrating to using 'click', this tool doesn't yet support "pynidm csv2nidm"
+**While we're migrating to using 'click', this tool doesn't yet support "nidm csv2nidm" so once you've installed PyNIDM toolbox then type "csv2nidm" in a terminal window and things should work
 
 .. code-block:: bash
 
@@ -157,8 +153,6 @@ optional arguments:
 -json_map     User-suppled JSON file containing variable-term mappings.
   
 -nidm     Optional NIDM file to add CSV->NIDM converted graph to an existing NIDM file
-
--owl     Optional flag to query nidm-experiment OWL files
 
 -json_map, --json_map       Optional user-suppled JSON file containing variable-term mappings
 						  
