@@ -311,35 +311,72 @@ class Core(object):
         #rdf_graph_parse = rdf_graph.parse(source=StringIO(self.serializeTurtle()),format='turtle')
         rdf_graph_parse = rdf_graph.parse(source=StringIO(self.graph.serialize(None, format='rdf', rdf_format='ttl')),format='turtle')
 
-        #Currently I'm not using this bec
-        context1 = {
-        "xsd": "http://www.w3.org/2001/XMLSchema#",
-        "prov": "http://www.w3.org/ns/prov#",
-        "nidm": "http://purl.org/nidash/nidm#",
-        "foaf": "http://xmlns.com/foaf/0.1/",
-
-        "agent": { "@type": "@id", "@id": "prov:agent" },
-        "entity": { "@type": "@id", "@id": "prov:entity" },
-        "activity": { "@type": "@id", "@id": "prov:activity" },
-        "hadPlan": { "@type": "@id", "@id": "prov:hadPlan" },
-        "hadRole": { "@type": "@id", "@id": "prov:hadRole" },
-        "wasAttributedTo": { "@type": "@id", "@id": "prov:wasAttributedTo" },
-        "association": { "@type": "@id", "@id": "prov:qualifiedAssociation" },
-        "usage": { "@type": "@id", "@id": "prov:qualifiedUsage" },
-        "generation": { "@type": "@id", "@id": "prov:qualifiedGeneration" },
-
-        "startedAtTime": { "@type": "xsd:dateTime", "@id": "prov:startedAtTime" },
-        "endedAtTime": { "@type": "xsd:dateTime", "@id": "prov:endedAtTime" },
 
 
-        }
-
-        context2 = self.prefix_to_context()
+        #context2 = self.prefix_to_context()
 
         #context = dict(context1,**context2)
-        context = context2
+        #context = context2
+
+        context=self.createDefaultJSONLDcontext()
 
         return rdf_graph_parse.serialize(format='json-ld', context=context, indent=4).decode('ASCII')
+
+    def createDefaultJSONLDcontext(self):
+        '''
+        This function returns a context dictionary for NIDM-E JSON serializations
+        :return: context dictionary
+        '''
+
+        #load current OWL files
+        term_graph=load_nidm_owl_files()
+
+        context=OrderedDict()
+
+        #some initial entries
+        context['@context'] = OrderedDict()
+        context['@context']['@version'] = 1.1
+        context['@context']['records'] = OrderedDict()
+        context['@context']['records']['@container'] = "@type"
+        context['@context']['records']['@id'] = "@graph"
+
+        #load Constants.namespaces
+
+        #add namespaces in Constants to context
+        context['@context'].update(Constants.namespaces)
+
+        #add some prov stuff
+        context['@context'].update = {
+            "xsd": {"@type": "@id","@id":"http://www.w3.org/2001/XMLSchema#"},
+            "prov": {"@type": "@id","@id":"http://www.w3.org/ns/prov#"},
+            "agent": { "@type": "@id", "@id": "prov:agent" },
+            "entity": { "@type": "@id", "@id": "prov:entity" },
+            "activity": { "@type": "@id", "@id": "prov:activity" },
+            "hadPlan": { "@type": "@id", "@id": "prov:hadPlan" },
+            "hadRole": { "@type": "@id", "@id": "prov:hadRole" },
+            "wasAttributedTo": { "@type": "@id", "@id": "prov:wasAttributedTo" },
+            "association": { "@type": "@id", "@id": "prov:qualifiedAssociation" },
+            "usage": { "@type": "@id", "@id": "prov:qualifiedUsage" },
+            "generation": { "@type": "@id", "@id": "prov:qualifiedGeneration" },
+            "startedAtTime": { "@type": "xsd:dateTime", "@id": "prov:startedAtTime" },
+            "endedAtTime": { "@type": "xsd:dateTime", "@id": "prov:endedAtTime" },
+        }
+        #cycle through OWL graph and add terms
+         # For anything that has a label
+        for s, o in sorted(term_graph.graph.subject_objects(RDFS['label'])):
+            json_key = str(o)
+            if '_' in json_key:
+                json_key = str(o).split('_')[1]
+            context['@context'][json_key] = OrderedDict()
+
+            if s in term_graph.ranges:
+                context['@context'][json_key]['@id'] = str(s)
+                context['@context'][json_key]['@type'] = next(iter(term_graph.ranges[s]))
+            else:
+                context['@context'][json_key] = str(s)
+
+        print(json.dumps(context, indent=2))
+        return context
 
     def save_DotGraph(self,filename,format=None):
         dot = prov_to_dot(self.graph)
