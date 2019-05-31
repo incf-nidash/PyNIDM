@@ -92,10 +92,8 @@ Example 2: No variable->term mapping, simple BIDS dataset conversion but storing
 \t BIDSMRI2NIDM.py -d [root directory of BIDS dataset] -o [PATH/nidm.ttl] \n\n
 Example 3: BIDS conversion with variable->term mappings, no existing mappings available, uses Interlex for terms, adds nidm.ttl file BIDS dataset and .bidsignore file: \n
 \t BIDSMRI2NIDM.py -d [root directory of BIDS dataset] -ilxkey [Your Interlex key] -bidsignore  \n\n
-Example 4: BIDS conversion with variable->term mappings, no existing mappings available, uses Interlex + NIDM OWL file for terms, adds nidm.ttl file BIDS dataset and .bidsignore file: \n
-\t BIDSMRI2NIDM.py -d [root directory of BIDS dataset] -ilxkey [Your Interlex key] -owl -bidsignore  \n\n
-Example 5 (FULL MONTY): BIDS conversion with variable->term mappings, uses JSON mapping file first then uses Interlex + NIDM OWL file for terms, adds nidm.ttl file BIDS dataset and .bidsignore file: \n
-\t BIDSMRI2NIDM.py -d [root directory of BIDS dataset] -json_map [Your JSON file] -ilxkey [Your Interlex key] -owl -bidsignore\n
+Example 4 (FULL MONTY): BIDS conversion with variable->term mappings, uses JSON mapping file first then uses Interlex + NIDM OWL file for terms, adds nidm.ttl file BIDS dataset and .bidsignore file: \n
+\t BIDSMRI2NIDM.py -d [root directory of BIDS dataset] -json_map [Your JSON file] -ilxkey [Your Interlex key] -bidsignore\n
 \t json mapping file has entries for each variable with mappings to formal terms.  Example:  \n
     \t { \n
     \t\t \"site\": { \n
@@ -118,15 +116,15 @@ Example 5 (FULL MONTY): BIDS conversion with variable->term mappings, uses JSON 
     mapvars_group = parser.add_argument_group('map variables to terms arguments')
     mapvars_group.add_argument('-json_map', '--json_map', dest='json_map',required=False,default=False,help="Optional user-suppled JSON file containing variable-term mappings.")
     mapvars_group.add_argument('-ilxkey', '--ilxkey', dest='key', required=False, default=None,  help="Interlex/SciCrunch API key to use for query and adding terms")
-    mapvars_group.add_argument('-owl', action='store_true', required=False, default=None,help='Optional flag to query nidm-experiment OWL files')
+    #mapvars_group.add_argument('-owl', action='store_true', required=False, default=None,help='Optional flag to query nidm-experiment OWL files')
     #parser.add_argument('-mapvars', '--mapvars', action='store_true', help='If flag set, variables in participant.tsv and phenotype files will be interactively mapped to terms')
     parser.add_argument('-o', dest='outputfile', required=False, default="nidm.ttl", help="Outputs turtle file called nidm.ttl in BIDS directory by default")
 
     args = parser.parse_args()
     directory = args.directory
 
-    if args.owl is None:
-        args.owl = 'nidm'
+    #if args.owl is None:
+    #    args.owl = 'nidm'
 
 
 
@@ -256,7 +254,7 @@ def bidsmri2project(directory, args):
 
                  #maps variables in CSV file to terms
                  temp=DataFrame(columns=mapping_list)
-                 column_to_terms.update(map_variables_to_terms(directory=directory, df=temp,apikey=args.key,output_file=os.path.join(directory,'participants.json'),json_file=args.json_map,owl_file=args.owl))
+                 column_to_terms.update(map_variables_to_terms(directory=directory, df=temp,apikey=args.key,output_file=os.path.join(directory,'participants.json'),json_file=args.json_map))
 
 
             for row in participants_data:
