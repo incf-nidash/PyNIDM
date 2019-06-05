@@ -35,6 +35,7 @@ from argparse import ArgumentParser
 from rdflib import Graph,util
 from nidm.experiment.Utils import read_nidm
 from io import StringIO
+from os.path import basename,splitext
 
 
 def main(argv):
@@ -43,12 +44,14 @@ def main(argv):
     sub = parser.add_subparsers(dest='command')
     concat = sub.add_parser('concat', description="This command will simply concatenate the supplied NIDM files into a single output")
     visualize = sub.add_parser('visualize', description="This command will produce a visualization(png) of the supplied NIDM files")
+    jsonld = sub.add_parser('jsonld', description="This command will save NIDM files as jsonld")
 
-    for arg in [concat,visualize]:
+    for arg in [concat,visualize,jsonld]:
         arg.add_argument('-nl', '--nl', dest="nidm_files", nargs="+", required=True, help="A comma separated list of NIDM files with full path")
 
     concat.add_argument('-o', '--o', dest='output_file', required=True, help="Merged NIDM output file name + path")
     visualize.add_argument('-o', '--o', dest='output_file', required=True, help="Output file name+path of dot graph")
+
 
     args=parser.parse_args()
 
@@ -75,6 +78,14 @@ def main(argv):
 
         project=read_nidm(StringIO.write(graph.serialize(format='turtle')))
         project.save_DotGraph(filename=args.output_file+'.png',format='png')
+
+    elif args.command == 'jsonld':
+        #create empty graph
+        for nidm_file in args.nidm_files:
+            project=read_nidm(nidm_file)
+            #serialize to jsonld
+            with open(splitext(nidm_file)[0]+".json",'w') as f:
+                f.write(project.serializeJSONLD())
 
 
 if __name__ == "__main__":

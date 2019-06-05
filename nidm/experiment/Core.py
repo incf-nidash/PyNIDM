@@ -5,15 +5,17 @@ from rdflib import Namespace
 from rdflib.namespace import XSD
 import types 
 import graphviz
-from rdflib import Graph, RDF, URIRef, util
-from rdflib.namespace import split_uri
-import validators
+from rdflib import Graph, RDF, URIRef, util, plugin
+from rdflib.serializer import Serializer
+
 
 #sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from ..core import Constants
 import prov.model as pm
 from prov.dot import prov_to_dot
 from io import StringIO
+from collections import OrderedDict
+import json
 
 
 def getUUID():
@@ -328,25 +330,50 @@ class Core(object):
         :return: context dictionary
         '''
 
+        from nidm.experiment.Utils import load_nidm_owl_files
+        from nidm.core.Constants import namespaces
+
         #load current OWL files
         term_graph=load_nidm_owl_files()
 
-        context=OrderedDict()
+        context={}
 
         #some initial entries
-        context['@context'] = OrderedDict()
-        context['@context']['@version'] = 1.1
-        context['@context']['records'] = OrderedDict()
-        context['@context']['records']['@container'] = "@type"
-        context['@context']['records']['@id'] = "@graph"
+        #context['@context'] = OrderedDict()
+        #context['@context']['@version'] = "1.1"
+        #context['@context']['records'] = OrderedDict()
+        #context['@context']['records']['@container'] = "@type"
+        #context['@context']['records']['@id'] = "@graph"
+
+
+        context['@version'] = "1.1"
+        context['records'] = {}
+        context['records']['@container'] = "@type"
+        context['records']['@id'] = "@graph"
 
         #load Constants.namespaces
 
         #add namespaces in Constants to context
-        context['@context'].update(Constants.namespaces)
+        #context['@context'].update(Constants.namespaces)
+        context.update(Constants.namespaces)
 
         #add some prov stuff
-        context['@context'].update = {
+        #context['@context'].update = {
+        #    "xsd": {"@type": "@id","@id":"http://www.w3.org/2001/XMLSchema#"},
+        #    "prov": {"@type": "@id","@id":"http://www.w3.org/ns/prov#"},
+        #    "agent": { "@type": "@id", "@id": "prov:agent" },
+        #    "entity": { "@type": "@id", "@id": "prov:entity" },
+        #    "activity": { "@type": "@id", "@id": "prov:activity" },
+        #    "hadPlan": { "@type": "@id", "@id": "prov:hadPlan" },
+        #    "hadRole": { "@type": "@id", "@id": "prov:hadRole" },
+        #    "wasAttributedTo": { "@type": "@id", "@id": "prov:wasAttributedTo" },
+        #    "association": { "@type": "@id", "@id": "prov:qualifiedAssociation" },
+        #    "usage": { "@type": "@id", "@id": "prov:qualifiedUsage" },
+        #    "generation": { "@type": "@id", "@id": "prov:qualifiedGeneration" },
+        #    "startedAtTime": { "@type": "xsd:dateTime", "@id": "prov:startedAtTime" },
+        #    "endedAtTime": { "@type": "xsd:dateTime", "@id": "prov:endedAtTime" },
+        #}
+        context.update ({
             "xsd": {"@type": "@id","@id":"http://www.w3.org/2001/XMLSchema#"},
             "prov": {"@type": "@id","@id":"http://www.w3.org/ns/prov#"},
             "agent": { "@type": "@id", "@id": "prov:agent" },
@@ -360,20 +387,37 @@ class Core(object):
             "generation": { "@type": "@id", "@id": "prov:qualifiedGeneration" },
             "startedAtTime": { "@type": "xsd:dateTime", "@id": "prov:startedAtTime" },
             "endedAtTime": { "@type": "xsd:dateTime", "@id": "prov:endedAtTime" },
-        }
-        #cycle through OWL graph and add terms
-         # For anything that has a label
-        for s, o in sorted(term_graph.graph.subject_objects(RDFS['label'])):
-            json_key = str(o)
-            if '_' in json_key:
-                json_key = str(o).split('_')[1]
-            context['@context'][json_key] = OrderedDict()
+        })
 
-            if s in term_graph.ranges:
-                context['@context'][json_key]['@id'] = str(s)
-                context['@context'][json_key]['@type'] = next(iter(term_graph.ranges[s]))
-            else:
-                context['@context'][json_key] = str(s)
+
+        #add namespaces from Constants.namespaces
+        for key,value in namespaces.items():
+            #context['@context'][key] = value
+            context[key] = value
+
+        #add terms from Constants.nidm_experiment_terms
+        for term in Constants.nidm_experiment_terms:
+            #context['@context'][term.localpart] = term.uri
+            context[term.localpart] = term.uri
+
+
+        #add prefix's from current document...this accounts for new terms
+        context.update ( self.prefix_to_context() )
+        test=self.prefix_to_context()
+        #cycle through OWL graph and add terms
+        # For anything that has a label
+
+        #for s, o in sorted(term_graph.subject_objects(Constants.RDFS['label'])):
+        #    json_key = str(o)
+        #    if '_' in json_key:
+        #        json_key = str(o).split('_')[1]
+        #    context['@context'][json_key] = OrderedDict()
+
+        #    if s in term_graph.ranges:
+        #        context['@context'][json_key]['@id'] = str(s)
+        #        context['@context'][json_key]['@type'] = next(iter(term_graph.ranges[s]))
+        #    else:
+        #        context['@context'][json_key] = str(s)
 
         print(json.dumps(context, indent=2))
         return context
@@ -393,11 +437,17 @@ class Core(object):
         '''
 
         #This sets up basic contexts from namespaces in documents
-        context={}
+        context=OrderedDict()
         for key,value in self.graph._namespaces.items():
-            context[key] = {}
-            context[key]['@type']='@id'
-            context[key]['@id']= value.uri
+            #context[key] = {}
+            #context[key]['@type']='@id'
+            #context[key]['@id']= value.uri
+
+            #context[key]['@type']='@id'
+            if type(value.uri) == str:
+                context[key]= value.uri
+            else:
+                context[key]= str(value.uri)
 
 
         #This adds suffix part of namespaces as IDs to make things read easier in JSONLD

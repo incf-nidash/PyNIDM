@@ -12,7 +12,7 @@ before_install:
   - sudo apt-get install graphviz -y
 
 install:
-  - python setup.py install
+  - pip install .
 
 script:
   - py.test -v

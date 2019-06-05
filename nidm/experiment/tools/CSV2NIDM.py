@@ -95,6 +95,7 @@ def main(argv):
     parser.add_argument('-nidm', dest='nidm_file', required=False, help="Optional NIDM file to add CSV->NIDM converted graph to")
     #parser.add_argument('-owl', action='store_true', required=False, help='Optionally searches NIDM OWL files...internet connection required')
     parser.add_argument('-png', action='store_true', required=False, help='Optional flag, when set a PNG image file of RDF graph will be produced')
+    parser.add_argument('-jsonld', action='store_true', required=False, help='Optional flag, when set NIDM files are saved as JSON-LD instead of TURTLE')
     parser.add_argument('-out', dest='output_file', required=True, help="Filename to save NIDM file")
     args = parser.parse_args()
 
@@ -202,7 +203,11 @@ def main(argv):
         #serialize NIDM file
         with open(args.nidm_file,'w') as f:
             print("Writing NIDM file...")
-            f.write(project.serializeTurtle())
+            if args.jsonld:
+                f.write(project.serializeJSONLD())
+            else:
+                f.write(project.serializeTurtle())
+
             project.save_DotGraph(str(args.nidm_file + ".png"), format="png")
 
 
@@ -263,7 +268,10 @@ def main(argv):
         #serialize NIDM file
         with open(args.output_file,'w') as f:
             print("Writing NIDM file...")
-            f.write(project.serializeTurtle())
+            if args.jsonld:
+                f.write(project.serializeJSONLD())
+            else:
+                f.write(project.serializeTurtle())
             if args.png:
                 project.save_DotGraph(str(args.output_file + ".png"), format="png")
 
