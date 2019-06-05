@@ -22,7 +22,7 @@ opts = dict(name=NAME,
             packages=PACKAGES,
             scripts=SCRIPTS,
             install_requires=INSTALL_REQUIRES,
-            requires=REQUIRES,
+            #requires=INSTALL_REQUIRES,
             entry_points='''
                [console_scripts]
                nidm=nidm.experiment.tools.click_main:cli
