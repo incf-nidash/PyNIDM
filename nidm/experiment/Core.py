@@ -19,7 +19,7 @@ import json
 
 
 def getUUID():
-    return "_"+str(uuid.uuid1())
+    return str(uuid.uuid1())
 
 class Core(object):
     """Base-class for NIDM-Experimenent
