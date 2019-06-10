@@ -195,6 +195,8 @@ def main(argv):
                     if row_variable==id_field:
                         continue
                     else:
+                        if not csv_row[row_variable].values[0]:
+                            continue
                         #get column_to_term mapping uri and add as namespace in NIDM document
                         #provNamespace(Core.safe_string(None,string=str(row_variable)), column_to_terms[row_variable]["url"])
                         acq_entity.add_attributes({QualifiedName(provNamespace(Core.safe_string(None,string=str(row_variable)), column_to_terms[row_variable]["url"]), ""):csv_row[row_variable].values[0]})
@@ -254,6 +256,8 @@ def main(argv):
 
             #store other data from row with columns_to_term mappings
             for row_variable,row_data in csv_row.iteritems():
+                if not row_data:
+                    continue
                 #check if row_variable is subject id, if so skip it
                 if row_variable==id_field:
                     #add qualified association with person

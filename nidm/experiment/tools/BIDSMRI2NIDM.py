@@ -283,6 +283,8 @@ def bidsmri2project(directory, args):
 
 
                 for key,value in row.items():
+                    if not value:
+                        continue
                     #for variables in participants.tsv file who have term mappings in BIDS_Constants.py use those, add to json_map so we don't have to map these if user
                     #supplied arguments to map variables
                     if key in BIDS_Constants.participants:
@@ -482,6 +484,7 @@ def bidsmri2project(directory, args):
 
         #Added temporarily to support phenotype files
         #for each *.tsv / *.json file pair in the phenotypes directory
+        #WIP: ADD VARIABLE -> TERM MAPPING HERE
         for tsv_file in glob.glob(os.path.join(directory,"phenotype","*.tsv")):
             #for now, open the TSV file, extract the row for this subject, store it in an acquisition object and link to
             #the associated JSON data dictionary file
@@ -501,6 +504,8 @@ def bidsmri2project(directory, args):
 
 
                         for key,value in row.items():
+                            if not value:
+                                continue
                             #we're using participant_id in NIDM in agent so don't add to assessment as a triple.
                             #BIDS phenotype files seem to have an index column with no column header variable name so skip those
                             if ((not key == "participant_id") and (key != "")):
