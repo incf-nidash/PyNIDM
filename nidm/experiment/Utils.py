@@ -944,7 +944,8 @@ def map_variables_to_terms(df,apikey,directory, output_file=None,json_file=None,
             # dir = os.path.dirname(output_file)
             # file_path=os.path.relpath(output_file)
             print("writing %s " %output_file)
-            with open(output_file,'w+') as fp:
+            with open(os.path.join(os.path.basename(output_file),os.path.splitext(output_file)[0]+".json"),'w+') \
+                    as fp:
                 json.dump(column_to_terms,fp)
 
 
@@ -954,7 +955,8 @@ def map_variables_to_terms(df,apikey,directory, output_file=None,json_file=None,
         # dir = os.path.dirname(output_file)
         # file_path=os.path.relpath(output_file)
         print("writing %s " %output_file)
-        with open(output_file,'w+') as fp:
+        with open(os.path.join(os.path.basename(output_file),os.path.splitext(output_file)[0]+".json"),'w+') \
+                    as fp:
             json.dump(column_to_terms,fp)
         #listb.pack()
         #listb.autowidth()

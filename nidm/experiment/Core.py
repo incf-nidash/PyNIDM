@@ -321,7 +321,7 @@ class Core(object):
         #context = context2
 
         context=self.createDefaultJSONLDcontext()
-
+        #WIP: LOOK AT https://github.com/satra/nidm-jsonld
         return rdf_graph_parse.serialize(format='json-ld', context=context, indent=4).decode('ASCII')
 
     def createDefaultJSONLDcontext(self):
