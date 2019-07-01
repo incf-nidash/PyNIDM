@@ -321,8 +321,12 @@ class Core(object):
         #context = context2
 
         context=self.createDefaultJSONLDcontext()
+
         #WIP: LOOK AT https://github.com/satra/nidm-jsonld
-        return rdf_graph_parse.serialize(format='json-ld', context=context, indent=4).decode('ASCII')
+        #return rdf_graph_parse.serialize(format='json-ld', context=context, indent=4).decode('ASCII')
+        g=rdf_graph_parse.serialize(format='json-ld', context=context, indent=4).decode('ASCII')
+        import pyld as ld
+        return ld.jsonld.compact(json.loads(g), context)
 
     def createDefaultJSONLDcontext(self):
         '''
@@ -403,7 +407,8 @@ class Core(object):
 
         #add prefix's from current document...this accounts for new terms
         context.update ( self.prefix_to_context() )
-        test=self.prefix_to_context()
+        #test=self.prefix_to_context()
+
         #cycle through OWL graph and add terms
         # For anything that has a label
 
@@ -419,7 +424,7 @@ class Core(object):
         #    else:
         #        context['@context'][json_key] = str(s)
 
-        print(json.dumps(context, indent=2))
+        #print(json.dumps(context, indent=2))
         return context
 
     def save_DotGraph(self,filename,format=None):
