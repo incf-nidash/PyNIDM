@@ -322,11 +322,12 @@ class Core(object):
 
         context=self.createDefaultJSONLDcontext()
 
+        
         #WIP: LOOK AT https://github.com/satra/nidm-jsonld
         #return rdf_graph_parse.serialize(format='json-ld', context=context, indent=4).decode('ASCII')
-        g=rdf_graph_parse.serialize(format='json-ld', context=context, indent=4).decode('ASCII')
+        g=rdf_graph_parse.serialize(format='json-ld', indent=4).decode('ASCII')
         import pyld as ld
-        return ld.jsonld.compact(json.loads(g), context)
+        return json.dumps(ld.jsonld.compact(json.loads(g), context),indent=4)
 
     def createDefaultJSONLDcontext(self):
         '''
@@ -350,7 +351,7 @@ class Core(object):
         #context['@context']['records']['@id'] = "@graph"
 
 
-        context['@version'] = "1.1"
+        context['@version'] = 1.1
         context['records'] = {}
         context['records']['@container'] = "@type"
         context['records']['@id'] = "@graph"
