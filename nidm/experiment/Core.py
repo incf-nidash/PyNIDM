@@ -315,13 +315,13 @@ class Core(object):
 
 
 
-        #context2 = self.prefix_to_context()
-
-        #context = dict(context1,**context2)
-        #context = context2
-
-        context=self.createDefaultJSONLDcontext()
-
+        #WIP: currently this creates a default JSON-LD context from Constants.py and not in the correct way from the
+        #NIDM-E OWL files that that will be the next iteration
+        context1 = self.createDefaultJSONLDcontext()
+        #This part adds to the context any prefixes in an existing NIDM-E file that might have been added by a user
+        #and isn't covered by the default namespaces / constants in Constants.py
+        context2 = self.prefix_to_context()
+        context = dict(context1, **context2)
 
         #WIP: LOOK AT https://github.com/satra/nidm-jsonld
         #return rdf_graph_parse.serialize(format='json-ld', context=context, indent=4).decode('ASCII')
@@ -343,13 +343,6 @@ class Core(object):
 
         context={}
 
-        #some initial entries
-        #context['@context'] = OrderedDict()
-        #context['@context']['@version'] = "1.1"
-        #context['@context']['records'] = OrderedDict()
-        #context['@context']['records']['@container'] = "@type"
-        #context['@context']['records']['@id'] = "@graph"
-
 
         context['@version'] = 1.1
         context['records'] = {}
@@ -357,27 +350,8 @@ class Core(object):
         context['records']['@id'] = "@graph"
 
         #load Constants.namespaces
-
-        #add namespaces in Constants to context
-        #context['@context'].update(Constants.namespaces)
         context.update(Constants.namespaces)
 
-        #add some prov stuff
-        #context['@context'].update = {
-        #    "xsd": {"@type": "@id","@id":"http://www.w3.org/2001/XMLSchema#"},
-        #    "prov": {"@type": "@id","@id":"http://www.w3.org/ns/prov#"},
-        #    "agent": { "@type": "@id", "@id": "prov:agent" },
-        #    "entity": { "@type": "@id", "@id": "prov:entity" },
-        #    "activity": { "@type": "@id", "@id": "prov:activity" },
-        #    "hadPlan": { "@type": "@id", "@id": "prov:hadPlan" },
-        #    "hadRole": { "@type": "@id", "@id": "prov:hadRole" },
-        #    "wasAttributedTo": { "@type": "@id", "@id": "prov:wasAttributedTo" },
-        #    "association": { "@type": "@id", "@id": "prov:qualifiedAssociation" },
-        #    "usage": { "@type": "@id", "@id": "prov:qualifiedUsage" },
-        #    "generation": { "@type": "@id", "@id": "prov:qualifiedGeneration" },
-        #    "startedAtTime": { "@type": "xsd:dateTime", "@id": "prov:startedAtTime" },
-        #    "endedAtTime": { "@type": "xsd:dateTime", "@id": "prov:endedAtTime" },
-        #}
         context.update ({
             "xsd": {"@type": "@id","@id":"http://www.w3.org/2001/XMLSchema#"},
             "prov": {"@type": "@id","@id":"http://www.w3.org/ns/prov#"},
@@ -408,8 +382,8 @@ class Core(object):
 
         #add prefix's from current document...this accounts for new terms
         context.update ( self.prefix_to_context() )
-        #test=self.prefix_to_context()
 
+        #WIP
         #cycle through OWL graph and add terms
         # For anything that has a label
 
@@ -425,7 +399,6 @@ class Core(object):
         #    else:
         #        context['@context'][json_key] = str(s)
 
-        #print(json.dumps(context, indent=2))
         return context
 
     def save_DotGraph(self,filename,format=None):
