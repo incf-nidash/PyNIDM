@@ -322,7 +322,7 @@ class Core(object):
 
         context=self.createDefaultJSONLDcontext()
 
-        
+
         #WIP: LOOK AT https://github.com/satra/nidm-jsonld
         #return rdf_graph_parse.serialize(format='json-ld', context=context, indent=4).decode('ASCII')
         g=rdf_graph_parse.serialize(format='json-ld', indent=4).decode('ASCII')
