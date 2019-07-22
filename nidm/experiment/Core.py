@@ -160,17 +160,20 @@ class Core(object):
         :param attributes: optional attributes to add to qualified association
         :return: association
         """
+
         #connect self to person serving as role
-        if(isinstance(self,pm.ProvActivity)):
+        #WIP this doesn't work for subclasses as they don't have the pm.ProvActivity type
+        #Might be able to use the following and look into the tuples but for now skip this check
+        #import inspect
+        #class_tree = inspect.getclasstree([self.__class__])
 
-            #associate person with activity for qualified association
-            assoc = self.graph.association(agent=person, activity=self, other_attributes={pm.PROV_ROLE:role})
+        #if(isinstance(self, pm.ProvActivity)):
 
-            #add wasAssociatedWith association
-            self.wasAssociatedWith(person)
+        #associate person with activity for qualified association
+        assoc = self.graph.association(agent=person, activity=self, other_attributes={pm.PROV_ROLE:role})
 
-            #add role for qualified association
-            #assoc.add_attributes({pm.PROV_ROLE:role})
+        #add wasAssociatedWith association
+        self.wasAssociatedWith(person)
 
         return assoc
 
