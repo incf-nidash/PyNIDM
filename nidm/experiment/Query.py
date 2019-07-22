@@ -427,25 +427,21 @@ def ExtractProjectSummary(meta_data, nidm_file_list):
     :return:
     '''
     query = '''
-    PREFIX nidm:<http://purl.org/nidash/nidm#>
-        PREFIX prov: <http://www.w3.org/ns/prov#>
-        PREFIX ncicb: <http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#>
-        PREFIX ndar: <https://ndar.nih.gov/api/datadictionary/v2/dataelement/>
-        PREFIX obo: <http://purl.obolibrary.org/obo/>
-        PREFIX dct: <http://purl.org/dc/terms/>
-
-        SELECT DISTINCT ?id ?age ?gender ?hand ?assessment ?project
-        WHERE {
-          ?assessment prov:wasGeneratedBy ?acq .
-          ?acq prov:wasAssociatedWith ?person .
-          ?assessment ncicb:Age ?age .
-          ?assessment ndar:gender ?gender .
-          ?assessment obo:handedness ?hand .
-          ?person ndar:src_subject_id ?id .
-          ?acq dct:isPartOf ?activity .
-          ?activity dct:isPartOf ?project .
-          ?project a nidm:Project
-        }
+    SELECT DISTINCT ?id ?person ?age ?gender ?hand ?assessment ?acq ?session ?project
+    WHERE {
+      OPTIONAL { ?assessment ncicb:Age ?age } .
+      OPTIONAL { ?assessment ndar:gender ?gender } .
+      OPTIONAL { ?assessment obo:handedness ?hand } .
+      ?person ndar:src_subject_id ?id .
+      ?acq prov:qualifiedAssociation _:blank .
+      _:blank prov:hadRole sio:Subject .
+      _:blank prov:agent ?person .
+      ?assessment prov:wasGeneratedBy ?acq .
+      ?acq dct:isPartOf ?session .
+      ?session dct:isPartOf ?project .
+      ?project a nidm:Project
+    }
+    ORDER BY ?id
       '''
 
     df = sparql_query_nidm(nidm_file_list, query, output_file=None)
@@ -458,18 +454,23 @@ def ExtractProjectSummary(meta_data, nidm_file_list):
         project['age_max'] = 0
         project['age_min'] = sys.maxsize
         project[str(Constants.NIDM_GENDER)] = []
+        project[str(Constants.NIDM_HANDEDNESS)] = []
 
     for row in arr:
-        project_id = matchPrefix( str(row[5]) ) # 5th column is the project UUID
+        project_id = matchPrefix( str(row[8]) ) # 9th column is the project UUID
         projects[project_id][str(Constants.NIDM_NUMBER_OF_SUBJECTS)] += 1
 
-        age = float(row[1])  # 1st column is age
+        age = float(row[2])
         projects[project_id]['age_min'] = min(age, projects[project_id]['age_min'])
         projects[project_id]['age_max'] = max(age, projects[project_id]['age_max'])
 
-        gender = str(row[2])  # col 2 is gender
+        gender = str(row[3])
         if gender not in projects[project_id][str(Constants.NIDM_GENDER)]:
             projects[project_id][str(Constants.NIDM_GENDER)].append(gender)
+
+        hand = str(row[4])
+        if hand not in projects[project_id][str(Constants.NIDM_HANDEDNESS)]:
+            projects[project_id][str(Constants.NIDM_HANDEDNESS)].append(hand)
 
 
 def expandNIDMAbbreviation(shortKey) -> str:
