@@ -358,6 +358,8 @@ def bidsmri2project(directory, args):
                 #add file link
                 #make relative link to
                 acq_obj.add_attributes({Constants.NIDM_FILENAME:getRelPathToBIDS(join(file_tpl.dirname,file_tpl.filename), directory)})
+                #WIP: add absolute location of BIDS directory on disk for later finding of files
+                acq_obj.add_attributes({Constants.PROV['Location']:directory})
 
                 #add sha512 sum
                 if isfile(join(directory,file_tpl.dirname,file_tpl.filename)):
@@ -389,7 +391,10 @@ def bidsmri2project(directory, args):
                     logging.info("WARNING: No matching image usage type found in BIDS_Constants.py for %s" % file_tpl.entities['datatype'])
                 #make relative link to
                 acq_obj.add_attributes({Constants.NIDM_FILENAME:getRelPathToBIDS(join(file_tpl.dirname,file_tpl.filename), directory)})
-                 #add sha512 sum
+                #WIP: add absolute location of BIDS directory on disk for later finding of files
+                acq_obj.add_attributes({Constants.PROV['Location']:directory})
+
+                #add sha512 sum
                 if isfile(join(directory,file_tpl.dirname,file_tpl.filename)):
                     acq_obj.add_attributes({Constants.CRYPTO_SHA512:getsha512(join(directory,file_tpl.dirname,file_tpl.filename))})
                 else:
@@ -465,6 +470,9 @@ def bidsmri2project(directory, args):
                 acq_obj_bval.add_attributes({PROV_TYPE:BIDS_Constants.scans["bval"]})
                 #add file link to bval files
                 acq_obj_bval.add_attributes({Constants.NIDM_FILENAME:getRelPathToBIDS(join(file_tpl.dirname,bids_layout.get_bval(file_tpl.filename)), directory)})
+                #WIP: add absolute location of BIDS directory on disk for later finding of files
+                acq_obj_bval.add_attributes({Constants.PROV['Location']:directory})
+
                 #add sha512 sum
                 if isfile(join(directory,file_tpl.dirname,file_tpl.filename)):
                     acq_obj_bval.add_attributes({Constants.CRYPTO_SHA512:getsha512(join(directory,file_tpl.dirname,file_tpl.filename))})
@@ -474,6 +482,9 @@ def bidsmri2project(directory, args):
                 acq_obj_bvec.add_attributes({PROV_TYPE:BIDS_Constants.scans["bvec"]})
                 #add file link to bvec files
                 acq_obj_bvec.add_attributes({Constants.NIDM_FILENAME:getRelPathToBIDS(join(file_tpl.dirname,bids_layout.get_bvec(file_tpl.filename)),directory)})
+                #WIP: add absolute location of BIDS directory on disk for later finding of files
+                acq_obj_bvec.add_attributes({Constants.PROV['Location']:directory})
+
                 if isfile(join(directory,file_tpl.dirname,file_tpl.filename)):
                     #add sha512 sum
                     acq_obj_bvec.add_attributes({Constants.CRYPTO_SHA512:getsha512(join(directory,file_tpl.dirname,file_tpl.filename))})
@@ -514,6 +525,9 @@ def bidsmri2project(directory, args):
 
                         #link TSV file
                         acq_entity.add_attributes({Constants.NIDM_FILENAME:getRelPathToBIDS(tsv_file,directory)})
+                        #WIP: add absolute location of BIDS directory on disk for later finding of files
+                        acq_entity.add_attributes({Constants.PROV['Location']:directory})
+
                         #link associated JSON file if it exists
                         data_dict = os.path.join(directory,"phenotype",os.path.splitext(os.path.basename(tsv_file))[0]+ ".json")
                         if os.path.isfile(data_dict):

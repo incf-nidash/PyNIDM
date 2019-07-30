@@ -228,7 +228,7 @@ def add_brainvolume_data(nidmdoc, df, id_field, source_row, column_to_terms, png
                         if software_key+row[2] not in software_activity.keys():
 
                             #create an activity for the computation...simply a placeholder for more extensive provenance
-                            software_activity[software_key+row[2]] = nidmdoc.graph.activity(QualifiedName(provNamespace("nidm",Constants.NIDM),getUUID()),other_attributes={Constants.NIDM_PROJECT_DESCRIPTION:"brain volume computation",
+                            software_activity[software_key+row[2]] = nidmdoc.graph.activity(QualifiedName(provNamespace("niiri",Constants.NIIRI),getUUID()),other_attributes={Constants.NIDM_PROJECT_DESCRIPTION:"brain volume computation",
                                                                                             PROV_ATTR_USED_ENTITY:anat_entity_uuid})
 
                             #associate the activity with the entity containing the original T1-weighted scan which is stored in anat_entity_uuid
@@ -248,11 +248,11 @@ def add_brainvolume_data(nidmdoc, df, id_field, source_row, column_to_terms, png
                                 #if we have a URL defined for this software in Constants.py then use it else simply use the string name of the software product
                                 if software_key.lower() in Constants.namespaces:
                                     #create an agent
-                                    software_agent[software_key] = nidmdoc.graph.agent(QualifiedName(provNamespace("nidm",Constants.NIDM),getUUID()),other_attributes={'prov:type':QualifiedName(provNamespace(Core.safe_string(None,string=str("Neuroimaging Analysis Software")),Constants.NIDM_NEUROIMAGING_ANALYSIS_SOFTWARE),""),
+                                    software_agent[software_key] = nidmdoc.graph.agent(QualifiedName(provNamespace("niiri",Constants.NIIRI),getUUID()),other_attributes={'prov:type':QualifiedName(provNamespace(Core.safe_string(None,string=str("Neuroimaging Analysis Software")),Constants.NIDM_NEUROIMAGING_ANALYSIS_SOFTWARE),""),
                                                                             QualifiedName(provNamespace(Core.safe_string(None,string=str("Neuroimaging Analysis Software")),Constants.NIDM_NEUROIMAGING_ANALYSIS_SOFTWARE),""):QualifiedName(provNamespace(software_key,Constants.namespaces[software_key.lower()]),"") } )
                                 else:
                                     #create an agent
-                                    software_agent[software_key] = nidmdoc.graph.agent(QualifiedName(provNamespace("nidm",Constants.NIDM),getUUID()),other_attributes={'prov:type':QualifiedName(provNamespace(Core.safe_string(None,string=str("Neuroimaging Analysis Software")),Constants.NIDM_NEUROIMAGING_ANALYSIS_SOFTWARE),""),
+                                    software_agent[software_key] = nidmdoc.graph.agent(QualifiedName(provNamespace("niiri",Constants.NIIRI),getUUID()),other_attributes={'prov:type':QualifiedName(provNamespace(Core.safe_string(None,string=str("Neuroimaging Analysis Software")),Constants.NIDM_NEUROIMAGING_ANALYSIS_SOFTWARE),""),
                                                                             QualifiedName(provNamespace(Core.safe_string(None,string=str("Neuroimaging Analysis Software")),Constants.NIDM_NEUROIMAGING_ANALYSIS_SOFTWARE),""):software_key } )
                             #create qualified association with brain volume computation activity
                             nidmdoc.graph.association(activity=software_activity[software_key+row[2]],agent=software_agent[software_key],other_attributes={PROV_ROLE:QualifiedName(provNamespace(Core.safe_string(None,string=str("Neuroimaging Analysis Software")),Constants.NIDM_NEUROIMAGING_ANALYSIS_SOFTWARE),"")})
@@ -261,7 +261,7 @@ def add_brainvolume_data(nidmdoc, df, id_field, source_row, column_to_terms, png
                         #check if we have an entity for storing this particular variable for this subject and software else create one
                         if software_activity[software_key+row[2]].identifier.localpart + row[2] not in entity.keys():
                             #create an entity to store brain volume data for this participant
-                            entity[software_activity[software_key+row[2]].identifier.localpart + row[2]] = nidmdoc.graph.entity( QualifiedName(provNamespace("nidm",Constants.NIDM),getUUID()))
+                            entity[software_activity[software_key+row[2]].identifier.localpart + row[2]] = nidmdoc.graph.entity( QualifiedName(provNamespace("niiri",Constants.NIIRI),getUUID()))
                             #add wasGeneratedBy association to activity
                             nidmdoc.graph.wasGeneratedBy(entity=entity[software_activity[software_key+row[2]].identifier.localpart + row[2]], activity=software_activity[software_key+row[2]])
 
@@ -331,7 +331,10 @@ def main(argv):
 
 
     #maps variables in CSV file to terms
-    column_to_terms = map_variables_to_terms(df=pd.DataFrame(columns=unique_vars), apikey=args.key, directory=dirname(args.output_file), output_file=splitext(splitext(basename(args.output_file))[0])[0]+".json", json_file=args.json_map, owl_file=args.owl)
+    if args.owl:
+        column_to_terms = map_variables_to_terms(df=pd.DataFrame(columns=unique_vars), apikey=args.key, directory=dirname(args.output_file), output_file=join(dirname(args.output_file),"json_map.json"), json_file=args.json_map,owl_file=args.owl)
+    else:
+        column_to_terms = map_variables_to_terms(df=pd.DataFrame(columns=unique_vars), apikey=args.key, directory=dirname(args.output_file), output_file=join(dirname(args.output_file),"json_map.json"), json_file=args.json_map)
 
     #get subjectID field from CSV
     id_field = getSubjIDColumn(column_to_terms,df)
@@ -346,7 +349,7 @@ def main(argv):
         project = read_nidm(args.nidm_file)
 
 
-        root_act = project.graph.activity(QualifiedName(provNamespace("nidm",Constants.NIDM),getUUID()),other_attributes={Constants.NIDM_PROJECT_DESCRIPTION:"Brain volumes provenance document"})
+        root_act = project.graph.activity(QualifiedName(provNamespace("niiri",Constants.NIIRI),getUUID()),other_attributes={Constants.NIDM_PROJECT_DESCRIPTION:"Brain volumes provenance document"})
 
         #this function sucks...more thought needed for version that works with adding to existing NIDM file versus creating a new NIDM file....
         add_brainvolume_data(nidmdoc=project,df=df,id_field=id_field,root_act=root_act,column_to_terms=column_to_terms,png_file=args.png,output_file=args.output_file,source_row=source_row,nidm_graph=True)
@@ -441,7 +444,7 @@ def main(argv):
 
         #create an empty NIDM graph
         nidmdoc = Core()
-        root_act = nidmdoc.graph.activity(QualifiedName(provNamespace("nidm",Constants.NIDM),getUUID()),other_attributes={Constants.NIDM_PROJECT_DESCRIPTION:"Brain volumes provenance document"})
+        root_act = nidmdoc.graph.activity(QualifiedName(provNamespace("niiri",Constants.NIIRI),getUUID()),other_attributes={Constants.NIDM_PROJECT_DESCRIPTION:"Brain volumes provenance document"})
 
         #this function sucks...more thought needed for version that works with adding to existing NIDM file versus creating a new NIDM file....
         add_brainvolume_data(nidmdoc=nidmdoc,df=df,id_field=id_field,root_act=root_act,column_to_terms=column_to_terms,png_file=args.png,output_file=args.output_file,source_row=source_row)

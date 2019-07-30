@@ -31,9 +31,9 @@ class AcquisitionObject(pm.ProvEntity,Core):
 
         if uuid is None:
             #execute default parent class constructor
-            super(AcquisitionObject,self).__init__(acquisition.graph, pm.QualifiedName(pm.Namespace("nidm",Constants.NIDM),getUUID()),attributes)
+            super(AcquisitionObject,self).__init__(acquisition.graph, pm.QualifiedName(pm.Namespace("niiri",Constants.NIIRI),getUUID()),attributes)
         else:
-            super(AcquisitionObject,self).__init__(acquisition.graph, pm.QualifiedName(pm.Namespace("nidm",Constants.NIDM),uuid),attributes)
+            super(AcquisitionObject,self).__init__(acquisition.graph, pm.QualifiedName(pm.Namespace("niiri",Constants.NIIRI),uuid),attributes)
 
         acquisition.graph._add_record(self)
 
