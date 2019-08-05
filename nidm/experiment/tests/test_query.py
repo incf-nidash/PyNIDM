@@ -4,12 +4,23 @@ from nidm.core import Constants
 from rdflib import Namespace,URIRef
 import prov.model as pm
 from os import remove
+import pprint
 
 from prov.model import ProvDocument, QualifiedName
 from prov.model import Namespace as provNamespace
 import json
 import urllib.request
 from pathlib import Path
+
+# when set to true, this will test example NIDM files downloaded from
+# the GitHub dbkeator/simple2_NIDM_examples repo
+#
+# DBK: this is a bit unsafe as the TTL files in the github repo above can change and the UUID will change since they are randomly
+# generated at this point.  It's probably more robust to explicitly create these files for the time being and explicitly set the
+# UUID in the test file:
+# For example:  kwargs={Constants.NIDM_PROJECT_NAME:"FBIRN_PhaseIII",Constants.NIDM_PROJECT_IDENTIFIER:1200,Constants.NIDM_PROJECT_DESCRIPTION:"Test investigation2"}
+#               project = Project(uuid="_654321",attributes=kwargs)
+USE_GITHUB_DATA = False
 
 def test_GetProjectMetadata():
 
@@ -215,70 +226,61 @@ def test_GetProjectsMetadata():
 
     p1 = makeProjectTestFile("testfile.ttl")
     p2 = makeProjectTestFile2("testfile2.ttl")
+    files = ["testfile.ttl", "testfile2.ttl"]
 
-    # if not Path('./cmu_a.nidm.ttl').is_file():
-    #     urllib.request.urlretrieve (
-    #         "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/master/datasets.datalad.org/abide/RawDataBIDS/CMU_a/nidm.ttl",
-    #         "cmu_a.nidm.ttl"
-    #     )
-    # p3 = "nidm:_504a60b0-7e86-11e9-ae20-003ee1ce9545" # from the cmu_a ttl file
+    if USE_GITHUB_DATA and not Path('./cmu_a.nidm.ttl').is_file():
+        urllib.request.urlretrieve (
+            "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/master/datasets.datalad.org/abide/RawDataBIDS/CMU_a/nidm.ttl",
+            "cmu_a.nidm.ttl"
+        )
+        files.append("cmu_a.nidm.ttl")
 
-    json_response = Query.GetProjectsMetadata(["testfile.ttl", "testfile2.ttl"])
+    parsed = Query.GetProjectsMetadata(files)
 
-    parsed = json.loads(json_response)
 
     assert parsed['projects'][p1][str(Constants.NIDM_PROJECT_DESCRIPTION)] == "Test investigation"
     assert parsed['projects'][p2][str(Constants.NIDM_PROJECT_DESCRIPTION)] == "More Scans"
 
-
-    # assert parsed['projects'][p3][str(Constants.NIDM_PROJECT_NAME)] == "ABIDE CMU_a Site"
-
     # we shouldn't have the computed metadata in this result
     assert parsed['projects'][p1].get (Query.matchPrefix(str(Constants.NIDM_NUMBER_OF_SUBJECTS)), -1) == -1
+
+
+    if USE_GITHUB_DATA:
+        # find the project ID from the CMU file
+        for project_id in parsed['projects']:
+            if project_id != p1 and project_id != p2:
+                p3 = project_id
+        assert parsed['projects'][p3][str(Constants.NIDM_PROJECT_NAME)] == "ABIDE CMU_a Site"
+
 
 
 def test_GetProjectsComputedMetadata():
 
     p1 = makeProjectTestFile("testfile.ttl")
     p2 = makeProjectTestFile2("testfile2.ttl")
+    files = ["testfile.ttl", "testfile2.ttl"]
 
-    json_response = Query.GetProjectsComputedMetadata(["testfile.ttl", "testfile2.ttl"])
-
-    parsed = json.loads(json_response)
-
-    assert parsed['projects'][p1][str(Constants.NIDM_PROJECT_DESCRIPTION)] == "Test investigation"
-    assert parsed['projects'][p2][str(Constants.NIDM_PROJECT_DESCRIPTION)] == "More Scans"
-
-    assert parsed['projects'][p2][Query.matchPrefix(str(Constants.NIDM_NUMBER_OF_SUBJECTS))] == 0
-    assert parsed['projects'][p1][Query.matchPrefix(str(Constants.NIDM_NUMBER_OF_SUBJECTS))] == 0
-
-
-
-# @pytest.mark.skip(reason="volitile test that with outside dependency")
-def test_CMU_GetProjectsComputedMetadata():
-    '''
-    This will run the getProjectsComputedMetadata on a downloaded ttl file from the ABIDE dataset
-    This is for dev purposes only and should be skipped during a normal test
-    '''
-    if not Path('./cmu_a.nidm.ttl').is_file():
+    if USE_GITHUB_DATA and not Path('./cmu_a.nidm.ttl').is_file():
         urllib.request.urlretrieve (
             "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/master/datasets.datalad.org/abide/RawDataBIDS/CMU_a/nidm.ttl",
             "cmu_a.nidm.ttl"
         )
+        files.append("cmu_a.nidm.ttl")
 
-    json_response = Query.GetProjectsComputedMetadata(["cmu_a.nidm.ttl"])
+    parsed = Query.GetProjectsComputedMetadata(files)
 
-    parsed = json.loads(json_response)
+    assert parsed['projects'][p1][str(Constants.NIDM_PROJECT_DESCRIPTION)] == "Test investigation"
+    assert parsed['projects'][p2][str(Constants.NIDM_PROJECT_DESCRIPTION)] == "More Scans"
+    assert parsed['projects'][p2][Query.matchPrefix(str(Constants.NIDM_NUMBER_OF_SUBJECTS))] == 0
+    assert parsed['projects'][p1][Query.matchPrefix(str(Constants.NIDM_NUMBER_OF_SUBJECTS))] == 0
 
-    print (parsed)
+    if USE_GITHUB_DATA:
+        for project_id in parsed['projects']:
+            if project_id != p1 and project_id != p2:
+                p3 = project_id
+        assert parsed['projects'][p3][str(Constants.NIDM_PROJECT_NAME)] == "ABIDE CMU_a Site"
+        assert parsed['projects'][p3][Query.matchPrefix(str(Constants.NIDM_NUMBER_OF_SUBJECTS))] == 14
+        assert parsed['projects'][p3]["age_min"] == 21
+        assert parsed['projects'][p3]["age_max"] == 33
+        assert parsed['projects'][p3][str(Constants.NIDM_GENDER)] == ['1', '2']
 
-    # should be only one
-    p1 = list(parsed['projects'].keys())[0]
-
-
-    assert parsed['projects'][p1][Query.matchPrefix(str(Constants.NIDM_NUMBER_OF_SUBJECTS))] == 14
-
-    assert parsed['projects'][p1]["age_min"] == 21
-    assert parsed['projects'][p1]["age_max"] == 33
-    assert parsed['projects'][p1][str(Constants.NIDM_GENDER)] == ['1', '2']
-    assert parsed['projects'][p1][str(Constants.NIDM_HANDEDNESS)] == ['R', 'L', 'Ambi']
