@@ -28,7 +28,7 @@ class ProcessExecution(pm.ProvActivity, Core):
         if (parentDoc):
             self.graph = parentDoc
         else:
-            self.graph = Constants.p_graph
+            self.graph = Constants.NIDMDocument(namespaces=Constants.namespaces)
 
          #execute default parent class constructor
         super(ProcessExecution, self).__init__(self.graph,
