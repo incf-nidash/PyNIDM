@@ -40,6 +40,8 @@ import csv
 from nidm.experiment.Query import sparql_query_nidm, GetParticipantIDs,GetProjectInstruments,GetProjectsUUID,GetInstrumentVariables
 import click
 from nidm.experiment.tools.click_base import cli
+from nidm.experiment.tools.rest import restParser
+from json import dumps, loads
 
 
 @cli.command()
@@ -55,7 +57,12 @@ from nidm.experiment.tools.click_base import cli
               help="Parameter, if set, query will return list of onli:assessment-instrument: variables")
 @click.option("--output_file", "-o", required=False,
               help="Optional output file (CSV) to store results of query")
-def query(nidm_file_list, query_file, output_file, get_participants,get_instruments,get_instrument_vars):
+@click.option("--uri", "-u", required=False,
+              help="A REST API URI query")
+@click.option("-j/-no_j", required=False, default=False,
+              help="Return result of a uri query as JSON")
+@click.option('-v', '--verbosity', required=False, help="Verbosity level 0-5, 0 is default", default="0")
+def query(nidm_file_list, query_file, output_file, get_participants, get_instruments, get_instrument_vars, uri, j, verbosity):
 
     #query result list
     results = []
@@ -103,6 +110,19 @@ def query(nidm_file_list, query_file, output_file, get_participants,get_instrume
             df.to_csv(output_file)
         else:
             print(df)
+    elif uri:
+        df = restParser(nidm_file_list.split(','), uri, int(verbosity))
+        if j:
+            print (dumps(df))
+        else:
+            if type(df) == list:
+                for x in df:
+                    print (x)
+            elif type(df) == dict:
+                for k in df.keys():
+                    print (str(k) + ' ' + str(df[k]))
+            else:
+                print (df)
     else:
         #read query from text fiile
         with open(query_file, 'r') as fp:
