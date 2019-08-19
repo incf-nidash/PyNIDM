@@ -197,82 +197,6 @@ def GetProjectSessionsMetadata(nidm_file_list, project_uuid):
     return json.dumps(output_json)
 
 
-def GetProjectMetadata(nidm_file_list):
-    '''
-
-    :param nidm_file_list: List of one or more NIDM files to query across for list of Projects
-    :return: JSON document of all metadata for all Projects in nidm_file_list
-    '''
-
-    #SPAQRL query to get project metadata
-    #first get a list of project UUIDs
-    project_uuids = GetProjectsUUID(nidm_file_list)
-
-    #RDF graph for output data
-    results=Graph()
-    #for each project activity, get metadata
-    for project in project_uuids:
-
-        # query='''
-
-        # prefix nidm: <http://purl.org/nidash/nidm#>
-        # prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-
-        # select distinct ?uuid ?p ?o
-
-        # where {
- 	    #    ?uuid rdf:type nidm:Project ;
-	   	#    ?p  ?o .
-        # }'''
-
-
-        project_uuids = "test"
-        query= '''
-        #SELECT distinct ?p ?o
-        CONSTRUCT {
-            <%s> ?p ?o .
-        }
-        where {
-                <%s> ?p ?o .
-
-        }
-
-        ''' % (project,project)
-
-        print("my variable is named: %s" % project_uuids)
-
-        #query= '''
-
-
-        #SELECT distinct ?s ?p ?o
-
-        #where {
-        #        <%s> ?p ?o .
-        #        BIND(<%s> as ?s) .
-
-        #}
-
-        #''' % (project,project)
-        print(query)
-        df = sparql_query_nidm(nidm_file_list,query,output_file=None, return_graph=True)
-        #try:
-        #    results
-        #except NameError:
-            #results = df.to_dict()
-
-
-        #    results = df
-        #else:
-            #results.update(df.to_dict())
-        results = results + Graph().parse(df)
-
-        #now we need to iterate over the result and convert it to a better looking dictionary to ultimately be returned as JSON
-
-            #temporarily we'll simply serialize the union graph as JSON-LD...
-        return results
-
-
-
 def GetProjectInstruments(nidm_file_list, project_id):
     """
     Returns a list of unique instrument types.  For NIDM files this is rdf:type onli:assessment-instrument
@@ -403,7 +327,7 @@ def GetProjectsMetadata(nidm_file_list):
         # if field in field_whitelist:
         projects[str(project)][field] = value
 
-    return (dumps({'projects': compressForJSONResponse(projects)}))
+    return {'projects': compressForJSONResponse(projects)}
 
 
 def GetProjectsComputedMetadata(nidm_file_list):
@@ -412,11 +336,10 @@ def GetProjectsComputedMetadata(nidm_file_list):
     :return: dataframe with two columns: "project_uuid" and "project_dentifier"
     '''
 
-    meta_data = loads(GetProjectsMetadata(nidm_file_list))
+    meta_data = GetProjectsMetadata(nidm_file_list)
     ExtractProjectSummary(meta_data, nidm_file_list)
-    compressed_meta_data = compressForJSONResponse(meta_data)
 
-    return (dumps(compressed_meta_data))
+    return compressForJSONResponse(meta_data)
 
 
 def ExtractProjectSummary(meta_data, nidm_file_list):
