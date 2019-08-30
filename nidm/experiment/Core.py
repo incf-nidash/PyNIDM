@@ -135,10 +135,10 @@ class Core(object):
 
         if (uuid != None):
             #add Person agent with existing uuid
-            person = self.graph.agent(Constants.namespaces["nidm"][uuid],other_attributes=attributes)
+            person = self.graph.agent(Constants.namespaces["niiri"][uuid],other_attributes=attributes)
         else:
             #add Person agent
-            person = self.graph.agent(Constants.namespaces["nidm"][getUUID()],other_attributes=attributes)
+            person = self.graph.agent(Constants.namespaces["niiri"][getUUID()],other_attributes=attributes)
 
         #add minimal attributes to person
         person.add_attributes({pm.PROV_TYPE: pm.PROV['Person']})

@@ -43,10 +43,10 @@ class Project(pm.ProvActivity,Core):
 
         if uuid is None:
             #execute default parent class constructor
-            super(Project,self).__init__(self.graph, pm.QualifiedName(pm.Namespace("nidm",Constants.NIDM),getUUID()),attributes)
+            super(Project,self).__init__(self.graph, pm.QualifiedName(pm.Namespace("niiri",Constants.NIIRI),getUUID()),attributes)
         else:
             #execute default parent class constructor
-            super(Project,self).__init__(self.graph, pm.QualifiedName(pm.Namespace("nidm",Constants.NIDM),uuid),attributes)
+            super(Project,self).__init__(self.graph, pm.QualifiedName(pm.Namespace("niiri",Constants.NIIRI),uuid),attributes)
         #add record to graph
         self.graph._add_record(self)
         #create empty sessions list

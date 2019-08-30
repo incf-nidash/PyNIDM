@@ -43,7 +43,7 @@ def main(argv):
     parser = ArgumentParser(description='This program contains various NIDM-Experiment utilities')
     sub = parser.add_subparsers(dest='command')
     concat = sub.add_parser('concat', description="This command will simply concatenate the supplied NIDM files into a single output")
-    visualize = sub.add_parser('visualize', description="This command will produce a visualization(png) of the supplied NIDM files")
+    visualize = sub.add_parser('visualize', description="This command will produce a visualization(pdf) of the supplied NIDM files")
     jsonld = sub.add_parser('jsonld', description="This command will save NIDM files as jsonld")
 
     for arg in [concat,visualize,jsonld]:
@@ -77,7 +77,7 @@ def main(argv):
 
 
         project=read_nidm(StringIO.write(graph.serialize(format='turtle')))
-        project.save_DotGraph(filename=args.output_file+'.png',format='png')
+        project.save_DotGraph(filename=args.output_file+'.pdf',format='pdf')
 
     elif args.command == 'jsonld':
         #create empty graph
