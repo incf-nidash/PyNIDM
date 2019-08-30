@@ -41,7 +41,7 @@ def test_uri_project():
     os.remove("uritest.ttl")
     os.remove("uritest2.ttl")
 
-
+@pytest.mark.skip
 def test_uri_project_id():
 
     kwargs={Constants.NIDM_PROJECT_NAME:"FBIRN_PhaseII",Constants.NIDM_PROJECT_IDENTIFIER:9610,Constants.NIDM_PROJECT_DESCRIPTION:"1234356 Test investigation"}
