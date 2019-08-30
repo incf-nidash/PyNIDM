@@ -248,13 +248,18 @@ def bidsmri2project(directory, args):
             if ( (args.json_map!=False) or (args.key != None) ):
 
                  #if user didn't supply a json mapping file but we're doing some variable-term mapping create an empty one for column_to_terms to use
-                 if args.json_map == None:
+                 if args.json_map == False:
                     #defaults to participants.json because here we're mapping the participants.tsv file variables to terms
-                    args.json_map = os.path.isfile(os.path.join(directory,'participants.json'))
+                    # if participants.json file doesn't exist then run without json mapping file
+                    if not os.path.isfile(os.path.join(directory,'participants.json')):
+                        #maps variables in CSV file to terms
+                        temp=DataFrame(columns=mapping_list)
+                        column_to_terms.update(map_variables_to_terms(directory=directory, df=temp,apikey=args.key,output_file=os.path.join(directory,'participants.json')))
 
-                 #maps variables in CSV file to terms
-                 temp=DataFrame(columns=mapping_list)
-                 column_to_terms.update(map_variables_to_terms(directory=directory, df=temp,apikey=args.key,output_file=os.path.join(directory,'participants.json'),json_file=args.json_map))
+                 else:
+                    #maps variables in CSV file to terms
+                    temp=DataFrame(columns=mapping_list)
+                    column_to_terms.update(map_variables_to_terms(directory=directory, df=temp,apikey=args.key,output_file=os.path.join(directory,'participants.json'),json_file=args.json_map))
 
 
             for row in participants_data:
