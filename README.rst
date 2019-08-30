@@ -58,30 +58,30 @@ This program will convert a BIDS MRI dataset to a NIDM-Experiment RDF document. 
 
 .. code-block:: bash
 
-    $ bidsmri2nidm -d [ROOT BIDS DIRECT] -bidsignore
+    $ BIDSMRI2NIDM -d [ROOT BIDS DIRECT] -bidsignore
  
 Example 1:No variable->term mapping, simple BIDS dataset conversion which will add nidm.ttl file to BIDS dataset and .bidsignore file:
 
 .. code-block:: bash
 
-    $ bidsmri2nidm -d [root directory of BIDS dataset] -o [PATH/nidm.ttl]
+    $ BIDSMRI2NIDM -d [root directory of BIDS dataset] -o [PATH/nidm.ttl]
  
 Example 2:No variable->term mapping, simple BIDS dataset conversion but storing nidm file somewhere else: 
 
 .. code-block:: bash
 
-    $ bidsmri2nidm -d [root directory of BIDS dataset] -ilxkey [Your Interlex key] -bidsignore
+    $ BIDSMRI2NIDM -d [root directory of BIDS dataset] -ilxkey [Your Interlex key] -bidsignore
 
 Example 3:BIDS conversion with variable->term mappings, no existing mappings available, uses Interlex for terms and for defining terms you can't find in Interlex (note, for now these two need to be used together)!  To get an Interlex API key you visit [SciCrunch](http://scicrunch.org), register for an account, then click on "MyAccount" and "API Keys" to add a new API key for your account.  Use this API Key for the -ilxkey parameter below.  This example  adds a nidm.ttl file BIDS dataset and .bidsignore file and it will by default create you a JSON mapping file which contains the variable->term mappings you defined during the interactive, iterative activity of using this tool to map your variables to terms.  The default JSON mapping file will be called nidm_json_map.json but you can also specify this explictly using the -json_map parameter (see Example 5 below): 
 
 .. code-block:: bash
 
-    $ bidsmri2nidm -d [root directory of BIDS dataset] -ilxkey [Your Interlex key] -owl -bidsignore
+    $ BIDSMRI2NIDM -d [root directory of BIDS dataset] -ilxkey [Your Interlex key] -owl -bidsignore
 Example 4: (FULL MONTY): BIDS conversion with variable->term mappings, uses JSON mapping file first then uses Interlex + NIDM OWL file for terms, adds nidm.ttl file BIDS dataset and .bidsignore file: 
 
 .. code-block:: bash
 
-    $ bidsmri2nidm -d [root directory of BIDS dataset] -json_map [Your JSON file] -ilxkey [Your Interlex key] -bidsignore
+    $ BIDSMRI2NIDM -d [root directory of BIDS dataset] -json_map [Your JSON file] -ilxkey [Your Interlex key] -bidsignore
 
 	 json mapping file has entries for each variable with mappings to formal terms.  Example:  
 
