@@ -368,7 +368,7 @@ def bidsmri2project(directory, args):
                     logging.info("WARNINGL file %s doesn't exist! No SHA512 sum stored in NIDM files..." %join(directory,file_tpl.dirname,file_tpl.filename))
                 #get associated JSON file if exists
                 json_data = (bids_layout.get(suffix=file_tpl.entities['suffix'],subject=subject_id))[0].metadata
-                if len(json_data.info)>0:
+                if len(json_data)>0:
                     for key in json_data.info.items():
                         if key in BIDS_Constants.json_keys:
                             if type(json_data.info[key]) is list:
@@ -406,7 +406,7 @@ def bidsmri2project(directory, args):
                 #get associated JSON file if exists
                 json_data = (bids_layout.get(suffix=file_tpl.entities['suffix'],subject=subject_id))[0].metadata
 
-                if len(json_data.info)>0:
+                if len(json_data)>0:
                     for key in json_data.info.items():
                         if key in BIDS_Constants.json_keys:
                             if type(json_data.info[key]) is list:
@@ -456,7 +456,7 @@ def bidsmri2project(directory, args):
                 #get associated JSON file if exists
                 json_data = (bids_layout.get(suffix=file_tpl.entities['suffix'],subject=subject_id))[0].metadata
 
-                if len(json_data.info)>0:
+                if len(json_data)>0:
                     for key in json_data.info.items():
                         if key in BIDS_Constants.json_keys:
                             if type(json_data.info[key]) is list:
