@@ -255,6 +255,10 @@ def bidsmri2project(directory, args):
                         #maps variables in CSV file to terms
                         temp=DataFrame(columns=mapping_list)
                         column_to_terms.update(map_variables_to_terms(directory=directory, df=temp,apikey=args.key,output_file=os.path.join(directory,'participants.json')))
+                    else:
+                        #maps variables in CSV file to terms
+                        temp=DataFrame(columns=mapping_list)
+                        column_to_terms.update(map_variables_to_terms(directory=directory, df=temp,apikey=args.key,output_file=os.path.join(directory,'participants.json'),json_file=os.path.join(directory,'participants.json')))
 
                  else:
                     #maps variables in CSV file to terms
