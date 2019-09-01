@@ -248,13 +248,22 @@ def bidsmri2project(directory, args):
             if ( (args.json_map!=False) or (args.key != None) ):
 
                  #if user didn't supply a json mapping file but we're doing some variable-term mapping create an empty one for column_to_terms to use
-                 if args.json_map == None:
+                 if args.json_map == False:
                     #defaults to participants.json because here we're mapping the participants.tsv file variables to terms
-                    args.json_map = os.path.isfile(os.path.join(directory,'participants.json'))
+                    # if participants.json file doesn't exist then run without json mapping file
+                    if not os.path.isfile(os.path.join(directory,'participants.json')):
+                        #maps variables in CSV file to terms
+                        temp=DataFrame(columns=mapping_list)
+                        column_to_terms.update(map_variables_to_terms(directory=directory, df=temp,apikey=args.key,output_file=os.path.join(directory,'participants.json')))
+                    else:
+                        #maps variables in CSV file to terms
+                        temp=DataFrame(columns=mapping_list)
+                        column_to_terms.update(map_variables_to_terms(directory=directory, df=temp,apikey=args.key,output_file=os.path.join(directory,'participants.json'),json_file=os.path.join(directory,'participants.json')))
 
-                 #maps variables in CSV file to terms
-                 temp=DataFrame(columns=mapping_list)
-                 column_to_terms.update(map_variables_to_terms(directory=directory, df=temp,apikey=args.key,output_file=os.path.join(directory,'participants.json'),json_file=args.json_map))
+                 else:
+                    #maps variables in CSV file to terms
+                    temp=DataFrame(columns=mapping_list)
+                    column_to_terms.update(map_variables_to_terms(directory=directory, df=temp,apikey=args.key,output_file=os.path.join(directory,'participants.json'),json_file=args.json_map))
 
 
             for row in participants_data:
@@ -368,7 +377,7 @@ def bidsmri2project(directory, args):
                     logging.info("WARNINGL file %s doesn't exist! No SHA512 sum stored in NIDM files..." %join(directory,file_tpl.dirname,file_tpl.filename))
                 #get associated JSON file if exists
                 json_data = (bids_layout.get(suffix=file_tpl.entities['suffix'],subject=subject_id))[0].metadata
-                if len(json_data.info)>0:
+                if len(json_data)>0:
                     for key in json_data.info.items():
                         if key in BIDS_Constants.json_keys:
                             if type(json_data.info[key]) is list:
@@ -406,7 +415,7 @@ def bidsmri2project(directory, args):
                 #get associated JSON file if exists
                 json_data = (bids_layout.get(suffix=file_tpl.entities['suffix'],subject=subject_id))[0].metadata
 
-                if len(json_data.info)>0:
+                if len(json_data)>0:
                     for key in json_data.info.items():
                         if key in BIDS_Constants.json_keys:
                             if type(json_data.info[key]) is list:
@@ -456,7 +465,7 @@ def bidsmri2project(directory, args):
                 #get associated JSON file if exists
                 json_data = (bids_layout.get(suffix=file_tpl.entities['suffix'],subject=subject_id))[0].metadata
 
-                if len(json_data.info)>0:
+                if len(json_data)>0:
                     for key in json_data.info.items():
                         if key in BIDS_Constants.json_keys:
                             if type(json_data.info[key]) is list:
