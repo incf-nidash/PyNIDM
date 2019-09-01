@@ -16,10 +16,15 @@ from prov.dot import prov_to_dot
 from io import StringIO
 from collections import OrderedDict
 import json
-
+import re
 
 def getUUID():
-    return str(uuid.uuid1())
+    uid = uuid.uuid1()
+    # added to address some weird bug in rdflib where if the uuid starts with a number, everthing up until the first
+    # alapha character becomes a prefix...
+    while not (re.match("^[a-zA-Z]+.*", str(uid))):
+        uid = uuid.uuid1()
+    return str(uid)
 
 class Core(object):
     """Base-class for NIDM-Experimenent
