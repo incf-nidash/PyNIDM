@@ -17,14 +17,21 @@ from io import StringIO
 from collections import OrderedDict
 import json
 import re
+import string
+import random
 
 def getUUID():
-    uid = uuid.uuid1()
-    # added to address some weird bug in rdflib where if the uuid starts with a number, everthing up until the first
+    uid = str(uuid.uuid1())
+    # added to address some weird bug in rdflib where if the uuid starts with a number, everything up until the first
     # alapha character becomes a prefix...
-    while not (re.match("^[a-zA-Z]+.*", str(uid))):
-        uid = uuid.uuid1()
-    return str(uid)
+    if not (re.match("^[a-fA-F]+.*", uid)):
+        # if first digit is not a character than replace it with a randomly selected hex character (a-f).
+        uid_temp = uid
+        randint = random.randint(0,5)
+        uid = string.ascii_lowercase[randint] + uid_temp[1:]
+
+    return uid
+
 
 class Core(object):
     """Base-class for NIDM-Experimenent
