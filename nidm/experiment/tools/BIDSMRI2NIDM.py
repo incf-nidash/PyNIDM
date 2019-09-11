@@ -118,7 +118,7 @@ Example 4 (FULL MONTY): BIDS conversion with variable->term mappings, uses JSON 
     mapvars_group.add_argument('-ilxkey', '--ilxkey', dest='key', required=False, default=None,  help="Interlex/SciCrunch API key to use for query and adding terms")
     #mapvars_group.add_argument('-owl', action='store_true', required=False, default=None,help='Optional flag to query nidm-experiment OWL files')
     #parser.add_argument('-mapvars', '--mapvars', action='store_true', help='If flag set, variables in participant.tsv and phenotype files will be interactively mapped to terms')
-    parser.add_argument('-o', dest='outputfile', required=False, default="nidm.ttl", help="Outputs turtle file called nidm.ttl in BIDS directory by default")
+    parser.add_argument('-o', dest='outputfile', required=False, default="nidm.ttl", help="Outputs turtle file called nidm.ttl in BIDS directory by default..or whatever path/filename is set here")
 
     args = parser.parse_args()
     directory = args.directory
