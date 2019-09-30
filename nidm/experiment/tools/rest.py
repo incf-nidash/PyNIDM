@@ -1,9 +1,11 @@
-from nidm.experiment import Project, Session, AssessmentAcquisition, AssessmentObject, Acquisition, AcquisitionObject, Query
+from nidm.experiment import Query
 from nidm.core import Constants
 import json
 import re
 from urllib import parse
 import pprint
+
+
 
 def restParser (nidm_files, command, verbosity_level = 0):
 
@@ -15,7 +17,7 @@ def restParser (nidm_files, command, verbosity_level = 0):
         restLog("Returning all projects", 2, verbosity_level)
         projects = Query.GetProjectsUUID(nidm_files)
         for uuid in projects:
-            result.append( Query.matchPrefix(str(uuid)))
+            result.append( str(uuid).replace(Constants.NIIRI, ""))
 
     elif re.match(r"^/?projects/[^/]+$", command):
         restLog("Returing metadata ", 2, verbosity_level)
@@ -25,8 +27,30 @@ def restParser (nidm_files, command, verbosity_level = 0):
         projects = Query.GetProjectsComputedMetadata(nidm_files)
         for pid in projects['projects'].keys():
             restLog("comparng " + str(pid) + " with " + str(id), 5, verbosity_level)
-            if pid == id:
+            restLog("comparng " + str(pid) + " with " + Constants.NIIRI + id, 5, verbosity_level)
+            restLog("comparng " + str(pid) + " with niiri:" + id, 5, verbosity_level)
+            if pid == id or pid == Constants.NIIRI + id or pid == "niiri:" + id:
                 result = projects['projects'][pid]
+
+    elif re.match(r"^/?projects/[^/]+/subjects/?$", command):
+        match = re.match(r"^/?projects/([^/]+)/subjects/?$", command)
+        project = match.group((1))
+        restLog("Returning all agents for project {}".format(project), 2, verbosity_level)
+        agents = Query.GetParticipantUUIDsForProject(nidm_files,project)
+
+        result = []
+        vals = agents.values
+        for x in vals:
+            result.append( str(x[0]).replace("http://iri.nidash.org/", "") )
+
+    elif re.match(r"^/?projects/[^/]+/subjects/[^/]+/?$", command):
+        match = re.match(r"^/?projects/([^/]+)/subjects/([^/]+)/?$", command)
+        restLog("Returning info about subject {}".format(match.group(2)), 2, verbosity_level)
+        result = Query.GetParticipantDetails(nidm_files,match.group(1), match.group(2))
+
+    else:
+        restLog("NO MATCH!",2, verbosity_level)
+
     return result
 
 
