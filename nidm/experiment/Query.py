@@ -301,6 +301,104 @@ def GetParticipantIDs(nidm_file_list,output_file=None):
     return df
 
 
+def GetParticipantDetails(nidm_file_list,project_id, participant_id, output_file=None):
+    '''
+    This query will return a list of all prov:agent entity UUIDs that prov:hadRole sio:Subject or Constants.NIDM_PARTICIPANT
+    :param nidm_file_list: List of one or more NIDM files to query across for list of Projects
+    :return: list of Constants.NIDM_PARTICIPANT UUIDs and Constants.NIDM_SUBJECTID
+    '''
+
+    query = '''
+
+        PREFIX prov:<http://www.w3.org/ns/prov#>
+        PREFIX sio: <http://semanticscience.org/ontology/sio.owl#>
+        PREFIX ndar: <https://ndar.nih.gov/api/datadictionary/v2/dataelement/>
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX nidm: <http://purl.org/nidash/nidm#>
+        PREFIX dct: <http://purl.org/dc/terms/>
+
+
+        SELECT DISTINCT ?uuid ?id ?activity
+        WHERE {
+
+            ?activity rdf:type prov:Activity ;
+		        prov:qualifiedAssociation _:blanknode .
+
+	        _:blanknode prov:hadRole %s ;
+                 prov:agent ?uuid  .
+
+	        ?uuid %s ?id .
+
+            ?proj a nidm:Project .
+            ?sess dct:isPartOf ?proj .
+            ?activity dct:isPartOf ?sess .
+
+            FILTER(regex(str(?uuid), "%s")).
+
+        }
+    ''' %(Constants.NIDM_PARTICIPANT,Constants.NIDM_SUBJECTID, participant_id)
+
+    df = sparql_query_nidm(nidm_file_list,query, output_file=output_file)
+    data = df.values
+
+    result = { 'uuid' : (str(data[0][0])).replace(Constants.NIIRI, ""),
+               'id' : str(data[0][1]),
+               'activity': [] }
+
+    for row in data:
+        act = (str(row[2])).replace(str(Constants.NIIRI), "")
+        (result['activity']).append( act )
+
+    return result
+
+
+def GetParticipantUUIDsForProject(nidm_file_list, project_id, output_file=None):
+    '''
+    This query will return a list of all prov:agent entity UUIDs within a single project
+    that prov:hadRole sio:Subject or Constants.NIDM_PARTICIPANT
+    :param nidm_file_list: List of one or more NIDM files to query across for list of Projects
+    :return: list of Constants.NIDM_PARTICIPANT UUIDs and Constants.NIDM_SUBJECTID
+    '''
+
+    query = '''
+        PREFIX prov:<http://www.w3.org/ns/prov#>
+        PREFIX sio: <http://semanticscience.org/ontology/sio.owl#>
+        PREFIX ndar: <https://ndar.nih.gov/api/datadictionary/v2/dataelement/>
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX nidm: <http://purl.org/nidash/nidm#>
+        PREFIX dct: <http://purl.org/dc/terms/>
+
+        SELECT DISTINCT ?uuid ?sid
+        WHERE {
+
+            FILTER(regex(str(?proj), "%s")).
+
+
+            ?proj rdf:type nidm:Project .
+            ?sess dct:isPartOf ?proj .
+            ?activity dct:isPartOf ?sess .
+            
+            ?activity rdf:type prov:Activity ;
+            prov:qualifiedAssociation _:blanknode .
+
+            _:blanknode prov:hadRole sio:Subject ;
+             prov:agent ?uuid  .
+             
+             ?uuid ndar:src_subject_id ?sid
+        }
+        ''' % (project_id)
+
+    df = sparql_query_nidm(nidm_file_list, query, output_file=output_file)
+    # print ("PPPPPPPProject ID %s" % (project_id))
+    # print (df)
+    # assert False
+
+    # agents = df[['uuid']].values
+
+
+    return df
+
+
 def GetProjectsMetadata(nidm_file_list):
     '''
      :param nidm_file_list: List of one or more NIDM files to query for project meta data
@@ -405,7 +503,7 @@ def expandNIDMAbbreviation(shortKey) -> str:
     :type shortKey: str
     :return:
     '''
-    skey = str(shortKey)
+    newkey = skey = str(shortKey)
     match = re.search(r"^([^:]+):([^:]+)$", skey)
     if match:
         newkey = Constants.namespaces[match.group(1)] + match.group(2)
