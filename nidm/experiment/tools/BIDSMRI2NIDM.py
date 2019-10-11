@@ -216,7 +216,6 @@ def bidsmri2project(directory, args):
         #add absolute location of BIDS directory on disk for later finding of files which are stored relatively in NIDM document
         project.add_attributes({Constants.PROV['Location']:directory})
 
-
     #get BIDS layout
     bids_layout = BIDSLayout(directory)
 
@@ -288,7 +287,7 @@ def bidsmri2project(directory, args):
 
                 #add qualified association of participant with acquisition activity
                 acq.add_qualified_association(person=participant[subjid]['person'],role=Constants.NIDM_PARTICIPANT)
-
+                print(acq)
 
 
                 for key,value in row.items():
@@ -376,6 +375,7 @@ def bidsmri2project(directory, args):
                 else:
                     logging.info("WARNINGL file %s doesn't exist! No SHA512 sum stored in NIDM files..." %join(directory,file_tpl.dirname,file_tpl.filename))
                 #get associated JSON file if exists
+                #There is T1w.json file with information 
                 json_data = (bids_layout.get(suffix=file_tpl.entities['suffix'],subject=subject_id))[0].metadata
                 if len(json_data.info)>0:
                     for key in json_data.info.items():
@@ -384,6 +384,28 @@ def bidsmri2project(directory, args):
                                 acq_obj.add_attributes({BIDS_Constants.json_keys[key.replace(" ", "_")]:''.join(str(e) for e in json_data.info[key])})
                             else:
                                 acq_obj.add_attributes({BIDS_Constants.json_keys[key.replace(" ", "_")]:json_data.info[key]})
+                   
+                #Parse T1w.json file in BIDS directory to add the attributes contained inside
+                if (os.path.isdir(os.path.join(directory))):
+                    try:
+                        with open(os.path.join(directory,'T1w.json')) as data_file:
+                            dataset = json.load(data_file)
+                    except OSError:
+                        logging.critical("Cannot find T1w.json file which is required in the BIDS spec")
+                        exit("-1")
+                else:
+                    logging.critical("Error: BIDS directory %s does not exist!" %os.path.join(directory))
+                    exit("-1")
+
+                #add various attributes if they exist in BIDS dataset
+                for key in dataset:
+                    #if key from T1w.json file is mapped to term in BIDS_Constants.py then add to NIDM object
+                    if key in BIDS_Constants.json_keys:
+                        if type(dataset[key]) is list:
+                            acq_obj.add_attributes({BIDS_Constants.json_keys[key]:"".join(dataset[key])})
+                        else:
+                            acq_obj.add_attributes({BIDS_Constants.json_keys[key]:dataset[key]}) 
+                                                          
             elif file_tpl.entities['datatype'] == 'func':
                 #do something with functionals
                 acq_obj = MRObject(acq)
@@ -436,6 +458,27 @@ def bidsmri2project(directory, args):
                     events_obj.add_attributes({PROV_TYPE:Constants.NIDM_MRI_BOLD_EVENTS,BIDS_Constants.json_keys["TaskName"]: json_data["TaskName"], Constants.NIDM_FILENAME:getRelPathToBIDS(events_file[0].filename, directory)})
                     #link it to appropriate MR acquisition entity
                     events_obj.wasAttributedTo(acq_obj)
+                    
+                #Parse task-rest_bold.json file in BIDS directory to add the attributes contained inside
+                if (os.path.isdir(os.path.join(directory))):
+                    try:
+                        with open(os.path.join(directory,'task-rest_bold.json')) as data_file:
+                            dataset = json.load(data_file)
+                    except OSError:
+                        logging.critical("Cannot find task-rest_bold.json file which is required in the BIDS spec")
+                        exit("-1")
+                else:
+                    logging.critical("Error: BIDS directory %s does not exist!" %os.path.join(directory))
+                    exit("-1")
+
+                #add various attributes if they exist in BIDS dataset
+                for key in dataset:
+                    #if key from task-rest_bold.json file is mapped to term in BIDS_Constants.py then add to NIDM object
+                    if key in BIDS_Constants.json_keys:
+                        if type(dataset[key]) is list:
+                            acq_obj.add_attributes({BIDS_Constants.json_keys[key]:",".join(map(str,dataset[key]))})
+                        else:
+                            acq_obj.add_attributes({BIDS_Constants.json_keys[key]:dataset[key]}) 
 
             elif file_tpl.entities['datatype'] == 'dwi':
                 #do stuff with with dwi scans...
