@@ -15,8 +15,8 @@ RUN pip3 install pytest graphviz prov pydot validators ontquery click rdflib-jso
 ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
 
-update-alternatives --remove python /usr/bin/python2
-update-alternatives --install /usr/bin/python python /usr/bin/python3 10
+RUN update-alternatives --remove python /usr/bin/python2
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 10
 
 COPY . .
 
