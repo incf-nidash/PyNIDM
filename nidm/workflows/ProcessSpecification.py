@@ -30,7 +30,7 @@ class ProcessSpecification(pm.ProvEntity, Core):
         if (parentdoc):
             self.graph = parentdoc
         else:
-            self.graph = Constants.p_graph
+            self.graph = Constants.NIDMDocument(namespaces=Constants.namespaces)
 
          #execute default parent class constructor
         super(ProcessSpecification,self).__init__(self.graph,
