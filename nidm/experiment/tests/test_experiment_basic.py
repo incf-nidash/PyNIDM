@@ -4,6 +4,9 @@ from os import remove
 import json
 from nidm.experiment import Project, Session, Acquisition, AcquisitionObject
 from nidm.core import Constants
+from io import StringIO
+from rdflib import Graph
+from nidm.experiment.Utils import read_nidm
 
 import prov, rdflib
 
@@ -198,6 +201,29 @@ def test_jsonld_exports():
     #WIP  Read back in json-ld file and check that we have the project info
     #remove("test.json")
 
+def test_project_trig_serialization():
+
+    outfile = StringIO()
+
+
+    kwargs={Constants.NIDM_PROJECT_NAME:"FBIRN_PhaseII",Constants.NIDM_PROJECT_IDENTIFIER:9610,Constants.NIDM_PROJECT_DESCRIPTION:"Test investigation"}
+    project = Project(uuid="_123456",attributes=kwargs)
+
+
+    #save as trig file with graph identifier Constants.NIDM_Project
+    test = project.serializeTrig(identifier=Constants.NIIRI["_996"])
+    outfile.write(test)
+    outfile.seek(0)
+
+
+    #load back into rdf graph and do assertions
+    project2 = Graph()
+    project2.parse(source=outfile)
+
+
+    #test some assertion on read file
+    print(project2.serialize(format='turtle').decode('ASCII'))
+    print(project2.serialize(format='trig').decode('ASCII'))
 
 #TODO: checking
 #attributes{pm.QualifiedName(Namespace("uci", "https.../"), "mascot"): "bleble", ...}
