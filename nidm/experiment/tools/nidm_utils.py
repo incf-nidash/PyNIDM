@@ -33,10 +33,13 @@
 import os,sys
 from argparse import ArgumentParser
 from rdflib import Graph,util
+from rdflib.tools import rdf2dot
 from nidm.experiment.Utils import read_nidm
 from io import StringIO
 from os.path import basename,splitext
-
+import subprocess
+from graphviz import Source
+import tempfile
 
 def main(argv):
 
@@ -76,8 +79,24 @@ def main(argv):
              graph = graph + tmp.parse(nidm_file,format=util.guess_format(nidm_file))
 
 
-        project=read_nidm(StringIO.write(graph.serialize(format='turtle')))
-        project.save_DotGraph(filename=args.output_file+'.pdf',format='pdf')
+        # project=read_nidm(StringIO.write(graph.serialize(format='turtle')))
+        # project.save_DotGraph(filename=args.output_file+'.pdf',format='pdf')
+        # WIP: Workaround because not all NIDM files only contain NIDM-E objects and so read_nidm function needs to be
+        # updated for project.save_DotGraph to work...so this is a clunky workaround using the command line tool
+        # rdf2dot
+
+        # result is the standard output dot graph stream
+        # write temporary file to disk and use for stats
+        temp = tempfile.NamedTemporaryFile(delete=False)
+        temp.write(graph.serialize(format='turtle'))
+        temp.close()
+        uber_nidm_file = temp.name
+        result = subprocess.run(['rdf2dot',uber_nidm_file], stdout=subprocess.PIPE)
+        # now use graphviz Source to create dot graph object
+        src=Source(result)
+        src.render(args.output_file+'.pdf',view=False,format='pdf')
+
+
 
     elif args.command == 'jsonld':
         #create empty graph

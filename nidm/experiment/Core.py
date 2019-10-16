@@ -318,6 +318,24 @@ class Core(object):
         :return: text of serialized graph in Turtle format
         """
         return self.graph.serialize(None, format='rdf', rdf_format='ttl')
+
+    def serializeTrig(self, identifier=None):
+
+        """
+        Serializes graph to Turtle format
+        :param identifier: Optional identifier to use for graph serialization
+        :return: text of serialized graph in Turtle format
+        """
+        if identifier is not None:
+            rdf_graph = Graph(identifier=identifier)
+            rdf_graph.parse(source=StringIO(self.serializeTurtle()),format='turtle')
+        else:
+            rdf_graph = Graph()
+            rdf_graph.parse(source=StringIO(self.serializeTurtle()),format='turtle')
+
+        return rdf_graph.serialize(format='trig').decode('ASCII')
+
+
     def serializeJSONLD(self):
         """
         Serializes graph to JSON-LD format
