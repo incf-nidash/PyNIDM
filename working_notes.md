@@ -5,7 +5,7 @@ See  https://github.com/albertcrowley/nidm-training/blob/master/README.md for mo
 
 ## Command line SPARQL queries
 Use Apache Jena:
-/vagrant/apache-jena-3.11.0/bin/arq --query [query-file] --data=[data file]
+/opt/apache-jena-3.11.0/bin/arq --query [query-file] --data=[data file]
 
 ## Run one test example:
 
