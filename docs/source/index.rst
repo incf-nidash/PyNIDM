@@ -77,32 +77,27 @@ While we're migrating to using 'click', this tools is still buried in the tools 
 
 .. code-block:: bash
 
-    $ ./nidm/experiment/tools/BIDSMRI2NIDM.py -d [ROOT BIDS DIRECT] -bidsignore
+    $ bidsmri2nidm -d [ROOT BIDS DIRECT] -bidsignore
  
 Example 1:No variable->term mapping, simple BIDS dataset conversion which will add nidm.ttl file to BIDS dataset and .bidsignore file:
 
 .. code-block:: bash
 
-    $ ./nidm/experiment/tools/BIDSMRI2NIDM.py -d [root directory of BIDS dataset] -o [PATH/nidm.ttl]
+    $ bidsmri2nidm -d [root directory of BIDS dataset] -o [PATH/nidm.ttl]
  
 Example 2:No variable->term mapping, simple BIDS dataset conversion but storing nidm file somewhere else: 
 
 .. code-block:: bash
 
-    $ ./nidm/experiment/tools/BIDSMRI2NIDM.py -d [root directory of BIDS dataset] -ilxkey [Your Interlex key] -github [username token] -bidsignore
+    $ bidsmri2nidm -d [root directory of BIDS dataset] -ilxkey [Your Interlex key] -bidsignore
 
-Example 3:BIDS conversion with variable->term mappings, no existing mappings available, uses Interlex for terms and github for defining terms you can't find in Interlex (note, for now these two need to be used together)!  To get an Interlex API key you visit [SciCrunch](http://scicrunch.org), register for an account, then click on "MyAccount" and "API Keys" to add a new API key for your account.  Use this API Key for the -ilxkey parameter below.  This example  adds a nidm.ttl file BIDS dataset and .bidsignore file and it will by default create you a JSON mapping file which contains the variable->term mappings you defined during the interactive, iterative activity of using this tool to map your variables to terms.  The default JSON mapping file will be called nidm_json_map.json but you can also specify this explictly using the -json_map parameter (see Example 5 below): 
-
-.. code-block:: bash
-
-    $ ./nidm/experiment/tools/BIDSMRI2NIDM.py -d [root directory of BIDS dataset] -ilxkey [Your Interlex key] -github [username token] -owl -bidsignore
-Example 4: BIDS conversion with variable->term mappings, no existing mappings available, uses Interlex + NIDM OWL file for terms and github, adds nidm.ttl file BIDS dataset and .bidsignore file: 
+Example 3:BIDS conversion with variable->term mappings, no existing mappings available, uses Interlex for terms. To get an Interlex API key you visit [SciCrunch](http://scicrunch.org), register for an account, then click on "MyAccount" and "API Keys" to add a new API key for your account.  Use this API Key for the -ilxkey parameter below.  This example  adds a nidm.ttl file BIDS dataset and .bidsignore file and it will by default create you a JSON mapping file which contains the variable->term mappings you defined during the interactive, iterative activity of using this tool to map your variables to terms.  A JSON mapping file be stored for participants.tsv called participants.json and the nidm.ttl file will be stored at the root of the BIDS directory (but you can also specify this explictly using the -json_map parameter (see Example 4 below)):
 
 .. code-block:: bash
 
-    $ ./nidm/experiment/tools/BIDSMRI2NIDM.py -d [root directory of BIDS dataset] -json_map [Your JSON file] -ilxkey [Your Interlex key] -github [username token] -owl -bidsignore
+    $ bidsmri2nidm -d [root directory of BIDS dataset] -json_map [Your JSON file] -ilxkey [Your Interlex key] -bidsignore
 
-Example 5 (FULL MONTY): BIDS conversion with variable->term mappings, uses JSON mapping file first then uses Interlex + NIDM OWL file for terms and github, adds nidm.ttl file BIDS dataset and .bidsignore file: 
+Example 5 BIDS conversion with variable->term mappings, uses JSON mapping file first then uses Interlex, adds nidm.ttl file to root of BIDS dataset and adds to .bidsignore file:
 
 	 json mapping file has entries for each variable with mappings to formal terms.  Example:  
 
@@ -155,14 +150,6 @@ optional arguments:
 	
 	                      Interlex/SciCrunch API key to use for query
 						  
-	-github [GITHUB [GITHUB ...]], --github [GITHUB [GITHUB ...]]
-	
-	                      Use -github flag with list username token(or pw) for storing locally-defined terms in a
-	                      nidm-local-terms repository in GitHub.  If user doesn''t supply a token then user will be prompted for username/password.
-                        
-	                      Example: -github username token
-						  
-	-owl                  Optional flag to query nidm-experiment OWL files
 
 CSV File to NIDM Conversion
 ---------------------------
@@ -176,7 +163,7 @@ While we're migrating to using 'click', this tools is still buried in the tools 
 
 .. code-block:: bash
 
-    $ ./nidm/experiment/tools/CSV2NIDM.py  [OPTIONS]
+    $ csv2nidm  [OPTIONS]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -188,16 +175,6 @@ optional arguments:
   -json_map JSON_MAP    User-suppled JSON file containing variable-term mappings.
   
   -nidm NIDM_FILE       Optional NIDM file to add CSV->NIDM converted graph to
-  
-  -github [GITHUB [GITHUB ...]]
-                        Use -github flag with username token(or pw) for
-                        storing locally-defined terms in a "nidm-local-terms"
-                        repository in GitHub. If user doesnt supply a token
-                        then user will be prompted for username/password.
-                        Example: -github username token
-						
-  -owl                  Optionally searches NIDM OWL files...internet
-                        connection required
 						
   -out OUTPUT_FILE      Filename to save NIDM file
 

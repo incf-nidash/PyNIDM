@@ -2,7 +2,7 @@ import os
 from setuptools import setup, find_packages
 PACKAGES = find_packages()
 
-# Get version and release info, which is all stored in ndim/version.py
+# Get version and release info, which is all stored in nidm/version.py
 ver_file = os.path.join('nidm', 'version.py')
 with open(ver_file) as f:
     exec(f.read())
@@ -25,7 +25,7 @@ opts = dict(name=NAME,
             #requires=INSTALL_REQUIRES,
             entry_points='''
                [console_scripts]
-               nidm=nidm.experiment.tools.click_main:cli
+               pynidm=nidm.experiment.tools.click_main:cli
             '''
 )
 
