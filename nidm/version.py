@@ -41,7 +41,7 @@ License
 for usage, and a DISCLAIMER OF ALL WARRANTIES.
 """
 
-NAME = "nidm"
+NAME = "pynidm"
 MAINTAINER = "INCF-NIDASH developers"
 MAINTAINER_EMAIL = "incf-nidash-nidm@googlegroups.com"
 DESCRIPTION = description
