@@ -43,7 +43,7 @@ from nidm.experiment.Core import Core
 from prov.model import QualifiedName
 from prov.model import Namespace as provNamespace
 from argparse import ArgumentParser
-from os.path import  dirname, join, splitext
+from os.path import  dirname, join, splitext,basename
 import json
 import pandas as pd
 #import tkinter as tk
@@ -57,6 +57,10 @@ from fuzzywuzzy import fuzz
 from rdflib import Graph,URIRef,RDF
 from io import StringIO
 
+from collections import namedtuple
+
+
+DD = namedtuple("DD", ["instrument", "variable"])
 
 #def createDialogBox(search_results):
 #class NewListbox(tk.Listbox):
@@ -106,7 +110,7 @@ def main(argv):
     #if args.owl is not False:
     #    column_to_terms = map_variables_to_terms(df=df, apikey=args.key, directory=dirname(args.output_file), output_file=args.output_file, json_file=args.json_map, owl_file=args.owl)
     #else:
-    column_to_terms = map_variables_to_terms(df=df, apikey=args.key, directory=dirname(args.output_file), output_file=args.output_file, json_file=args.json_map)
+    column_to_terms = map_variables_to_terms(df=df, apikey=args.key, assessment_name=basename(args.csv_file),directory=dirname(args.output_file), output_file=args.output_file, json_file=args.json_map)
 
 
 
@@ -199,7 +203,8 @@ def main(argv):
                             continue
                         #get column_to_term mapping uri and add as namespace in NIDM document
                         #provNamespace(Core.safe_string(None,string=str(row_variable)), column_to_terms[row_variable]["url"])
-                        acq_entity.add_attributes({QualifiedName(provNamespace(Core.safe_string(None,string=str(row_variable)), column_to_terms[row_variable]["url"]), ""):csv_row[row_variable].values[0]})
+                        current_tuple = str(DD(instrument=basename(args.csv_file), variable=row_variable))
+                        acq_entity.add_attributes({QualifiedName(provNamespace(Core.safe_string(None,string=str(row_variable)), column_to_terms[current_tuple]["url"]), ""):csv_row[row_variable].values[0]})
                 continue
 
         #serialize NIDM file
@@ -267,7 +272,8 @@ def main(argv):
                     continue
                 else:
                     #get column_to_term mapping uri and add as namespace in NIDM document
-                    acq_entity.add_attributes({QualifiedName(provNamespace(Core.safe_string(None,string=str(row_variable)), column_to_terms[row_variable]["url"]),""):row_data})
+                    current_tuple = str(DD(instrument=basename(args.csv_file), variable=row_variable))
+                    acq_entity.add_attributes({QualifiedName(provNamespace(Core.safe_string(None,string=str(row_variable)), column_to_terms[current_tuple]["url"]),""):row_data})
                     #print(project.serializeTurtle())
 
         #serialize NIDM file
