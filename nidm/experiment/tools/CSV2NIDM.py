@@ -210,7 +210,8 @@ def main(argv):
             else:
                 f.write(project.serializeTurtle())
 
-            project.save_DotGraph(str(args.nidm_file + ".png"), format="png")
+            if args.png:
+                project.save_DotGraph(str(args.nidm_file + ".png"), format="png")
 
 
 
