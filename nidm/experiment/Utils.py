@@ -30,10 +30,7 @@ import logging
 
 #Interlex stuff
 import ontquery as oq
-from collections import namedtuple
 
-
-DD = namedtuple("DD", ["instrument", "variable"])
 
 
 def read_nidm(nidmDoc):
@@ -627,7 +624,7 @@ def map_variables_to_terms(df,apikey,directory, assessment_name, output_file=Non
         # loop variable for terms markup
         go_loop=True
         # set up a dictionary entry for this column
-        current_tuple = str(DD(instrument=assessment_name, variable=column))
+        current_tuple = str(Constants.DD(source=assessment_name, variable=column))
         column_to_terms[current_tuple] = {}
 
         # if we loaded a json file with existing mappings
@@ -967,3 +964,12 @@ def map_variables_to_terms(df,apikey,directory, assessment_name, output_file=Non
         #input("Press Enter to continue...")
 
     return column_to_terms
+
+def DD_to_nidm(DD):
+    '''
+
+    Takes a Constants.DD json structure and returns nidm CDE-style graph to be added to NIDM documents
+    :param DD:
+    :return: NIDM graph
+    '''
+

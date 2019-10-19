@@ -57,10 +57,10 @@ from fuzzywuzzy import fuzz
 from rdflib import Graph,URIRef,RDF
 from io import StringIO
 
-from collections import namedtuple
 
 
-DD = namedtuple("DD", ["instrument", "variable"])
+
+
 
 #def createDialogBox(search_results):
 #class NewListbox(tk.Listbox):
@@ -203,7 +203,7 @@ def main(argv):
                             continue
                         #get column_to_term mapping uri and add as namespace in NIDM document
                         #provNamespace(Core.safe_string(None,string=str(row_variable)), column_to_terms[row_variable]["url"])
-                        current_tuple = str(DD(instrument=basename(args.csv_file), variable=row_variable))
+                        current_tuple = str(Constants.DD(source=basename(args.csv_file), variable=row_variable))
                         acq_entity.add_attributes({QualifiedName(provNamespace(Core.safe_string(None,string=str(row_variable)), column_to_terms[current_tuple]["url"]), ""):csv_row[row_variable].values[0]})
                 continue
 
@@ -272,7 +272,7 @@ def main(argv):
                     continue
                 else:
                     #get column_to_term mapping uri and add as namespace in NIDM document
-                    current_tuple = str(DD(instrument=basename(args.csv_file), variable=row_variable))
+                    current_tuple = str(Constants.DD(source=basename(args.csv_file), variable=row_variable))
                     acq_entity.add_attributes({QualifiedName(provNamespace(Core.safe_string(None,string=str(row_variable)), column_to_terms[current_tuple]["url"]),""):row_data})
                     #print(project.serializeTurtle())
 
