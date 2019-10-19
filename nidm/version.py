@@ -3,7 +3,7 @@ import os.path
 
 # Format expected by setup.py and doc/source/conf.py: string of form "X.Y.Z"
 _version_major = 0
-_version_minor = 2
+_version_minor = 3
 _version_micro = ''  # use '' for first of series, number for 1 and above
 _version_extra = 'dev'
 # _version_extra = ''  # Uncomment this for full releases
@@ -28,15 +28,15 @@ CLASSIFIERS = ["Development Status :: 3 - Alpha",
 
 # Description should be a one-liner:
 # TODO
-description = "NIDM: a Python NIDM library"
+description = "PYNIDM: a Python NIDM library"
 # Long description will go up on the pypi page
 long_description = """
 NIDM
 ========
-HERE should be longer description of tha package TODO!
+A Python library to manipulate the [Neuroimaging Data Model](http://nidm.nidash.org).
 License
 =======
-``nidm`` is licensed under the terms of the Apache License 2.0. See the file
+``pynidm`` is licensed under the terms of the Apache License 2.0. See the file
 "LICENSE" for information on the history of this software, terms & conditions
 for usage, and a DISCLAIMER OF ALL WARRANTIES.
 """
