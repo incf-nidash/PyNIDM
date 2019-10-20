@@ -899,7 +899,7 @@ def map_variables_to_terms(df,apikey,directory, assessment_name, output_file=Non
                 column_to_terms[current_tuple]['min'] = term_min
                 column_to_terms[current_tuple]['max'] = term_max
                 if term_datatype == 'categorical':
-                    column_to_terms[current_tuple]['categories'] = json.dumps(term_category)
+                    column_to_terms[current_tuple]['levels'] = json.dumps(term_category)
 
 
                 # print mappings
@@ -913,7 +913,7 @@ def map_variables_to_terms(df,apikey,directory, assessment_name, output_file=Non
                 print("Min: %s" % column_to_terms[current_tuple]['min'])
                 print("Max: %s" % column_to_terms[current_tuple]['max'])
                 if term_datatype == 'categorical':
-                    print("Categories: %s" % column_to_terms[current_tuple]['categories'])
+                    print("Levels: %s" % column_to_terms[current_tuple]['levels'])
                 print("---------------------------------------------------------------------------------------")\
 
                 # don't need to continue while loop because we've defined a term for this CSV column

@@ -439,6 +439,21 @@ def GetProjectsComputedMetadata(nidm_file_list):
 
     return compressForJSONResponse(meta_data)
 
+def GetDataElements(nidm_file_list):
+
+    query='''
+        select distinct ?DataElements
+            where {
+
+                ?uuid a ?DataElements
+
+                filter( regex(str(?DataElements), "DataElement" ))
+
+            }'''
+
+    df = sparql_query_nidm(nidm_file_list.split(','), query, output_file=None)
+    return df
+
 
 def ExtractProjectSummary(meta_data, nidm_file_list):
     '''
@@ -545,3 +560,4 @@ def matchPrefix(possible_URI) -> str:
         return "{}:{}".format("nidm:", possible_URI.replace(Constants.NIDM_URL, ""))
 
     return possible_URI
+
