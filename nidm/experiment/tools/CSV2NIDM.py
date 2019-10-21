@@ -37,7 +37,7 @@
 import os,sys
 from nidm.experiment import Project,Session,AssessmentAcquisition,AssessmentObject
 from nidm.core import Constants
-from nidm.experiment.Utils import read_nidm, map_variables_to_terms
+from nidm.experiment.Utils import read_nidm, map_variables_to_terms, DD_to_nidm
 from nidm.experiment.Core import getUUID
 from nidm.experiment.Core import Core
 from prov.model import QualifiedName
@@ -112,7 +112,7 @@ def main(argv):
     #else:
     column_to_terms = map_variables_to_terms(df=df, apikey=args.key, assessment_name=basename(args.csv_file),directory=dirname(args.output_file), output_file=args.output_file, json_file=args.json_map)
 
-
+    test = DD_to_nidm(column_to_terms)
 
     #If user has added an existing NIDM file as a command line parameter then add to existing file for subjects who exist in the NIDM file
     if args.nidm_file:
@@ -147,7 +147,7 @@ def main(argv):
 
         #use RDFLib here for temporary graph making query easier
         rdf_graph = Graph()
-        rdf_graph_parse = rdf_graph.parse(source=StringIO(project.serializeTurtle()),format='turtle')
+        rdf_graph.parse(source=StringIO(project.serializeTurtle()),format='turtle')
 
         #find subject ids and sessions in NIDM document
         query = """SELECT DISTINCT ?session ?nidm_subj_id ?agent
@@ -158,7 +158,7 @@ def main(argv):
                             ndar:src_subject_id ?nidm_subj_id .
                     }"""
         #print(query)
-        qres = rdf_graph_parse.query(query)
+        qres = rdf_graph.query(query)
 
 
         for row in qres:

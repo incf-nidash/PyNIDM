@@ -18,6 +18,7 @@ import getpass
 
 #NIDM imports
 from ..core import Constants
+from ..core.Constants import DD
 from .Project import Project
 from .Session import Session
 from .Acquisition import Acquisition
@@ -26,6 +27,7 @@ from .AcquisitionObject import AcquisitionObject
 from .AssessmentAcquisition import AssessmentAcquisition
 from .AssessmentObject import AssessmentObject
 from .MRObject import MRObject
+from .Core import getUUID
 import logging
 
 #Interlex stuff
@@ -624,7 +626,7 @@ def map_variables_to_terms(df,apikey,directory, assessment_name, output_file=Non
         # loop variable for terms markup
         go_loop=True
         # set up a dictionary entry for this column
-        current_tuple = str(Constants.DD(source=assessment_name, variable=column))
+        current_tuple = str(DD(source=assessment_name, variable=column))
         column_to_terms[current_tuple] = {}
 
         # if we loaded a json file with existing mappings
@@ -965,11 +967,43 @@ def map_variables_to_terms(df,apikey,directory, assessment_name, output_file=Non
 
     return column_to_terms
 
-def DD_to_nidm(DD):
+def DD_to_nidm(dd_struct):
     '''
 
-    Takes a Constants.DD json structure and returns nidm CDE-style graph to be added to NIDM documents
+    Takes a DD json structure and returns nidm CDE-style graph to be added to NIDM documents
     :param DD:
     :return: NIDM graph
     '''
+
+    # create empty graph for CDEs
+    g=Graph()
+
+
+
+    # for each named tuple key in data dictionary
+    for key in dd_struct:
+        # bind a namespace for the the data dictionary source field of the key tuple
+        # for each source variable create entity where the namespace is the source and ID is the variable
+        # e.g. calgary:FISCAL_4, aims:FIAIM_9
+        #
+        # Then when we're storing acquired data in entity we'll use the entity IDs above to reference a particular
+        # CDE.  The CDE definitions will have metadata about the various aspects of the data dictionary CDE.
+
+        # add the DataElement RDF type in the source namespace
+        key_tuple = eval(key)
+        for subkey, item in key_tuple._asdict().items():
+            if subkey == 'source':
+                # check if namespace exists else bind it...
+                item_ns = Namespace(dd_struct[str(key_tuple)]["url"].split('?')[0]+'#')
+                g.bind(prefix=os.path.splitext(item)[0], namespace=item_ns)
+            else:
+                g.add((Constants.NIIRI[getUUID()],RDF.type, item_ns[item]))
+                # add other properties
+                print(g.serialize(format='turtle'))
+
+
+
+
+
+
 
