@@ -37,26 +37,14 @@
 import os,sys
 from nidm.experiment import Project,Session,AssessmentAcquisition,AssessmentObject
 from nidm.core import Constants
-from nidm.experiment.Utils import read_nidm, map_variables_to_terms, DD_to_nidm
-from nidm.experiment.Core import getUUID
-from nidm.experiment.Core import Core
-from prov.model import QualifiedName
-from prov.model import Namespace as provNamespace
+from nidm.experiment.Utils import read_nidm, map_variables_to_terms, add_attributes_with_cde
 from argparse import ArgumentParser
 from os.path import  dirname, join, splitext,basename
 import json
 import pandas as pd
-#import tkinter as tk
-#from tkinter import font
-import validators
-import urllib.parse
-import getpass
-import operator
-from github import Github, GithubException
-from fuzzywuzzy import fuzz
-from rdflib import Graph,URIRef,RDF
+from rdflib import Graph,URIRef,RDF,Literal
 from io import StringIO
-
+from shutil import copy2
 
 
 
@@ -97,9 +85,9 @@ def main(argv):
     parser.add_argument('-ilxkey', dest='key', required=True, help="Interlex/SciCrunch API key to use for query")
     parser.add_argument('-json_map', dest='json_map',required=False,help="User-suppled JSON file containing variable-term mappings.")
     parser.add_argument('-nidm', dest='nidm_file', required=False, help="Optional NIDM file to add CSV->NIDM converted graph to")
-    #parser.add_argument('-owl', action='store_true', required=False, help='Optionally searches NIDM OWL files...internet connection required')
-    parser.add_argument('-png', action='store_true', required=False, help='Optional flag, when set a PNG image file of RDF graph will be produced')
-    parser.add_argument('-jsonld', action='store_true', required=False, help='Optional flag, when set NIDM files are saved as JSON-LD instead of TURTLE')
+    # parser.add_argument('-owl', action='store_true', required=False, help='Optionally searches NIDM OWL files...internet connection required')
+    # parser.add_argument('-png', action='store_true', required=False, help='Optional flag, when set a PNG image file of RDF graph will be produced')
+    # parser.add_argument('-jsonld', action='store_true', required=False, help='Optional flag, when set NIDM files are saved as JSON-LD instead of TURTLE')
     parser.add_argument('-out', dest='output_file', required=True, help="Filename to save NIDM file")
     args = parser.parse_args()
 
@@ -110,9 +98,9 @@ def main(argv):
     #if args.owl is not False:
     #    column_to_terms = map_variables_to_terms(df=df, apikey=args.key, directory=dirname(args.output_file), output_file=args.output_file, json_file=args.json_map, owl_file=args.owl)
     #else:
-    column_to_terms = map_variables_to_terms(df=df, apikey=args.key, assessment_name=basename(args.csv_file),directory=dirname(args.output_file), output_file=args.output_file, json_file=args.json_map)
+    column_to_terms, cde = map_variables_to_terms(df=df, apikey=args.key, assessment_name=basename(args.csv_file),directory=dirname(args.output_file), output_file=args.output_file, json_file=args.json_map)
 
-    test = DD_to_nidm(column_to_terms)
+
 
     #If user has added an existing NIDM file as a command line parameter then add to existing file for subjects who exist in the NIDM file
     if args.nidm_file:
@@ -149,6 +137,7 @@ def main(argv):
         rdf_graph = Graph()
         rdf_graph.parse(source=StringIO(project.serializeTurtle()),format='turtle')
 
+        print("Querying for existing participants in NIDM graph....")
         #find subject ids and sessions in NIDM document
         query = """SELECT DISTINCT ?session ?nidm_subj_id ?agent
                     WHERE {
@@ -201,22 +190,38 @@ def main(argv):
                     else:
                         if not csv_row[row_variable].values[0]:
                             continue
-                        #get column_to_term mapping uri and add as namespace in NIDM document
-                        #provNamespace(Core.safe_string(None,string=str(row_variable)), column_to_terms[row_variable]["url"])
-                        current_tuple = str(Constants.DD(source=basename(args.csv_file), variable=row_variable))
-                        acq_entity.add_attributes({QualifiedName(provNamespace(Core.safe_string(None,string=str(row_variable)), column_to_terms[current_tuple]["url"]), ""):csv_row[row_variable].values[0]})
+
+
+                        add_attributes_with_cde(acq_entity, cde, row_variable, csv_row[row_variable].values[0])
+
+
+
                 continue
 
-        #serialize NIDM file
-        with open(args.nidm_file,'w') as f:
-            print("Writing NIDM file...")
-            if args.jsonld:
-                f.write(project.serializeJSONLD())
-            else:
-                f.write(project.serializeTurtle())
+        print ("Adding CDEs to graph....")
+        # convert to rdflib Graph and add CDEs
+        rdf_graph = Graph()
+        rdf_graph.parse(source=StringIO(project.serializeTurtle()),format='turtle')
+        rdf_graph = rdf_graph + cde
 
-            if args.png:
-                project.save_DotGraph(str(args.nidm_file + ".png"), format="png")
+        print("Backing up original NIDM file...")
+        copy2(src=args.nidm_file,dst=args.nidm_file+".bak")
+        print("Writing NIDM file....")
+        rdf_graph.serialize(destination=args.nidm_file,format='turtle')
+
+
+
+
+        #serialize NIDM file
+        # with open(args.nidm_file,'w') as f:
+        #    print("Writing NIDM file...")
+        #    if args.jsonld:
+        #        f.write(project.serializeJSONLD())
+        #    else:
+        #        f.write(project.serializeTurtle())
+        #
+        #    if args.png:
+        #        project.save_DotGraph(str(args.nidm_file + ".png"), format="png")
 
 
 
@@ -271,26 +276,17 @@ def main(argv):
 
                     continue
                 else:
-                    #get column_to_term mapping uri and add as namespace in NIDM document
-                    current_tuple = str(Constants.DD(source=basename(args.csv_file), variable=row_variable))
-                    acq_entity.add_attributes({QualifiedName(provNamespace(Core.safe_string(None,string=str(row_variable)), column_to_terms[current_tuple]["url"]),""):row_data})
+                    add_attributes_with_cde(acq_entity, cde, row_variable, row_data)
+
                     #print(project.serializeTurtle())
 
-        #serialize NIDM file
-        with open(args.output_file,'w') as f:
-            print("Writing NIDM file...")
-            if args.jsonld:
-                f.write(project.serializeJSONLD())
-            else:
-                f.write(project.serializeTurtle())
-            if args.png:
-                project.save_DotGraph(str(args.output_file + ".png"), format="png")
+        # convert to rdflib Graph and add CDEs
+        rdf_graph = Graph()
+        rdf_graph.parse(source=StringIO(project.serializeTurtle()),format='turtle')
+        rdf_graph = rdf_graph + cde
 
-
-    #iterate over rows in CSV file:
-    #for index,row in df.iterrows():
-    #    for columns in df.columns():
-
+        print("Writing NIDM file....")
+        rdf_graph.serialize(destination=args.output_file,format='turtle')
 
 
 

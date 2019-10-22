@@ -1,15 +1,16 @@
 import os,sys
 
 
-from rdflib import Namespace
+from rdflib import Namespace, Literal,RDFS
 from rdflib.namespace import XSD
 from rdflib.resource import Resource
-import types
-import graphviz
+from urllib.parse import urlparse, urlsplit
 from rdflib import Graph, RDF, URIRef, util
 from rdflib.namespace import split_uri
 import validators
 import prov.model as pm
+from prov.model import QualifiedName
+from prov.model import Namespace as provNamespace
 import requests
 from fuzzywuzzy import fuzz
 import json
@@ -160,7 +161,7 @@ def read_nidm(nidmDoc):
 
 
                         #query whether this is an assessment acquisition by way of looking at the generated entity and determining
-                        #if it has the rdf:type "nidm:assessment-instrument"
+                        #if it has the rdf:type Constants.NIDM_ASSESSMENT_ENTITY
                         #for acq_modality in rdf_graph_parse.objects(subject=acq_obj,predicate=RDF.type):
                         if (acq_obj, RDF.type, URIRef(Constants.NIDM_ASSESSMENT_ENTITY._uri)) in rdf_graph:
 
@@ -668,15 +669,23 @@ def map_variables_to_terms(df,apikey,directory, assessment_name, output_file=Non
             (("participant" in search_term.lower()) and ("id" in search_term.lower())) or
             (("subject" in search_term.lower()) and ("id" in search_term.lower())) ):
 
-            #map this term to Constants.NIDM_SUBJECTID
-            column_to_terms[current_tuple]['label'] = search_term
-            column_to_terms[current_tuple]['definition'] = "subject/participant identifier"
-            column_to_terms[current_tuple]['url'] = Constants.NIDM_SUBJECTID._str
+            # map this term to Constants.NIDM_SUBJECTID
+            # since our subject ids are statically mapped to the Constants.NIDM_SUBJECTID we're creating a new
+            # named tuple for this json map entry as it's not the same source as the rest of the data frame which
+            # comes from the 'assessment_name' function parameter.
+            subjid_tuple = str(DD(source='ndar', variable=search_term))
+            column_to_terms[subjid_tuple] = {}
+            column_to_terms[subjid_tuple]['label'] = search_term
+            column_to_terms[subjid_tuple]['definition'] = "subject/participant identifier"
+            column_to_terms[subjid_tuple]['url'] = Constants.NIDM_SUBJECTID.uri
+
+            # delete temporary current_tuple key for this variable as it has been statically mapped to NIDM_SUBJECT
+            del column_to_terms[current_tuple]
 
             print("Variable %s automatically mapped to participant/subject idenfier" %search_term)
-            print("Label: %s" %column_to_terms[current_tuple]['label'])
-            print("Definition: %s" %column_to_terms[current_tuple]['definition'])
-            print("Url: %s" %column_to_terms[current_tuple]['url'])
+            print("Label: %s" %column_to_terms[subjid_tuple]['label'])
+            print("Definition: %s" %column_to_terms[subjid_tuple]['definition'])
+            print("Url: %s" %column_to_terms[subjid_tuple]['url'])
             print("---------------------------------------------------------------------------------------")
             # don't need to continue while loop because we've defined a term for this CSV column
             go_loop=False
@@ -945,7 +954,9 @@ def map_variables_to_terms(df,apikey,directory, assessment_name, output_file=Non
         if output_file is not None:
             # dir = os.path.dirname(output_file)
             # file_path=os.path.relpath(output_file)
-            print("writing %s " %output_file)
+            # print("writing %s " %output_file)
+            logging.info("saving json mapping file: %s" %os.path.join(os.path.basename(output_file), \
+                                        os.path.splitext(output_file)[0]+".json"))
             with open(os.path.join(os.path.basename(output_file),os.path.splitext(output_file)[0]+".json"),'w+') \
                     as fp:
                 json.dump(column_to_terms,fp)
@@ -956,7 +967,9 @@ def map_variables_to_terms(df,apikey,directory, assessment_name, output_file=Non
     if output_file is not None:
         # dir = os.path.dirname(output_file)
         # file_path=os.path.relpath(output_file)
-        print("writing %s " %output_file)
+        # print("writing %s " %output_file)
+        logging.info("saving json mapping file: %s" %os.path.join(os.path.basename(output_file), \
+                                        os.path.splitext(output_file)[0]+".json"))
         with open(os.path.join(os.path.dirname(output_file),os.path.splitext(output_file)[0]+".json"),'w+') \
                     as fp:
             json.dump(column_to_terms,fp)
@@ -965,7 +978,11 @@ def map_variables_to_terms(df,apikey,directory, assessment_name, output_file=Non
         #root.mainloop()
         #input("Press Enter to continue...")
 
-    return column_to_terms
+    # get CDEs for data dictonary and NIDM graph entity of data
+    cde = DD_to_nidm(column_to_terms)
+
+
+    return [column_to_terms, cde]
 
 def DD_to_nidm(dd_struct):
     '''
@@ -977,8 +994,7 @@ def DD_to_nidm(dd_struct):
 
     # create empty graph for CDEs
     g=Graph()
-
-
+    g.bind(prefix='prov',namespace=Constants.PROV)
 
     # for each named tuple key in data dictionary
     for key in dd_struct:
@@ -994,16 +1010,54 @@ def DD_to_nidm(dd_struct):
         for subkey, item in key_tuple._asdict().items():
             if subkey == 'source':
                 # check if namespace exists else bind it...
-                item_ns = Namespace(dd_struct[str(key_tuple)]["url"].split('?')[0]+'#')
+
+                item_ns = Namespace(dd_struct[str(key_tuple)]["url"].rsplit('/', 1)[0] +"/")
+                #item_ns = Namespace(dd_struct[str(key_tuple)]["url"].split('?')[0]+'#')
                 g.bind(prefix=os.path.splitext(item)[0], namespace=item_ns)
             else:
-                g.add((Constants.NIIRI[getUUID()],RDF.type, item_ns[item]))
-                # add other properties
-                print(g.serialize(format='turtle'))
+                cde_id = item_ns[dd_struct[str(key_tuple)]['label']]
+                g.add((cde_id,RDF.type, item_ns['DataElement']))
+                g.add((cde_id,RDF.type, Constants.PROV['Entity']))
 
 
 
+        # this code adds the properties about the particular CDE into NIDM document
+        for key, value in dd_struct[str(key_tuple)].items():
+            if key == 'definition':
+                g.add((cde_id,RDFS['comment'],Literal(value)))
+            elif key == 'description':
+                g.add((cde_id,Constants.NIDM_DESCRIPTION[key],Literal(value)))
+            elif key == 'url':
+                g.add((cde_id,Constants.PROV['Location'],Literal(value)))
+            elif key == 'label':
+                g.add((cde_id,Constants.RDFS['label'],Literal(value)))
+            elif key == 'levels':
+                g.add((cde_id,Constants.NIDM['levels'],Literal(value)))
 
+
+            # testing
+            # g.serialize(destination="/Users/dbkeator/Downloads/csv2nidm_cde.ttl", format='turtle')
+
+
+
+    return g
+
+def add_attributes_with_cde(prov_object, cde, row_variable, value):
+
+    # find the ID in cdes where rdfs:label matches the row_variable
+    qres = cde.subjects(predicate=Constants.RDFS['label'],object=Literal(row_variable))
+    for s in qres:
+        entity_id = s
+        # provNamespace(entity_id.rsplit('/', 1)[0] +"/")
+        # find prefix matching our url in rdflib graph...this is because we're bouncing between
+        # prov and rdflib objects
+        for prefix,namespace in cde.namespaces():
+            if namespace == URIRef(entity_id.rsplit('/',1)[0]+"/"):
+                cde_prefix = prefix
+                # this basically stores the row_data with the predicate being the cde id from above.
+                prov_object.add_attributes({QualifiedName(provNamespace(prefix=cde_prefix, \
+                       uri=entity_id.rsplit('/',1)[0]+"/"),entity_id.rsplit('/', 1)[-1]):value})
+                break
 
 
 
