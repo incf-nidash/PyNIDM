@@ -404,13 +404,7 @@ def GetParticipantInstrumentData(nidm_file_list,project_id, participant_id):
         ''' % (participant_id)
 
     df = sparql_query_nidm(nidm_file_list, query, output_file=None)
-
-
-    print ("&&&&&&&&&&&&&&&&&&&&&&&&&&&")
-
     data = df.values
-
-    print ("&&&&&&&&&&&&&&&&&&&&&&&&&&&")
 
     result = {}
 

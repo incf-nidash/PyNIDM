@@ -103,7 +103,7 @@ def makeTestFile(filename, params):
     with open(filename, "r") as f:
         x = f.read()
 
-    with open("/opt/project/agent.ttl", "w") as f:
+    with open("./agent.ttl", "w") as f:
         f.write(x)
 
 

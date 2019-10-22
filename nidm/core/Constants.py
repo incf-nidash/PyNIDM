@@ -16,7 +16,8 @@ from prov.model import Namespace as provNamespace
 from prov.constants import PROV_ATTRIBUTE_QNAMES, PROV_ATTRIBUTE_LITERALS, \
 	PROV_N_MAP
 
-
+from collections import namedtuple
+DD = namedtuple("DD", ["source", "variable"])
 
 PROV = Namespace('http://www.w3.org/ns/prov#')
 PROVONE = provNamespace('provone', 'http://purl.dataone.org/provone/2015/01/15/ontology#')
