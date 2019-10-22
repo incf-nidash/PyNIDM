@@ -646,6 +646,15 @@ def map_variables_to_terms(df,apikey,directory, assessment_name, output_file=Non
                 print("Label: %s" %column_to_terms[current_tuple]['label'])
                 print("Definition: %s" %column_to_terms[current_tuple]['definition'])
                 print("Url: %s" %column_to_terms[current_tuple]['url'])
+
+                if 'description' in json_map[json_key[0]]:
+                    column_to_terms[current_tuple]['description'] = json_map[json_key[0]]['description']
+                    print("Description: %s" %column_to_terms[current_tuple]['description'])
+
+                if 'levels' in json_map[json_key[0]]:
+                    column_to_terms[current_tuple]['levels'] = json_map[json_key[0]]['levels']
+                    print("Levels: %s" %column_to_terms[current_tuple]['levels'])
+
                 print("---------------------------------------------------------------------------------------")
                 continue
         except NameError:
@@ -995,6 +1004,7 @@ def DD_to_nidm(dd_struct):
     # create empty graph for CDEs
     g=Graph()
     g.bind(prefix='prov',namespace=Constants.PROV)
+    g.bind(prefix='dct',namespace=Constants.DCT)
 
     # for each named tuple key in data dictionary
     for key in dd_struct:
@@ -1026,7 +1036,7 @@ def DD_to_nidm(dd_struct):
             if key == 'definition':
                 g.add((cde_id,RDFS['comment'],Literal(value)))
             elif key == 'description':
-                g.add((cde_id,Constants.NIDM_DESCRIPTION[key],Literal(value)))
+                g.add((cde_id,Constants.DCT['description'],Literal(value)))
             elif key == 'url':
                 g.add((cde_id,Constants.PROV['Location'],Literal(value)))
             elif key == 'label':
