@@ -349,6 +349,84 @@ def GetParticipantDetails(nidm_file_list,project_id, participant_id, output_file
         act = (str(row[2])).replace(str(Constants.NIIRI), "")
         (result['activity']).append( act )
 
+    result["instruments"] = GetParticipantInstrumentData(nidm_file_list, project_id, participant_id)
+
+    return result
+
+def GetMergedGraph(nidm_file_list):
+    rdf_graph = Graph()
+    for f in nidm_file_list:
+        rdf_graph.parse(f, format=util.guess_format(f))
+    return rdf_graph
+
+def GetParticipantInstrumentData(nidm_file_list,project_id, participant_id):
+    '''
+    This query will return a list of all instrument data for prov:agent entity UUIDs that has
+    prov:hadRole sio:Subject or Constants.NIDM_PARTICIPANT
+    :param nidm_file_list: List of one or more NIDM files to query across for list of Projects
+    :return: list of Constants.NIDM_PARTICIPANT UUIDs and Constants.NIDM_SUBJECTID
+    '''
+
+    query = '''
+
+        PREFIX prov:<http://www.w3.org/ns/prov#>
+        PREFIX sio: <http://semanticscience.org/ontology/sio.owl#>
+        PREFIX ndar: <https://ndar.nih.gov/api/datadictionary/v2/dataelement/>
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX nidm: <http://purl.org/nidash/nidm#>
+        PREFIX dct: <http://purl.org/dc/terms/>
+        PREFIX onli: <http://neurolog.unice.fr/ontoneurolog/v3.0/instrument.owl#>
+        
+        
+        SELECT DISTINCT ?person_uuid ?id ?activity ?instrument ?x ?value
+        WHERE {
+            ?activity rdf:type onli:instrument-based-assessment ;
+                prov:qualifiedAssociation _:blanknode .
+        
+            _:blanknode prov:hadRole sio:Subject ;
+                 prov:agent ?person_uuid  .
+        
+            ?person_uuid ndar:src_subject_id ?id .
+        
+            ?proj a nidm:Project .
+            ?sess dct:isPartOf ?proj .
+            ?activity dct:isPartOf ?sess .
+        
+        
+            ?instrument a onli:assessment-instrument .
+            ?instrument prov:wasGeneratedBy ?activity .
+        
+            ?instrument ?x ?value
+            
+             FILTER(regex(str(?person_uuid), "%s")).    
+        }
+
+        ''' % (participant_id)
+
+    df = sparql_query_nidm(nidm_file_list, query, output_file=None)
+
+
+    data = df.values
+
+    result = {}
+
+    rdf_graph = GetMergedGraph(nidm_file_list)
+    names = [n for n in rdf_graph.namespace_manager.namespaces()]
+
+
+    for row in data:
+        instrument = row[3].replace(Constants.NIIRI, "")
+        if not instrument in result:
+            result[instrument] = {}
+        # try to find a namespace / prefix match for the predicate
+        predicate = row[4]
+        matches = [n[0] for n in names if n[1] == predicate]
+        if len(matches) > 0:
+            idx = str(matches[0])
+        else:
+            idx = str(predicate)
+        result[instrument][ idx ] = str(row[5])
+
     return result
 
 

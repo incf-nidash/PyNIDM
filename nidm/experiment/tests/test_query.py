@@ -4,6 +4,7 @@ from nidm.core import Constants
 from rdflib import Namespace,URIRef
 import prov.model as pm
 from os import remove
+import os
 import pprint
 
 from prov.model import ProvDocument, QualifiedName
@@ -262,12 +263,16 @@ def test_GetProjectsComputedMetadata():
     p2 = makeProjectTestFile2("testfile2.ttl")
     files = ["testfile.ttl", "testfile2.ttl"]
 
-    if USE_GITHUB_DATA and not Path('./cmu_a.nidm.ttl').is_file():
-        urllib.request.urlretrieve (
-            "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/master/datasets.datalad.org/abide/RawDataBIDS/CMU_a/nidm.ttl",
-            "cmu_a.nidm.ttl"
-        )
+    if USE_GITHUB_DATA:
+        if not Path('./cmu_a.nidm.ttl').is_file():
+            urllib.request.urlretrieve (
+                "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/master/datasets.datalad.org/abide/RawDataBIDS/CMU_a/nidm.ttl",
+                "cmu_a.nidm.ttl"
+            )
         files.append("cmu_a.nidm.ttl")
+
+    print ("num files: {}".format(len(files)) )
+    print (files)
 
     parsed = Query.GetProjectsComputedMetadata(files)
 
@@ -277,10 +282,15 @@ def test_GetProjectsComputedMetadata():
     # assert parsed['projects'][p1][Query.matchPrefix(str(Constants.NIDM_NUMBER_OF_SUBJECTS))] == 0
 
 
+    print ("p1 {}".format(p1))
+    print ("p2 {}".format(p2))
+    print ("len is {}".format(len(parsed['projects'])))
     if USE_GITHUB_DATA:
         for project_id in parsed['projects']:
+            print ("looking at {}".format(project_id))
             if project_id != p1 and project_id != p2:
                 p3 = project_id
+        print ("got p3 of {}".format(p3))
         assert parsed['projects'][p3][str(Constants.NIDM_PROJECT_NAME)] == "ABIDE CMU_a Site"
         assert parsed['projects'][p3][Query.matchPrefix(str(Constants.NIDM_NUMBER_OF_SUBJECTS))] == 14
         assert parsed['projects'][p3]["age_min"] == 21

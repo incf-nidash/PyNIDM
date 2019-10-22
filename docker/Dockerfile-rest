@@ -1,0 +1,6 @@
+FROM pynidm:latest
+
+RUN pip3 install flask flask_restful
+
+EXPOSE 5000
+CMD ["python", "/opt/project/rest-server.py"]
