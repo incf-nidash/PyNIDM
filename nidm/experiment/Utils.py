@@ -1007,6 +1007,7 @@ def DD_to_nidm(dd_struct):
     g.bind(prefix='prov',namespace=Constants.PROV)
     g.bind(prefix='dct',namespace=Constants.DCT)
 
+    key_num = 0
     # for each named tuple key in data dictionary
     for key in dd_struct:
         # bind a namespace for the the data dictionary source field of the key tuple
@@ -1030,15 +1031,22 @@ def DD_to_nidm(dd_struct):
                 #if namespace_found == False:
                 #    item_ns = Namespace(dd_struct[str(key_tuple)]["url"].rsplit('/', 1)[0] +"/")
                 #    g.bind(prefix=os.path.splitext(item)[0], namespace=item_ns)
+            # if subkey == 'source':
+            #    source = item
+
             if subkey == 'variable':
 
             # else:
                 # cde_id = item_ns[dd_struct[str(key_tuple)]['label']]
-                item_ns = Namespace(dd_struct[str(key_tuple)]["url"].rsplit('/', 1)[0] +"/")
-                g.bind(prefix=subkey, namespace=item_ns)
-                cde_id = item_ns[item]
+                # item_ns = Namespace(dd_struct[str(key_tuple)]["url"].rsplit('/', 1)[0] +"/")
+                item_ns = Namespace(dd_struct[str(key_tuple)]["url"]+"/")
+                g.bind(prefix=item, namespace=item_ns)
+                cde_id = item_ns[str(key_num).zfill(4)]
                 g.add((cde_id,RDF.type, Constants.NIDM['DataElement']))
-                # g.add((cde_id,RDF.type, Constants.PROV['Entity']))
+                key_num = key_num + 1
+                # source_ns = Namespace("http://uri.interlex.org/base/")
+                # g.bind(prefix ='source',namespace=source_ns)
+                # g.add((cde_id,source_ns["ilx_0115023"],Literal(source)))
 
 
 
