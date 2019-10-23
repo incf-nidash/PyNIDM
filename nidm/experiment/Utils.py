@@ -20,6 +20,7 @@ import getpass
 #NIDM imports
 from ..core import Constants
 from ..core.Constants import DD
+
 from .Project import Project
 from .Session import Session
 from .Acquisition import Acquisition
@@ -28,7 +29,7 @@ from .AcquisitionObject import AcquisitionObject
 from .AssessmentAcquisition import AssessmentAcquisition
 from .AssessmentObject import AssessmentObject
 from .MRObject import MRObject
-from .Core import getUUID
+from .Core import Core
 import logging
 
 #Interlex stuff
@@ -1018,16 +1019,26 @@ def DD_to_nidm(dd_struct):
         # add the DataElement RDF type in the source namespace
         key_tuple = eval(key)
         for subkey, item in key_tuple._asdict().items():
-            if subkey == 'source':
+            # if subkey == 'source':
                 # check if namespace exists else bind it...
+                # namespace_found = False
+                #for prefix,namespace in g.namespaces():
+                #    if namespace == URIRef(dd_struct[str(key_tuple)]["url"].rsplit('/', 1)[0] +"/"):
+                #        namespace_found = True
+                #        break
 
+                #if namespace_found == False:
+                #    item_ns = Namespace(dd_struct[str(key_tuple)]["url"].rsplit('/', 1)[0] +"/")
+                #    g.bind(prefix=os.path.splitext(item)[0], namespace=item_ns)
+            if subkey == 'variable':
+
+            # else:
+                # cde_id = item_ns[dd_struct[str(key_tuple)]['label']]
                 item_ns = Namespace(dd_struct[str(key_tuple)]["url"].rsplit('/', 1)[0] +"/")
-                #item_ns = Namespace(dd_struct[str(key_tuple)]["url"].split('?')[0]+'#')
-                g.bind(prefix=os.path.splitext(item)[0], namespace=item_ns)
-            else:
-                cde_id = item_ns[dd_struct[str(key_tuple)]['label']]
-                g.add((cde_id,RDF.type, item_ns['DataElement']))
-                g.add((cde_id,RDF.type, Constants.PROV['Entity']))
+                g.bind(prefix=subkey, namespace=item_ns)
+                cde_id = item_ns[item]
+                g.add((cde_id,RDF.type, Constants.NIDM['DataElement']))
+                # g.add((cde_id,RDF.type, Constants.PROV['Entity']))
 
 
 
