@@ -1,15 +1,16 @@
 import os,sys
 
 
-from rdflib import Namespace
+from rdflib import Namespace, Literal,RDFS
 from rdflib.namespace import XSD
 from rdflib.resource import Resource
-import types
-import graphviz
+from urllib.parse import urlparse, urlsplit
 from rdflib import Graph, RDF, URIRef, util
 from rdflib.namespace import split_uri
 import validators
 import prov.model as pm
+from prov.model import QualifiedName
+from prov.model import Namespace as provNamespace
 import requests
 from fuzzywuzzy import fuzz
 import json
@@ -18,6 +19,8 @@ import getpass
 
 #NIDM imports
 from ..core import Constants
+from ..core.Constants import DD
+
 from .Project import Project
 from .Session import Session
 from .Acquisition import Acquisition
@@ -26,11 +29,11 @@ from .AcquisitionObject import AcquisitionObject
 from .AssessmentAcquisition import AssessmentAcquisition
 from .AssessmentObject import AssessmentObject
 from .MRObject import MRObject
+from .Core import Core
 import logging
 
 #Interlex stuff
 import ontquery as oq
-
 
 
 
@@ -159,7 +162,7 @@ def read_nidm(nidmDoc):
 
 
                         #query whether this is an assessment acquisition by way of looking at the generated entity and determining
-                        #if it has the rdf:type "nidm:assessment-instrument"
+                        #if it has the rdf:type Constants.NIDM_ASSESSMENT_ENTITY
                         #for acq_modality in rdf_graph_parse.objects(subject=acq_obj,predicate=RDF.type):
                         if (acq_obj, RDF.type, URIRef(Constants.NIDM_ASSESSMENT_ENTITY._uri)) in rdf_graph:
 
@@ -557,14 +560,13 @@ def getSubjIDColumn(column_to_terms,df):
         id_field=df.columns[int(selection)-1]
     return id_field
 
-def map_variables_to_terms(df,apikey,directory, output_file=None,json_file=None,owl_file='nidm'):
+def map_variables_to_terms(df,apikey,directory, assessment_name, output_file=None,json_file=None,owl_file='nidm'):
     '''
 
     :param df: data frame with first row containing variable names
+    :param assessment_name: Name for the assessment to use in storing JSON mapping dictionary keys
     :param json_file: optional json document with variable names as keys and minimal fields "definition","label","url"
     :param apikey: scicrunch key for rest API queries
-    :param owl_file: if owl_file is default parameter then NIDM OWL files are loaded (internet connection required) else
-    local owl file is loaded pointed to by parameter...e.g. owl_file='/.../.../my_owl_file
     :param output_file: output filename to save variable-> term mappings
     :param directory: if output_file parameter is set to None then use this directory to store default JSON mapping file
     if doing variable->term mappings
@@ -626,23 +628,36 @@ def map_variables_to_terms(df,apikey,directory, output_file=None,json_file=None,
         # loop variable for terms markup
         go_loop=True
         # set up a dictionary entry for this column
-        column_to_terms[column] = {}
+        current_tuple = str(DD(source=assessment_name, variable=column))
+        column_to_terms[current_tuple] = {}
 
         # if we loaded a json file with existing mappings
         try:
             json_map
 
             # check for column in json file
-            if (json_map is not None) and (column in json_map):
+            json_key = [key for key in json_map if column in key]
+            if (json_map is not None) and (len(json_key)>0):
 
-                column_to_terms[column]['label'] = json_map[column]['label']
-                column_to_terms[column]['definition'] = json_map[column]['definition']
-                column_to_terms[column]['url'] = json_map[column]['url']
+                column_to_terms[current_tuple]['label'] = json_map[json_key[0]]['label']
+                column_to_terms[current_tuple]['definition'] = json_map[json_key[0]]['definition']
+                column_to_terms[current_tuple]['url'] = json_map[json_key[0]]['url']
+                # column_to_terms[current_tuple]['variable'] = json_map[json_key[0]]['variable']
 
                 print("Column %s already mapped to terms in user supplied JSON mapping file" %column)
-                print("Label: %s" %column_to_terms[column]['label'])
-                print("Definition: %s" %column_to_terms[column]['definition'])
-                print("Url: %s" %column_to_terms[column]['url'])
+                print("Label: %s" %column_to_terms[current_tuple]['label'])
+                print("Definition: %s" %column_to_terms[current_tuple]['definition'])
+                print("Url: %s" %column_to_terms[current_tuple]['url'])
+                # print("Variable: %s" %column_to_terms[current_tuple]['variable'])
+
+                if 'description' in json_map[json_key[0]]:
+                    column_to_terms[current_tuple]['description'] = json_map[json_key[0]]['description']
+                    print("Description: %s" %column_to_terms[current_tuple]['description'])
+
+                if 'levels' in json_map[json_key[0]]:
+                    column_to_terms[current_tuple]['levels'] = json_map[json_key[0]]['levels']
+                    print("Levels: %s" %column_to_terms[current_tuple]['levels'])
+
                 print("---------------------------------------------------------------------------------------")
                 continue
         except NameError:
@@ -666,15 +681,24 @@ def map_variables_to_terms(df,apikey,directory, output_file=None,json_file=None,
             (("participant" in search_term.lower()) and ("id" in search_term.lower())) or
             (("subject" in search_term.lower()) and ("id" in search_term.lower())) ):
 
-            #map this term to Constants.NIDM_SUBJECTID
-            column_to_terms[column]['label'] = search_term
-            column_to_terms[column]['definition'] = "subject/participant identifier"
-            column_to_terms[column]['url'] = Constants.NIDM_SUBJECTID._str
+            # map this term to Constants.NIDM_SUBJECTID
+            # since our subject ids are statically mapped to the Constants.NIDM_SUBJECTID we're creating a new
+            # named tuple for this json map entry as it's not the same source as the rest of the data frame which
+            # comes from the 'assessment_name' function parameter.
+            subjid_tuple = str(DD(source='ndar', variable=search_term))
+            column_to_terms[subjid_tuple] = {}
+            column_to_terms[subjid_tuple]['label'] = search_term
+            column_to_terms[subjid_tuple]['definition'] = "subject/participant identifier"
+            column_to_terms[subjid_tuple]['url'] = Constants.NIDM_SUBJECTID.uri
+            # column_to_terms[subjid_tuple]['variable'] = str(column)
+
+            # delete temporary current_tuple key for this variable as it has been statically mapped to NIDM_SUBJECT
+            del column_to_terms[current_tuple]
 
             print("Variable %s automatically mapped to participant/subject idenfier" %search_term)
-            print("Label: %s" %column_to_terms[column]['label'])
-            print("Definition: %s" %column_to_terms[column]['definition'])
-            print("Url: %s" %column_to_terms[column]['url'])
+            print("Label: %s" %column_to_terms[subjid_tuple]['label'])
+            print("Definition: %s" %column_to_terms[subjid_tuple]['definition'])
+            print("Url: %s" %column_to_terms[subjid_tuple]['url'])
             print("---------------------------------------------------------------------------------------")
             # don't need to continue while loop because we've defined a term for this CSV column
             go_loop=False
@@ -891,29 +915,31 @@ def map_variables_to_terms(df,apikey,directory, output_file=None,json_file=None,
                                 max=term_max, units=term_units, datatype=term_datatype,categorymappings=json.dumps(term_category))
 
                 # store term info in dictionary
-                column_to_terms[column]['label'] = term_label
-                column_to_terms[column]['definition'] = term_definition
-                column_to_terms[column]['url'] = ilx_output.iri + "#"
-                column_to_terms[column]['datatype'] = term_datatype
-                column_to_terms[column]['units'] = term_units
-                column_to_terms[column]['min'] = term_min
-                column_to_terms[column]['max'] = term_max
+                column_to_terms[current_tuple]['label'] = term_label
+                column_to_terms[current_tuple]['definition'] = term_definition
+                # column_to_terms[current_tuple]['variable'] = str(column)
+                column_to_terms[current_tuple]['url'] = ilx_output.iri + "#"
+                column_to_terms[current_tuple]['datatype'] = term_datatype
+                column_to_terms[current_tuple]['units'] = term_units
+                column_to_terms[current_tuple]['min'] = term_min
+                column_to_terms[current_tuple]['max'] = term_max
                 if term_datatype == 'categorical':
-                    column_to_terms[column]['categories'] = json.dumps(term_category)
+                    column_to_terms[current_tuple]['levels'] = json.dumps(term_category)
 
 
                 # print mappings
                 print()
                 print("Stored mapping Column: %s ->  " % column)
-                print("Label: %s" % column_to_terms[column]['label'])
-                print("Definition: %s" % column_to_terms[column]['definition'])
-                print("Url: %s" % column_to_terms[column]['url'])
-                print("Datatype: %s" % column_to_terms[column]['datatype'])
-                print("Units: %s" % column_to_terms[column]['units'])
-                print("Min: %s" % column_to_terms[column]['min'])
-                print("Max: %s" % column_to_terms[column]['max'])
+                print("Label: %s" % column_to_terms[current_tuple]['label'])
+                # print("Variable: %s" % column_to_terms[current_tuple]['variable'])
+                print("Definition: %s" % column_to_terms[current_tuple]['definition'])
+                print("Url: %s" % column_to_terms[current_tuple]['url'])
+                print("Datatype: %s" % column_to_terms[current_tuple]['datatype'])
+                print("Units: %s" % column_to_terms[current_tuple]['units'])
+                print("Min: %s" % column_to_terms[current_tuple]['min'])
+                print("Max: %s" % column_to_terms[current_tuple]['max'])
                 if term_datatype == 'categorical':
-                    print("Categories: %s" % column_to_terms[column]['categories'])
+                    print("Levels: %s" % column_to_terms[current_tuple]['levels'])
                 print("---------------------------------------------------------------------------------------")\
 
                 # don't need to continue while loop because we've defined a term for this CSV column
@@ -922,15 +948,17 @@ def map_variables_to_terms(df,apikey,directory, output_file=None,json_file=None,
 
             else:
                 # add selected term to map
-                column_to_terms[column]['label'] = search_result[search_result[selection]]['label']
-                column_to_terms[column]['definition'] = search_result[search_result[selection]]['definition']
-                column_to_terms[column]['url'] = search_result[search_result[selection]]['preferred_url']
+                column_to_terms[current_tuple]['label'] = search_result[search_result[selection]]['label']
+                column_to_terms[current_tuple]['definition'] = search_result[search_result[selection]]['definition']
+                column_to_terms[current_tuple]['url'] = search_result[search_result[selection]]['preferred_url']
+                # column_to_terms[current_tuple]['variable'] = str(column)
 
                 # print mappings
-                print("Stored mapping Column: %s ->  " % column)
-                print("Label: %s" % column_to_terms[column]['label'])
-                print("Definition: %s" % column_to_terms[column]['definition'])
-                print("Url: %s" % column_to_terms[column]['url'])
+                print("Stored mapping Column: %s ->  " % current_tuple)
+                print("Label: %s" % column_to_terms[current_tuple]['label'])
+                print("Definition: %s" % column_to_terms[current_tuple]['definition'])
+                print("Url: %s" % column_to_terms[current_tuple]['url'])
+                # print("Variable: %s" % column_to_terms[current_tuple]['variable'])
                 print("---------------------------------------------------------------------------------------")
 
                 # don't need to continue while loop because we've selected a term for this CSV column
@@ -943,7 +971,9 @@ def map_variables_to_terms(df,apikey,directory, output_file=None,json_file=None,
         if output_file is not None:
             # dir = os.path.dirname(output_file)
             # file_path=os.path.relpath(output_file)
-            print("writing %s " %output_file)
+            # print("writing %s " %output_file)
+            logging.info("saving json mapping file: %s" %os.path.join(os.path.basename(output_file), \
+                                        os.path.splitext(output_file)[0]+".json"))
             with open(os.path.join(os.path.basename(output_file),os.path.splitext(output_file)[0]+".json"),'w+') \
                     as fp:
                 json.dump(column_to_terms,fp)
@@ -954,7 +984,9 @@ def map_variables_to_terms(df,apikey,directory, output_file=None,json_file=None,
     if output_file is not None:
         # dir = os.path.dirname(output_file)
         # file_path=os.path.relpath(output_file)
-        print("writing %s " %output_file)
+        # print("writing %s " %output_file)
+        logging.info("saving json mapping file: %s" %os.path.join(os.path.basename(output_file), \
+                                        os.path.splitext(output_file)[0]+".json"))
         with open(os.path.join(os.path.dirname(output_file),os.path.splitext(output_file)[0]+".json"),'w+') \
                     as fp:
             json.dump(column_to_terms,fp)
@@ -963,4 +995,117 @@ def map_variables_to_terms(df,apikey,directory, output_file=None,json_file=None,
         #root.mainloop()
         #input("Press Enter to continue...")
 
-    return column_to_terms
+    # get CDEs for data dictonary and NIDM graph entity of data
+    cde = DD_to_nidm(column_to_terms)
+
+
+    return [column_to_terms, cde]
+
+def DD_to_nidm(dd_struct):
+    '''
+
+    Takes a DD json structure and returns nidm CDE-style graph to be added to NIDM documents
+    :param DD:
+    :return: NIDM graph
+    '''
+
+    # create empty graph for CDEs
+    g=Graph()
+    g.bind(prefix='prov',namespace=Constants.PROV)
+    g.bind(prefix='dct',namespace=Constants.DCT)
+
+    # key_num = 0
+    # for each named tuple key in data dictionary
+    for key in dd_struct:
+        # bind a namespace for the the data dictionary source field of the key tuple
+        # for each source variable create entity where the namespace is the source and ID is the variable
+        # e.g. calgary:FISCAL_4, aims:FIAIM_9
+        #
+        # Then when we're storing acquired data in entity we'll use the entity IDs above to reference a particular
+        # CDE.  The CDE definitions will have metadata about the various aspects of the data dictionary CDE.
+
+        # add the DataElement RDF type in the source namespace
+        key_tuple = eval(key)
+        for subkey, item in key_tuple._asdict().items():
+            # if subkey == 'source':
+                # check if namespace exists else bind it...
+                # namespace_found = False
+                #for prefix,namespace in g.namespaces():
+                #    if namespace == URIRef(dd_struct[str(key_tuple)]["url"].rsplit('/', 1)[0] +"/"):
+                #        namespace_found = True
+                #        break
+
+                #if namespace_found == False:
+                #    item_ns = Namespace(dd_struct[str(key_tuple)]["url"].rsplit('/', 1)[0] +"/")
+                #    g.bind(prefix=os.path.splitext(item)[0], namespace=item_ns)
+            # if subkey == 'source':
+            #    source = item
+
+            if subkey == 'variable':
+
+            # else:
+                # cde_id = item_ns[dd_struct[str(key_tuple)]['label']]
+                # item_ns = Namespace(dd_struct[str(key_tuple)]["url"].rsplit('/', 1)[0] +"/")
+                item_ns = Namespace(dd_struct[str(key_tuple)]["url"]+"/")
+                g.bind(prefix=item, namespace=item_ns)
+                nidm_ns = Namespace(Constants.NIDM)
+                g.bind(prefix='nidm', namespace=nidm_ns)
+                # cde_id = item_ns[str(key_num).zfill(4)]
+                import hashlib
+                # hash the key_tuple and use for local part of ID
+
+                cde_id = item_ns[hashlib.md5(str(key).encode()).hexdigest()]
+                g.add((cde_id,RDF.type, Constants.NIDM['DataElement']))
+
+
+                g.add((cde_id,nidm_ns['variable'],Literal(item)))
+                # key_num = key_num + 1
+                # source_ns = Namespace("http://uri.interlex.org/base/")
+                # g.bind(prefix ='source',namespace=source_ns)
+                # g.add((cde_id,source_ns["ilx_0115023"],Literal(source)))
+
+
+
+        # this code adds the properties about the particular CDE into NIDM document
+        for key, value in dd_struct[str(key_tuple)].items():
+            if key == 'definition':
+                g.add((cde_id,RDFS['comment'],Literal(value)))
+            elif key == 'description':
+                g.add((cde_id,Constants.DCT['description'],Literal(value)))
+            elif key == 'url':
+                g.add((cde_id,Constants.PROV['Location'],Literal(value)))
+            elif key == 'label':
+                g.add((cde_id,Constants.RDFS['label'],Literal(value)))
+            elif key == 'levels':
+                g.add((cde_id,Constants.NIDM['levels'],Literal(value)))
+
+
+
+
+            # testing
+            # g.serialize(destination="/Users/dbkeator/Downloads/csv2nidm_cde.ttl", format='turtle')
+
+
+
+    return g
+
+def add_attributes_with_cde(prov_object, cde, row_variable, value):
+
+    # find the ID in cdes where nidm:variable matches the row_variable
+    # qres = cde.subjects(predicate=Constants.RDFS['label'],object=Literal(row_variable))
+    qres = cde.subjects(predicate=Constants.NIDM['variable'],object=Literal(row_variable))
+    for s in qres:
+        entity_id = s
+        # provNamespace(entity_id.rsplit('/', 1)[0] +"/")
+        # find prefix matching our url in rdflib graph...this is because we're bouncing between
+        # prov and rdflib objects
+        for prefix,namespace in cde.namespaces():
+            if namespace == URIRef(entity_id.rsplit('/',1)[0]+"/"):
+                cde_prefix = prefix
+                # this basically stores the row_data with the predicate being the cde id from above.
+                prov_object.add_attributes({QualifiedName(provNamespace(prefix=cde_prefix, \
+                       uri=entity_id.rsplit('/',1)[0]+"/"),entity_id.rsplit('/', 1)[-1]):value})
+                break
+
+
+

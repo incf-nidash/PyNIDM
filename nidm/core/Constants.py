@@ -16,7 +16,8 @@ from prov.model import Namespace as provNamespace
 from prov.constants import PROV_ATTRIBUTE_QNAMES, PROV_ATTRIBUTE_LITERALS, \
 	PROV_N_MAP
 
-
+from collections import namedtuple
+DD = namedtuple("DD", ["source", "variable"])
 
 PROV = Namespace('http://www.w3.org/ns/prov#')
 PROVONE = provNamespace('provone', 'http://purl.dataone.org/provone/2015/01/15/ontology#')
@@ -303,6 +304,8 @@ NIDM_PROJECT = QualifiedName(provNamespace("nidm", NIDM), 'Project')
 NIDM_PROJECT_IDENTIFIER = QualifiedName(provNamespace("sio", SIO),"Identifier")
 NIDM_PROJECT_NAME = QualifiedName(provNamespace("dctypes", DCTYPES),"title")
 NIDM_PROJECT_DESCRIPTION = QualifiedName(provNamespace("dct", DCT),"description")
+NIDM_DESCRIPTION = QualifiedName(provNamespace("dct", DCT),"description")
+NIDM_DEFINITION = QualifiedName(provNamespace("dct", DCT),"description")
 NIDM_PROJECT_LICENSE = QualifiedName(provNamespace("dct", DCT),"license")
 NIDM_PROJECT_URL = QualifiedName(provNamespace("sio", SIO),"URL")
 NIDM_PROJECT_REFERENCES = QualifiedName(provNamespace("dcat", DCAT),"creator")

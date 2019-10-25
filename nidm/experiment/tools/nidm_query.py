@@ -37,7 +37,7 @@ import pandas as pd
 from argparse import ArgumentParser
 import logging
 import csv
-from nidm.experiment.Query import sparql_query_nidm, GetParticipantIDs,GetProjectInstruments,GetProjectsUUID,GetInstrumentVariables
+from nidm.experiment.Query import sparql_query_nidm, GetParticipantIDs,GetProjectInstruments,GetProjectsUUID,GetInstrumentVariables,GetDataElements
 import click
 from nidm.experiment.tools.click_base import cli
 from nidm.experiment.tools.rest import restParser
@@ -55,6 +55,8 @@ from json import dumps, loads
               help="Parameter, if set, query will return list of onli:assessment-instrument:")
 @click.option("--get_instrument_vars", "-iv", is_flag=True,required=False,
               help="Parameter, if set, query will return list of onli:assessment-instrument: variables")
+@click.option("--get_dataelements", "-de", is_flag=True, required=False,
+              help="Parameter, if set, will return all DataElements in NIDM file")
 @click.option("--output_file", "-o", required=False,
               help="Optional output file (CSV) to store results of query")
 @click.option("--uri", "-u", required=False,
@@ -62,7 +64,7 @@ from json import dumps, loads
 @click.option("-j/-no_j", required=False, default=False,
               help="Return result of a uri query as JSON")
 @click.option('-v', '--verbosity', required=False, help="Verbosity level 0-5, 0 is default", default="0")
-def query(nidm_file_list, query_file, output_file, get_participants, get_instruments, get_instrument_vars, uri, j, verbosity):
+def query(nidm_file_list, query_file, output_file, get_participants, get_instruments, get_instrument_vars, get_dataelements, uri, j, verbosity):
 
     #query result list
     results = []
@@ -110,6 +112,14 @@ def query(nidm_file_list, query_file, output_file, get_participants, get_instrum
             df.to_csv(output_file)
         else:
             print(df)
+    elif get_dataelements:
+        datael = GetDataElements(nidm_file_list=nidm_file_list)
+         #if output file parameter specified
+        if (output_file is not None):
+
+            datael.to_csv(output_file)
+        else:
+            print(datael)
     elif uri:
         df = restParser(nidm_file_list.split(','), uri, int(verbosity))
         if j:
@@ -124,12 +134,19 @@ def query(nidm_file_list, query_file, output_file, get_participants, get_instrum
             else:
                 print (df)
     else:
+
         #read query from text fiile
         with open(query_file, 'r') as fp:
             query = fp.read()
+
         df = sparql_query_nidm(nidm_file_list.split(','),query,output_file)
 
-    return df
+        if ((output_file) is None):
+
+            print(df)
+
+
+        return df
 
 
 # it can be used calling the script `python nidm_query.py -nl ... -q ..

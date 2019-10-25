@@ -38,7 +38,7 @@ from nidm.experiment import Project,Session,MRAcquisition,AcquisitionObject,Demo
     AssessmentObject,MRObject
 from nidm.core import BIDS_Constants,Constants
 from prov.model import PROV_LABEL,PROV_TYPE
-from nidm.experiment.Utils import map_variables_to_terms
+from nidm.experiment.Utils import map_variables_to_terms, add_attributes_with_cde
 from pandas import DataFrame
 from prov.model import QualifiedName
 from prov.model import Namespace as provNamespace
@@ -53,7 +53,8 @@ from argparse import ArgumentParser
 from bids import BIDSLayout
 # Python program to find SHA256 hash string of a file
 import hashlib
-
+from io import StringIO
+from rdflib import Graph
 
 def getRelPathToBIDS(filepath, bids_root):
     """
@@ -131,9 +132,17 @@ Example 4 (FULL MONTY): BIDS conversion with variable->term mappings, uses JSON 
     #importlib.reload(sys)
     #sys.setdefaultencoding('utf8')
 
-    project = bidsmri2project(directory,args)
+    project, cde = bidsmri2project(directory,args)
 
-    logging.info(project.serializeTurtle())
+    # convert to rdflib Graph and add CDEs
+    rdf_graph = Graph()
+    rdf_graph.parse(source=StringIO(project.serializeTurtle()),format='turtle')
+    rdf_graph = rdf_graph + cde
+
+    logging.info("Writing NIDM file....")
+
+
+    # logging.info(project.serializeTurtle())
 
     logging.info("Serializing NIDM graph and creating graph visualization..")
     #serialize graph
@@ -141,41 +150,50 @@ Example 4 (FULL MONTY): BIDS conversion with variable->term mappings, uses JSON 
     #if args.outputfile was defined by user then use it else use default which is args.directory/nidm.ttl
     if args.outputfile == "nidm.ttl":
         #if we're choosing json-ld, make sure file extension is .json
-        if args.jsonld:
-            outputfile=os.path.join(directory,os.path.splitext(args.outputfile)[0]+".json")
+        #if args.jsonld:
+        #    outputfile=os.path.join(directory,os.path.splitext(args.outputfile)[0]+".json")
             #if flag set to add to .bidsignore then add
-            if (args.bidsignore):
-                addbidsignore(directory,os.path.splitext(args.outputfile)[0]+".json")
+        #    if (args.bidsignore):
+        #        addbidsignore(directory,os.path.splitext(args.outputfile)[0]+".json")
 
-        else:
-            outputfile=os.path.join(directory,args.outputfile)
-            if (args.bidsignore):
-                addbidsignore(directory,args.outputfile)
+        outputfile=os.path.join(directory,args.outputfile)
+        if (args.bidsignore):
+            addbidsignore(directory,args.outputfile)
+        rdf_graph.serialize(destination=outputfile,format='turtle')
+
+        #else:
+        #    outputfile=os.path.join(directory,args.outputfile)
+        #    if (args.bidsignore):
+        #        addbidsignore(directory,args.outputfile)
     else:
         #if we're choosing json-ld, make sure file extension is .json
-        if args.jsonld:
-            outputfile = os.path.splitext(args.outputfile)[0]+".json"
-            if (args.bidsignore):
-                addbidsignore(directory,os.path.splitext(args.outputfile)[0]+".json")
-        else:
-            outputfile = args.outputfile
-            if (args.bidsignore):
-                addbidsignore(directory,args.outputfile)
+        #if args.jsonld:
+        #    outputfile = os.path.splitext(args.outputfile)[0]+".json"
+        #    if (args.bidsignore):
+        #        addbidsignore(directory,os.path.splitext(args.outputfile)[0]+".json")
+        # else:
+        #    outputfile = args.outputfile
+        #    if (args.bidsignore):
+        #        addbidsignore(directory,args.outputfile)
+        outputfile=args.outputfile
+        if (args.bidsignore):
+            addbidsignore(directory,args.outputfile)
+        rdf_graph.serialize(destination=outputfile,format='turtle')
 
     #serialize NIDM file
-    with open(outputfile,'w') as f:
-        if args.jsonld:
-            f.write(project.serializeJSONLD())
-        else:
-            f.write(project.serializeTurtle())
+    #with open(outputfile,'w') as f:
+    #    if args.jsonld:
+    #        f.write(project.serializeJSONLD())
+    #    else:
+    #        f.write(project.serializeTurtle())
 
 
     #save a DOT graph as PNG
-    if (args.png):
-        project.save_DotGraph(str(outputfile + ".png"), format="png")
-        #if flag set to add to .bidsignore then add
-        if (args.bidsignore):
-            addbidsignore(directory,os.path.basename(str(outputfile + ".png")))
+    #if (args.png):
+    #    project.save_DotGraph(str(outputfile + ".png"), format="png")
+    #    #if flag set to add to .bidsignore then add
+    #    if (args.bidsignore):
+    #        addbidsignore(directory,os.path.basename(str(outputfile + ".png")))
 
 def addbidsignore(directory,filename_to_add):
     logging.info("Adding file %s to %s/.bidsignore..." %(filename_to_add,directory))
@@ -253,16 +271,17 @@ def bidsmri2project(directory, args):
                     if not os.path.isfile(os.path.join(directory,'participants.json')):
                         #maps variables in CSV file to terms
                         temp=DataFrame(columns=mapping_list)
-                        column_to_terms.update(map_variables_to_terms(directory=directory, df=temp,apikey=args.key,output_file=os.path.join(directory,'participants.json')))
+
+                        column_to_terms,cde = map_variables_to_terms(directory=directory,assessment_name='participants.tsv', df=temp,apikey=args.key,output_file=os.path.join(directory,'participants.json'))
                     else:
                         #maps variables in CSV file to terms
                         temp=DataFrame(columns=mapping_list)
-                        column_to_terms.update(map_variables_to_terms(directory=directory, df=temp,apikey=args.key,output_file=os.path.join(directory,'participants.json'),json_file=os.path.join(directory,'participants.json')))
+                        column_to_terms,cde = map_variables_to_terms(directory=directory, assessment_name='participants.tsv', df=temp,apikey=args.key,output_file=os.path.join(directory,'participants.json'),json_file=os.path.join(directory,'participants.json'))
 
                  else:
                     #maps variables in CSV file to terms
                     temp=DataFrame(columns=mapping_list)
-                    column_to_terms.update(map_variables_to_terms(directory=directory, df=temp,apikey=args.key,output_file=os.path.join(directory,'participants.json'),json_file=args.json_map))
+                    column_to_terms, cde = map_variables_to_terms(directory=directory, assessment_name='participants.tsv', df=temp,apikey=args.key,output_file=os.path.join(directory,'participants.json'),json_file=args.json_map)
 
 
             for row in participants_data:
@@ -306,12 +325,13 @@ def bidsmri2project(directory, args):
                     # in CSV2NIDM.py)
                     else:
 
+                        # WIP: trying to add new support for CDEs...
+                        add_attributes_with_cde(prov_object=acq_entity,cde=cde,row_variable=key,value=value)
+                        # if key in column_to_terms:
+                        #    acq_entity.add_attributes({QualifiedName(provNamespace(Core.safe_string(None,string=str(key)), column_to_terms[key]["url"]), ""):value})
+                        #else:
 
-                        if key in column_to_terms:
-                            acq_entity.add_attributes({QualifiedName(provNamespace(Core.safe_string(None,string=str(key)), column_to_terms[key]["url"]), ""):value})
-                        else:
-
-                            acq_entity.add_attributes({Constants.BIDS[key.replace(" ", "_")]:value})
+                        #    acq_entity.add_attributes({Constants.BIDS[key.replace(" ", "_")]:value})
 
 
     #create acquisition objects for each scan for each subject
@@ -585,7 +605,7 @@ def bidsmri2project(directory, args):
                         if os.path.isfile(data_dict):
                             acq_entity.add_attributes({Constants.BIDS["data_dictionary"]:getRelPathToBIDS(data_dict,directory)})
 
-    return project
+    return project, cde
 
 
 if __name__ == "__main__":
