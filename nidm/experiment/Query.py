@@ -341,8 +341,14 @@ def GetParticipantDetails(nidm_file_list,project_id, participant_id, output_file
     df = sparql_query_nidm(nidm_file_list,query, output_file=output_file)
     data = df.values
 
-    result = { 'uuid' : (str(data[0][0])).replace(Constants.NIIRI, ""),
-               'id' : str(data[0][1]),
+    uuid = ""
+    id = ""
+    if len(data) > 0:
+        uuid = data[0][0]
+        id = data[0][1]
+
+    result = { 'uuid' : str(uuid).replace(Constants.NIIRI, ""),
+               'id' : str(id),
                'activity': [] }
 
     for row in data:
