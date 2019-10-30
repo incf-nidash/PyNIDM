@@ -1,7 +1,6 @@
 #!/bin/bash
 #
-#  You can create the docker container with:
-#  docker build -t pynidm .
+#  You can create the docker container with the build.sh script in this directory
 #
 # The command below will mount the ~/PyNIDM and ~/simple2_NIDM_examples directories
 # in /opt and give you a bash shell in the container
