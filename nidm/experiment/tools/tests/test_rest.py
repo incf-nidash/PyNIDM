@@ -1,3 +1,5 @@
+import urllib
+
 import pytest
 from nidm.experiment import Project, Session, AssessmentAcquisition, AssessmentObject, Acquisition, AcquisitionObject, Query
 from nidm.core import Constants
@@ -5,16 +7,32 @@ from nidm.experiment.tools.rest import restParser
 import os
 from pathlib import Path
 from rdflib import Graph, util
+import pprint
 
 REST_TEST_FILE = './agent.ttl'
 test_person_uuid = ""
 test_p2_subject_uuids = []
+
 
 @pytest.fixture(scope="module", autouse="True")
 def makefile():
     if Path(REST_TEST_FILE).is_file():
         os.remove(REST_TEST_FILE)
     makeTestFile(filename=REST_TEST_FILE, params={'PROJECT_UUID': 'p1', 'PROJECT2_UUID': 'p2'})
+
+    if not Path('./cmu_a.nidm.ttl').is_file():
+        urllib.request.urlretrieve (
+            "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/master/datasets.datalad.org/abide/RawDataBIDS/CMU_a/nidm.ttl",
+            "cmu_a.nidm.ttl"
+        )
+
+
+
+def addData(acq, data):
+    acq_entity = AssessmentObject(acquisition=acq)
+    for key in data:
+        acq_entity.add_attributes({key:data[key]})
+    return acq
 
 def makeTestFile(filename, params):
     global test_person_uuid, test_p2_subject_uuids
@@ -34,30 +52,34 @@ def makeTestFile(filename, params):
     session = Session(uuid=session_uuid,project=project)
     acq = Acquisition(uuid="_acq1",session=session)
     acq2 = Acquisition(uuid="_acq2",session=session)
+    acq3 = Acquisition(uuid="_acq2",session=session)
 
     person=acq.add_person(attributes=({Constants.NIDM_SUBJECTID:"a1_9999"}))
     test_person_uuid = (str(person.identifier)).replace("niiri:", "")
 
 
     acq.add_qualified_association(person=person,role=Constants.NIDM_PARTICIPANT)
-    acq2.add_qualified_association(person=person,role=Constants.NIDM_PARTICIPANT)
 
-    person2=acq.add_person(attributes=({Constants.NIDM_SUBJECTID:"a1_8888"}))
-    acq.add_qualified_association(person=person2,role=Constants.NIDM_PARTICIPANT)
-    person3=acq.add_person(attributes=({Constants.NIDM_SUBJECTID:"a2_7777"}))
+    person2=acq2.add_person(attributes=({Constants.NIDM_SUBJECTID:"a1_8888"}))
+    acq2.add_qualified_association(person=person2,role=Constants.NIDM_PARTICIPANT)
+    person3=acq3.add_person(attributes=({Constants.NIDM_SUBJECTID:"a2_7777"}))
     acq2.add_qualified_association(person=person3,role=Constants.NIDM_PARTICIPANT)
-
-
 
     project2 = Project(uuid=project_uuid2,attributes=p2kwargs)
     session2 = Session(uuid=session_uuid2,project=project2)
-    acq3 = Acquisition(uuid="_acq3",session=session2)
-    acq4 = Acquisition(uuid="_acq4",session=session2)
+    acq4 = Acquisition(uuid="_acq3",session=session2)
+    acq5 = Acquisition(uuid="_acq4",session=session2)
 
-    person4=acq3.add_person(attributes=({Constants.NIDM_SUBJECTID:"a3_6666"}))
-    acq3.add_qualified_association(person=person4,role=Constants.NIDM_PARTICIPANT)
-    person5=acq4.add_person(attributes=({Constants.NIDM_SUBJECTID:"a4_5555"}))
-    acq4.add_qualified_association(person=person5,role=Constants.NIDM_PARTICIPANT)
+    person4=acq4.add_person(attributes=({Constants.NIDM_SUBJECTID:"a3_6666"}))
+    acq4.add_qualified_association(person=person4,role=Constants.NIDM_PARTICIPANT)
+    person5=acq5.add_person(attributes=({Constants.NIDM_SUBJECTID:"a4_5555"}))
+    acq5.add_qualified_association(person=person5,role=Constants.NIDM_PARTICIPANT)
+
+    # now add some assessment instrument data
+    addData(acq,{Constants.NIDM_AGE:9, Constants.NIDM_HANDEDNESS: "R", Constants.NIDM_DIAGNOSIS: "Anxiety"})
+    addData(acq2,{Constants.NIDM_AGE:8, Constants.NIDM_HANDEDNESS: "L", Constants.NIDM_DIAGNOSIS: "ADHD"})
+    addData(acq4,{Constants.NIDM_AGE:7, Constants.NIDM_HANDEDNESS: "A", Constants.NIDM_DIAGNOSIS: "Depression"})
+    addData(acq5,{Constants.NIDM_AGE:6, Constants.NIDM_HANDEDNESS: "R", Constants.NIDM_DIAGNOSIS: "Depression"})
 
     test_p2_subject_uuids.append( (str(person4.identifier)).replace("niiri:", "") )
     test_p2_subject_uuids.append( (str(person5.identifier)).replace("niiri:", "") )
@@ -77,6 +99,12 @@ def makeTestFile(filename, params):
 
     os.unlink("a.ttl")
     os.unlink("b.ttl")
+
+    with open(filename, "r") as f:
+        x = f.read()
+
+    with open("./agent.ttl", "w") as f:
+        f.write(x)
 
 
 def test_uri_project_list():
@@ -149,16 +177,26 @@ def test_uri_projects_subjects_1():
 def test_uri_projects_subjects_id():
     global test_person_uuid
 
-    uri = '/projects/{}/subjects/{}'.format("p1",test_person_uuid)
+    result = restParser(['./cmu_a.nidm.ttl'], '/projects')
+    project = result[0]
+
+    result = restParser(['./cmu_a.nidm.ttl'], '/projects/{}/subjects'.format(project))
+    subject = result[0]
+
+    uri = '/projects/{}/subjects/{}'.format(project,subject)
     print (uri)
 
-    result = restParser([REST_TEST_FILE], uri, 5)
-
-    print (result)
+    result = restParser(['./cmu_a.nidm.ttl'], uri, 5)
 
     assert type(result) == dict
-    assert result['id'] == "a1_9999"
-    assert len(result['activity']) == 2
+    assert result['uuid'] == subject
+    assert len(result['instruments']) == 1
+
+    for i in result['instruments']:
+        assert 'AGE_AT_SCAN' in result['instruments'][i]
+        age = float(result['instruments'][i]['AGE_AT_SCAN'])
+        assert  age > 0
+
 
 
 
