@@ -442,7 +442,7 @@ def GetProjectsComputedMetadata(nidm_file_list):
 def GetDataElements(nidm_file_list):
 
     query='''
-        select distinct ?DataElements
+        select distinct ?uuid ?DataElements
             where {
 
                 ?uuid a ?DataElements
