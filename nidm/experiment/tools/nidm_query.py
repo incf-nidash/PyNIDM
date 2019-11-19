@@ -123,7 +123,7 @@ def query(nidm_file_list, query_file, output_file, get_participants, get_instrum
     elif uri:
         df = restParser(nidm_file_list.split(','), uri, int(verbosity))
         if j:
-            print (dumps(df))
+            print (dumps(df, indent=2))
         else:
             if type(df) == list:
                 for x in df:

@@ -32,5 +32,7 @@ RUN cd / && \
     cd PyNIDM-snapshot && \
     pip install -e .
 
+ENV PYNIDM_GRAPH_CACHE=true
+
 COPY . .
 
