@@ -49,6 +49,7 @@ Options:
                               query
   --help                      Show this message and exit.
 
+Setting the environment variable PYNIDM_GRAPH_CACHE will allow pynidm to create cache files holding precompiled graph data along side your .ttl files.
 
 BIDS MRI Conversion to NIDM
 ---------------------------

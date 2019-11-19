@@ -4,13 +4,16 @@ import json
 import re
 from urllib import parse
 import pprint
-
+import os
 
 
 def restParser (nidm_files, command, verbosity_level = 0):
 
     restLog("parsing command "+ command, 1, verbosity_level)
     restLog("Files to read:" + str(nidm_files), 1, verbosity_level)
+    text = ('On', 'Disable', 'unsetting') if os.getenv('PYNIDM_GRAPH_CACHE') != None else ('Off', 'Enable', 'setting')
+    restLog("Graph cache is {}".format(text[0]), 1, verbosity_level)
+    restLog("{} graph cache by {} the PYNIDM_GRAPH_CACHE environment variable".format(text[1], text[2]), 1, verbosity_level)
 
     result = []
     if re.match(r"^/?projects/?$", command):
