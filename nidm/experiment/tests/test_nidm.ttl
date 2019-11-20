@@ -32,79 +32,78 @@
 @prefix xml: <http://www.w3.org/XML/1998/namespace> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-niiri:a8e9dea8-0be8-11ea-a9b3-003ee1ce9545 a nidm:AcquisitionObject,
+niiri:c0679cae-0bea-11ea-8e05-003ee1ce9545 a nidm:AcquisitionObject,
         prov:Entity ;
     nidm:hadAcquisitionModality nidm:MagneticResonanceImaging ;
-    prov:wasGeneratedBy niiri:b8e9ace4-0be8-11ea-a9b3-003ee1ce9545 .
+    prov:wasGeneratedBy niiri:c0676dc4-0bea-11ea-8e05-003ee1ce9545 .
 
-niiri:c8eabc56-0be8-11ea-a9b3-003ee1ce9545 a onli:assessment-instrument,
+niiri:c0687c6e-0bea-11ea-8e05-003ee1ce9545 a onli:assessment-instrument,
         nidm:AcquisitionObject,
         prov:Entity ;
     nidm:Q1 "Q1 Answer"^^xsd:string ;
     nidm:Q2 "Q2 Answer"^^xsd:string ;
-    prov:wasGeneratedBy niiri:b8ea8308-0be8-11ea-a9b3-003ee1ce9545 .
+    prov:wasGeneratedBy niiri:c06844ba-0bea-11ea-8e05-003ee1ce9545 .
 
-niiri:f8eb7858-0be8-11ea-a9b3-003ee1ce9545 a onli:assessment-instrument,
+niiri:c0694248-0bea-11ea-8e05-003ee1ce9545 a onli:assessment-instrument,
         nidm:AcquisitionObject,
         prov:Entity ;
     ncicb:Age "60"^^xsd:int ;
     nidm:AssessmentUsageType nidm:DemographicsInstrument ;
-    prov:wasGeneratedBy niiri:f8eb43ba-0be8-11ea-a9b3-003ee1ce9545 ;
+    prov:wasGeneratedBy niiri:c0690c92-0bea-11ea-8e05-003ee1ce9545 ;
     ndar:gender "Male"^^xsd:string .
 
-niiri:b8e9ace4-0be8-11ea-a9b3-003ee1ce9545 a nidm:Acquisition,
-        prov:Activity ;
-    dct:isPartOf niiri:d8e981c4-0be8-11ea-a9b3-003ee1ce9545 ;
-    prov:qualifiedAssociation [ a prov:Association ;
-            prov:agent niiri:b8ea23a4-0be8-11ea-a9b3-003ee1ce9545 ;
-            prov:hadRole sio:Subject ] ;
-    prov:wasAssociatedWith niiri:b8ea23a4-0be8-11ea-a9b3-003ee1ce9545 .
-
-niiri:b8ea8308-0be8-11ea-a9b3-003ee1ce9545 a onli:instrument-based-assessment,
-        nidm:Acquisition,
-        prov:Activity ;
-    dct:isPartOf niiri:d8e981c4-0be8-11ea-a9b3-003ee1ce9545 ;
-    prov:qualifiedAssociation [ a prov:Association ;
-            prov:agent niiri:b8ea23a4-0be8-11ea-a9b3-003ee1ce9545 ;
-            prov:hadRole sio:Subject ] ;
-    prov:wasAssociatedWith niiri:b8ea23a4-0be8-11ea-a9b3-003ee1ce9545 .
-
-niiri:f8e8a696-0be8-11ea-a9b3-003ee1ce9545 a nidm:Project,
+niiri:c0667568-0bea-11ea-8e05-003ee1ce9545 a nidm:Project,
         prov:Activity ;
     dctypes:title "Test Project name"^^xsd:string ;
     dct:description "Test Project Description"^^xsd:string ;
     sio:Identifier "123456"^^xsd:string ;
-    prov:Location "http://nidm.nidash.org/"^^xsd:string ;
     prov:qualifiedAssociation [ a prov:Association ;
-            prov:agent niiri:e8e91478-0be8-11ea-a9b3-003ee1ce9545 ;
+            prov:agent niiri:c066d198-0bea-11ea-8e05-003ee1ce9545 ;
             prov:hadRole birnlex:birnlex_2152 ] ;
-    prov:wasAssociatedWith niiri:e8e91478-0be8-11ea-a9b3-003ee1ce9545 .
+    prov:wasAssociatedWith niiri:c066d198-0bea-11ea-8e05-003ee1ce9545 .
 
-niiri:f8eb43ba-0be8-11ea-a9b3-003ee1ce9545 a onli:instrument-based-assessment,
+niiri:c0676dc4-0bea-11ea-8e05-003ee1ce9545 a nidm:Acquisition,
+        prov:Activity ;
+    dct:isPartOf niiri:c067401a-0bea-11ea-8e05-003ee1ce9545 ;
+    prov:qualifiedAssociation [ a prov:Association ;
+            prov:agent niiri:c067e01a-0bea-11ea-8e05-003ee1ce9545 ;
+            prov:hadRole sio:Subject ] ;
+    prov:wasAssociatedWith niiri:c067e01a-0bea-11ea-8e05-003ee1ce9545 .
+
+niiri:c06844ba-0bea-11ea-8e05-003ee1ce9545 a onli:instrument-based-assessment,
         nidm:Acquisition,
         prov:Activity ;
-    dct:isPartOf niiri:d8e981c4-0be8-11ea-a9b3-003ee1ce9545 ;
+    dct:isPartOf niiri:c067401a-0bea-11ea-8e05-003ee1ce9545 ;
     prov:qualifiedAssociation [ a prov:Association ;
-            prov:agent niiri:e8ebc45c-0be8-11ea-a9b3-003ee1ce9545 ;
+            prov:agent niiri:c067e01a-0bea-11ea-8e05-003ee1ce9545 ;
             prov:hadRole sio:Subject ] ;
-    prov:wasAssociatedWith niiri:e8ebc45c-0be8-11ea-a9b3-003ee1ce9545 .
+    prov:wasAssociatedWith niiri:c067e01a-0bea-11ea-8e05-003ee1ce9545 .
 
-niiri:e8e91478-0be8-11ea-a9b3-003ee1ce9545 a prov:Agent,
+niiri:c0690c92-0bea-11ea-8e05-003ee1ce9545 a onli:instrument-based-assessment,
+        nidm:Acquisition,
+        prov:Activity ;
+    dct:isPartOf niiri:c067401a-0bea-11ea-8e05-003ee1ce9545 ;
+    prov:qualifiedAssociation [ a prov:Association ;
+            prov:agent niiri:c0698d7a-0bea-11ea-8e05-003ee1ce9545 ;
+            prov:hadRole sio:Subject ] ;
+    prov:wasAssociatedWith niiri:c0698d7a-0bea-11ea-8e05-003ee1ce9545 .
+
+niiri:c066d198-0bea-11ea-8e05-003ee1ce9545 a prov:Agent,
         prov:Person ;
     foaf:familyName "Doe"^^xsd:string ;
     foaf:givenName "John"^^xsd:string .
 
-niiri:e8ebc45c-0be8-11ea-a9b3-003ee1ce9545 a prov:Agent,
+niiri:c0698d7a-0bea-11ea-8e05-003ee1ce9545 a prov:Agent,
         prov:Person ;
     foaf:familyName "Doe"^^xsd:string ;
     foaf:givenName "John"^^xsd:string .
 
-niiri:d8e981c4-0be8-11ea-a9b3-003ee1ce9545 a nidm:Session,
+niiri:c067401a-0bea-11ea-8e05-003ee1ce9545 a nidm:Session,
         prov:Activity ;
     dct:description "test session activity"^^xsd:string ;
-    dct:isPartOf niiri:f8e8a696-0be8-11ea-a9b3-003ee1ce9545 .
+    dct:isPartOf niiri:c0667568-0bea-11ea-8e05-003ee1ce9545 .
 
-niiri:b8ea23a4-0be8-11ea-a9b3-003ee1ce9545 a prov:Agent,
+niiri:c067e01a-0bea-11ea-8e05-003ee1ce9545 a prov:Agent,
         prov:Person ;
     foaf:givenName "George"^^xsd:string .
 

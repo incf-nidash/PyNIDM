@@ -14,7 +14,7 @@ def main(argv):
 
     #test add string attribute with existing namespace
     #nidm_doc.addLiteralAttribute("nidm","isFun","ForMe")
-    project.add_attributes({Constants.PROV["Location"]:"http://nidm.nidash.org/"})
+    # project.add_attributes({Constants.PROV["Location"]:"http://nidm.nidash.org/"})
 
     #test add PI to investigation
     project_PI = project.add_person(attributes={Constants.NIDM_FAMILY_NAME:"Doe", Constants.NIDM_GIVEN_NAME:"John"})
