@@ -53,7 +53,7 @@ def main(argv):
         arg.add_argument('-nl', '--nl', dest="nidm_files", nargs="+", required=True, help="A comma separated list of NIDM files with full path")
 
     concat.add_argument('-o', '--o', dest='output_file', required=True, help="Merged NIDM output file name + path")
-    visualize.add_argument('-o', '--o', dest='output_file', required=True, help="Output file name+path of dot graph")
+    # visualize.add_argument('-o', '--o', dest='output_file', required=True, help="Output file name+path of dot graph")
 
 
     args=parser.parse_args()
@@ -72,11 +72,22 @@ def main(argv):
 
 
     elif args.command == 'visualize':
-        #create empty graph
-        graph=Graph()
+
         for nidm_file in args.nidm_files:
-             tmp = Graph()
-             graph = graph + tmp.parse(nidm_file,format=util.guess_format(nidm_file))
+            # read in nidm file
+            project=read_nidm(nidm_file)
+
+            # split path and filename for output file writing
+            file_parts = os.path.split(nidm_file)
+
+            # write graph as nidm filename + .pdf
+            project.save_DotGraph(filename=os.path.join(file_parts[0], os.path.splitext(file_parts[1])[0] + '.pdf'), format='pdf' )
+
+        #create empty graph
+        #graph=Graph()
+        #for nidm_file in args.nidm_files:
+        #     tmp = Graph()
+        #     graph = graph + tmp.parse(nidm_file,format=util.guess_format(nidm_file))
 
 
         # project=read_nidm(StringIO.write(graph.serialize(format='turtle')))
@@ -87,14 +98,15 @@ def main(argv):
 
         # result is the standard output dot graph stream
         # write temporary file to disk and use for stats
-        temp = tempfile.NamedTemporaryFile(delete=False)
-        temp.write(graph.serialize(format='turtle'))
-        temp.close()
-        uber_nidm_file = temp.name
-        result = subprocess.run(['rdf2dot',uber_nidm_file], stdout=subprocess.PIPE)
+        #temp = tempfile.NamedTemporaryFile(delete=False)
+        #temp.write(graph.serialize(format='turtle'))
+        #temp.close()
+        #uber_nidm_file = temp.name
+        #result = subprocess.run(['rdf2dot',uber_nidm_file], stdout=subprocess.PIPE)
+
         # now use graphviz Source to create dot graph object
-        src=Source(result)
-        src.render(args.output_file+'.pdf',view=False,format='pdf')
+        #src=Source(result)
+        #src.render(args.output_file+'.pdf',view=False,format='pdf')
 
 
 
