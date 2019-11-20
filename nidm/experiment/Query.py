@@ -510,6 +510,53 @@ def GetDataElements(nidm_file_list):
     df = sparql_query_nidm(nidm_file_list.split(','), query, output_file=None)
     return df
 
+def GetBrainVolumes(nidm_file_list):
+    query='''
+        prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        prefix prov: <http://www.w3.org/ns/prov#>
+        prefix ndar: <https://ndar.nih.gov/api/datadictionary/v2/dataelement/>
+        prefix fsl: <http://purl.org/nidash/fsl#>
+        prefix nidm: <http://purl.org/nidash/nidm#>
+        prefix onli: <http://neurolog.unice.fr/ontoneurolog/v3.0/instrument.owl#>
+        prefix freesurfer: <https://surfer.nmr.mgh.harvard.edu/>
+        prefix dx: <http://ncitt.ncit.nih.gov/Diagnosis>
+        prefix ants: <http://stnava.github.io/ANTs/>
+        prefix dct: <http://purl.org/dc/terms/>
+        prefix dctypes: <http://purl.org/dc/dcmitype/>
+
+        SELECT DISTINCT ?ID ?tool ?softwareLabel ?federatedLabel ?laterality ?volume
+        where {
+ 	        ?tool_act a prov:Activity ;
+		            prov:qualifiedAssociation [prov:agent [nidm:NIDM_0000164 ?tool]] ;
+					prov:qualifiedAssociation [prov:agent [ndar:src_subject_id ?ID]] .
+			?tool_entity prov:wasGeneratedBy ?tool_act ;
+				?measure ?volume .
+
+			{?measure a fsl:DataElement ;
+				    fsl:label ?softwareLabel;
+				    nidm:measureOf <http://uri.interlex.org/base/ilx_0112559> ;
+				    nidm:datumType <http://uri.interlex.org/base/ilx_0738276> ;
+			}
+			UNION
+			{?measure a freesurfer:DataElement ;
+				    freesurfer:label ?softwareLabel;
+				    nidm:measureOf <http://uri.interlex.org/base/ilx_0112559> ;
+				    nidm:datumType <http://uri.interlex.org/base/ilx_0738276> ;
+			}
+			UNION
+			{?measure a ants:DataElement ;
+				    ants:label ?softwareLabel;
+				    nidm:measureOf <http://uri.interlex.org/base/ilx_0112559> ;
+				    nidm:datumType <http://uri.interlex.org/base/ilx_0738276> ;
+			}
+			OPTIONAL {?measure nidm:isAbout ?federatedLabel }.
+			OPTIONAL {?measure nidm:hasLaterality ?laterality }.
+		}'''
+
+    df = sparql_query_nidm(nidm_file_list.split(','), query, output_file=None)
+    return df
+
+
 
 def ExtractProjectSummary(meta_data, nidm_file_list):
     '''
