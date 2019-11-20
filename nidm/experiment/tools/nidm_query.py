@@ -37,7 +37,7 @@ import pandas as pd
 from argparse import ArgumentParser
 import logging
 import csv
-from nidm.experiment.Query import sparql_query_nidm, GetParticipantIDs,GetProjectInstruments,GetProjectsUUID,GetInstrumentVariables,GetDataElements
+from nidm.experiment.Query import sparql_query_nidm, GetParticipantIDs,GetProjectInstruments,GetProjectsUUID,GetInstrumentVariables,GetDataElements,GetBrainVolumes
 import click
 from nidm.experiment.tools.click_base import cli
 from nidm.experiment.tools.rest import restParser
@@ -57,6 +57,8 @@ from json import dumps, loads
               help="Parameter, if set, query will return list of onli:assessment-instrument: variables")
 @click.option("--get_dataelements", "-de", is_flag=True, required=False,
               help="Parameter, if set, will return all DataElements in NIDM file")
+@click.option("--get_brainvols", "-bv", is_flag=True, required=False,
+              help="Parameter, if set, will return all brain volume data elements and values along with participant IDs in NIDM file")
 @click.option("--output_file", "-o", required=False,
               help="Optional output file (CSV) to store results of query")
 @click.option("--uri", "-u", required=False,
@@ -64,13 +66,19 @@ from json import dumps, loads
 @click.option("-j/-no_j", required=False, default=False,
               help="Return result of a uri query as JSON")
 @click.option('-v', '--verbosity', required=False, help="Verbosity level 0-5, 0 is default", default="0")
-def query(nidm_file_list, query_file, output_file, get_participants, get_instruments, get_instrument_vars, get_dataelements, uri, j, verbosity):
+def query(nidm_file_list, query_file, output_file, get_participants, get_instruments, get_instrument_vars, get_dataelements, get_brainvols, uri, j, verbosity):
 
     #query result list
     results = []
 
     if get_participants:
         df = GetParticipantIDs(nidm_file_list.split(','),output_file=output_file)
+        if ((output_file) is None):
+
+            print(df)
+
+
+        return df
     elif get_instruments:
         #first get all project UUIDs then iterate and get instruments adding to output dataframe
         project_list = GetProjectsUUID(nidm_file_list.split(','))
@@ -133,6 +141,14 @@ def query(nidm_file_list, query_file, output_file, get_participants, get_instrum
                     print (str(k) + ' ' + str(df[k]))
             else:
                 print (df)
+    elif get_brainvols:
+        brainvol = GetBrainVolumes(nidm_file_list=nidm_file_list)
+         #if output file parameter specified
+        if (output_file is not None):
+
+            brainvol.to_csv(output_file)
+        else:
+            print(brainvol)
     else:
 
         #read query from text fiile
