@@ -77,7 +77,7 @@ def query(nidm_file_list, query_file, output_file, get_participants, get_instrum
         df = GetParticipantIDs(nidm_file_list.split(','),output_file=output_file)
         if ((output_file) is None):
 
-            print(df)
+            print(df.to_string())
 
 
         return df
@@ -103,7 +103,7 @@ def query(nidm_file_list, query_file, output_file, get_participants, get_instrum
 
             #pd.DataFrame.from_records(df,columns=["Instruments"]).to_csv(output_file)
         else:
-            print(df)
+            print(df.to_string())
     elif get_instrument_vars:
         #first get all project UUIDs then iterate and get instruments adding to output dataframe
         project_list = GetProjectsUUID(nidm_file_list.split(','))
@@ -121,7 +121,7 @@ def query(nidm_file_list, query_file, output_file, get_participants, get_instrum
 
             df.to_csv(output_file)
         else:
-            print(df)
+            print(df.to_string())
     elif get_dataelements:
         datael = GetDataElements(nidm_file_list=nidm_file_list)
          #if output file parameter specified
@@ -129,7 +129,7 @@ def query(nidm_file_list, query_file, output_file, get_participants, get_instrum
 
             datael.to_csv(output_file)
         else:
-            print(datael)
+            print(datael.to_string())
     elif uri:
         df = restParser(nidm_file_list.split(','), uri, int(verbosity))
         if j:
@@ -142,7 +142,7 @@ def query(nidm_file_list, query_file, output_file, get_participants, get_instrum
                 for k in df.keys():
                     print (str(k) + ' ' + str(df[k]))
             else:
-                print (df)
+                print (df.to_string())
     elif get_dataelements_brainvols:
         brainvol = GetBrainVolumeDataElements(nidm_file_list=nidm_file_list)
          #if output file parameter specified
@@ -150,7 +150,7 @@ def query(nidm_file_list, query_file, output_file, get_participants, get_instrum
 
             brainvol.to_csv(output_file)
         else:
-            print(brainvol)
+            print(brainvol.to_string())
     elif get_brainvols:
         brainvol = GetBrainVolumes(nidm_file_list=nidm_file_list)
          #if output file parameter specified
@@ -158,7 +158,7 @@ def query(nidm_file_list, query_file, output_file, get_participants, get_instrum
 
             brainvol.to_csv(output_file)
         else:
-            print(brainvol)
+            print(brainvol.to_string())
     else:
 
         #read query from text fiile
@@ -169,7 +169,7 @@ def query(nidm_file_list, query_file, output_file, get_participants, get_instrum
 
         if ((output_file) is None):
 
-            print(df)
+            print(df.to_string())
 
 
         return df
