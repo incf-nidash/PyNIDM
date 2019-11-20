@@ -271,20 +271,8 @@ def test_GetProjectsComputedMetadata():
             )
         files.append("cmu_a.nidm.ttl")
 
-    print ("num files: {}".format(len(files)) )
-    print (files)
-
     parsed = Query.GetProjectsComputedMetadata(files)
 
-    # assert parsed['projects'][p1][str(Constants.NIDM_PROJECT_DESCRIPTION)] == "Test investigation"
-    # assert parsed['projects'][p2][str(Constants.NIDM_PROJECT_DESCRIPTION)] == "More Scans"
-    # assert parsed['projects'][p2][Query.matchPrefix(str(Constants.NIDM_NUMBER_OF_SUBJECTS))] == 0
-    # assert parsed['projects'][p1][Query.matchPrefix(str(Constants.NIDM_NUMBER_OF_SUBJECTS))] == 0
-
-
-    print ("p1 {}".format(p1))
-    print ("p2 {}".format(p2))
-    print ("len is {}".format(len(parsed['projects'])))
     if USE_GITHUB_DATA:
         for project_id in parsed['projects']:
             print ("looking at {}".format(project_id))

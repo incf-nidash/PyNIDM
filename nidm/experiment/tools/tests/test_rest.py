@@ -1,31 +1,48 @@
 import urllib
 
 import pytest
+import rdflib
+
 from nidm.experiment import Project, Session, AssessmentAcquisition, AssessmentObject, Acquisition, AcquisitionObject, Query
 from nidm.core import Constants
 from nidm.experiment.tools.rest import restParser
 import os
 from pathlib import Path
-from rdflib import Graph, util
-import pprint
+from rdflib import Graph, util, URIRef
+import json
+
+from prov.model import ProvAgent
+
 
 REST_TEST_FILE = './agent.ttl'
+BRAIN_VOL_FILES = ['./cmu_a.nidm.ttl', './caltech.nidm.ttl']
 test_person_uuid = ""
 test_p2_subject_uuids = []
 
 
 @pytest.fixture(scope="module", autouse="True")
 def makefile():
+
     if Path(REST_TEST_FILE).is_file():
         os.remove(REST_TEST_FILE)
     makeTestFile(filename=REST_TEST_FILE, params={'PROJECT_UUID': 'p1', 'PROJECT2_UUID': 'p2'})
 
+    for f in ['./cmu_a.nidm.ttl', 'caltech.nidm.ttl']:
+        if Path(f).is_file():
+            os.remove(f)
+
     if not Path('./cmu_a.nidm.ttl').is_file():
         urllib.request.urlretrieve (
-            "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/master/datasets.datalad.org/abide/RawDataBIDS/CMU_a/nidm.ttl",
+            "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/wBrainVols/datasets.datalad.org/abide/RawDataBIDS/CMU_a/nidm.ttl",
             "cmu_a.nidm.ttl"
         )
 
+
+    if not Path('./caltech.nidm.ttl').is_file():
+        urllib.request.urlretrieve (
+            "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/wBrainVols/datasets.datalad.org/abide/RawDataBIDS/Caltech/nidm.ttl",
+            "caltech.nidm.ttl"
+        )
 
 
 def addData(acq, data):
@@ -165,7 +182,7 @@ def test_uri_projects_subjects_1():
     global test_p2_subject_uuids
 
     proj_uuid = 'p2'
-    result = restParser([REST_TEST_FILE], '/projects/{}/subjects'.format(proj_uuid), 5)
+    result = restParser([REST_TEST_FILE], '/projects/{}/subjects'.format(proj_uuid), 0)
 
     assert type(result) == list
     assert len(result) == 2
@@ -179,14 +196,11 @@ def test_uri_projects_subjects_id():
 
     result = restParser(['./cmu_a.nidm.ttl'], '/projects')
     project = result[0]
-
     result = restParser(['./cmu_a.nidm.ttl'], '/projects/{}/subjects'.format(project))
     subject = result[0]
 
     uri = '/projects/{}/subjects/{}'.format(project,subject)
-    print (uri)
-
-    result = restParser(['./cmu_a.nidm.ttl'], uri, 5)
+    result = restParser(['./cmu_a.nidm.ttl'], uri, 0)
 
     assert type(result) == dict
     assert result['uuid'] == subject
@@ -198,37 +212,64 @@ def test_uri_projects_subjects_id():
         # WIP commented out by DBK to get tests to pass for the moment.  Needs updating?
         # assert  age > 0
 
+    assert len(result['stats']) > 0
 
 
 
+def test_get_software_agents():
+    nidm_file = BRAIN_VOL_FILES[0]
+    rdf_graph = Query.OpenGraph(nidm_file)
+
+    agents = Query.getSoftwareAgents(rdf_graph)
+
+    assert len(agents) > 0
+
+    isa = URIRef('http://www.w3.org/1999/02/22-rdf-syntax-ns#type')
+
+
+    count = 0
+    for a in agents:
+        for s, o, p in rdf_graph.triples( (a, isa, Constants.PROV['Agent']) ):
+            count += 1
+
+    assert (count == len(agents))
 
 
 
+def test_brain_vols():
+
+    projects  = restParser(BRAIN_VOL_FILES, '/projects')
+    subjects = restParser(BRAIN_VOL_FILES, '/projects/{}/subjects'.format(projects[0]))
+    subject = subjects[0]
+
+    data = Query.getStatsDataForSubject(BRAIN_VOL_FILES, subject)
+
+    assert(len(data) > 0)
+    assert('StatCollectionType' in data[0])
+    assert('URI' in data[0])
+    assert('values' in data[0])
 
 
+def test_GetParticipantDetails():
+    projects  = restParser(BRAIN_VOL_FILES, '/projects')
+    project = projects[0]
+    subjects = restParser(BRAIN_VOL_FILES, '/projects/{}/subjects'.format(projects[0]))
+    subject = subjects[0]
 
+    import time
+    start = time.time()
 
+    Query.GetParticipantInstrumentData( BRAIN_VOL_FILES, project, subject )
 
+    end = time.time()
+    runtime = end - start
+    # assert (runtime <  12)
 
+    details = Query.GetParticipantDetails( BRAIN_VOL_FILES, project, subject )
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    assert ('uuid' in details)
+    assert ('id' in details)
+    assert ('activity' in details)
+    assert ('instruments' in details)
+    assert ('stats' in details)
 

@@ -28,8 +28,6 @@
 #
 #**************************************************************************************
 #**************************************************************************************
-
-
 import os,sys
 import uuid
 from rdflib import Graph, RDF, URIRef, util, term
@@ -40,6 +38,9 @@ from .Project import Project
 from nidm.core import Constants
 from json import dumps, loads
 import re
+
+import pickle
+
 
 def sparql_query_nidm(nidm_file_list,query, output_file=None, return_graph=False):
     '''
@@ -63,8 +64,9 @@ def sparql_query_nidm(nidm_file_list,query, output_file=None, return_graph=False
 
         # project=read_nidm(nidm_file)
         #read RDF file into temporary graph
-        rdf_graph = Graph()
-        rdf_graph_parse = rdf_graph.parse(nidm_file,format=util.guess_format(nidm_file))
+        # rdf_graph = Graph()
+        # rdf_graph_parse = rdf_graph.parse(nidm_file,format=util.guess_format(nidm_file))
+        rdf_graph_parse = OpenGraph(nidm_file)
 
         if not return_graph:
             #execute query
@@ -357,6 +359,8 @@ def GetParticipantDetails(nidm_file_list,project_id, participant_id, output_file
 
     result["instruments"] = GetParticipantInstrumentData(nidm_file_list, project_id, participant_id)
 
+    result["stats"] = getStatsDataForSubject(nidm_file_list, participant_id)
+
     return result
 
 def GetMergedGraph(nidm_file_list):
@@ -373,63 +377,40 @@ def GetParticipantInstrumentData(nidm_file_list,project_id, participant_id):
     :return: list of Constants.NIDM_PARTICIPANT UUIDs and Constants.NIDM_SUBJECTID
     '''
 
-    query = '''
-
-        PREFIX prov:<http://www.w3.org/ns/prov#>
-        PREFIX sio: <http://semanticscience.org/ontology/sio.owl#>
-        PREFIX ndar: <https://ndar.nih.gov/api/datadictionary/v2/dataelement/>
-        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-        PREFIX nidm: <http://purl.org/nidash/nidm#>
-        PREFIX dct: <http://purl.org/dc/terms/>
-        PREFIX onli: <http://neurolog.unice.fr/ontoneurolog/v3.0/instrument.owl#>
-        
-        
-        SELECT DISTINCT ?person_uuid ?id ?activity ?instrument ?x ?value
-        WHERE {
-            ?activity rdf:type onli:instrument-based-assessment ;
-                prov:qualifiedAssociation _:blanknode .
-        
-            _:blanknode prov:hadRole sio:Subject ;
-                 prov:agent ?person_uuid  .
-        
-            ?person_uuid ndar:src_subject_id ?id .
-        
-            ?proj a nidm:Project .
-            ?sess dct:isPartOf ?proj .
-            ?activity dct:isPartOf ?sess .
-        
-        
-            ?instrument a onli:assessment-instrument .
-            ?instrument prov:wasGeneratedBy ?activity .
-        
-            ?instrument ?x ?value
-            
-             FILTER(regex(str(?person_uuid), "%s")).    
-        }
-
-        ''' % (participant_id)
-
-    df = sparql_query_nidm(nidm_file_list, query, output_file=None)
-    data = df.values
+    if participant_id.find('http') != 0:
+        participant_id = Constants.NIIRI[participant_id]
 
     result = {}
+    names = []
+    for f in nidm_file_list:
+        rdf_graph = OpenGraph(f)
+        for n in rdf_graph.namespace_manager.namespaces():
+            if not n in names:
+                names.append(n)
 
-    rdf_graph = GetMergedGraph(nidm_file_list)
-    names = [n for n in rdf_graph.namespace_manager.namespaces()]
+    isa = URIRef('http://www.w3.org/1999/02/22-rdf-syntax-ns#type')
+    for f in nidm_file_list:
+        rdf_graph = OpenGraph(f)
+        # find all the instrument based assessments
+        for assessment in rdf_graph.subjects(isa, Constants.ONLI['instrument-based-assessment']):
+            # verify that the assessment is linked to a subject through a blank node
+            for blanknode in rdf_graph.objects(subject=assessment,predicate=Constants.PROV['qualifiedAssociation']):
+                # check to see if this assessment is about our participant
+                if ((blanknode, Constants.PROV['agent'], participant_id) in rdf_graph) or \
+                    ((blanknode, Constants.PROV['Agent'], participant_id) in rdf_graph) :
+                    # now we know that the assessment is one we want, find the actual assessment data
+                    for instrument in rdf_graph.subjects(predicate=Constants.PROV['wasGeneratedBy'], object=assessment):
+                        #load up all the assement data into the result
+                        result[instrument] = {}
+                        for s,p,o in rdf_graph.triples((instrument, None, None)):
+                            # convert the random looking URIs to the prefix used in the ttl file, if any
+                            matches = [n[0] for n in names if n[1] == p]
+                            if len(matches) > 0:
+                                idx = str(matches[0])
+                            else:
+                                idx = str(p)
+                            result[instrument][ idx ] = str(str(o))
 
-
-    for row in data:
-        instrument = row[3].replace(Constants.NIIRI, "")
-        if not instrument in result:
-            result[instrument] = {}
-        # try to find a namespace / prefix match for the predicate
-        predicate = row[4]
-        matches = [n[0] for n in names if n[1] == predicate]
-        if len(matches) > 0:
-            idx = str(matches[0])
-        else:
-            idx = str(predicate)
-        result[instrument][ idx ] = str(row[5])
 
     return result
 
@@ -471,13 +452,6 @@ def GetParticipantUUIDsForProject(nidm_file_list, project_id, output_file=None):
         ''' % (project_id)
 
     df = sparql_query_nidm(nidm_file_list, query, output_file=output_file)
-    # print ("PPPPPPPProject ID %s" % (project_id))
-    # print (df)
-    # assert False
-
-    # agents = df[['uuid']].values
-
-
     return df
 
 
@@ -689,4 +663,164 @@ def matchPrefix(possible_URI) -> str:
         return "{}:{}".format("nidm:", possible_URI.replace(Constants.NIDM_URL, ""))
 
     return possible_URI
+
+# check if this activity is linked by a blank node to one of the sw agents
+def activityIsSWAgent(rdf_graph, activity, sw_agents):
+    '''
+    Returns True if the given activity is associated with a software agent from the sw_agents array
+    :param rdf_graph: Graph
+    :param activity: activity URI
+    :param sw_agents: array of software agent URIs
+    :return: Boolean
+    '''
+    for blank in rdf_graph.objects(activity, Constants.PROV['qualifiedAssociation']):
+        for object in rdf_graph.objects(blank, Constants.PROV['wasAssociatedWith']):
+            if object in sw_agents:
+                return True
+    return False
+
+def getStatsNodesForSubject (rdf_graph, subject ):
+    '''
+    Finds all the URIs that were generated by software agents and linked to the subject
+
+    :param rdf_graph:
+    :param subject:
+    :return: Array of StatsCollections URIs
+    '''
+
+    qualified_association = URIRef('http://www.w3.org/ns/prov#qualifiedAssociation')
+    was_associated_with = URIRef('http://www.w3.org/ns/prov#wasAssociatedWith')
+
+    sw_agents = getSoftwareAgents(rdf_graph)
+
+    stats_uris = []
+
+    for blank, p, o in rdf_graph.triples( (None, was_associated_with, subject)): # get the blank nodes associated with the subject
+        for activity, p2, o2 in rdf_graph.triples( (None, qualified_association, blank) ): # find the activities that are the parents of the blank node
+            # check if the activity is a sw agent activity
+            if activityIsSWAgent(rdf_graph, activity, sw_agents):
+                for stat, p3, o3 in rdf_graph.triples( (None, Constants.PROV['wasGeneratedBy'], activity)):
+                    stats_uris.append(stat)
+    return stats_uris
+
+def getDataTypeInfo(rdf_graph, datatype):
+    '''
+    Scans all the triples with subject of datatype (isa DataElement in the graph) and looks for entries
+    with specific predicates necessary to define it's type
+
+    :param rdf_graph:
+    :param datatype: URI of the DataElement
+    :return: { 'label': label, 'hasUnit': hasUnit, 'typeURI': typeURI}
+    '''
+
+
+    typeURI = ''
+    hasUnit = ''
+    label = ''
+
+    # have to scan all tripples because the label can be in any namespace
+    for s, p, o in rdf_graph.triples((datatype, None, None)):
+        if (re.search(r'label$', str(p)) != None):
+            label = o
+        if (re.search(r'hasUnit$', str(p)) != None):
+            hasUnit = o
+        if (re.search(r'datumType$', str(p)) != None):
+            typeURI = o
+
+    return { 'label': label, 'hasUnit': hasUnit, 'typeURI': typeURI}
+
+def getStatsCollectionForNode (rdf_graph, stats_node):
+
+    isa = URIRef('http://www.w3.org/1999/02/22-rdf-syntax-ns#type')
+    data = {'URI': stats_node, 'values': {}}
+
+    for s, datatype, value in rdf_graph.triples( (stats_node, None, None) ):
+        if datatype == isa and str(value).find('http://purl.org/nidash/nidm#') == 0:
+            data['StatCollectionType'] = str(value)[28:]
+        else:
+            dti = getDataTypeInfo(rdf_graph, datatype )
+            data['values'][str(datatype)] = {'label': str(dti['label']), 'value': str(value), 'units': str(dti['hasUnit'])}
+
+    return data
+
+def OpenGraph(file):
+    '''
+    Returns a parsed RDFLib Graph object for the given file
+    If the PYNIDM_GRAPH_CACHE environment variable is set this function will cache the
+    parsed Graph object in a separate file alongside the .ttl file
+
+    :param file: filename
+    :return: Graph
+    '''
+
+    if os.getenv('PYNIDM_GRAPH_CACHE'):
+        import hashlib
+        from pathlib import Path
+        from os import path
+
+        BLOCKSIZE = 65536
+        hasher = hashlib.md5()
+        with open(file, 'rb') as afile:
+            buf = afile.read(BLOCKSIZE)
+            while len(buf) > 0:
+                hasher.update(buf)
+                buf = afile.read(BLOCKSIZE)
+        hash = hasher.hexdigest()
+
+        pickle_file = '{}.{}'.format(file, hash)
+        if path.isfile(pickle_file):
+            return pickle.load(open(pickle_file, "rb"))
+
+        rdf_graph = Graph()
+        rdf_graph.parse(file, format=util.guess_format(file))
+        pickle.dump(rdf_graph, open(pickle_file, 'wb'))
+
+        return rdf_graph
+    else:
+        rdf_graph = Graph()
+        rdf_graph.parse(file, format=util.guess_format(file))
+        return rdf_graph
+
+
+def getStatsDataForSubject(files, subject):
+    '''
+    Searches for the subject in the supplied RDF .ttl files and returns
+    an array of all the data generated by software agents about that subject
+
+    :param files: Array of RDF .ttl files
+    :param subject: The URI (or just the bit after the NIIRI prefix) of a subject
+    :return: Array of stat collections for the subject
+    '''
+
+    # if this isn't already a URI, make it one.
+    # calls from the REST api don't include the URI
+    if subject.find('http') < 0:
+        subject = Constants.NIIRI[subject]
+
+    data = []
+
+    for nidm_file in files:
+        rdf_graph = OpenGraph(nidm_file)
+        for node in getStatsNodesForSubject(rdf_graph, subject):
+            data.append(getStatsCollectionForNode(rdf_graph, node))
+
+    return data
+
+def getSoftwareAgents(rdf_graph):
+    '''
+    Scans the supplied graph and returns any software agenyt URIs found there
+
+    :param rdf_graph: a parsed RDF Graph
+    :return: array of agent URIs
+    '''
+
+    isa = URIRef('http://www.w3.org/1999/02/22-rdf-syntax-ns#type')
+    software_agent = URIRef('http://www.w3.org/ns/prov#SoftwareAgent')
+    agents = []
+
+    for s,o,p in rdf_graph.triples( (None, isa, software_agent) ):
+        agents.append(s)
+
+    return agents
+
 
