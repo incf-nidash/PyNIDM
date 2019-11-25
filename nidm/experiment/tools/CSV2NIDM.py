@@ -45,7 +45,7 @@ import pandas as pd
 from rdflib import Graph,URIRef,RDF,Literal
 from io import StringIO
 from shutil import copy2
-
+from nidm.core.Constants import DD
 
 
 
@@ -114,7 +114,9 @@ def main(argv):
         id_field=None
         for key, value in column_to_terms.items():
             if Constants.NIDM_SUBJECTID._str == column_to_terms[key]['label']:
-                id_field=key
+                key_tuple = eval(key)
+                #id_field=key
+                id_field = key_tuple.variable
                 #make sure id_field is a string for zero-padded subject ids
                 #re-read data file with constraint that key field is read as string
                 #df = pd.read_csv(args.csv_file,dtype={id_field : str})

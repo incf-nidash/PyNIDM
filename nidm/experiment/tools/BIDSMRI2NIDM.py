@@ -55,6 +55,8 @@ from bids import BIDSLayout
 import hashlib
 from io import StringIO
 from rdflib import Graph
+from nidm.core.Constants import DD
+
 
 def getRelPathToBIDS(filepath, bids_root):
     """
@@ -127,7 +129,7 @@ Example 4 (FULL MONTY): BIDS conversion with variable->term mappings, uses JSON 
     #if args.owl is None:
     #    args.owl = 'nidm'
 
-
+    logging.basicConfig(filename=join('/Users/dbkeator/Downloads/','bidsmri2nidm_' + os.path.basename(directory) + '.log'), level=logging.INFO)
 
     #importlib.reload(sys)
     #sys.setdefaultencoding('utf8')
@@ -208,6 +210,9 @@ def addbidsignore(directory,filename_to_add):
 
 
 def bidsmri2project(directory, args):
+    #initialize empty cde graph...it may get replaced if we're doing variable to term mapping or not
+    cde=Graph()
+
     #Parse dataset_description.json file in BIDS directory
     if (os.path.isdir(os.path.join(directory))):
         try:
