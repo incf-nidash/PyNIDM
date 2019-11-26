@@ -1050,7 +1050,7 @@ def DD_to_nidm(dd_struct):
             # else:
                 # cde_id = item_ns[dd_struct[str(key_tuple)]['label']]
                 # item_ns = Namespace(dd_struct[str(key_tuple)]["url"].rsplit('/', 1)[0] +"/")
-                item_ns = Namespace(dd_struct[str(key_tuple)]["url"])
+                item_ns = Namespace(dd_struct[str(key_tuple)]["url"]+"/")
                 g.bind(prefix=safe_string(item), namespace=item_ns)
                 nidm_ns = Namespace(Constants.NIDM)
                 g.bind(prefix='nidm', namespace=nidm_ns)
@@ -1095,7 +1095,7 @@ def DD_to_nidm(dd_struct):
 
 def add_attributes_with_cde(prov_object, cde, row_variable, value):
 
-    # find the ID in cdes where nidm:variable matches the row_variable
+    # find the ID in cdes where nidm:source_variable matches the row_variable
     # qres = cde.subjects(predicate=Constants.RDFS['label'],object=Literal(row_variable))
     qres = cde.subjects(predicate=Constants.NIDM['source_variable'],object=Literal(row_variable))
     for s in qres:
