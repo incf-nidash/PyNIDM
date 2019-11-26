@@ -438,6 +438,73 @@ class Core(object):
     def save_DotGraph(self,filename,format=None):
         dot = prov_to_dot(self.graph)
 
+        ###WIP: augmenting DOT graph with isPartOf edges
+
+
+        # query self.graph for Project uuids
+        #use RDFLib here for temporary graph making query easier
+        rdf_graph = Graph()
+        rdf_graph = rdf_graph.parse(source=StringIO(self.graph.serialize(None, format='rdf', rdf_format='ttl')),format='turtle')
+
+        #SPARQL query to get project UUIDs
+        query = '''
+        PREFIX nidm:<http://purl.org/nidash/nidm#>
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+        SELECT distinct ?uuid
+        Where {
+            {
+                ?uuid rdf:type nidm:Project
+            }
+
+        }
+        '''
+        qres = rdf_graph.query(query)
+        for row in qres:
+            print("project uuid = %s" %row)
+            # parse uuid from project URI
+            #project_uuid = str(row[0]).rsplit('/', 1)[-1]
+            project_uuid = str(row[0])
+            # for each Project uuid search dot structure for Project uuid
+            project_node = None
+            for key,value in dot.obj_dict['nodes'].items():
+                # get node number in DOT graph for Project
+                if 'URL' in dot.obj_dict['nodes'][key][0]['attributes']:
+                    if project_uuid in str(dot.obj_dict['nodes'][key][0]['attributes']['URL']):
+                        project_node = key
+                        break
+
+        # for each Session in Project class self.sessions list, find node numbers in DOT graph
+
+        for session in self.sessions:
+            print(session)
+            for key,value in dot.obj_dict['nodes'].items():
+                # get node number in DOT graph for Project
+                if 'URL' in dot.obj_dict['nodes'][key][0]['attributes']:
+                    if session.identifier.uri in str(dot.obj_dict['nodes'][key][0]['attributes']['URL']):
+                        session_node= key
+                        print("session node = %s" %key)
+
+                        # add to DOT structure edge between project_node and session_node
+                        dot.obj_dict['edges'][session_node,project_node] = dot.obj_dict['edges']['ann1',project_node]
+                        dot.obj_dict['edges'][session_node,project_node][0]['points'][0]
+                        #change some of the properties to be isPartOf and color
+
+                        # for each Acquisition in Session class ._acquisitions list, find node numbers in DOT graph
+                        for acquisition in session.get_acquisitions():
+                            # search through the nodes again to figure out node number for acquisition
+                            for key,value in dot.obj_dict['nodes'].items():
+                                # get node number in DOT graph for Project
+                                if 'URL' in dot.obj_dict['nodes'][key][0]['attributes']:
+                                    if acquisition.identifier.uri in str(dot.obj_dict['nodes'][key][0]['attributes']['URL']):
+                                        acquisition_node = key
+                                        print("acquisition node = %s" %key)
+
+                                        # add edge to DOT structure connecting acquisition node with session node.
+
+
+
+
 
 
         #add some logic to find nodes with dct:hasPart relation and add those edges to graph...prov_to_dot ignores these
