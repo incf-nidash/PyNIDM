@@ -121,6 +121,7 @@ Example 4 (FULL MONTY): BIDS conversion with variable->term mappings, uses JSON 
     mapvars_group.add_argument('-ilxkey', '--ilxkey', dest='key', required=False, default=None,  help="Interlex/SciCrunch API key to use for query and adding terms")
     #mapvars_group.add_argument('-owl', action='store_true', required=False, default=None,help='Optional flag to query nidm-experiment OWL files')
     #parser.add_argument('-mapvars', '--mapvars', action='store_true', help='If flag set, variables in participant.tsv and phenotype files will be interactively mapped to terms')
+    parser.add_argument('-log','--log', dest='logfile',required=False, default=None, help="directory to save log file. Log file name is bidsmri2nidm_[basename(args.directory)].log")
     parser.add_argument('-o', dest='outputfile', required=False, default="nidm.ttl", help="Outputs turtle file called nidm.ttl in BIDS directory by default..or whatever path/filename is set here")
 
     args = parser.parse_args()
@@ -129,8 +130,10 @@ Example 4 (FULL MONTY): BIDS conversion with variable->term mappings, uses JSON 
     #if args.owl is None:
     #    args.owl = 'nidm'
 
-    logging.basicConfig(filename=join('/Users/dbkeator/Downloads/','bidsmri2nidm_' + os.path.basename(directory) + '.log'), level=logging.INFO)
-
+    if args.logfile is not None:
+        logging.basicConfig(filename=join(args.logfile,'bidsmri2nidm_' + os.path.basename(directory) + '.log'), level=logging.DEBUG)
+        logging.info("bidsmri2nidm %s" %args)
+        
     #importlib.reload(sys)
     #sys.setdefaultencoding('utf8')
 

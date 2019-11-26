@@ -972,8 +972,8 @@ def map_variables_to_terms(df,apikey,directory, assessment_name, output_file=Non
             # dir = os.path.dirname(output_file)
             # file_path=os.path.relpath(output_file)
             # print("writing %s " %output_file)
-            logging.info("saving json mapping file: %s" %os.path.join(os.path.basename(output_file), \
-                                        os.path.splitext(output_file)[0]+".json"))
+            # logging.info("saving json mapping file: %s" %os.path.join(os.path.basename(output_file), \
+            #                            os.path.splitext(output_file)[0]+".json"))
             with open(os.path.join(os.path.basename(output_file),os.path.splitext(output_file)[0]+".json"),'w+') \
                     as fp:
                 json.dump(column_to_terms,fp)
@@ -985,8 +985,8 @@ def map_variables_to_terms(df,apikey,directory, assessment_name, output_file=Non
         # dir = os.path.dirname(output_file)
         # file_path=os.path.relpath(output_file)
         # print("writing %s " %output_file)
-        logging.info("saving json mapping file: %s" %os.path.join(os.path.basename(output_file), \
-                                        os.path.splitext(output_file)[0]+".json"))
+        # logging.info("saving json mapping file: %s" %os.path.join(os.path.basename(output_file), \
+        #                                os.path.splitext(output_file)[0]+".json"))
         with open(os.path.join(os.path.dirname(output_file),os.path.splitext(output_file)[0]+".json"),'w+') \
                     as fp:
             json.dump(column_to_terms,fp)
