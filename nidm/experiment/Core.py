@@ -20,6 +20,7 @@ import re
 import string
 import random
 
+
 def getUUID():
     uid = str(uuid.uuid1())
     # added to address some weird bug in rdflib where if the uuid starts with a number, everything up until the first
@@ -436,6 +437,9 @@ class Core(object):
 
     def save_DotGraph(self,filename,format=None):
         dot = prov_to_dot(self.graph)
+
+
+
         #add some logic to find nodes with dct:hasPart relation and add those edges to graph...prov_to_dot ignores these
         if not (format == "None"):
             dot.write(filename,format=format)

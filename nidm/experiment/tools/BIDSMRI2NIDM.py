@@ -47,6 +47,7 @@ from os.path import isfile,join
 from argparse import RawTextHelpFormatter
 import json
 import logging
+
 import csv
 import glob
 from argparse import ArgumentParser
@@ -130,14 +131,11 @@ Example 4 (FULL MONTY): BIDS conversion with variable->term mappings, uses JSON 
     #if args.owl is None:
     #    args.owl = 'nidm'
 
-    if args.logfile is not None:
-        logging.basicConfig(filename=join(args.logfile,'bidsmri2nidm_' + os.path.basename(directory) + '.log'), level=logging.DEBUG)
-        logging.info("bidsmri2nidm %s" %args)
-        
+
     #importlib.reload(sys)
     #sys.setdefaultencoding('utf8')
 
-    project, cde = bidsmri2project(directory,args)
+    project, cde = bidsmri2project(directory,args,log_file=join(args.logfile,'bidsmri2nidm_' + os.path.basename(directory) + '.log'),log_to_file=args.logfile)
 
     # convert to rdflib Graph and add CDEs
     rdf_graph = Graph()
@@ -212,7 +210,12 @@ def addbidsignore(directory,filename_to_add):
                 text_file.write("%s\n" %filename_to_add)
 
 
-def bidsmri2project(directory, args):
+def bidsmri2project(directory, args, log_file,log_to_file):
+
+    if log_to_file is not None:
+        logging.basicConfig(filename=log_file, level=logging.DEBUG)
+        # logging.info("bidsmri2nidm %s" %args)
+
     #initialize empty cde graph...it may get replaced if we're doing variable to term mapping or not
     cde=Graph()
 
@@ -521,7 +524,7 @@ def bidsmri2project(directory, args):
                 if file_tpl.entities['datatype'] in BIDS_Constants.scans:
                     acq_obj.add_attributes({Constants.NIDM_IMAGE_USAGE_TYPE:BIDS_Constants.scans["dti"]})
                 else:
-                    logging.info("WARNING: No matching image usage type found in BIDS_Constants.py for %s" % file_tpl.entities['datatype'])
+                    logger.info("WARNING: No matching image usage type found in BIDS_Constants.py for %s" % file_tpl.entities['datatype'])
                 #make relative link to
                 acq_obj.add_attributes({Constants.NIDM_FILENAME:getRelPathToBIDS(join(file_tpl.dirname,file_tpl.filename), directory)})
                 #add sha512 sum

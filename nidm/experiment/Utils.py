@@ -21,6 +21,7 @@ import getpass
 from ..core import Constants
 from ..core.Constants import DD
 
+
 from .Project import Project
 from .Session import Session
 from .Acquisition import Acquisition
@@ -31,11 +32,14 @@ from .AssessmentObject import AssessmentObject
 from .MRObject import MRObject
 from .Core import Core
 import logging
+logger = logging.getLogger(__name__)
 
 #Interlex stuff
 import ontquery as oq
 
-
+def safe_string(string):
+        return string.strip().replace(" ","_").replace("-", "_").replace(",", "_").replace("(", "_").replace(")","_")\
+            .replace("'","_").replace("/", "_").replace("#","num")
 
 def read_nidm(nidmDoc):
     """
@@ -1047,7 +1051,7 @@ def DD_to_nidm(dd_struct):
                 # cde_id = item_ns[dd_struct[str(key_tuple)]['label']]
                 # item_ns = Namespace(dd_struct[str(key_tuple)]["url"].rsplit('/', 1)[0] +"/")
                 item_ns = Namespace(dd_struct[str(key_tuple)]["url"]+"/")
-                g.bind(prefix=item, namespace=item_ns)
+                g.bind(prefix=safe_string(item), namespace=item_ns)
                 nidm_ns = Namespace(Constants.NIDM)
                 g.bind(prefix='nidm', namespace=nidm_ns)
                 # cde_id = item_ns[str(key_num).zfill(4)]
@@ -1058,7 +1062,7 @@ def DD_to_nidm(dd_struct):
                 g.add((cde_id,RDF.type, Constants.NIDM['DataElement']))
 
 
-                g.add((cde_id,nidm_ns['variable'],Literal(item)))
+                g.add((cde_id,nidm_ns['source_variable'],Literal(item)))
                 # key_num = key_num + 1
                 # source_ns = Namespace("http://uri.interlex.org/base/")
                 # g.bind(prefix ='source',namespace=source_ns)
@@ -1093,7 +1097,7 @@ def add_attributes_with_cde(prov_object, cde, row_variable, value):
 
     # find the ID in cdes where nidm:variable matches the row_variable
     # qres = cde.subjects(predicate=Constants.RDFS['label'],object=Literal(row_variable))
-    qres = cde.subjects(predicate=Constants.NIDM['variable'],object=Literal(row_variable))
+    qres = cde.subjects(predicate=Constants.NIDM['source_variable'],object=Literal(row_variable))
     for s in qres:
         entity_id = s
         # provNamespace(entity_id.rsplit('/', 1)[0] +"/")
