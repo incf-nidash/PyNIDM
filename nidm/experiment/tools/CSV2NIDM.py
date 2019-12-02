@@ -45,8 +45,8 @@ import pandas as pd
 from rdflib import Graph,URIRef,RDF,Literal
 from io import StringIO
 from shutil import copy2
-
-
+from nidm.core.Constants import DD
+import logging
 
 
 
@@ -88,8 +88,11 @@ def main(argv):
     # parser.add_argument('-owl', action='store_true', required=False, help='Optionally searches NIDM OWL files...internet connection required')
     # parser.add_argument('-png', action='store_true', required=False, help='Optional flag, when set a PNG image file of RDF graph will be produced')
     # parser.add_argument('-jsonld', action='store_true', required=False, help='Optional flag, when set NIDM files are saved as JSON-LD instead of TURTLE')
+    parser.add_argument('-log','--log', dest='logfile',required=False, default=None, help="directory to save log file. Log file name is csv2nidm_[arg.csv_file].log")
     parser.add_argument('-out', dest='output_file', required=True, help="Filename to save NIDM file")
     args = parser.parse_args()
+
+
 
     #open CSV file and load into
     df = pd.read_csv(args.csv_file)
@@ -100,6 +103,11 @@ def main(argv):
     #else:
     column_to_terms, cde = map_variables_to_terms(df=df, apikey=args.key, assessment_name=basename(args.csv_file),directory=dirname(args.output_file), output_file=args.output_file, json_file=args.json_map)
 
+
+    if args.logfile is not None:
+        logging.basicConfig(filename=join(args.logfile,'csv2nidm_' + os.path.splitext(os.path.basename(args.csv_file))[0] + '.log'), level=logging.DEBUG)
+        # add some logging info
+        logging.info("csv2nidm %s" %args)
 
 
     #If user has added an existing NIDM file as a command line parameter then add to existing file for subjects who exist in the NIDM file
@@ -114,7 +122,9 @@ def main(argv):
         id_field=None
         for key, value in column_to_terms.items():
             if Constants.NIDM_SUBJECTID._str == column_to_terms[key]['label']:
-                id_field=key
+                key_tuple = eval(key)
+                #id_field=key
+                id_field = key_tuple.variable
                 #make sure id_field is a string for zero-padded subject ids
                 #re-read data file with constraint that key field is read as string
                 #df = pd.read_csv(args.csv_file,dtype={id_field : str})
@@ -151,7 +161,7 @@ def main(argv):
 
 
         for row in qres:
-            print('%s \t %s' %(row[0],row[1]))
+            logging.info("found existing participant %s \t %s" %(row[0],row[1]))
             #find row in CSV file with subject id matching agent from NIDM file
 
             #csv_row = df.loc[df[id_field]==type(df[id_field][0])(row[1])]

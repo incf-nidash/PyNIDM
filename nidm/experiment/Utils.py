@@ -21,6 +21,7 @@ import getpass
 from ..core import Constants
 from ..core.Constants import DD
 
+
 from .Project import Project
 from .Session import Session
 from .Acquisition import Acquisition
@@ -31,11 +32,14 @@ from .AssessmentObject import AssessmentObject
 from .MRObject import MRObject
 from .Core import Core
 import logging
+logger = logging.getLogger(__name__)
 
 #Interlex stuff
 import ontquery as oq
 
-
+def safe_string(string):
+        return string.strip().replace(" ","_").replace("-", "_").replace(",", "_").replace("(", "_").replace(")","_")\
+            .replace("'","_").replace("/", "_").replace("#","num")
 
 def read_nidm(nidmDoc):
     """
@@ -636,7 +640,7 @@ def map_variables_to_terms(df,apikey,directory, assessment_name, output_file=Non
             json_map
 
             # check for column in json file
-            json_key = [key for key in json_map if column in key]
+            json_key = [key for key in json_map if column == key]
             if (json_map is not None) and (len(json_key)>0):
 
                 column_to_terms[current_tuple]['label'] = json_map[json_key[0]]['label']
@@ -972,8 +976,8 @@ def map_variables_to_terms(df,apikey,directory, assessment_name, output_file=Non
             # dir = os.path.dirname(output_file)
             # file_path=os.path.relpath(output_file)
             # print("writing %s " %output_file)
-            logging.info("saving json mapping file: %s" %os.path.join(os.path.basename(output_file), \
-                                        os.path.splitext(output_file)[0]+".json"))
+            # logging.info("saving json mapping file: %s" %os.path.join(os.path.basename(output_file), \
+            #                            os.path.splitext(output_file)[0]+".json"))
             with open(os.path.join(os.path.basename(output_file),os.path.splitext(output_file)[0]+".json"),'w+') \
                     as fp:
                 json.dump(column_to_terms,fp)
@@ -985,8 +989,8 @@ def map_variables_to_terms(df,apikey,directory, assessment_name, output_file=Non
         # dir = os.path.dirname(output_file)
         # file_path=os.path.relpath(output_file)
         # print("writing %s " %output_file)
-        logging.info("saving json mapping file: %s" %os.path.join(os.path.basename(output_file), \
-                                        os.path.splitext(output_file)[0]+".json"))
+        # logging.info("saving json mapping file: %s" %os.path.join(os.path.basename(output_file), \
+        #                                os.path.splitext(output_file)[0]+".json"))
         with open(os.path.join(os.path.dirname(output_file),os.path.splitext(output_file)[0]+".json"),'w+') \
                     as fp:
             json.dump(column_to_terms,fp)
@@ -1047,7 +1051,7 @@ def DD_to_nidm(dd_struct):
                 # cde_id = item_ns[dd_struct[str(key_tuple)]['label']]
                 # item_ns = Namespace(dd_struct[str(key_tuple)]["url"].rsplit('/', 1)[0] +"/")
                 item_ns = Namespace(dd_struct[str(key_tuple)]["url"]+"/")
-                g.bind(prefix=item, namespace=item_ns)
+                g.bind(prefix=safe_string(item), namespace=item_ns)
                 nidm_ns = Namespace(Constants.NIDM)
                 g.bind(prefix='nidm', namespace=nidm_ns)
                 # cde_id = item_ns[str(key_num).zfill(4)]
@@ -1058,7 +1062,7 @@ def DD_to_nidm(dd_struct):
                 g.add((cde_id,RDF.type, Constants.NIDM['DataElement']))
 
 
-                g.add((cde_id,nidm_ns['variable'],Literal(item)))
+                g.add((cde_id,nidm_ns['source_variable'],Literal(item)))
                 # key_num = key_num + 1
                 # source_ns = Namespace("http://uri.interlex.org/base/")
                 # g.bind(prefix ='source',namespace=source_ns)
@@ -1073,7 +1077,7 @@ def DD_to_nidm(dd_struct):
             elif key == 'description':
                 g.add((cde_id,Constants.DCT['description'],Literal(value)))
             elif key == 'url':
-                g.add((cde_id,Constants.PROV['Location'],Literal(value)))
+                g.add((cde_id,Constants.NIDM['isAbout'],URIRef(value)))
             elif key == 'label':
                 g.add((cde_id,Constants.RDFS['label'],Literal(value)))
             elif key == 'levels':
@@ -1091,9 +1095,9 @@ def DD_to_nidm(dd_struct):
 
 def add_attributes_with_cde(prov_object, cde, row_variable, value):
 
-    # find the ID in cdes where nidm:variable matches the row_variable
+    # find the ID in cdes where nidm:source_variable matches the row_variable
     # qres = cde.subjects(predicate=Constants.RDFS['label'],object=Literal(row_variable))
-    qres = cde.subjects(predicate=Constants.NIDM['variable'],object=Literal(row_variable))
+    qres = cde.subjects(predicate=Constants.NIDM['source_variable'],object=Literal(row_variable))
     for s in qres:
         entity_id = s
         # provNamespace(entity_id.rsplit('/', 1)[0] +"/")

@@ -47,6 +47,7 @@ from os.path import isfile,join
 from argparse import RawTextHelpFormatter
 import json
 import logging
+
 import csv
 import glob
 from argparse import ArgumentParser
@@ -54,7 +55,10 @@ from bids import BIDSLayout
 # Python program to find SHA256 hash string of a file
 import hashlib
 from io import StringIO
-from rdflib import Graph
+from rdflib import Graph, RDF, Namespace, Literal,URIRef
+
+from nidm.core.Constants import DD
+
 
 def getRelPathToBIDS(filepath, bids_root):
     """
@@ -119,14 +123,19 @@ Example 4 (FULL MONTY): BIDS conversion with variable->term mappings, uses JSON 
     mapvars_group.add_argument('-ilxkey', '--ilxkey', dest='key', required=False, default=None,  help="Interlex/SciCrunch API key to use for query and adding terms")
     #mapvars_group.add_argument('-owl', action='store_true', required=False, default=None,help='Optional flag to query nidm-experiment OWL files')
     #parser.add_argument('-mapvars', '--mapvars', action='store_true', help='If flag set, variables in participant.tsv and phenotype files will be interactively mapped to terms')
+    parser.add_argument('-log','--log', dest='logfile',required=False, default=None, help="directory to save log file. Log file name is bidsmri2nidm_[basename(args.directory)].log")
     parser.add_argument('-o', dest='outputfile', required=False, default="nidm.ttl", help="Outputs turtle file called nidm.ttl in BIDS directory by default..or whatever path/filename is set here")
 
     args = parser.parse_args()
     directory = args.directory
 
+    if args.logfile is not None:
+        logging.basicConfig(filename=join(args.logfile,'bidsmri2nidm_' + args.outputfile.split('/')[-2] + '.log'), level=logging.DEBUG)
+        # add some logging info
+        logging.info("bidsmri2nidm %s" %args)
+
     #if args.owl is None:
     #    args.owl = 'nidm'
-
 
 
     #importlib.reload(sys)
@@ -208,6 +217,11 @@ def addbidsignore(directory,filename_to_add):
 
 
 def bidsmri2project(directory, args):
+
+
+    #initialize empty cde graph...it may get replaced if we're doing variable to term mapping or not
+    cde=Graph()
+
     #Parse dataset_description.json file in BIDS directory
     if (os.path.isdir(os.path.join(directory))):
         try:
@@ -315,10 +329,31 @@ def bidsmri2project(directory, args):
                     #for variables in participants.tsv file who have term mappings in BIDS_Constants.py use those, add to json_map so we don't have to map these if user
                     #supplied arguments to map variables
                     if key in BIDS_Constants.participants:
+                        # WIP
+                        # Here we are adding to CDE graph data elements for BIDS Constants that remain fixed for each BIDS-compliant dataset
+
+                        if not (BIDS_Constants.participants[key] == Constants.NIDM_SUBJECTID):
+
+
+                            # create a namespace with the URL for fixed BIDS_Constants term
+                            #item_ns = Namespace(str(Constants.BIDS.namespace.uri))
+                            # add prefix to namespace which is the BIDS fixed variable name
+                            #cde.bind(prefix="bids", namespace=item_ns)
+                            #ID for BIDS variables is always the same bids:[bids variable]
+                            cde_id = Constants.BIDS[key]
+                            # add the data element to the CDE graph
+                            cde.add((cde_id,RDF.type, Constants.NIDM['DataElement']))
+                            # add some basic information about this data element
+                            cde.add((cde_id,Constants.RDFS['label'],Literal(BIDS_Constants.participants[key].localpart)))
+                            cde.add((cde_id,Constants.NIDM['isAbout'],URIRef(BIDS_Constants.participants[key].uri)))
+                            cde.add((cde_id,Constants.NIDM['source_variable'],Literal(key)))
+                            cde.add((cde_id,Constants.RDFS['comment'],Literal("BIDS participants variable fixed in specification")))
+
+                            acq_entity.add_attributes({cde_id:Literal(value)})
 
                         #if this was the participant_id, we already handled it above creating agent / qualified association
-                        if not (BIDS_Constants.participants[key] == Constants.NIDM_SUBJECTID):
-                            acq_entity.add_attributes({BIDS_Constants.participants[key]:value})
+                        #if not (BIDS_Constants.participants[key] == Constants.NIDM_SUBJECTID):
+                        #    acq_entity.add_attributes({BIDS_Constants.participants[key]:value})
 
 
                     #else if user added -mapvars flag to command line then we'll use the variable-> term mapping procedures to help user map variables to terms (also used
@@ -513,7 +548,7 @@ def bidsmri2project(directory, args):
                 if file_tpl.entities['datatype'] in BIDS_Constants.scans:
                     acq_obj.add_attributes({Constants.NIDM_IMAGE_USAGE_TYPE:BIDS_Constants.scans["dti"]})
                 else:
-                    logging.info("WARNING: No matching image usage type found in BIDS_Constants.py for %s" % file_tpl.entities['datatype'])
+                    logger.info("WARNING: No matching image usage type found in BIDS_Constants.py for %s" % file_tpl.entities['datatype'])
                 #make relative link to
                 acq_obj.add_attributes({Constants.NIDM_FILENAME:getRelPathToBIDS(join(file_tpl.dirname,file_tpl.filename), directory)})
                 #add sha512 sum
