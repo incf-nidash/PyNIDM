@@ -236,6 +236,8 @@ def test_GetProjectsMetadata():
             "cmu_a.nidm.ttl"
         )
         files.append("cmu_a.nidm.ttl")
+    elif Path('./cmu_a.nidm.ttl').is_file():
+        files.append("cmu_a.nidm.ttl")
 
     parsed = Query.GetProjectsMetadata(files)
 
@@ -281,8 +283,8 @@ def test_GetProjectsComputedMetadata():
         print ("got p3 of {}".format(p3))
         assert parsed['projects'][p3][str(Constants.NIDM_PROJECT_NAME)] == "ABIDE CMU_a Site"
         assert parsed['projects'][p3][Query.matchPrefix(str(Constants.NIDM_NUMBER_OF_SUBJECTS))] == 14
-        assert parsed['projects'][p3]["age_min"] == 21
-        assert parsed['projects'][p3]["age_max"] == 33
+        assert parsed['projects'][p3]["age_min"] == 21.0
+        assert parsed['projects'][p3]["age_max"] == 33.0
         assert parsed['projects'][p3][str(Constants.NIDM_GENDER)] == ['1', '2']
 
 

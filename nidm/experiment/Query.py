@@ -34,7 +34,6 @@ from rdflib import Graph, RDF, URIRef, util, term
 import pandas as pd
 import logging
 from .Utils import read_nidm
-from .Project import Project
 from nidm.core import Constants
 from json import dumps, loads
 import re
@@ -283,6 +282,8 @@ def GetParticipantIDs(nidm_file_list,output_file=None):
         PREFIX prov:<http://www.w3.org/ns/prov#>
         PREFIX sio: <http://semanticscience.org/ontology/sio.owl#>
         PREFIX ndar: <https://ndar.nih.gov/api/datadictionary/v2/dataelement/>
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX prov:<http://www.w3.org/ns/prov#>
 
         SELECT DISTINCT ?uuid ?ID
         WHERE {
@@ -610,11 +611,25 @@ def ExtractProjectSummary(meta_data, nidm_file_list):
     :return:
     '''
     query = '''
+    prefix ncicb: <http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#>
+    prefix ndar: <https://ndar.nih.gov/api/datadictionary/v2/dataelement/>
+    prefix obo: <http://purl.obolibrary.org/obo/>
+    prefix dct: <http://purl.org/dc/terms/>
+    prefix prov: <http://www.w3.org/ns/prov#>
+    prefix nidm: <http://purl.org/nidash/nidm#>
+
     SELECT DISTINCT ?id ?person ?age ?gender ?hand ?assessment ?acq ?session ?project
     WHERE {
-      OPTIONAL { ?assessment ncicb:Age ?age } .
-      OPTIONAL { ?assessment ndar:gender ?gender } .
-      OPTIONAL { ?assessment obo:handedness ?hand } .
+      # Added by DBK to support new data element format
+      {?age_measure a nidm:DataElement ;
+					nidm:isAbout ncicb:Age .}
+	  {?gender_measure a nidm:DataElement ;
+					nidm:isAbout ndar:gender .}
+	  {?handedness_measure a nidm:DataElement ;
+					nidm:isAbout obo:handedness .}
+      OPTIONAL { ?assessment ?age_measure ?age } .
+      OPTIONAL { ?assessment ?gender_measure ?gender } .
+      OPTIONAL { ?assessment ?handedness_measure ?hand } .
       ?person ndar:src_subject_id ?id .
       ?acq prov:qualifiedAssociation _:blank .
       _:blank prov:hadRole sio:Subject .

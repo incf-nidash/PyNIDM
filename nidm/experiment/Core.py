@@ -446,6 +446,7 @@ class Core(object):
         rdf_graph = Graph()
         rdf_graph = rdf_graph.parse(source=StringIO(self.graph.serialize(None, format='rdf', rdf_format='ttl')),format='turtle')
 
+
         #SPARQL query to get project UUIDs
         query = '''
         PREFIX nidm:<http://purl.org/nidash/nidm#>

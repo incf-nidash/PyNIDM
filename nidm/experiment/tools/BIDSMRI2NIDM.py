@@ -55,7 +55,8 @@ from bids import BIDSLayout
 # Python program to find SHA256 hash string of a file
 import hashlib
 from io import StringIO
-from rdflib import Graph
+from rdflib import Graph, RDF, Namespace, Literal,URIRef
+
 from nidm.core.Constants import DD
 
 
@@ -128,6 +129,11 @@ Example 4 (FULL MONTY): BIDS conversion with variable->term mappings, uses JSON 
     args = parser.parse_args()
     directory = args.directory
 
+    if args.logfile is not None:
+        logging.basicConfig(filename=join(args.logfile,'bidsmri2nidm_' + args.outputfile.split('/')[-2] + '.log'), level=logging.DEBUG)
+        # add some logging info
+        logging.info("bidsmri2nidm %s" %args)
+
     #if args.owl is None:
     #    args.owl = 'nidm'
 
@@ -135,7 +141,7 @@ Example 4 (FULL MONTY): BIDS conversion with variable->term mappings, uses JSON 
     #importlib.reload(sys)
     #sys.setdefaultencoding('utf8')
 
-    project, cde = bidsmri2project(directory,args,log_file=join(args.logfile,'bidsmri2nidm_' + os.path.basename(directory) + '.log'),log_to_file=args.logfile)
+    project, cde = bidsmri2project(directory,args)
 
     # convert to rdflib Graph and add CDEs
     rdf_graph = Graph()
@@ -210,11 +216,8 @@ def addbidsignore(directory,filename_to_add):
                 text_file.write("%s\n" %filename_to_add)
 
 
-def bidsmri2project(directory, args, log_file,log_to_file):
+def bidsmri2project(directory, args):
 
-    if log_to_file is not None:
-        logging.basicConfig(filename=log_file, level=logging.DEBUG)
-        # logging.info("bidsmri2nidm %s" %args)
 
     #initialize empty cde graph...it may get replaced if we're doing variable to term mapping or not
     cde=Graph()
@@ -326,10 +329,31 @@ def bidsmri2project(directory, args, log_file,log_to_file):
                     #for variables in participants.tsv file who have term mappings in BIDS_Constants.py use those, add to json_map so we don't have to map these if user
                     #supplied arguments to map variables
                     if key in BIDS_Constants.participants:
+                        # WIP
+                        # Here we are adding to CDE graph data elements for BIDS Constants that remain fixed for each BIDS-compliant dataset
+
+                        if not (BIDS_Constants.participants[key] == Constants.NIDM_SUBJECTID):
+
+
+                            # create a namespace with the URL for fixed BIDS_Constants term
+                            #item_ns = Namespace(str(Constants.BIDS.namespace.uri))
+                            # add prefix to namespace which is the BIDS fixed variable name
+                            #cde.bind(prefix="bids", namespace=item_ns)
+                            #ID for BIDS variables is always the same bids:[bids variable]
+                            cde_id = Constants.BIDS[key]
+                            # add the data element to the CDE graph
+                            cde.add((cde_id,RDF.type, Constants.NIDM['DataElement']))
+                            # add some basic information about this data element
+                            cde.add((cde_id,Constants.RDFS['label'],Literal(BIDS_Constants.participants[key].localpart)))
+                            cde.add((cde_id,Constants.NIDM['isAbout'],URIRef(BIDS_Constants.participants[key].uri)))
+                            cde.add((cde_id,Constants.NIDM['source_variable'],Literal(key)))
+                            cde.add((cde_id,Constants.RDFS['comment'],Literal("BIDS participants variable fixed in specification")))
+
+                            acq_entity.add_attributes({cde_id:Literal(value)})
 
                         #if this was the participant_id, we already handled it above creating agent / qualified association
-                        if not (BIDS_Constants.participants[key] == Constants.NIDM_SUBJECTID):
-                            acq_entity.add_attributes({BIDS_Constants.participants[key]:value})
+                        #if not (BIDS_Constants.participants[key] == Constants.NIDM_SUBJECTID):
+                        #    acq_entity.add_attributes({BIDS_Constants.participants[key]:value})
 
 
                     #else if user added -mapvars flag to command line then we'll use the variable-> term mapping procedures to help user map variables to terms (also used
