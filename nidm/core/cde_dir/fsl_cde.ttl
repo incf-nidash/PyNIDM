@@ -1,0 +1,395 @@
+@prefix fsl: <http://purl.org/nidash/fsl#> .
+@prefix nidm: <http://purl.org/nidash/nidm#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+fsl:fsl_000001 a fsl:DataElement ;
+    rdfs:label "Background (voxels)" ;
+    fsl:measure "NVoxels" ;
+    fsl:structure "Background" ;
+    fsl:unit "voxel" ;
+    nidm:datumType <http://uri.interlex.org/base/ilx_0102597> ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf <http://uri.interlex.org/base/ilx_0112559> .
+
+fsl:fsl_000002 a fsl:DataElement ;
+    rdfs:label "Background (mm^3)" ;
+    fsl:measure "Volume" ;
+    fsl:structure "Background" ;
+    fsl:unit "mm^3" ;
+    nidm:datumType <http://uri.interlex.org/base/ilx_0738276> ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf <http://uri.interlex.org/base/ilx_0112559> .
+
+fsl:fsl_000003 a fsl:DataElement ;
+    rdfs:label "Left-Accumbens-area (voxels)" ;
+    fsl:measure "NVoxels" ;
+    fsl:structure "Left-Accumbens-area" ;
+    fsl:unit "voxel" ;
+    nidm:datumType <http://uri.interlex.org/base/ilx_0102597> ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "voxel" ;
+    nidm:isAbout <http://purl.obolibrary.org/obo/UBERON_0001882> ;
+    nidm:measureOf <http://uri.interlex.org/base/ilx_0112559> .
+
+fsl:fsl_000004 a fsl:DataElement ;
+    rdfs:label "Left-Accumbens-area (mm^3)" ;
+    fsl:measure "Volume" ;
+    fsl:structure "Left-Accumbens-area" ;
+    fsl:unit "mm^3" ;
+    nidm:datumType <http://uri.interlex.org/base/ilx_0738276> ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:isAbout <http://purl.obolibrary.org/obo/UBERON_0001882> ;
+    nidm:measureOf <http://uri.interlex.org/base/ilx_0112559> .
+
+fsl:fsl_000005 a fsl:DataElement ;
+    rdfs:label "Left-Amygdala (voxels)" ;
+    fsl:measure "NVoxels" ;
+    fsl:structure "Left-Amygdala" ;
+    fsl:unit "voxel" ;
+    nidm:datumType <http://uri.interlex.org/base/ilx_0102597> ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "voxel" ;
+    nidm:isAbout <http://purl.obolibrary.org/obo/UBERON_0001876> ;
+    nidm:measureOf <http://uri.interlex.org/base/ilx_0112559> .
+
+fsl:fsl_000006 a fsl:DataElement ;
+    rdfs:label "Left-Amygdala (mm^3)" ;
+    fsl:measure "Volume" ;
+    fsl:structure "Left-Amygdala" ;
+    fsl:unit "mm^3" ;
+    nidm:datumType <http://uri.interlex.org/base/ilx_0738276> ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:isAbout <http://purl.obolibrary.org/obo/UBERON_0001876> ;
+    nidm:measureOf <http://uri.interlex.org/base/ilx_0112559> .
+
+fsl:fsl_000007 a fsl:DataElement ;
+    rdfs:label "Left-Caudate (voxels)" ;
+    fsl:measure "NVoxels" ;
+    fsl:structure "Left-Caudate" ;
+    fsl:unit "voxel" ;
+    nidm:datumType <http://uri.interlex.org/base/ilx_0102597> ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "voxel" ;
+    nidm:isAbout <http://purl.obolibrary.org/obo/UBERON_0001873> ;
+    nidm:measureOf <http://uri.interlex.org/base/ilx_0112559> .
+
+fsl:fsl_000008 a fsl:DataElement ;
+    rdfs:label "Left-Caudate (mm^3)" ;
+    fsl:measure "Volume" ;
+    fsl:structure "Left-Caudate" ;
+    fsl:unit "mm^3" ;
+    nidm:datumType <http://uri.interlex.org/base/ilx_0738276> ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:isAbout <http://purl.obolibrary.org/obo/UBERON_0001873> ;
+    nidm:measureOf <http://uri.interlex.org/base/ilx_0112559> .
+
+fsl:fsl_000009 a fsl:DataElement ;
+    rdfs:label "Left-Hippocampus (voxels)" ;
+    fsl:measure "NVoxels" ;
+    fsl:structure "Left-Hippocampus" ;
+    fsl:unit "voxel" ;
+    nidm:datumType <http://uri.interlex.org/base/ilx_0102597> ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "voxel" ;
+    nidm:isAbout <http://purl.obolibrary.org/obo/UBERON_0001954> ;
+    nidm:measureOf <http://uri.interlex.org/base/ilx_0112559> .
+
+fsl:fsl_000010 a fsl:DataElement ;
+    rdfs:label "Left-Hippocampus (mm^3)" ;
+    fsl:measure "Volume" ;
+    fsl:structure "Left-Hippocampus" ;
+    fsl:unit "mm^3" ;
+    nidm:datumType <http://uri.interlex.org/base/ilx_0738276> ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:isAbout <http://purl.obolibrary.org/obo/UBERON_0001954> ;
+    nidm:measureOf <http://uri.interlex.org/base/ilx_0112559> .
+
+fsl:fsl_000011 a fsl:DataElement ;
+    rdfs:label "Left-Pallidum (voxels)" ;
+    fsl:measure "NVoxels" ;
+    fsl:structure "Left-Pallidum" ;
+    fsl:unit "voxel" ;
+    nidm:datumType <http://uri.interlex.org/base/ilx_0102597> ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "voxel" ;
+    nidm:isAbout <http://purl.obolibrary.org/obo/UBERON_0006514> ;
+    nidm:measureOf <http://uri.interlex.org/base/ilx_0112559> .
+
+fsl:fsl_000012 a fsl:DataElement ;
+    rdfs:label "Left-Pallidum (mm^3)" ;
+    fsl:measure "Volume" ;
+    fsl:structure "Left-Pallidum" ;
+    fsl:unit "mm^3" ;
+    nidm:datumType <http://uri.interlex.org/base/ilx_0738276> ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:isAbout <http://purl.obolibrary.org/obo/UBERON_0006514> ;
+    nidm:measureOf <http://uri.interlex.org/base/ilx_0112559> .
+
+fsl:fsl_000013 a fsl:DataElement ;
+    rdfs:label "Left-Putamen (voxels)" ;
+    fsl:measure "NVoxels" ;
+    fsl:structure "Left-Putamen" ;
+    fsl:unit "voxel" ;
+    nidm:datumType <http://uri.interlex.org/base/ilx_0102597> ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "voxel" ;
+    nidm:isAbout <http://purl.obolibrary.org/obo/UBERON_0001874> ;
+    nidm:measureOf <http://uri.interlex.org/base/ilx_0112559> .
+
+fsl:fsl_000014 a fsl:DataElement ;
+    rdfs:label "Left-Putamen (mm^3)" ;
+    fsl:measure "Volume" ;
+    fsl:structure "Left-Putamen" ;
+    fsl:unit "mm^3" ;
+    nidm:datumType <http://uri.interlex.org/base/ilx_0738276> ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:isAbout <http://purl.obolibrary.org/obo/UBERON_0001874> ;
+    nidm:measureOf <http://uri.interlex.org/base/ilx_0112559> .
+
+fsl:fsl_000015 a fsl:DataElement ;
+    rdfs:label "Left-Thalamus-Proper (voxels)" ;
+    fsl:measure "NVoxels" ;
+    fsl:structure "Left-Thalamus-Proper" ;
+    fsl:unit "voxel" ;
+    nidm:datumType <http://uri.interlex.org/base/ilx_0102597> ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "voxel" ;
+    nidm:isAbout <http://purl.obolibrary.org/obo/UBERON_0001897> ;
+    nidm:measureOf <http://uri.interlex.org/base/ilx_0112559> .
+
+fsl:fsl_000016 a fsl:DataElement ;
+    rdfs:label "Left-Thalamus-Proper (mm^3)" ;
+    fsl:measure "Volume" ;
+    fsl:structure "Left-Thalamus-Proper" ;
+    fsl:unit "mm^3" ;
+    nidm:datumType <http://uri.interlex.org/base/ilx_0738276> ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:isAbout <http://purl.obolibrary.org/obo/UBERON_0001897> ;
+    nidm:measureOf <http://uri.interlex.org/base/ilx_0112559> .
+
+fsl:fsl_000017 a fsl:DataElement ;
+    rdfs:label "Right-Accumbens-area (voxels)" ;
+    fsl:measure "NVoxels" ;
+    fsl:structure "Right-Accumbens-area" ;
+    fsl:unit "voxel" ;
+    nidm:datumType <http://uri.interlex.org/base/ilx_0102597> ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "voxel" ;
+    nidm:isAbout <http://purl.obolibrary.org/obo/UBERON_0001882> ;
+    nidm:measureOf <http://uri.interlex.org/base/ilx_0112559> .
+
+fsl:fsl_000018 a fsl:DataElement ;
+    rdfs:label "Right-Accumbens-area (mm^3)" ;
+    fsl:measure "Volume" ;
+    fsl:structure "Right-Accumbens-area" ;
+    fsl:unit "mm^3" ;
+    nidm:datumType <http://uri.interlex.org/base/ilx_0738276> ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:isAbout <http://purl.obolibrary.org/obo/UBERON_0001882> ;
+    nidm:measureOf <http://uri.interlex.org/base/ilx_0112559> .
+
+fsl:fsl_000019 a fsl:DataElement ;
+    rdfs:label "Right-Amygdala (voxels)" ;
+    fsl:measure "NVoxels" ;
+    fsl:structure "Right-Amygdala" ;
+    fsl:unit "voxel" ;
+    nidm:datumType <http://uri.interlex.org/base/ilx_0102597> ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "voxel" ;
+    nidm:isAbout <http://purl.obolibrary.org/obo/UBERON_0001876> ;
+    nidm:measureOf <http://uri.interlex.org/base/ilx_0112559> .
+
+fsl:fsl_000020 a fsl:DataElement ;
+    rdfs:label "Right-Amygdala (mm^3)" ;
+    fsl:measure "Volume" ;
+    fsl:structure "Right-Amygdala" ;
+    fsl:unit "mm^3" ;
+    nidm:datumType <http://uri.interlex.org/base/ilx_0738276> ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:isAbout <http://purl.obolibrary.org/obo/UBERON_0001876> ;
+    nidm:measureOf <http://uri.interlex.org/base/ilx_0112559> .
+
+fsl:fsl_000021 a fsl:DataElement ;
+    rdfs:label "Right-Caudate (voxels)" ;
+    fsl:measure "NVoxels" ;
+    fsl:structure "Right-Caudate" ;
+    fsl:unit "voxel" ;
+    nidm:datumType <http://uri.interlex.org/base/ilx_0102597> ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "voxel" ;
+    nidm:isAbout <http://purl.obolibrary.org/obo/UBERON_0001873> ;
+    nidm:measureOf <http://uri.interlex.org/base/ilx_0112559> .
+
+fsl:fsl_000022 a fsl:DataElement ;
+    rdfs:label "Right-Caudate (mm^3)" ;
+    fsl:measure "Volume" ;
+    fsl:structure "Right-Caudate" ;
+    fsl:unit "mm^3" ;
+    nidm:datumType <http://uri.interlex.org/base/ilx_0738276> ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:isAbout <http://purl.obolibrary.org/obo/UBERON_0001873> ;
+    nidm:measureOf <http://uri.interlex.org/base/ilx_0112559> .
+
+fsl:fsl_000023 a fsl:DataElement ;
+    rdfs:label "Right-Hippocampus (voxels)" ;
+    fsl:measure "NVoxels" ;
+    fsl:structure "Right-Hippocampus" ;
+    fsl:unit "voxel" ;
+    nidm:datumType <http://uri.interlex.org/base/ilx_0102597> ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "voxel" ;
+    nidm:isAbout <http://purl.obolibrary.org/obo/UBERON_0001954> ;
+    nidm:measureOf <http://uri.interlex.org/base/ilx_0112559> .
+
+fsl:fsl_000024 a fsl:DataElement ;
+    rdfs:label "Right-Hippocampus (mm^3)" ;
+    fsl:measure "Volume" ;
+    fsl:structure "Right-Hippocampus" ;
+    fsl:unit "mm^3" ;
+    nidm:datumType <http://uri.interlex.org/base/ilx_0738276> ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:isAbout <http://purl.obolibrary.org/obo/UBERON_0001954> ;
+    nidm:measureOf <http://uri.interlex.org/base/ilx_0112559> .
+
+fsl:fsl_000025 a fsl:DataElement ;
+    rdfs:label "Right-Pallidum (voxels)" ;
+    fsl:measure "NVoxels" ;
+    fsl:structure "Right-Pallidum" ;
+    fsl:unit "voxel" ;
+    nidm:datumType <http://uri.interlex.org/base/ilx_0102597> ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "voxel" ;
+    nidm:isAbout <http://purl.obolibrary.org/obo/UBERON_0006514> ;
+    nidm:measureOf <http://uri.interlex.org/base/ilx_0112559> .
+
+fsl:fsl_000026 a fsl:DataElement ;
+    rdfs:label "Right-Pallidum (mm^3)" ;
+    fsl:measure "Volume" ;
+    fsl:structure "Right-Pallidum" ;
+    fsl:unit "mm^3" ;
+    nidm:datumType <http://uri.interlex.org/base/ilx_0738276> ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:isAbout <http://purl.obolibrary.org/obo/UBERON_0006514> ;
+    nidm:measureOf <http://uri.interlex.org/base/ilx_0112559> .
+
+fsl:fsl_000027 a fsl:DataElement ;
+    rdfs:label "Right-Putamen (voxels)" ;
+    fsl:measure "NVoxels" ;
+    fsl:structure "Right-Putamen" ;
+    fsl:unit "voxel" ;
+    nidm:datumType <http://uri.interlex.org/base/ilx_0102597> ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "voxel" ;
+    nidm:isAbout <http://purl.obolibrary.org/obo/UBERON_0001874> ;
+    nidm:measureOf <http://uri.interlex.org/base/ilx_0112559> .
+
+fsl:fsl_000028 a fsl:DataElement ;
+    rdfs:label "Right-Putamen (mm^3)" ;
+    fsl:measure "Volume" ;
+    fsl:structure "Right-Putamen" ;
+    fsl:unit "mm^3" ;
+    nidm:datumType <http://uri.interlex.org/base/ilx_0738276> ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:isAbout <http://purl.obolibrary.org/obo/UBERON_0001874> ;
+    nidm:measureOf <http://uri.interlex.org/base/ilx_0112559> .
+
+fsl:fsl_000029 a fsl:DataElement ;
+    rdfs:label "Right-Thalamus-Proper (voxels)" ;
+    fsl:measure "NVoxels" ;
+    fsl:structure "Right-Thalamus-Proper" ;
+    fsl:unit "voxel" ;
+    nidm:datumType <http://uri.interlex.org/base/ilx_0102597> ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "voxel" ;
+    nidm:isAbout <http://purl.obolibrary.org/obo/UBERON_0001897> ;
+    nidm:measureOf <http://uri.interlex.org/base/ilx_0112559> .
+
+fsl:fsl_000030 a fsl:DataElement ;
+    rdfs:label "Right-Thalamus-Proper (mm^3)" ;
+    fsl:measure "Volume" ;
+    fsl:structure "Right-Thalamus-Proper" ;
+    fsl:unit "mm^3" ;
+    nidm:datumType <http://uri.interlex.org/base/ilx_0738276> ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:isAbout <http://purl.obolibrary.org/obo/UBERON_0001897> ;
+    nidm:measureOf <http://uri.interlex.org/base/ilx_0112559> .
+
+fsl:fsl_000031 a fsl:DataElement ;
+    rdfs:label "csf (voxels)" ;
+    fsl:measure "NVoxels" ;
+    fsl:structure "csf" ;
+    fsl:unit "voxel" ;
+    nidm:datumType <http://uri.interlex.org/base/ilx_0102597> ;
+    nidm:hasUnit "voxel" ;
+    nidm:isAbout <http://purl.obolibrary.org/obo/UBERON_0001359> ;
+    nidm:measureOf <http://uri.interlex.org/base/ilx_0112559> .
+
+fsl:fsl_000032 a fsl:DataElement ;
+    rdfs:label "csf (mm^3)" ;
+    fsl:measure "Volume" ;
+    fsl:structure "csf" ;
+    fsl:unit "mm^3" ;
+    nidm:datumType <http://uri.interlex.org/base/ilx_0738276> ;
+    nidm:hasUnit "mm^3" ;
+    nidm:isAbout <http://purl.obolibrary.org/obo/UBERON_0001359> ;
+    nidm:measureOf <http://uri.interlex.org/base/ilx_0112559> .
+
+fsl:fsl_000033 a fsl:DataElement ;
+    rdfs:label "gray (voxels)" ;
+    fsl:measure "NVoxels" ;
+    fsl:structure "gray" ;
+    fsl:unit "voxel" ;
+    nidm:datumType <http://uri.interlex.org/base/ilx_0102597> ;
+    nidm:hasUnit "voxel" ;
+    nidm:isAbout <http://purl.obolibrary.org/obo/UBERON_0000956> ;
+    nidm:measureOf <http://uri.interlex.org/base/ilx_0112559> .
+
+fsl:fsl_000034 a fsl:DataElement ;
+    rdfs:label "gray (mm^3)" ;
+    fsl:measure "Volume" ;
+    fsl:structure "gray" ;
+    fsl:unit "mm^3" ;
+    nidm:datumType <http://uri.interlex.org/base/ilx_0738276> ;
+    nidm:hasUnit "mm^3" ;
+    nidm:isAbout <http://purl.obolibrary.org/obo/UBERON_0000956> ;
+    nidm:measureOf <http://uri.interlex.org/base/ilx_0112559> .
+
+fsl:fsl_000035 a fsl:DataElement ;
+    rdfs:label "white (voxels)" ;
+    fsl:measure "NVoxels" ;
+    fsl:structure "white" ;
+    fsl:unit "voxel" ;
+    nidm:datumType <http://uri.interlex.org/base/ilx_0102597> ;
+    nidm:hasUnit "voxel" ;
+    nidm:isAbout <http://purl.obolibrary.org/obo/UBERON_0002437> ;
+    nidm:measureOf <http://uri.interlex.org/base/ilx_0112559> .
+
+fsl:fsl_000036 a fsl:DataElement ;
+    rdfs:label "white (mm^3)" ;
+    fsl:measure "Volume" ;
+    fsl:structure "white" ;
+    fsl:unit "mm^3" ;
+    nidm:datumType <http://uri.interlex.org/base/ilx_0738276> ;
+    nidm:hasUnit "mm^3" ;
+    nidm:isAbout <http://purl.obolibrary.org/obo/UBERON_0002437> ;
+    nidm:measureOf <http://uri.interlex.org/base/ilx_0112559> .
+
+fsl:DataElement rdfs:subClassOf nidm:DataElement .
+
