@@ -123,7 +123,6 @@ def makeTestFile(filename, params):
     with open("./agent.ttl", "w") as f:
         f.write(x)
 
-@pytest.mark.skip(reason="DBK wanted to merge a change elsewhere and test is failing")
 def test_uri_project_list():
 
     kwargs={Constants.NIDM_PROJECT_NAME:"FBIRN_PhaseII",Constants.NIDM_PROJECT_IDENTIFIER:9610,Constants.NIDM_PROJECT_DESCRIPTION:"Test investigation"}
@@ -154,7 +153,7 @@ def test_uri_project_list():
     os.remove("uritest.ttl")
     os.remove("uritest2.ttl")
 
-@pytest.mark.skip(reason="DBK wanted to merge a change elsewhere and test is failing")
+
 def test_uri_project_id():
 
     kwargs={Constants.NIDM_PROJECT_NAME:"FBIRN_PhaseII",Constants.NIDM_PROJECT_IDENTIFIER:9610,Constants.NIDM_PROJECT_DESCRIPTION:"1234356 Test investigation"}
@@ -178,7 +177,7 @@ def test_uri_project_id():
     os.remove("uri2test2.ttl")
 
 
-@pytest.mark.skip(reason="DBK wanted to merge a change elsewhere and test is failing")
+
 def test_uri_projects_subjects_1():
     global test_p2_subject_uuids
 
@@ -191,7 +190,7 @@ def test_uri_projects_subjects_1():
     assert test_p2_subject_uuids[0] in result
     assert test_p2_subject_uuids[1] in result
 
-@pytest.mark.skip(reason="DBK wanted to merge a change elsewhere and test is failing")
+
 def test_uri_projects_subjects_id():
     global test_person_uuid
 
@@ -211,12 +210,12 @@ def test_uri_projects_subjects_id():
         assert 'AGE_AT_SCAN' in result['instruments'][i]
         age = float(result['instruments'][i]['AGE_AT_SCAN'])
         # WIP commented out by DBK to get tests to pass for the moment.  Needs updating?
-        # assert  age > 0
+        assert  age > 0
 
     assert len(result['stats']) > 0
 
 
-@pytest.mark.skip(reason="DBK wanted to merge a change elsewhere and test is failing")
+
 def test_get_software_agents():
     nidm_file = BRAIN_VOL_FILES[0]
     rdf_graph = Query.OpenGraph(nidm_file)
@@ -236,7 +235,7 @@ def test_get_software_agents():
     assert (count == len(agents))
 
 
-@pytest.mark.skip(reason="DBK wanted to merge a change elsewhere and test is failing")
+
 def test_brain_vols():
 
     projects  = restParser(BRAIN_VOL_FILES, '/projects')
@@ -247,11 +246,12 @@ def test_brain_vols():
 
 
     assert(len(data) > 0)
-    assert('StatCollectionType' in data[0])
-    assert('URI' in data[0])
-    assert('values' in data[0])
+    for key in data:
+        assert('StatCollectionType' in data[key])
+        assert('URI' in data[key])
+        assert('values' in data[key])
 
-@pytest.mark.skip(reason="DBK wanted to merge a change elsewhere and test is failing")
+
 def test_GetParticipantDetails():
     projects  = restParser(BRAIN_VOL_FILES, '/projects')
     project = projects[0]
