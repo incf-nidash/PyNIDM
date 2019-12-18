@@ -249,7 +249,8 @@ def main(argv):
         id_field=None
         for key, value in column_to_terms.items():
             if Constants.NIDM_SUBJECTID._str == column_to_terms[key]['label']:
-                id_field=key
+                key_tuple = eval(key)
+                id_field=key_tuple.variable
                 #make sure id_field is a string for zero-padded subject ids
                 #re-read data file with constraint that key field is read as string
                 #df = pd.read_csv(args.csv_file,dtype={id_field : str})
@@ -273,12 +274,16 @@ def main(argv):
             acq=AssessmentAcquisition(session)
             acq_entity=AssessmentObject(acq)
 
+            #create prov:Agent for subject
+            #acq.add_person(attributes=({Constants.NIDM_SUBJECTID:row['participant_id']}))
+
 
 
             #store other data from row with columns_to_term mappings
             for row_variable,row_data in csv_row.iteritems():
                 if not row_data:
                     continue
+
                 #check if row_variable is subject id, if so skip it
                 if row_variable==id_field:
                     #add qualified association with person
