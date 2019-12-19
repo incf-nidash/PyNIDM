@@ -47,7 +47,7 @@ from io import StringIO
 from shutil import copy2
 from nidm.core.Constants import DD
 import logging
-
+import csv
 
 
 #def createDialogBox(search_results):
@@ -96,6 +96,8 @@ def main(argv):
 
     #open CSV file and load into
     df = pd.read_csv(args.csv_file)
+    #temp = csv.reader(args.csv_file)
+    #df = pd.DataFrame(temp)
 
     #maps variables in CSV file to terms
     #if args.owl is not False:
@@ -127,8 +129,9 @@ def main(argv):
                 id_field = key_tuple.variable
                 #make sure id_field is a string for zero-padded subject ids
                 #re-read data file with constraint that key field is read as string
-                #df = pd.read_csv(args.csv_file,dtype={id_field : str})
-
+                df = pd.read_csv(args.csv_file,dtype={id_field : str})
+                break
+                
         #if we couldn't find a subject ID field in column_to_terms, ask user
         if id_field is None:
             option=1
@@ -139,7 +142,7 @@ def main(argv):
             id_field=df.columns[int(selection)-1]
             #make sure id_field is a string for zero-padded subject ids
             #re-read data file with constraint that key field is read as string
-            #df = pd.read_csv(args.csv_file,dtype={id_field : str})
+            df = pd.read_csv(args.csv_file,dtype={id_field : str})
 
 
 
@@ -253,7 +256,8 @@ def main(argv):
                 id_field=key_tuple.variable
                 #make sure id_field is a string for zero-padded subject ids
                 #re-read data file with constraint that key field is read as string
-                #df = pd.read_csv(args.csv_file,dtype={id_field : str})
+                df = pd.read_csv(args.csv_file,dtype={id_field : str})
+                break
 
         #if we couldn't find a subject ID field in column_to_terms, ask user
         if id_field is None:
@@ -263,6 +267,9 @@ def main(argv):
                 option=option+1
             selection=input("Please select the subject ID field from the list above: ")
             id_field=df.columns[int(selection)-1]
+            #make sure id_field is a string for zero-padded subject ids
+            #re-read data file with constraint that key field is read as string
+            df = pd.read_csv(args.csv_file,dtype={id_field : str})
 
 
         #iterate over rows and store in NIDM file
@@ -287,7 +294,7 @@ def main(argv):
                 #check if row_variable is subject id, if so skip it
                 if row_variable==id_field:
                     #add qualified association with person
-                    acq.add_qualified_association(person= acq.add_person(attributes=({Constants.NIDM_SUBJECTID:row_data})),role=Constants.NIDM_PARTICIPANT)
+                    acq.add_qualified_association(person= acq.add_person(attributes=({Constants.NIDM_SUBJECTID:str(row_data)})),role=Constants.NIDM_PARTICIPANT)
 
                     continue
                 else:
