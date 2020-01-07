@@ -8,6 +8,9 @@ import os
 from tempfile import gettempdir
 from tabulate import tabulate
 from copy import copy, deepcopy
+from urllib.parse import urlparse, parse_qs
+
+from numpy import std, mean, median
 
 from nidm.experiment.Utils import read_nidm
 
@@ -57,14 +60,33 @@ class RestParser:
     def dictFormat(self, result, headers=[""]):
         if self.output_format == self.CLI_FORMAT:
             table = []
+            appendicies = []
             for key in result:
+
+                # format a list
                 if type(result[key]) == list:
-                    table.append([ json.dumps(key) , ",".join(result[key]) ])
+                    appendix = []
+                    for line in result[key]:
+                        appendix.append( [ json.dumps(line) ] )
+                    appendicies.append(tabulate(appendix, [key]))
+
+                # format a string
                 elif type(result[key]) == str:
                     table.append([ json.dumps(key), result[key]])
+
+                # format a dictionary
+                elif type(result[key]) == dict:
+                    # put any dict into it's own table at the end (sort of like an appendix)
+                    appendix = []
+                    for inner_key in result[key]:
+                        appendix.append( [key, inner_key, result[key][inner_key] ] )
+                    appendicies.append(tabulate(appendix))
+
+                # format anything else
                 else:
                     table.append([ json.dumps(key), json.dumps(result[key])])
-            return tabulate(table, headers)
+
+            return tabulate(table, headers) + "\n\n" + "\n\n".join(appendicies)
         else:
             return self.format(result)
 
@@ -173,8 +195,11 @@ class RestParser:
 
 
     def projectStats(self):
-        result = []
-        match = re.match(r"^/?statistics/projects/([^/]+)\??$", self.command)
+        result = dict()
+        subjects = None
+        path = (urlparse(self.command)).path
+
+        match = re.match(r"^/?statistics/projects/([^/]+)\??$", path)
         id = parse.unquote(str(match.group(1)))
         self.restLog("Returing project {} stats metadata".format(id), 2)
         projects = Query.GetProjectsComputedMetadata(self.nidm_files)
@@ -183,8 +208,76 @@ class RestParser:
             self.restLog("comparng " + str(pid) + " with " + Constants.NIIRI + id, 5)
             self.restLog("comparng " + str(pid) + " with niiri:" + id, 5)
             if pid == id or pid == Constants.NIIRI + id or pid == "niiri:" + id:
-                result = projects['projects'][pid]
+                # stip off prefixes to make it more human readable
+                for key in projects['projects'][pid]:
+                    short_key = key
+                    possible_prefix = re.sub(':.*', '', short_key)
+                    if possible_prefix in Constants.namespaces:
+                        short_key = re.sub('^.*:', '', short_key)
+                    result[short_key] = projects['projects'][pid][key]
+
+        # now get any fields they reqested
+        for field in self.query['fields']:
+            if subjects == None:
+                subjects = Query.GetParticipantUUIDsForProject(tuple(self.nidm_files), project_id=id, filter=self.query['filter'])
+                result['subjects'] = subjects
+            bits = field.split('.')
+            if len(bits) > 1:
+                stat_type = self.getStatType(bits[0]) # should be either instruments or derivatives for now.
+                self.addFieldStats(result, id, subjects, bits[1], stat_type) # bits[1] will be the ID
+
         return self.dictFormat(result)
+
+    STAT_TYPE_OTHER = 0
+    STAT_TYPE_INSTRUMENTS = 1
+    STAT_TYPE_DERIVATIVES = 2
+    def getStatType(self, name):
+        lookup = {"instruments": self.STAT_TYPE_INSTRUMENTS, "derivatives" : self.STAT_TYPE_DERIVATIVES}
+        if name in lookup: return lookup[name]
+        return self.STAT_TYPE_OTHER
+
+
+    def getTailOfURI(self, uri):
+        if '#' in uri:
+            return uri[uri.rfind('#') + 1:]
+        else:
+            return uri[uri.rfind('/') + 1:]
+
+
+    def addFieldStats(self, result, project, subjects, field, type):
+        '''
+        Geneerates basic stats on a group of subjects and adds it to the result
+        :param result:
+        :param subjects:
+        :param field:
+        :return:
+        '''
+        values = []
+        for s in subjects:
+            if type == self.STAT_TYPE_INSTRUMENTS:
+                data = Query.GetParticipantInstrumentData(tuple(self.nidm_files), project, s)
+                for i in data:
+                    if field in data[i]:
+                        values.append( float(data[i][field]) )
+            # derivatives are of the form [UUID]['values'][URI]{datumType, label, values, units}
+            if type == self.STAT_TYPE_DERIVATIVES:
+                data = Query.GetDerivativesDataForSubject(tuple(self.nidm_files), project, s)
+                for deriv in data:
+                    for URI in data[deriv]['values']:
+                        measures = data[deriv]['values'][URI]
+                        if field == measures['label'] or field == self.getTailOfURI(URI):
+                            values.append( float(measures['value']) )
+
+        if len(values) > 0:
+            med = median(values)
+            avg = mean(values)
+            st = std(values)
+            mn = min(values)
+            mx = max(values)
+        else:
+            med = avg = st = mn = mx = None
+        result[field] = {"max": mx, "min": mn, "median": med, "mean": avg, "standard_deviation": st}
+
 
     def projectSummary(self):
 
@@ -194,8 +287,7 @@ class RestParser:
         self.restLog("Returing project {} summary".format(id), 2)
 
         result = Query.GetProjectAttributes(self.nidm_files, project_id=id)
-
-        result['subjects']  = Query.GetParticipantUUIDsForProject(self.nidm_files, project_id=id, filter=self.filter)
+        result['subjects']  = Query.GetParticipantUUIDsForProject(self.nidm_files, project_id=id, filter=self.query['filter'])
         result['data_elements'] = Query.GetProjectDataElements(self.nidm_files, project_id=id)
 
         return self.projectSummaryFormat(result)
@@ -204,8 +296,8 @@ class RestParser:
     def subjectsList(self):
         match = re.match(r"^/?projects/([^/]+)/subjects/?$", self.command)
         project = match.group((1))
-        self.restLog("Returning all agents matching filter '{}' for project {}".format(self.filter, project), 2)
-        result = Query.GetParticipantUUIDsForProject(self.nidm_files, project, self.filter, None)
+        self.restLog("Returning all agents matching filter '{}' for project {}".format(self.query['filter'], project), 2)
+        result = Query.GetParticipantUUIDsForProject(self.nidm_files, project, self.query['filter'], None)
         return self.format(result)
 
     def subjectSummary(self):
@@ -251,22 +343,25 @@ class RestParser:
         return self.formatDerivatives(single_derivative)
 
     def run(self, nidm_files, command):
-
-        self.nidm_files = nidm_files
-        self.command = command
-
         self.restLog("parsing command " + command, 1)
         self.restLog("Files to read:" + str(nidm_files), 1)
         self.restLog("Using {} as the graph cache directory".format(gettempdir()), 1)
 
-        self.filter = ""
-        if str(command).find('?') != -1:
-            (self.command, self.query) = str(command).split('?')
-            for q in self.query.split('&'):
-                if len(q.split('=')) == 2:
-                    left, right = q.split('=')[0], q.split('=')[1]
-                    if left == 'filter':
-                        self.filter = right
+        self.nidm_files = nidm_files
+        u = urlparse(command)
+        self.command = u.path
+        self.query = parse_qs(u.query)
+
+        if 'filter' in self.query:
+            self.query['filter'] = self.query['filter'][0]
+        else:
+            self.query['filter'] = None
+
+        # normalize query dict for our particular situation
+        if 'fields' in self.query:
+            self.query['fields'] = str.split(self.query['fields'][0], ',')
+        else:
+            self.query['fields'] = []
 
         return self.route()
 
@@ -299,7 +394,7 @@ class RestParser:
     def restLog(self, message, verbosity_of_message):
         if verbosity_of_message <= self.verbosity_level:
             print (message)
-    
+
     def format(self, result, headers = [""]):
         if self.output_format == RestParser.JSON_FORMAT:
             return json.dumps(result, indent=2)
@@ -310,8 +405,6 @@ class RestParser:
             if type(result) == list:
                 return self.arrayFormat(result, headers)
             else:
-                print (3)
-
                 return str(result)
 
         return result

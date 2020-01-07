@@ -1,11 +1,8 @@
-import pytest
 from nidm.experiment import Project, Session, AssessmentAcquisition, AssessmentObject, Acquisition, AcquisitionObject, Query
 from nidm.core import Constants
 from rdflib import Namespace,URIRef
 import prov.model as pm
 from os import remove
-import os
-import pprint
 
 from prov.model import ProvDocument, QualifiedName
 from prov.model import Namespace as provNamespace
@@ -278,10 +275,8 @@ def test_GetProjectsComputedMetadata():
 
     if USE_GITHUB_DATA:
         for project_id in parsed['projects']:
-            print ("looking at {}".format(project_id))
             if project_id != p1 and project_id != p2:
                 p3 = project_id
-        print ("got p3 of {}".format(p3))
         assert parsed['projects'][p3][str(Constants.NIDM_PROJECT_NAME)] == "ABIDE CMU_a Site"
         assert parsed['projects'][p3][Query.matchPrefix(str(Constants.NIDM_NUMBER_OF_SUBJECTS))] == 14
         assert parsed['projects'][p3]["age_min"] == 21.0

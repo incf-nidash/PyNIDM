@@ -27,7 +27,8 @@ class NIDMRest(Resource):
 
 class Instructions(Resource):
     def get(self):
-        return ({'message' : 'See instructions at PyNIDM/docker/README.md'})
+
+        return ({'message' : 'You probably want to start at {}projects  See instructions at PyNIDM/docker/README.md for details on the API and loading data.'.format(request.url_root)})
 
 
 

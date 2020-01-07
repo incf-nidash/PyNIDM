@@ -24,6 +24,7 @@ cmu_test_project_uuid = None
 
 @pytest.fixture(scope="module", autouse="True")
 def setup():
+    global cmu_test_project_uuid
 
     if Path(REST_TEST_FILE).is_file():
         os.remove(REST_TEST_FILE)
@@ -300,7 +301,7 @@ def test_CheckSubjectMatchesFilter():
     else:
         projects  = restParser.run(BRAIN_VOL_FILES, '/projects')
         project = projects[0]
-    subjects = restParser.run(BRAIN_VOL_FILES, '/projects/{}/subjects'.format(projects[0]))
+    subjects = restParser.run(BRAIN_VOL_FILES, '/projects/{}/subjects'.format(project))
     subject = subjects[0]
 
     derivatives = Query.GetDerivativesDataForSubject(BRAIN_VOL_FILES, project, subject)
@@ -313,7 +314,7 @@ def test_CheckSubjectMatchesFilter():
                 break
 
     # find an actual stat and build a matching filter to make sure our matcher passes it
-    filter = "projects.subjects.derivatives.{} eq {}".format(dt,val)
+    filter = "derivatives.{} eq {}".format(dt,val)
     assert Query.CheckSubjectMatchesFilter( BRAIN_VOL_FILES, project, subject, filter)
 
 
@@ -324,15 +325,15 @@ def test_CheckSubjectMatchesFilter():
     older = str(float(age) + 1)
     younger = str(float(age) - 1)
 
-    assert Query.CheckSubjectMatchesFilter( BRAIN_VOL_FILES, project, subject, "projects.subjects.instruments.AGE_AT_SCAN eq {}".format( str(age) ) )
-    assert (Query.CheckSubjectMatchesFilter( BRAIN_VOL_FILES, project, subject, "projects.subjects.instruments.AGE_AT_SCAN lt {}".format( younger ) ) == False)
-    assert (Query.CheckSubjectMatchesFilter( BRAIN_VOL_FILES, project, subject, "projects.subjects.instruments.AGE_AT_SCAN gt {}".format( younger) ) == True)
-    assert Query.CheckSubjectMatchesFilter( BRAIN_VOL_FILES, project, subject, "projects.subjects.instruments.AGE_AT_SCAN lt {}".format( older ) )
-    assert (Query.CheckSubjectMatchesFilter( BRAIN_VOL_FILES, project, subject, "projects.subjects.instruments.AGE_AT_SCAN gt {}".format( older) ) == False)
+    assert Query.CheckSubjectMatchesFilter( BRAIN_VOL_FILES, project, subject, "instruments.AGE_AT_SCAN eq {}".format( str(age) ) )
+    assert (Query.CheckSubjectMatchesFilter( BRAIN_VOL_FILES, project, subject, "instruments.AGE_AT_SCAN lt {}".format( younger ) ) == False)
+    assert (Query.CheckSubjectMatchesFilter( BRAIN_VOL_FILES, project, subject, "instruments.AGE_AT_SCAN gt {}".format( younger) ) == True)
+    assert Query.CheckSubjectMatchesFilter( BRAIN_VOL_FILES, project, subject, "instruments.AGE_AT_SCAN lt {}".format( older ) )
+    assert (Query.CheckSubjectMatchesFilter( BRAIN_VOL_FILES, project, subject, "instruments.AGE_AT_SCAN gt {}".format( older) ) == False)
 
-    eq__format = "projects.subjects.instruments.{} eq '{}'".format('WISC_IV_VOCAB_SCALED', 'nan')
+    eq__format = "instruments.{} eq '{}'".format('WISC_IV_VOCAB_SCALED', 'nan')
     assert Query.CheckSubjectMatchesFilter(BRAIN_VOL_FILES, project, subject, eq__format)
-    eq__format = "projects.subjects.instruments.{} eq '{}'".format('WISC_IV_VOCAB_SCALED', 'not a match')
+    eq__format = "instruments.{} eq '{}'".format('WISC_IV_VOCAB_SCALED', 'not a match')
     assert (Query.CheckSubjectMatchesFilter( BRAIN_VOL_FILES, project, subject, eq__format ) == False)
 
 def test_ExtremeFilters():
@@ -343,11 +344,11 @@ def test_ExtremeFilters():
         projects  = restParser.run(BRAIN_VOL_FILES, '/projects')
         project = projects[0]
 
-    details = restParser.run(BRAIN_VOL_FILES, '/projects/{}?filter=AGE_AT_SCAN gt 200'.format(projects[0]))
+    details = restParser.run(BRAIN_VOL_FILES, '/projects/{}?filter=AGE_AT_SCAN gt 200'.format(project))
     assert len(details['subjects']) == 0
     assert len(details['data_elements']) > 0
 
-    details = restParser.run(BRAIN_VOL_FILES, '/projects/{}?filter=projects.subjects.instruments.AGE_AT_SCAN gt 0'.format(projects[0]))
+    details = restParser.run(BRAIN_VOL_FILES, '/projects/{}?filter=instruments.AGE_AT_SCAN gt 0'.format(project))
     assert len(details['subjects']) > 0
     assert len(details['data_elements']) > 0
 
