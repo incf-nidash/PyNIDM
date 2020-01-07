@@ -6,98 +6,312 @@ from urllib import parse
 import pprint
 import os
 from tempfile import gettempdir
+from tabulate import tabulate
+from copy import copy, deepcopy
+
+from nidm.experiment.Utils import read_nidm
 
 
-def restParser (nidm_files, command, verbosity_level = 0):
+class RestParser:
 
-    restLog("parsing command "+ command, 1, verbosity_level)
-    restLog("Files to read:" + str(nidm_files), 1, verbosity_level)
-    restLog("Using {} as the graph cache directory".format( gettempdir() ), 1, verbosity_level)
 
-    filter = ""
-    if str(command).find('?') != -1:
-        (command, query) = str(command).split('?')
-        for q in query.split('&'):
-            if len(q.split('=')) == 2:
-                left, right = q.split('=')[0], q.split('=')[1]
-                if left == 'filter':
-                    filter = right
+    OBJECT_FORMAT = 0
+    JSON_FORMAT = 1
+    CLI_FORMAT = 2
 
-    result = []
-    if re.match(r"^/?projects/?$", command):
-        restLog("Returning all projects", 2, verbosity_level)
-        projects = Query.GetProjectsUUID(nidm_files)
+    def __init__(self, verbosity_level = 0, output_format = 0):
+        self.verbosity_level = verbosity_level
+        self.output_format = output_format
+        self.restLog ("Setting output format {}".format(self.output_format), 4)
+
+    def setOutputFormat(self, output_format):
+        self.output_format = output_format
+        self.restLog ("Setting output format {}".format(self.output_format), 4)
+
+    #####################
+    # Standard formatters
+    #####################
+
+    def arrayFormat(self, result, headers):
+
+        def allUUIDs(arr):
+            uuid_only = True
+            for s in arr:
+                if type(s) != str or not re.match("^[0-9a-f]+-[0-9a-f]+-[0-9a-f]+-[0-9a-f]+-[0-9a-f]+$", s):
+                    uuid_only = False
+            return uuid_only
+
+
+        if self.output_format == RestParser.JSON_FORMAT:
+            return json.dumps(result, indent=2)
+        elif self.output_format == RestParser.CLI_FORMAT:
+            # most likely this is an array of strings but tabulate wants an array of arrays
+            table = []
+            for s in result:
+                table.append( [s] )
+            if allUUIDs(result) and headers[0] == "":
+                headers[0] = "UUID"
+            return tabulate(table, headers=headers)
+        return result
+
+    def dictFormat(self, result, headers=[""]):
+        if self.output_format == self.CLI_FORMAT:
+            table = []
+            for key in result:
+                if type(result[key]) == list:
+                    table.append([ json.dumps(key) , ",".join(result[key]) ])
+                elif type(result[key]) == str:
+                    table.append([ json.dumps(key), result[key]])
+                else:
+                    table.append([ json.dumps(key), json.dumps(result[key])])
+            return tabulate(table, headers)
+        else:
+            return self.format(result)
+
+    def objectTableFormat(self,result, headers = None):
+
+        def flatten(obj, maxDepth=10, table = [], rowInProgress = [], depth = 0):
+            for key in obj:
+                newrow = deepcopy(rowInProgress)
+                if depth< maxDepth and type(obj[key]) == dict:
+                    newrow.append(key)
+                    flatten(obj[key], maxDepth, table, newrow, depth+1)
+                elif type(obj[key]) == str:
+                    newrow.append(key)
+                    newrow.append(obj[key])
+                    table.append(newrow)
+                else:
+                    newrow.append(json.dumps(obj[key]))
+                    table.append(newrow)
+
+            return table
+
+        if headers == None:
+            headers = [""]
+
+        return (tabulate(flatten(result), headers=headers))
+
+
+
+
+
+    #####################
+    # Custom formatters
+    #####################
+
+    def projectSummaryFormat(self, result):
+        if self.output_format == self.CLI_FORMAT:
+            toptable = []
+            for key in result:
+                if not key in ['subjects', 'data_elements']:
+                    toptable.append([ key, result[key] ])
+
+
+            return "{}\n\n{}\n\n{}".format(
+                tabulate(toptable),
+                tabulate({"subjects": result["subjects"]}, headers="keys"),
+                tabulate({"data_elements": result["data_elements"]}, headers="keys")
+            )
+        else:
+            return self.format(result)
+
+    def formatDerivatives(self, derivative):
+        self.restLog("formatting derivatives in format {}".format(self.output_format), 5)
+        if self.output_format == self.CLI_FORMAT:
+            table = []
+            for uri in derivative:
+                for measurement in derivative[uri]["values"]:
+                    if measurement not in ["http://www.w3.org/ns/prov#wasGeneratedBy", "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"]:  # skip some NIDM structure artifacts
+                        table.append([uri,
+                                      measurement,
+                                      derivative[uri]["values"][measurement]["label"],
+                                      "{} {}".format(derivative[uri]["values"][measurement]["value"], derivative[uri]["values"][measurement]["units"]),
+                                      derivative[uri]["values"][measurement]["datumType"]])
+            return tabulate(table, headers=["Derivative_UUID", "Measurement", "Label", "Value", "Datumtype"])
+        else:
+            return self.format(derivative)
+
+    def subjectSummaryFormat(self,result):
+        if self.output_format == self.CLI_FORMAT:
+            special_keys = ['instruments', 'derivatives', "activity"]
+            toptable = []
+            for key in result:
+                if not key in special_keys:
+                    toptable.append([ key, result[key] ])
+
+            for key in special_keys:
+                if type(result[key]) == dict:
+                    toptable.append( [ key, ",".join(result[key].keys()) ] )
+                elif type(result[key]) == list:
+                    toptable.append( [ key, ",".join(result[key]) ])
+                else:
+                    toptable.append([key, json.dumps(result[key]) ])
+
+            instruments = self.objectTableFormat(result['instruments'], ["Instrument_UUID", "Category", "Value"])
+            derivatives=  self.formatDerivatives(result['derivatives'])
+
+            return "{}\n\n{}\n\n{}".format(
+                tabulate(toptable),
+                derivatives,
+                instruments
+            )
+        else:
+            return self.format(result)
+
+
+    #####################
+    # Route Functions
+    #####################
+
+    def projects(self):
+        result = []
+        self.restLog("Returning all projects", 2)
+        projects = Query.GetProjectsUUID(self.nidm_files)
         for uuid in projects:
-            result.append( str(uuid).replace(Constants.NIIRI, ""))
+            result.append(str(uuid).replace(Constants.NIIRI, ""))
+        return self.format(result)
 
-    elif re.match(r"^/?projects/[^/]+$", command):
-        restLog("Returing metadata ", 2, verbosity_level)
-        match = re.match(r"^/?projects/([^/]+)$", command)
-        id = parse.unquote ( str( match.group(1) ) )
-        restLog("computing metadata", 5, verbosity_level)
-        projects = Query.GetProjectsComputedMetadata(nidm_files)
+
+    def projectStats(self):
+        result = []
+        match = re.match(r"^/?statistics/projects/([^/]+)\??$", self.command)
+        id = parse.unquote(str(match.group(1)))
+        self.restLog("Returing project {} stats metadata".format(id), 2)
+        projects = Query.GetProjectsComputedMetadata(self.nidm_files)
         for pid in projects['projects'].keys():
-            restLog("comparng " + str(pid) + " with " + str(id), 5, verbosity_level)
-            restLog("comparng " + str(pid) + " with " + Constants.NIIRI + id, 5, verbosity_level)
-            restLog("comparng " + str(pid) + " with niiri:" + id, 5, verbosity_level)
+            self.restLog("comparng " + str(pid) + " with " + str(id), 5)
+            self.restLog("comparng " + str(pid) + " with " + Constants.NIIRI + id, 5)
+            self.restLog("comparng " + str(pid) + " with niiri:" + id, 5)
             if pid == id or pid == Constants.NIIRI + id or pid == "niiri:" + id:
                 result = projects['projects'][pid]
+        return self.dictFormat(result)
 
-    elif re.match(r"^/?projects/[^/]+/subjects/?$", command):
-        match = re.match(r"^/?projects/([^/]+)/subjects/?$", command)
+    def projectSummary(self):
+
+
+        match = re.match(r"^/?projects/([^/]+)$", self.command)
+        id = parse.unquote(str(match.group(1)))
+        self.restLog("Returing project {} summary".format(id), 2)
+
+        result = Query.GetProjectAttributes(self.nidm_files, project_id=id)
+
+        result['subjects']  = Query.GetParticipantUUIDsForProject(self.nidm_files, project_id=id, filter="")
+        result['data_elements'] = Query.GetProjectDataElements(self.nidm_files, project_id=id)
+
+        return self.projectSummaryFormat(result)
+
+
+    def subjectsList(self):
+        match = re.match(r"^/?projects/([^/]+)/subjects/?$", self.command)
         project = match.group((1))
-        restLog("Returning all agents matching filter '{}' for project {}".format(filter, project), 2, verbosity_level)
-        result = Query.GetParticipantUUIDsForProject(nidm_files, project, filter, None)
+        self.restLog("Returning all agents matching filter '{}' for project {}".format(self.filter, project), 2)
+        result = Query.GetParticipantUUIDsForProject(self.nidm_files, project, self.filter, None)
+        return self.format(result)
 
-    elif re.match(r"^/?projects/[^/]+/subjects/[^/]+/?$", command):
-        match = re.match(r"^/?projects/([^/]+)/subjects/([^/]+)/?$", command)
-        restLog("Returning info about subject {}".format(match.group(2)), 2, verbosity_level)
-        result = Query.GetParticipantDetails(nidm_files,match.group(1), match.group(2))
+    def subjectSummary(self):
+        match = re.match(r"^/?projects/([^/]+)/subjects/([^/]+)/?$", self.command)
+        self.restLog("Returning info about subject {}".format(match.group(2)), 2)
+        return self.subjectSummaryFormat(Query.GetParticipantDetails(self.nidm_files, match.group(1), match.group(2)))
 
-    elif re.match(r"^/?projects/[^/]+/subjects/[^/]+/instruments/?$", command):
-        match = re.match(r"^/?projects/([^/]+)/subjects/([^/]+)", command)
-        restLog("Returning instruments in subject {}".format(match.group(2)), 2, verbosity_level)
-        instruments = Query.GetParticipantInstrumentData(nidm_files, match.group(1), match.group(2))
+    def instrumentsList(self):
+        result = []
+        match = re.match(r"^/?projects/([^/]+)/subjects/([^/]+)$", self.command)
+        self.restLog("Returning instruments in subject {}".format(match.group(2)), 2)
+        instruments = Query.GetParticipantInstrumentData(self.nidm_files, match.group(1), match.group(2))
         for i in instruments:
             result.append(i)
+        return self.format(result)
 
-    elif re.match(r"^/?projects/[^/]+/subjects/[^/]+/instruments/[^/]+/?$", command):
-        match = re.match(r"^/?projects/([^/]+)/subjects/([^/]+)/instruments/([^/]+)", command)
-        restLog("Returning instrument {} in subject {}".format(match.group(3), match.group(2)), 2, verbosity_level)
-        instruments = Query.GetParticipantInstrumentData(nidm_files, match.group(1), match.group(2))
-        result = instruments[match.group(3)]
+    def instrumentSummary(self):
+        match = re.match(r"^/?projects/([^/]+)/subjects/([^/]+)/instruments/([^/]+)$", self.command)
+        self.restLog("Returning instrument {} in subject {}".format(match.group(3), match.group(2)), 2)
+        instruments = Query.GetParticipantInstrumentData(self.nidm_files, match.group(1), match.group(2))
+        return self.format(instruments[match.group(3)], headers=["Category", "Value"])
 
-
-    elif re.match(r"^/?projects/[^/]+/subjects/[^/]+/derivatives/?$", command):
-        match = re.match(r"^/?projects/([^/]+)/subjects/([^/]+)", command)
-        restLog("Returning derivatives in subject {}".format(match.group(2)), 2, verbosity_level)
-        derivatives = Query.GetDerivativesDataForSubject(nidm_files, match.group(1), match.group(2))
+    def derivativesList(self):
+        result = []
+        match = re.match(r"^/?projects/([^/]+)/subjects/([^/]+)", self.command)
+        self.restLog("Returning derivatives in subject {}".format(match.group(2)), 2)
+        derivatives = Query.GetDerivativesDataForSubject(self.nidm_files, match.group(1), match.group(2))
         for s in derivatives:
             result.append(s)
+        return self.format(result)
 
-    elif re.match(r"^/?projects/[^/]+/subjects/[^/]+/derivatives/[^/]+/?$", command):
-        match = re.match(r"^/?projects/([^/]+)/subjects/([^/]+)/derivatives/([^/]+)", command)
-        restLog("Returning stat {} in subject {}".format(match.group(3), match.group(2)), 2, verbosity_level)
-        derivatives = Query.GetDerivativesDataForSubject(nidm_files, match.group(1), match.group(2))
-        result = derivatives[match.group(3)]
+    def derivativeSummary(self):
+        match = re.match(r"^/?projects/([^/]+)/subjects/([^/]+)/derivatives/([^/]+)", self.command)
+        uri = match.group(3)
+        self.restLog("Returning stat {} in subject {}".format(uri, match.group(2)), 2)
+        derivatives = Query.GetDerivativesDataForSubject(self.nidm_files, match.group(1), match.group(2))
+
+        single_derivative = { uri: derivatives[uri] }
+
+        self.restLog("Formatting single derivative", 5)
 
 
-    else:
-        restLog("NO MATCH!",2, verbosity_level)
+        return self.formatDerivatives(single_derivative)
 
-    return result
+    def run(self, nidm_files, command):
+
+        self.nidm_files = nidm_files
+        self.command = command
+
+        self.restLog("parsing command " + command, 1)
+        self.restLog("Files to read:" + str(nidm_files), 1)
+        self.restLog("Using {} as the graph cache directory".format(gettempdir()), 1)
+
+        self.filter = ""
+        if str(command).find('?') != -1:
+            (self.command, self.query) = str(command).split('?')
+            for q in self.query.split('&'):
+                if len(q.split('=')) == 2:
+                    left, right = q.split('=')[0], q.split('=')[1]
+                    if left == 'filter':
+                        self.filter = right
+
+        return self.route()
 
 
-def restLog (message, verbosity_of_message, verbosity_level):
-    if verbosity_of_message <= verbosity_level:
-        print (message)
+    def route(self):
 
-def formatResults (result, format, stream):
-    pp = pprint.PrettyPrinter(stream=stream)
-    if format == 'text':
-        if isinstance(result, list):
-            print(*result, sep='\n', file=stream)
-        else:
-            pp.pprint(result)
-    else:
-        print(json.dumps(result, indent=2, separators=(',', ';')), file=stream)
+        if re.match(r"^/?projects/?$", self.command): return self.projects()
+
+        if re.match(r"^/?statistics/projects/[^/]+$", self.command): return self.projectStats()
+
+        if re.match(r"^/?projects/[^/]+$", self.command): return self.projectSummary()
+
+        if re.match(r"^/?projects/[^/]+/subjects/?$", self.command): return self.subjectsList()
+
+        if re.match(r"^/?projects/[^/]+/subjects/[^/]+/?$", self.command): return self.subjectSummary()
+
+        if re.match(r"^/?projects/[^/]+/subjects/[^/]+/instruments/?$", self.command): return self.instrumentsList()
+
+        if re.match(r"^/?projects/[^/]+/subjects/[^/]+/instruments/[^/]+/?$", self.command): return self.instrumentSummary()
+
+        if re.match(r"^/?projects/[^/]+/subjects/[^/]+/derivatives/?$", self.command): return self.derivativesList()
+
+        if re.match(r"^/?projects/[^/]+/subjects/[^/]+/derivatives/[^/]+/?$", self.command): return self.derivativeSummary()
+
+        self.restLog("NO MATCH!", 2)
+
+        return {"error": "No match for supplied URI"}
+
+
+    def restLog(self, message, verbosity_of_message):
+        if verbosity_of_message <= self.verbosity_level:
+            print (message)
+    
+    def format(self, result, headers = [""]):
+        if self.output_format == RestParser.JSON_FORMAT:
+            return json.dumps(result, indent=2)
+
+        elif self.output_format == RestParser.CLI_FORMAT:
+            if type(result) == dict:
+                return self.dictFormat(result, headers)
+            if type(result) == list:
+                return self.arrayFormat(result, headers)
+            else:
+                print (3)
+
+                return str(result)
+
+        return result

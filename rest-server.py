@@ -1,7 +1,7 @@
 from flask import Flask, request
 from flask_restful import Resource, Api
 import glob
-from nidm.experiment.tools.rest import restParser
+from nidm.experiment.tools.rest import RestParser
 
 def getTTLFiles():
     files = []
@@ -20,7 +20,9 @@ class NIDMRest(Resource):
         files = getTTLFiles()
         if len(files) == 0:
             return ({'error' : 'No NIDM files found. You may need to add NIDM ttl files to ~/PyNIDM/ttl'})
-        return restParser(files, "{}?{}".format(all,query), 5 )
+        restParser = RestParser(output_format=RestParser.OBJECT_FORMAT, verbosity_level=5)
+
+        return restParser.run(files, "{}?{}".format(all,query))
 
 class Instructions(Resource):
     def get(self):

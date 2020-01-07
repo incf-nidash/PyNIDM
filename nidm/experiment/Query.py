@@ -484,6 +484,54 @@ def GetParticipantUUIDsForProject(nidm_file_list, project_id, filter, output_fil
 
     return participants
 
+def GetProjectAttributes(nidm_file_list, project_id):
+    result = {}
+    isa = URIRef('http://www.w3.org/1999/02/22-rdf-syntax-ns#type')
+
+    # if this isn't already a URI, make it one.
+    # calls from the REST api don't include the URI
+    project = project_id
+    if project_id.find('http') < 0:
+        project = Constants.NIIRI[project_id]
+
+    for file in nidm_file_list:
+        # print("searching file {}".format(file))
+        rdf_graph = OpenGraph(file)
+        #find all the sessions
+        for (session, p, o) in rdf_graph.triples((None, None, Constants.NIDM['Session'])): #rdf_graph.subjects(object=isa, predicate=Constants.NIDM['Session']):
+            # print ("Session: {} {} {}".format(session, p, o))
+            #check if it is part of our project
+            if (session, Constants.DCT['isPartOf'], project) in rdf_graph:
+                # get all the tripples directly linked to the project
+                for (proj, predicate, object) in rdf_graph.triples((project, None, None)):
+                    result[ matchPrefix(str(predicate)) ] = str(object)
+    return result
+
+def GetProjectDataElements(nidm_file_list, project_id):
+    result = []
+    isa = URIRef('http://www.w3.org/1999/02/22-rdf-syntax-ns#type')
+
+    # if this isn't already a URI, make it one.
+    # calls from the REST api don't include the URI
+    project = project_id
+    if project_id.find('http') < 0:
+        project = Constants.NIIRI[project_id]
+
+    for file in nidm_file_list:
+        # print("searching file {}".format(file))
+        rdf_graph = OpenGraph(file)
+        #find all the sessions
+        for (session, p, o) in rdf_graph.triples((None, None, Constants.NIDM['Session'])): #rdf_graph.subjects(object=isa, predicate=Constants.NIDM['Session']):
+            # print ("Session: {} {} {}".format(session, p, o))
+            #check if it is part of our project
+            if (session, Constants.DCT['isPartOf'], project) in rdf_graph:
+                # we know we have the right file, so just grab all the data elements from here
+                for de in rdf_graph.subjects(isa, Constants.NIDM['DataElement']):
+                    result.append(rdf_graph.namespace_manager.compute_qname(str(de))[0])
+                return result
+    return result
+
+
 # in case someone passes in a filter subject with a full http or https URI, strip it back to just the bit after the namespace
 def splitSubject(subject):
     if subject.find("http") > -1:
@@ -840,7 +888,7 @@ def compressForJSONResponse(data) -> dict:
 
     return new_dict
 
-def matchPrefix(possible_URI) -> str:
+def matchPrefix(possible_URI, short=False) -> str:
     '''
     If the possible_URI is found in Constants.namespaces it will
     be replaced with the prefix
@@ -851,11 +899,14 @@ def matchPrefix(possible_URI) -> str:
     '''
     for k, n in Constants.namespaces.items():
         if possible_URI.startswith(n):
-            return "{}:{}".format(k, possible_URI.replace(n, ""))
+            if short:
+                return k
+            else:
+                return "{}:{}".format(k, possible_URI.replace(n, ""))
 
-    # also check the NIDM prefix
-    if possible_URI.startswith(Constants.NIDM_URL):
-        return "{}:{}".format("nidm:", possible_URI.replace(Constants.NIDM_URL, ""))
+    # also check the prov prefix
+    if possible_URI.startswith("http://www.w3.org/ns/prov#"):
+        return "{}:{}".format("prov", possible_URI.replace("http://www.w3.org/ns/prov#", ""))
 
     return possible_URI
 

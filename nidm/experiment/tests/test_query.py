@@ -289,3 +289,13 @@ def test_GetProjectsComputedMetadata():
         assert parsed['projects'][p3][str(Constants.NIDM_GENDER)] == ['1', '2']
 
 
+def test_prefix_helpers():
+
+    assert Query.expandNIDMAbbreviation("ndar:src_subject_id") == "https://ndar.nih.gov/api/datadictionary/v2/dataelement/src_subject_id"
+
+    assert Query.matchPrefix("http://purl.org/nidash/nidm#abc") == "nidm:abc"
+    assert Query.matchPrefix("http://www.w3.org/ns/prov#123") == "prov:123"
+    assert Query.matchPrefix("http://purl.org/nidash/fsl#xyz") == "fsl:xyz"
+    assert Query.matchPrefix("http://purl.org/nidash/fsl#xyz", short=True) == "fsl"
+
+
