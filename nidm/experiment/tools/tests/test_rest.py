@@ -1,12 +1,12 @@
 import urllib
-import random
+import re
 
 import pytest
 import rdflib
 
 from nidm.experiment import Project, Session, AssessmentAcquisition, AssessmentObject, Acquisition, AcquisitionObject, Query
 from nidm.core import Constants
-from nidm.experiment.tools.rest import restParser
+from nidm.experiment.tools.rest import RestParser
 import os
 from pathlib import Path
 from rdflib import Graph, util, URIRef
@@ -139,7 +139,8 @@ def test_uri_project_list():
     with open("uritest2.ttl",'w') as f:
         f.write(project.serializeTurtle())
 
-    result = restParser(['uritest.ttl', 'uritest2.ttl'], '/projects')
+    restParser = RestParser()
+    result = restParser.run(['uritest.ttl', 'uritest2.ttl'], '/projects')
 
 
     project_uuids = []
@@ -158,25 +159,18 @@ def test_uri_project_list():
 
 def test_uri_project_id():
 
-    kwargs={Constants.NIDM_PROJECT_NAME:"FBIRN_PhaseII",Constants.NIDM_PROJECT_IDENTIFIER:9610,Constants.NIDM_PROJECT_DESCRIPTION:"1234356 Test investigation"}
-    project = Project(uuid="_123456",attributes=kwargs)
-    #save a turtle file
-    with open("uri2test.ttl",'w') as f:
-        f.write(project.serializeTurtle())
+    # try with the real brain volume files
+    restParser = RestParser()
+    result = restParser.run(BRAIN_VOL_FILES, '/projects')
+    project = result[0]
+    result = restParser.run(BRAIN_VOL_FILES, '/projects/{}'.format(project))
 
-    kwargs={Constants.NIDM_PROJECT_NAME:"FBIRN_PhaseIII",Constants.NIDM_PROJECT_IDENTIFIER:1200,Constants.NIDM_PROJECT_DESCRIPTION:"Test investigation2"}
-    project = Project(uuid="_654321",attributes=kwargs)
-    #save a turtle file
-    with open("uri2test2.ttl",'w') as f:
-        f.write(project.serializeTurtle())
-
-    result = restParser(['uri2test.ttl', 'uri2test2.ttl'], '/projects/{}_123456'.format(Query.matchPrefix(Constants.NIIRI)) )
-
-    assert type(result) == dict
-    assert result["dct:description"] == "1234356 Test investigation"
-
-    os.remove("uri2test.ttl")
-    os.remove("uri2test2.ttl")
+    assert 'dctypes:title' in result
+    assert 'sio:Identifier' in result
+    assert 'subjects' in result
+    assert len(result['subjects']) > 2
+    assert 'data_elements' in result
+    assert len(result['data_elements']) > 2
 
 
 
@@ -184,7 +178,8 @@ def test_uri_projects_subjects_1():
     global test_p2_subject_uuids
 
     proj_uuid = 'p2'
-    result = restParser([REST_TEST_FILE], '/projects/{}/subjects'.format(proj_uuid), 0)
+    restParser = RestParser()
+    result = restParser.run([REST_TEST_FILE], '/projects/{}/subjects'.format(proj_uuid))
 
     assert type(result) == list
     assert len(result) == 2
@@ -196,13 +191,14 @@ def test_uri_projects_subjects_1():
 def test_uri_projects_subjects_id():
     global test_person_uuid
 
-    result = restParser(['./cmu_a.nidm.ttl'], '/projects')
+    restParser = RestParser()
+    result = restParser.run(['./cmu_a.nidm.ttl'], '/projects')
     project = result[0]
-    result = restParser(['./cmu_a.nidm.ttl'], '/projects/{}/subjects'.format(project))
+    result = restParser.run(['./cmu_a.nidm.ttl'], '/projects/{}/subjects'.format(project))
     subject = result[0]
 
     uri = '/projects/{}/subjects/{}'.format(project,subject)
-    result = restParser(['./cmu_a.nidm.ttl'], uri, 0)
+    result = restParser.run(['./cmu_a.nidm.ttl'], uri)
 
     assert type(result) == dict
     assert result['uuid'] == subject
@@ -239,9 +235,9 @@ def test_get_software_agents():
 
 
 def test_brain_vols():
-
-    projects  = restParser(BRAIN_VOL_FILES, '/projects')
-    subjects = restParser(BRAIN_VOL_FILES, '/projects/{}/subjects'.format(projects[0]))
+    restParser = RestParser()
+    projects  = restParser.run(BRAIN_VOL_FILES, '/projects')
+    subjects = restParser.run(BRAIN_VOL_FILES, '/projects/{}/subjects'.format(projects[0]))
     subject = subjects[0]
 
     data = Query.GetDerivativesDataForSubject(BRAIN_VOL_FILES, None, subject)
@@ -255,11 +251,12 @@ def test_brain_vols():
 
 
 def test_GetParticipantDetails():
-    projects  = restParser(BRAIN_VOL_FILES, '/projects')
+    restParser = RestParser()
+    projects  = restParser.run(BRAIN_VOL_FILES, '/projects')
     project = projects[0]
     import time
     start = time.time()
-    subjects = restParser(BRAIN_VOL_FILES, '/projects/{}/subjects'.format(projects[0]))
+    subjects = restParser.run(BRAIN_VOL_FILES, '/projects/{}/subjects'.format(projects[0]))
     subject = subjects[0]
 
     import time
@@ -281,10 +278,11 @@ def test_GetParticipantDetails():
 
 
 def test_CheckSubjectMatchesFilter():
+    restParser = RestParser()
     print ("brain vol = " + str(BRAIN_VOL_FILES))
-    projects  = restParser(BRAIN_VOL_FILES, '/projects')
+    projects  = restParser.run(BRAIN_VOL_FILES, '/projects')
     project = projects[0]
-    subjects = restParser(BRAIN_VOL_FILES, '/projects/{}/subjects'.format(projects[0]))
+    subjects = restParser.run(BRAIN_VOL_FILES, '/projects/{}/subjects'.format(projects[0]))
     subject = subjects[0]
 
     derivatives = Query.GetDerivativesDataForSubject(BRAIN_VOL_FILES, project, subject)
@@ -332,25 +330,123 @@ def test_OpenGraph():
 
 
 def test_CDEs():
-    path = os.path.abspath(__file__)
+    def testrun():
+        path = os.path.abspath(__file__)
 
-    dir_parts = path.split('/')
-    dir_parts = dir_parts[:-4]
+        dir_parts = path.split('/')
+        dir_parts = dir_parts[:-4]
 
-    dir_parts.append("core")
-    dir_parts.append("cde_dir")
-    dir = "/".join(dir_parts)
+        dir_parts.append("core")
+        dir_parts.append("cde_dir")
+        dir = "/".join(dir_parts)
 
-    graph = Query.getCDEs([
-        "{}/ants_cde.ttl".format(dir),
-        "{}/fs_cde.ttl".format(dir)
-    ])
+        graph = Query.getCDEs([
+            "{}/ants_cde.ttl".format(dir),
+            "{}/fs_cde.ttl".format(dir)
+        ])
 
-    print ("{}/ants_cde.ttl".format(dir))
-    units = graph.objects(subject=Constants.FREESURFER['fs_000002'], predicate=Constants.NIDM['hasUnit'])
-    count = 0
-    for u in units:
-        count += 1
-        assert str(u) == 'mm^2'
+        print ("{}/ants_cde.ttl".format(dir))
+        units = graph.objects(subject=Constants.FREESURFER['fs_000002'], predicate=Constants.NIDM['hasUnit'])
+        count = 0
+        for u in units:
+            count += 1
+            assert str(u) == 'mm^2'
 
-    assert count == 1
+        assert count == 1
+
+    testrun()
+    Query.getCDEs.cache = None # clear the memory cache and try again
+    testrun() # run a second time to test disk caching.
+
+def assess_one_col_output(txt_output):
+    # print (txt_output)
+    lines = txt_output.strip().splitlines()
+    assert re.search('UUID', lines[0])
+    assert re.search('^-+$', lines[1])
+    assert is_uuid(lines[2])
+
+    return lines[2]
+
+def is_uuid(uuid):
+    return re.search('^[0-9a-z]+-[0-9a-z]+-[0-9a-z]+-[0-9a-z]+-[0-9a-z]+$', uuid) != None
+
+def test_cli_rest_routes():
+    rest_parser = RestParser(0)
+    rest_parser.setOutputFormat(RestParser.CLI_FORMAT)
+
+    #
+    # / projects
+    #
+
+    project_uuid = assess_one_col_output( rest_parser.run(BRAIN_VOL_FILES, "/projects") )
+
+
+    #
+    # /statistics/projects/{}
+    #
+
+    txt_out = rest_parser.run(BRAIN_VOL_FILES, "/statistics/projects/{}".format(project_uuid))
+    lines = txt_out.strip().splitlines()
+    assert re.search('^-+ +-+$', lines[0])
+    lines = lines[1:] # done testing line one, slice it off
+
+    split_lines = [ str.split(x) for x in lines ]
+    found_gender = found_age_max = found_age_min = found_title = False
+    for split in split_lines:
+        assert len(split) > 1
+        if re.search('title', split[0]): found_title = True
+        if re.search('age_max', split[0]): found_age_max = True
+        if re.search('age_min', split[0]): found_age_min = True
+        if re.search('gender', split[0]): found_gender = True
+
+
+    assert found_title
+    assert found_age_max
+    assert found_age_min
+    assert found_gender
+
+    #
+    # /projects/{}/subjects
+    #
+
+    subject_uuid = assess_one_col_output( rest_parser.run(BRAIN_VOL_FILES, '/projects/{}/subjects'.format(project_uuid))  )
+
+    #
+    # /projects/{}/subjects/{}/instruments
+    #
+    # result should be in 3 sections: summary , derivatives, instruments
+
+
+    inst_text = rest_parser.run(BRAIN_VOL_FILES, '/projects/{}/subjects/{}/'.format(project_uuid, subject_uuid))
+    sections = inst_text.split("\n\n")
+
+    # summary tests
+    summary_lines = sections[0].strip().splitlines()[1:-1] # first and last lines should be -----
+    summary = dict()
+    for l in summary_lines:
+        summary[l.split()[0]] = l.split()[1]
+    inst_uuid = summary['instruments'].split(',')[0]
+    deriv_uuid = summary['derivatives'].split(',')[0]
+    assert is_uuid(inst_uuid)
+    assert is_uuid(deriv_uuid)
+
+    # derivatives test
+    deriv_lines = sections[1].strip().splitlines()
+    deriv_headers = deriv_lines[0].split()
+    heads = ['Derivative_UUID', 'Measurement', 'Label', 'Value', 'Datumtype']
+    for i in range(len(heads)):
+        assert re.search(heads[i], deriv_headers[i], re.IGNORECASE)
+    d_uuid = deriv_lines[2].split()[0]
+    assert is_uuid(d_uuid)
+    assert d_uuid in summary['derivatives'].split(',')
+
+    #instruments test
+    inst_lines = sections[2].strip().splitlines()
+    inst_headers = inst_lines[0].split()
+    heads = ['Instrument_UUID', 'Category', 'Value']
+    for i in range(len(heads)):
+        assert re.search(heads[i], inst_headers[i], re.IGNORECASE)
+    i_uuid = inst_lines[2].split()[0]
+    assert is_uuid(i_uuid)
+    assert i_uuid in summary['instruments'].split(',')
+
