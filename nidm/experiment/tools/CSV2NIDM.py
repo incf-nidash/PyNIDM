@@ -131,7 +131,7 @@ def main(argv):
                 #re-read data file with constraint that key field is read as string
                 df = pd.read_csv(args.csv_file,dtype={id_field : str})
                 break
-                
+
         #if we couldn't find a subject ID field in column_to_terms, ask user
         if id_field is None:
             option=1
