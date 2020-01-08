@@ -1,36 +1,36 @@
-#!/usr/bin/env python
-#**************************************************************************************
-#**************************************************************************************
-#  BIDSMRI2NIDM.py
-#  License: GPL
-#**************************************************************************************
-#**************************************************************************************
-# Date: 10-2-17                 Coded by: David Keator (dbkeator@gmail.com)
-# Filename: BIDSMRI2NIDM.py
+# !/usr/bin/env python
+# **************************************************************************************
+# **************************************************************************************
+#   BIDSMRI2NIDM.py
+#   License: GPL
+# **************************************************************************************
+# **************************************************************************************
+#  Date: 10-2-17                 Coded by: David Keator (dbkeator@gmail.com)
+#  Filename: BIDSMRI2NIDM.py
 #
-# Program description:  This program will convert a BIDS MRI dataset to a NIDM-Experiment
-# RDF document.  It will parse phenotype information and simply store variables/values
-# and link to the associated json data dictionary file.
+#  Program description:  This program will convert a BIDS MRI dataset to a NIDM-Experiment
+#  RDF document.  It will parse phenotype information and simply store variables/values
+#  and link to the associated json data dictionary file.
 #
-#**************************************************************************************
-# Development environment: Python - PyCharm IDE
+# **************************************************************************************
+#  Development environment: Python - PyCharm IDE
 #
-#**************************************************************************************
-# System requirements:  Python 3.X
-# Libraries: pybids, numpy, matplotlib, pandas, scipy, math, dateutil, datetime,argparse,
-# os,sys,getopt,csv
-#**************************************************************************************
-# Start date: 10-2-17
-# Update history:
-# DATE            MODIFICATION				Who
-#
-#
-#**************************************************************************************
-# Programmer comments:
+# **************************************************************************************
+#  System requirements:  Python 3.X
+#  Libraries: pybids, numpy, matplotlib, pandas, scipy, math, dateutil, datetime,argparse,
+#  os,sys,getopt,csv
+# **************************************************************************************
+#  Start date: 10-2-17
+#  Update history:
+#  DATE            MODIFICATION				Who
 #
 #
-#**************************************************************************************
-#**************************************************************************************
+# **************************************************************************************
+#  Programmer comments:
+#
+#
+# **************************************************************************************
+# **************************************************************************************
 
 import sys, getopt, os
 
@@ -52,7 +52,7 @@ import csv
 import glob
 from argparse import ArgumentParser
 from bids import BIDSLayout
-# Python program to find SHA256 hash string of a file
+#  Python program to find SHA256 hash string of a file
 import hashlib
 from io import StringIO
 from rdflib import Graph, RDF, Namespace, Literal,URIRef
@@ -82,7 +82,7 @@ def getsha512(filename):
     """
     sha512_hash = hashlib.sha512()
     with open(filename,"rb") as f:
-        # Read and update hash string value in blocks of 4K
+        #  Read and update hash string value in blocks of 4K
         for byte_block in iter(lambda: f.read(4096),b""):
             sha512_hash.update(byte_block)
     return sha512_hash.hexdigest()
@@ -117,12 +117,12 @@ Example 4 (FULL MONTY): BIDS conversion with variable->term mappings, uses JSON 
     parser.add_argument('-jsonld', '--jsonld', action='store_true', help='If flag set, output is json-ld not TURTLE')
     parser.add_argument('-png', '--png', action='store_true', help='If flag set, tool will output PNG file of NIDM graph')
     parser.add_argument('-bidsignore', '--bidsignore', action='store_true', default = False, help='If flag set, tool will add NIDM-related files to .bidsignore file')
-    #adding argument group for var->term mappings
+    # adding argument group for var->term mappings
     mapvars_group = parser.add_argument_group('map variables to terms arguments')
     mapvars_group.add_argument('-json_map', '--json_map', dest='json_map',required=False,default=False,help="Optional user-suppled JSON file containing variable-term mappings.")
     mapvars_group.add_argument('-ilxkey', '--ilxkey', dest='key', required=False, default=None,  help="Interlex/SciCrunch API key to use for query and adding terms")
-    #mapvars_group.add_argument('-owl', action='store_true', required=False, default=None,help='Optional flag to query nidm-experiment OWL files')
-    #parser.add_argument('-mapvars', '--mapvars', action='store_true', help='If flag set, variables in participant.tsv and phenotype files will be interactively mapped to terms')
+    # mapvars_group.add_argument('-owl', action='store_true', required=False, default=None,help='Optional flag to query nidm-experiment OWL files')
+    # parser.add_argument('-mapvars', '--mapvars', action='store_true', help='If flag set, variables in participant.tsv and phenotype files will be interactively mapped to terms')
     parser.add_argument('-log','--log', dest='logfile',required=False, default=None, help="directory to save log file. Log file name is bidsmri2nidm_[basename(args.directory)].log")
     parser.add_argument('-o', dest='outputfile', required=False, default="nidm.ttl", help="Outputs turtle file called nidm.ttl in BIDS directory by default..or whatever path/filename is set here")
 
@@ -131,19 +131,19 @@ Example 4 (FULL MONTY): BIDS conversion with variable->term mappings, uses JSON 
 
     if args.logfile is not None:
         logging.basicConfig(filename=join(args.logfile,'bidsmri2nidm_' + args.outputfile.split('/')[-2] + '.log'), level=logging.DEBUG)
-        # add some logging info
+        #  add some logging info
         logging.info("bidsmri2nidm %s" %args)
 
-    #if args.owl is None:
-    #    args.owl = 'nidm'
+    # if args.owl is None:
+    #     args.owl = 'nidm'
 
 
-    #importlib.reload(sys)
-    #sys.setdefaultencoding('utf8')
+    # importlib.reload(sys)
+    # sys.setdefaultencoding('utf8')
 
     project, cde = bidsmri2project(directory,args)
 
-    # convert to rdflib Graph and add CDEs
+    #  convert to rdflib Graph and add CDEs
     rdf_graph = Graph()
     rdf_graph.parse(source=StringIO(project.serializeTurtle()),format='turtle')
     rdf_graph = rdf_graph + cde
@@ -151,62 +151,62 @@ Example 4 (FULL MONTY): BIDS conversion with variable->term mappings, uses JSON 
     logging.info("Writing NIDM file....")
 
 
-    # logging.info(project.serializeTurtle())
+    #  logging.info(project.serializeTurtle())
 
     logging.info("Serializing NIDM graph and creating graph visualization..")
-    #serialize graph
+    # serialize graph
 
-    #if args.outputfile was defined by user then use it else use default which is args.directory/nidm.ttl
+    # if args.outputfile was defined by user then use it else use default which is args.directory/nidm.ttl
     if args.outputfile == "nidm.ttl":
-        #if we're choosing json-ld, make sure file extension is .json
-        #if args.jsonld:
-        #    outputfile=os.path.join(directory,os.path.splitext(args.outputfile)[0]+".json")
-            #if flag set to add to .bidsignore then add
-        #    if (args.bidsignore):
-        #        addbidsignore(directory,os.path.splitext(args.outputfile)[0]+".json")
+        # if we're choosing json-ld, make sure file extension is .json
+        # if args.jsonld:
+        #     outputfile=os.path.join(directory,os.path.splitext(args.outputfile)[0]+".json")
+            # if flag set to add to .bidsignore then add
+        #     if (args.bidsignore):
+        #         addbidsignore(directory,os.path.splitext(args.outputfile)[0]+".json")
 
         outputfile=os.path.join(directory,args.outputfile)
         if (args.bidsignore):
             addbidsignore(directory,args.outputfile)
         rdf_graph.serialize(destination=outputfile,format='turtle')
 
-        #else:
-        #    outputfile=os.path.join(directory,args.outputfile)
-        #    if (args.bidsignore):
-        #        addbidsignore(directory,args.outputfile)
-    else:
-        #if we're choosing json-ld, make sure file extension is .json
-        #if args.jsonld:
-        #    outputfile = os.path.splitext(args.outputfile)[0]+".json"
-        #    if (args.bidsignore):
-        #        addbidsignore(directory,os.path.splitext(args.outputfile)[0]+".json")
         # else:
-        #    outputfile = args.outputfile
-        #    if (args.bidsignore):
-        #        addbidsignore(directory,args.outputfile)
+        #     outputfile=os.path.join(directory,args.outputfile)
+        #     if (args.bidsignore):
+        #         addbidsignore(directory,args.outputfile)
+    else:
+        # if we're choosing json-ld, make sure file extension is .json
+        # if args.jsonld:
+        #     outputfile = os.path.splitext(args.outputfile)[0]+".json"
+        #     if (args.bidsignore):
+        #         addbidsignore(directory,os.path.splitext(args.outputfile)[0]+".json")
+        #  else:
+        #     outputfile = args.outputfile
+        #     if (args.bidsignore):
+        #         addbidsignore(directory,args.outputfile)
         outputfile=args.outputfile
         if (args.bidsignore):
             addbidsignore(directory,args.outputfile)
         rdf_graph.serialize(destination=outputfile,format='turtle')
 
-    #serialize NIDM file
-    #with open(outputfile,'w') as f:
-    #    if args.jsonld:
-    #        f.write(project.serializeJSONLD())
-    #    else:
-    #        f.write(project.serializeTurtle())
+    # serialize NIDM file
+    # with open(outputfile,'w') as f:
+    #     if args.jsonld:
+    #         f.write(project.serializeJSONLD())
+    #     else:
+    #         f.write(project.serializeTurtle())
 
 
-    #save a DOT graph as PNG
-    #if (args.png):
-    #    project.save_DotGraph(str(outputfile + ".png"), format="png")
-    #    #if flag set to add to .bidsignore then add
-    #    if (args.bidsignore):
-    #        addbidsignore(directory,os.path.basename(str(outputfile + ".png")))
+    # save a DOT graph as PNG
+    # if (args.png):
+    #     project.save_DotGraph(str(outputfile + ".png"), format="png")
+    #     # if flag set to add to .bidsignore then add
+    #     if (args.bidsignore):
+    #         addbidsignore(directory,os.path.basename(str(outputfile + ".png")))
 
 def addbidsignore(directory,filename_to_add):
     logging.info("Adding file %s to %s/.bidsignore..." %(filename_to_add,directory))
-    #adds filename_to_add to .bidsignore file in directory
+    # adds filename_to_add to .bidsignore file in directory
     if not isfile(os.path.join(directory,".bidsignore")):
         with open(os.path.join(directory,".bidsignore"),"w") as text_file:
             text_file.write("%s\n" %filename_to_add)
@@ -215,14 +215,245 @@ def addbidsignore(directory,filename_to_add):
             with open(os.path.join(directory,".bidsignore"),"a") as text_file:
                 text_file.write("%s\n" %filename_to_add)
 
+def addimagingsessions(bids_layout,subject_id,session,participant, directory,img_session=None):
+    '''
+    This function adds imaging acquistions to the NIDM file and deals with BIDS structures potentially having
+    separate ses-* directories or not
+    :param bids_layout:
+    :param subject_id:
+    :param session:
+    :param participant:
+    :param directory:
+    :param img_session:
+    :return:
+    '''
+    for file_tpl in bids_layout.get(subject=subject_id, session=img_session, extensions=['.nii', '.nii.gz']):
+        # create an acquisition activity
+        acq=MRAcquisition(session)
+
+        # check whether participant (i.e. agent) for this subject already exists (i.e. if participants.tsv file exists) else create one
+        if not (subject_id in participant):
+            participant[subject_id] = {}
+            participant[subject_id]['person'] = acq.add_person(attributes=({Constants.NIDM_SUBJECTID:subject_id}))
+
+            # add qualified association with person
+            acq.add_qualified_association(person=participant[subject_id]['person'],role=Constants.NIDM_PARTICIPANT)
+
+
+
+        if file_tpl.entities['datatype']=='anat':
+            # do something with anatomicals
+            acq_obj = MRObject(acq)
+            # add image contrast type
+            if file_tpl.entities['suffix'] in BIDS_Constants.scans:
+                acq_obj.add_attributes({Constants.NIDM_IMAGE_CONTRAST_TYPE:BIDS_Constants.scans[file_tpl.entities['suffix']]})
+            else:
+                logging.info("WARNING: No matching image contrast type found in BIDS_Constants.py for %s" % file_tpl.entities['suffix'])
+
+            # add image usage type
+            if file_tpl.entities['datatype'] in BIDS_Constants.scans:
+                acq_obj.add_attributes({Constants.NIDM_IMAGE_USAGE_TYPE:BIDS_Constants.scans[file_tpl.entities['datatype']]})
+            else:
+                logging.info("WARNING: No matching image usage type found in BIDS_Constants.py for %s" % file_tpl.entities['datatype'])
+            # add file link
+            # make relative link to
+            acq_obj.add_attributes({Constants.NIDM_FILENAME:getRelPathToBIDS(join(file_tpl.dirname,file_tpl.filename), directory)})
+            # WIP: add absolute location of BIDS directory on disk for later finding of files
+            acq_obj.add_attributes({Constants.PROV['Location']:directory})
+
+            # add sha512 sum
+            if isfile(join(directory,file_tpl.dirname,file_tpl.filename)):
+                acq_obj.add_attributes({Constants.CRYPTO_SHA512:getsha512(join(directory,file_tpl.dirname,file_tpl.filename))})
+            else:
+                logging.info("WARNING file %s doesn't exist! No SHA512 sum stored in NIDM files..." %join(directory,file_tpl.dirname,file_tpl.filename))
+            # get associated JSON file if exists
+            # There is T1w.json file with information
+            json_data = (bids_layout.get(suffix=file_tpl.entities['suffix'],subject=subject_id))[0].metadata
+            if len(json_data.info)>0:
+                for key in json_data.info.items():
+                    if key in BIDS_Constants.json_keys:
+                        if type(json_data.info[key]) is list:
+                            acq_obj.add_attributes({BIDS_Constants.json_keys[key.replace(" ", "_")]:''.join(str(e) for e in json_data.info[key])})
+                        else:
+                            acq_obj.add_attributes({BIDS_Constants.json_keys[key.replace(" ", "_")]:json_data.info[key]})
+
+            # Parse T1w.json file in BIDS directory to add the attributes contained inside
+            if (os.path.isdir(os.path.join(directory))):
+                try:
+                    with open(os.path.join(directory,'T1w.json')) as data_file:
+                        dataset = json.load(data_file)
+                except OSError:
+                    logging.warning("Cannot find T1w.json file...looking for session-specific one")
+                    try:
+                        with open(os.path.join(directory,'ses-' + img_session + '_T1w.json')) as data_file:
+                            dataset = json.load(data_file)
+                    except OSError:
+                        logging.warning("Cannot find session-specific T1w.json file which is required in the BIDS spec..continuing anyway")
+                        dataset={}
+
+            else:
+                logging.critical("Error: BIDS directory %s does not exist!" %os.path.join(directory))
+                exit(-1)
+
+            # add various attributes if they exist in BIDS dataset
+            for key in dataset:
+                # if key from T1w.json file is mapped to term in BIDS_Constants.py then add to NIDM object
+                if key in BIDS_Constants.json_keys:
+                    if type(dataset[key]) is list:
+                        acq_obj.add_attributes({BIDS_Constants.json_keys[key]:"".join(dataset[key])})
+                    else:
+                        acq_obj.add_attributes({BIDS_Constants.json_keys[key]:dataset[key]})
+
+        elif file_tpl.entities['datatype'] == 'func':
+            # do something with functionals
+            acq_obj = MRObject(acq)
+            # add image contrast type
+            if file_tpl.entities['suffix'] in BIDS_Constants.scans:
+                acq_obj.add_attributes({Constants.NIDM_IMAGE_CONTRAST_TYPE:BIDS_Constants.scans[file_tpl.entities['suffix']]})
+            else:
+                logging.info("WARNING: No matching image contrast type found in BIDS_Constants.py for %s" % file_tpl.entities['suffix'])
+
+            # add image usage type
+            if file_tpl.entities['datatype'] in BIDS_Constants.scans:
+                acq_obj.add_attributes({Constants.NIDM_IMAGE_USAGE_TYPE:BIDS_Constants.scans[file_tpl.entities['datatype']]})
+            else:
+                logging.info("WARNING: No matching image usage type found in BIDS_Constants.py for %s" % file_tpl.entities['datatype'])
+            # make relative link to
+            acq_obj.add_attributes({Constants.NIDM_FILENAME:getRelPathToBIDS(join(file_tpl.dirname,file_tpl.filename), directory)})
+            # WIP: add absolute location of BIDS directory on disk for later finding of files
+            acq_obj.add_attributes({Constants.PROV['Location']:directory})
+
+            # add sha512 sum
+            if isfile(join(directory,file_tpl.dirname,file_tpl.filename)):
+                acq_obj.add_attributes({Constants.CRYPTO_SHA512:getsha512(join(directory,file_tpl.dirname,file_tpl.filename))})
+            else:
+                logging.info("WARNINGL file %s doesn't exist! No SHA512 sum stored in NIDM files..." %join(directory,file_tpl.dirname,file_tpl.filename))
+
+            if 'run' in file_tpl.entities:
+                acq_obj.add_attributes({BIDS_Constants.json_keys["run"]:file_tpl.entities['run']})
+
+            # get associated JSON file if exists
+            json_data = (bids_layout.get(suffix=file_tpl.entities['suffix'],subject=subject_id))[0].metadata
+
+            if len(json_data.info)>0:
+                for key in json_data.info.items():
+                    if key in BIDS_Constants.json_keys:
+                        if type(json_data.info[key]) is list:
+                            acq_obj.add_attributes({BIDS_Constants.json_keys[key.replace(" ", "_")]:''.join(str(e) for e in json_data.info[key])})
+                        else:
+                            acq_obj.add_attributes({BIDS_Constants.json_keys[key.replace(" ", "_")]:json_data.info[key]})
+            # get associated events TSV file
+            if 'run' in file_tpl.entities:
+                events_file = bids_layout.get(subject=subject_id, extensions=['.tsv'],modality=file_tpl.entities['datatype'],task=file_tpl.entities['task'],run=file_tpl.entities['run'])
+            else:
+                events_file = bids_layout.get(subject=subject_id, extensions=['.tsv'],modality=file_tpl.entities['datatype'],task=file_tpl.entities['task'])
+            # if there is an events file then this is task-based so create an acquisition object for the task file and link
+            if events_file:
+                #for now create acquisition object and link it to the associated scan
+                events_obj = AcquisitionObject(acq)
+                #add prov type, task name as prov:label, and link to filename of events file
+
+                events_obj.add_attributes({PROV_TYPE:Constants.NIDM_MRI_BOLD_EVENTS,BIDS_Constants.json_keys["TaskName"]: json_data["TaskName"], Constants.NIDM_FILENAME:getRelPathToBIDS(events_file[0].filename, directory)})
+                #link it to appropriate MR acquisition entity
+                events_obj.wasAttributedTo(acq_obj)
+
+            #Parse task-rest_bold.json file in BIDS directory to add the attributes contained inside
+            if (os.path.isdir(os.path.join(directory))):
+                try:
+                    with open(os.path.join(directory,'task-rest_bold.json')) as data_file:
+                        dataset = json.load(data_file)
+                except OSError:
+                    logging.warning("Cannot find task-rest_bold.json file looking for session-specific one")
+                    try:
+                        with open(os.path.join(directory,'ses-' + img_session +'_task-rest_bold.json')) as data_file:
+                            dataset = json.load(data_file)
+                    except OSError:
+                        logging.warning("Cannot find session-specific task-rest_bold.json file which is required in the BIDS spec..continuing anyway")
+                        dataset={}
+            else:
+                logging.critical("Error: BIDS directory %s does not exist!" %os.path.join(directory))
+                exit(-1)
+
+            #add various attributes if they exist in BIDS dataset
+            for key in dataset:
+                #if key from task-rest_bold.json file is mapped to term in BIDS_Constants.py then add to NIDM object
+                if key in BIDS_Constants.json_keys:
+                    if type(dataset[key]) is list:
+                        acq_obj.add_attributes({BIDS_Constants.json_keys[key]:",".join(map(str,dataset[key]))})
+                    else:
+                        acq_obj.add_attributes({BIDS_Constants.json_keys[key]:dataset[key]})
+
+        elif file_tpl.entities['datatype'] == 'dwi':
+            #do stuff with with dwi scans...
+            acq_obj = MRObject(acq)
+            #add image contrast type
+            if file_tpl.entities['suffix'] in BIDS_Constants.scans:
+                acq_obj.add_attributes({Constants.NIDM_IMAGE_CONTRAST_TYPE:BIDS_Constants.scans[file_tpl.entities['suffix']]})
+            else:
+                logging.info("WARNING: No matching image contrast type found in BIDS_Constants.py for %s" % file_tpl.entities['suffix'])
+
+            #add image usage type
+            if file_tpl.entities['datatype'] in BIDS_Constants.scans:
+                acq_obj.add_attributes({Constants.NIDM_IMAGE_USAGE_TYPE:BIDS_Constants.scans["dti"]})
+            else:
+                logging.info("WARNING: No matching image usage type found in BIDS_Constants.py for %s" % file_tpl.entities['datatype'])
+            #make relative link to
+            acq_obj.add_attributes({Constants.NIDM_FILENAME:getRelPathToBIDS(join(file_tpl.dirname,file_tpl.filename), directory)})
+            #add sha512 sum
+            if isfile(join(directory,file_tpl.dirname,file_tpl.filename)):
+                    acq_obj.add_attributes({Constants.CRYPTO_SHA512:getsha512(join(directory,file_tpl.dirname,file_tpl.filename))})
+            else:
+                logging.info("WARNING file %s doesn't exist! No SHA512 sum stored in NIDM files..." %join(directory,file_tpl.dirname,file_tpl.filename))
+
+            if 'run' in file_tpl.entities:
+                acq_obj.add_attributes({BIDS_Constants.json_keys["run"]:file_tpl.run})
+
+            #get associated JSON file if exists
+            json_data = (bids_layout.get(suffix=file_tpl.entities['suffix'],subject=subject_id))[0].metadata
+
+            if len(json_data.info)>0:
+                for key in json_data.info.items():
+                    if key in BIDS_Constants.json_keys:
+                        if type(json_data.info[key]) is list:
+                            acq_obj.add_attributes({BIDS_Constants.json_keys[key.replace(" ", "_")]:''.join(str(e) for e in json_data.info[key])})
+                        else:
+                            acq_obj.add_attributes({BIDS_Constants.json_keys[key.replace(" ", "_")]:json_data.info[key]})
+            #for bval and bvec files, what to do with those?
+
+            # for now, create new generic acquisition objects, link the files, and associate with the one for the DWI scan?
+            acq_obj_bval = AcquisitionObject(acq)
+            acq_obj_bval.add_attributes({PROV_TYPE:BIDS_Constants.scans["bval"]})
+            # add file link to bval files
+            acq_obj_bval.add_attributes({Constants.NIDM_FILENAME:getRelPathToBIDS(join(file_tpl.dirname,bids_layout.get_bval(join(file_tpl.dirname,file_tpl.filename))),directory)})
+            # WIP: add absolute location of BIDS directory on disk for later finding of files
+            acq_obj_bval.add_attributes({Constants.PROV['Location']:directory})
+
+            # add sha512 sum
+            if isfile(join(directory,file_tpl.dirname,file_tpl.filename)):
+                acq_obj_bval.add_attributes({Constants.CRYPTO_SHA512:getsha512(join(directory,file_tpl.dirname,file_tpl.filename))})
+            else:
+                logging.info("WARNING file %s doesn't exist! No SHA512 sum stored in NIDM files..." %join(directory,file_tpl.dirname,file_tpl.filename))
+            acq_obj_bvec = AcquisitionObject(acq)
+            acq_obj_bvec.add_attributes({PROV_TYPE:BIDS_Constants.scans["bvec"]})
+            #add file link to bvec files
+            acq_obj_bvec.add_attributes({Constants.NIDM_FILENAME:getRelPathToBIDS(join(file_tpl.dirname,bids_layout.get_bvec(join(file_tpl.dirname,file_tpl.filename))),directory)})
+            #WIP: add absolute location of BIDS directory on disk for later finding of files
+            acq_obj_bvec.add_attributes({Constants.PROV['Location']:directory})
+
+            if isfile(join(directory,file_tpl.dirname,file_tpl.filename)):
+                #add sha512 sum
+                acq_obj_bvec.add_attributes({Constants.CRYPTO_SHA512:getsha512(join(directory,file_tpl.dirname,file_tpl.filename))})
+            else:
+                logging.info("WARNING file %s doesn't exist! No SHA512 sum stored in NIDM files..." %join(directory,file_tpl.dirname,file_tpl.filename))
+
+            #link bval and bvec acquisition object entities together or is their association with DWI scan...
 
 def bidsmri2project(directory, args):
 
-
-    #initialize empty cde graph...it may get replaced if we're doing variable to term mapping or not
+    # initialize empty cde graph...it may get replaced if we're doing variable to term mapping or not
     cde=Graph()
 
-    #Parse dataset_description.json file in BIDS directory
+    # Parse dataset_description.json file in BIDS directory
     if (os.path.isdir(os.path.join(directory))):
         try:
             with open(os.path.join(directory,'dataset_description.json')) as data_file:
@@ -234,44 +465,43 @@ def bidsmri2project(directory, args):
         logging.critical("Error: BIDS directory %s does not exist!" %os.path.join(directory))
         exit("-1")
 
-    #create project / nidm-exp doc
+    # create project / nidm-exp doc
     project = Project()
 
-    #add various attributes if they exist in BIDS dataset
+    # add various attributes if they exist in BIDS dataset
     for key in dataset:
-        #if key from dataset_description file is mapped to term in BIDS_Constants.py then add to NIDM object
+        # if key from dataset_description file is mapped to term in BIDS_Constants.py then add to NIDM object
         if key in BIDS_Constants.dataset_description:
             if type(dataset[key]) is list:
                 project.add_attributes({BIDS_Constants.dataset_description[key]:"".join(dataset[key])})
             else:
                 project.add_attributes({BIDS_Constants.dataset_description[key]:dataset[key]})
-        #add absolute location of BIDS directory on disk for later finding of files which are stored relatively in NIDM document
+        # add absolute location of BIDS directory on disk for later finding of files which are stored relatively in NIDM document
         project.add_attributes({Constants.PROV['Location']:directory})
 
-    #get BIDS layout
+    # get BIDS layout
     bids_layout = BIDSLayout(directory)
 
 
-    #create empty dictinary for sessions where key is subject id and used later to link scans to same session as demographics
+    # create empty dictinary for sessions where key is subject id and used later to link scans to same session as demographics
     session={}
     participant={}
-    #Parse participants.tsv file in BIDS directory and create study and acquisition objects
+    # Parse participants.tsv file in BIDS directory and create study and acquisition objects
     if os.path.isfile(os.path.join(directory,'participants.tsv')):
         with open(os.path.join(directory,'participants.tsv')) as csvfile:
             participants_data = csv.DictReader(csvfile, delimiter='\t')
 
-            #logic to map variables to terms.#########################################################################################################
-
-            #first iterate over variables in dataframe and check which ones are already mapped as BIDS constants and which are not.  For those that are not
-            #we want to use the variable-term mapping functions to help the user do the mapping
-            #iterate over columns
+            # logic to map variables to terms.
+            # first iterate over variables in dataframe and check which ones are already mapped as BIDS constants and which are not.  For those that are not
+            # we want to use the variable-term mapping functions to help the user do the mapping
+            # iterate over columns
             mapping_list=[]
             column_to_terms={}
             for field in participants_data.fieldnames:
 
-                #column is not in BIDS_Constants
+                # column is not in BIDS_Constants
                 if not (field in BIDS_Constants.participants):
-                    #add column to list for column_to_terms mapping
+                    # add column to list for column_to_terms mapping
                     mapping_list.append(field)
 
 
@@ -320,7 +550,7 @@ def bidsmri2project(directory, args):
 
                 #add qualified association of participant with acquisition activity
                 acq.add_qualified_association(person=participant[subjid]['person'],role=Constants.NIDM_PARTICIPANT)
-                print(acq)
+                # print(acq)
 
 
                 for key,value in row.items():
@@ -336,10 +566,10 @@ def bidsmri2project(directory, args):
 
 
                             # create a namespace with the URL for fixed BIDS_Constants term
-                            #item_ns = Namespace(str(Constants.BIDS.namespace.uri))
+                            # item_ns = Namespace(str(Constants.BIDS.namespace.uri))
                             # add prefix to namespace which is the BIDS fixed variable name
-                            #cde.bind(prefix="bids", namespace=item_ns)
-                            #ID for BIDS variables is always the same bids:[bids variable]
+                            # cde.bind(prefix="bids", namespace=item_ns)
+                            # ID for BIDS variables is always the same bids:[bids variable]
                             cde_id = Constants.BIDS[key]
                             # add the data element to the CDE graph
                             cde.add((cde_id,RDF.type, Constants.NIDM['DataElement']))
@@ -351,12 +581,12 @@ def bidsmri2project(directory, args):
 
                             acq_entity.add_attributes({cde_id:Literal(value)})
 
-                        #if this was the participant_id, we already handled it above creating agent / qualified association
-                        #if not (BIDS_Constants.participants[key] == Constants.NIDM_SUBJECTID):
+                        # if this was the participant_id, we already handled it above creating agent / qualified association
+                        # if not (BIDS_Constants.participants[key] == Constants.NIDM_SUBJECTID):
                         #    acq_entity.add_attributes({BIDS_Constants.participants[key]:value})
 
 
-                    #else if user added -mapvars flag to command line then we'll use the variable-> term mapping procedures to help user map variables to terms (also used
+                    # else if user added -mapvars flag to command line then we'll use the variable-> term mapping procedures to help user map variables to terms (also used
                     # in CSV2NIDM.py)
                     else:
 
@@ -364,248 +594,50 @@ def bidsmri2project(directory, args):
                         add_attributes_with_cde(prov_object=acq_entity,cde=cde,row_variable=key,value=value)
                         # if key in column_to_terms:
                         #    acq_entity.add_attributes({QualifiedName(provNamespace(Core.safe_string(None,string=str(key)), column_to_terms[key]["url"]), ""):value})
-                        #else:
+                        # else:
 
                         #    acq_entity.add_attributes({Constants.BIDS[key.replace(" ", "_")]:value})
 
 
-    #create acquisition objects for each scan for each subject
+    # create acquisition objects for each scan for each subject
 
-    #loop through all subjects in dataset
+    # loop through all subjects in dataset
     for subject_id in bids_layout.get_subjects():
         logging.info("Converting subject: %s" %subject_id)
-        #skip .git directories...added to support datalad datasets
+        # skip .git directories...added to support datalad datasets
         if subject_id.startswith("."):
             continue
 
-        #check if there's a session number.  If so, store it in the session activity
-        session_dirs = bids_layout.get(target='session',subject=subject_id,return_type='dir')
-        #if session_dirs has entries then get any metadata about session and store in session activity
+        # check if there are a session numbers.  If so, store it in the session activity and create a new
+        # sessions for these imaging acquisitions.  Because we don't know which imaging session the root
+        # participants.tsv file data may be associated with we simply link the imaging acquisitions to different
+        # sessions (i.e. the participants.tsv file goes into an AssessmentAcquisition and linked to a unique
+        # sessions and the imaging acquisitions go into MRAcquisitions and has a unique session)
+        imaging_sessions = bids_layout.get_sessions(subject=subject_id)
+        # if session_dirs has entries then get any metadata about session and store in session activity
 
-        #bids_layout.get(subject=subject_id,type='session',extensions='.tsv')
-        #bids_layout.get(subject=subject_id,type='scans',extensions='.tsv')
-        #bids_layout.get(extensions='.tsv',return_type='obj')
+        # bids_layout.get(subject=subject_id,type='session',extensions='.tsv')
+        # bids_layout.get(subject=subject_id,type='scans',extensions='.tsv')
+        # bids_layout.get(extensions='.tsv',return_type='obj')
 
-        #check whether sessions have been created (i.e. was there a participants.tsv file?  If not, create here
-        if not (subject_id in session):
-            session[subject_id] = Session(project)
-
-        for file_tpl in bids_layout.get(subject=subject_id, extensions=['.nii', '.nii.gz']):
-            #create an acquisition activity
-            acq=MRAcquisition(session[subject_id])
-
-            #check whether participant (i.e. agent) for this subject already exists (i.e. if participants.tsv file exists) else create one
-            if not (subject_id in participant):
-                participant[subject_id] = {}
-                participant[subject_id]['person'] = acq.add_person(attributes=({Constants.NIDM_SUBJECTID:subject_id}))
-
-            #add qualified association with person
-            acq.add_qualified_association(person=participant[subject_id]['person'],role=Constants.NIDM_PARTICIPANT)
-
+        # loop through each session if there is a sessions directory
+        if len(imaging_sessions) > 0:
+            for img_session in imaging_sessions:
+                # create a new session
+                ses = Session(project)
+                # add session number as metadata
+                ses.add_attributes({Constants.BIDS['session_number']:img_session})
+                addimagingsessions(bids_layout=bids_layout,subject_id=subject_id,session=ses,participant=participant, directory=directory,img_session=img_session)
+        # else we have no ses-* directories in the BIDS layout
+        addimagingsessions(bids_layout=bids_layout,subject_id=subject_id,session=Session(project),participant=participant, directory=directory)
 
 
-            if file_tpl.entities['datatype']=='anat':
-                #do something with anatomicals
-                acq_obj = MRObject(acq)
-                #add image contrast type
-                if file_tpl.entities['suffix'] in BIDS_Constants.scans:
-                    acq_obj.add_attributes({Constants.NIDM_IMAGE_CONTRAST_TYPE:BIDS_Constants.scans[file_tpl.entities['suffix']]})
-                else:
-                    logging.info("WARNING: No matching image contrast type found in BIDS_Constants.py for %s" % file_tpl.entities['suffix'])
-
-                #add image usage type
-                if file_tpl.entities['datatype'] in BIDS_Constants.scans:
-                    acq_obj.add_attributes({Constants.NIDM_IMAGE_USAGE_TYPE:BIDS_Constants.scans[file_tpl.entities['datatype']]})
-                else:
-                    logging.info("WARNING: No matching image usage type found in BIDS_Constants.py for %s" % file_tpl.entities['datatype'])
-                #add file link
-                #make relative link to
-                acq_obj.add_attributes({Constants.NIDM_FILENAME:getRelPathToBIDS(join(file_tpl.dirname,file_tpl.filename), directory)})
-                #WIP: add absolute location of BIDS directory on disk for later finding of files
-                acq_obj.add_attributes({Constants.PROV['Location']:directory})
-
-                #add sha512 sum
-                if isfile(join(directory,file_tpl.dirname,file_tpl.filename)):
-                    acq_obj.add_attributes({Constants.CRYPTO_SHA512:getsha512(join(directory,file_tpl.dirname,file_tpl.filename))})
-                else:
-                    logging.info("WARNINGL file %s doesn't exist! No SHA512 sum stored in NIDM files..." %join(directory,file_tpl.dirname,file_tpl.filename))
-                #get associated JSON file if exists
-                #There is T1w.json file with information 
-                json_data = (bids_layout.get(suffix=file_tpl.entities['suffix'],subject=subject_id))[0].metadata
-                if len(json_data.info)>0:
-                    for key in json_data.info.items():
-                        if key in BIDS_Constants.json_keys:
-                            if type(json_data.info[key]) is list:
-                                acq_obj.add_attributes({BIDS_Constants.json_keys[key.replace(" ", "_")]:''.join(str(e) for e in json_data.info[key])})
-                            else:
-                                acq_obj.add_attributes({BIDS_Constants.json_keys[key.replace(" ", "_")]:json_data.info[key]})
-                   
-                #Parse T1w.json file in BIDS directory to add the attributes contained inside
-                if (os.path.isdir(os.path.join(directory))):
-                    try:
-                        with open(os.path.join(directory,'T1w.json')) as data_file:
-                            dataset = json.load(data_file)
-                    except OSError:
-                        logging.critical("Cannot find T1w.json file which is required in the BIDS spec")
-                        exit("-1")
-                else:
-                    logging.critical("Error: BIDS directory %s does not exist!" %os.path.join(directory))
-                    exit("-1")
-
-                #add various attributes if they exist in BIDS dataset
-                for key in dataset:
-                    #if key from T1w.json file is mapped to term in BIDS_Constants.py then add to NIDM object
-                    if key in BIDS_Constants.json_keys:
-                        if type(dataset[key]) is list:
-                            acq_obj.add_attributes({BIDS_Constants.json_keys[key]:"".join(dataset[key])})
-                        else:
-                            acq_obj.add_attributes({BIDS_Constants.json_keys[key]:dataset[key]}) 
-                                                          
-            elif file_tpl.entities['datatype'] == 'func':
-                #do something with functionals
-                acq_obj = MRObject(acq)
-                #add image contrast type
-                if file_tpl.entities['suffix'] in BIDS_Constants.scans:
-                    acq_obj.add_attributes({Constants.NIDM_IMAGE_CONTRAST_TYPE:BIDS_Constants.scans[file_tpl.entities['suffix']]})
-                else:
-                    logging.info("WARNING: No matching image contrast type found in BIDS_Constants.py for %s" % file_tpl.entities['suffix'])
-
-                #add image usage type
-                if file_tpl.entities['datatype'] in BIDS_Constants.scans:
-                    acq_obj.add_attributes({Constants.NIDM_IMAGE_USAGE_TYPE:BIDS_Constants.scans[file_tpl.entities['datatype']]})
-                else:
-                    logging.info("WARNING: No matching image usage type found in BIDS_Constants.py for %s" % file_tpl.entities['datatype'])
-                #make relative link to
-                acq_obj.add_attributes({Constants.NIDM_FILENAME:getRelPathToBIDS(join(file_tpl.dirname,file_tpl.filename), directory)})
-                #WIP: add absolute location of BIDS directory on disk for later finding of files
-                acq_obj.add_attributes({Constants.PROV['Location']:directory})
-
-                #add sha512 sum
-                if isfile(join(directory,file_tpl.dirname,file_tpl.filename)):
-                    acq_obj.add_attributes({Constants.CRYPTO_SHA512:getsha512(join(directory,file_tpl.dirname,file_tpl.filename))})
-                else:
-                    logging.info("WARNINGL file %s doesn't exist! No SHA512 sum stored in NIDM files..." %join(directory,file_tpl.dirname,file_tpl.filename))
-
-                if 'run' in file_tpl.entities:
-                    acq_obj.add_attributes({BIDS_Constants.json_keys["run"]:file_tpl.entities['run']})
-
-                #get associated JSON file if exists
-                json_data = (bids_layout.get(suffix=file_tpl.entities['suffix'],subject=subject_id))[0].metadata
-
-                if len(json_data.info)>0:
-                    for key in json_data.info.items():
-                        if key in BIDS_Constants.json_keys:
-                            if type(json_data.info[key]) is list:
-                                acq_obj.add_attributes({BIDS_Constants.json_keys[key.replace(" ", "_")]:''.join(str(e) for e in json_data.info[key])})
-                            else:
-                                acq_obj.add_attributes({BIDS_Constants.json_keys[key.replace(" ", "_")]:json_data.info[key]})
-                #get associated events TSV file
-                if 'run' in file_tpl.entities:
-                    events_file = bids_layout.get(subject=subject_id, extensions=['.tsv'],modality=file_tpl.entities['datatype'],task=file_tpl.entities['task'],run=file_tpl.entities['run'])
-                else:
-                    events_file = bids_layout.get(subject=subject_id, extensions=['.tsv'],modality=file_tpl.entities['datatype'],task=file_tpl.entities['task'])
-                #if there is an events file then this is task-based so create an acquisition object for the task file and link
-                if events_file:
-                    #for now create acquisition object and link it to the associated scan
-                    events_obj = AcquisitionObject(acq)
-                    #add prov type, task name as prov:label, and link to filename of events file
-
-                    events_obj.add_attributes({PROV_TYPE:Constants.NIDM_MRI_BOLD_EVENTS,BIDS_Constants.json_keys["TaskName"]: json_data["TaskName"], Constants.NIDM_FILENAME:getRelPathToBIDS(events_file[0].filename, directory)})
-                    #link it to appropriate MR acquisition entity
-                    events_obj.wasAttributedTo(acq_obj)
-                    
-                #Parse task-rest_bold.json file in BIDS directory to add the attributes contained inside
-                if (os.path.isdir(os.path.join(directory))):
-                    try:
-                        with open(os.path.join(directory,'task-rest_bold.json')) as data_file:
-                            dataset = json.load(data_file)
-                    except OSError:
-                        logging.critical("Cannot find task-rest_bold.json file which is required in the BIDS spec")
-                        exit("-1")
-                else:
-                    logging.critical("Error: BIDS directory %s does not exist!" %os.path.join(directory))
-                    exit("-1")
-
-                #add various attributes if they exist in BIDS dataset
-                for key in dataset:
-                    #if key from task-rest_bold.json file is mapped to term in BIDS_Constants.py then add to NIDM object
-                    if key in BIDS_Constants.json_keys:
-                        if type(dataset[key]) is list:
-                            acq_obj.add_attributes({BIDS_Constants.json_keys[key]:",".join(map(str,dataset[key]))})
-                        else:
-                            acq_obj.add_attributes({BIDS_Constants.json_keys[key]:dataset[key]}) 
-
-            elif file_tpl.entities['datatype'] == 'dwi':
-                #do stuff with with dwi scans...
-                acq_obj = MRObject(acq)
-                   #add image contrast type
-                if file_tpl.entities['suffix'] in BIDS_Constants.scans:
-                    acq_obj.add_attributes({Constants.NIDM_IMAGE_CONTRAST_TYPE:BIDS_Constants.scans[file_tpl.entities['suffix']]})
-                else:
-                    logging.info("WARNING: No matching image contrast type found in BIDS_Constants.py for %s" % file_tpl.entities['suffix'])
-
-                #add image usage type
-                if file_tpl.entities['datatype'] in BIDS_Constants.scans:
-                    acq_obj.add_attributes({Constants.NIDM_IMAGE_USAGE_TYPE:BIDS_Constants.scans["dti"]})
-                else:
-                    logger.info("WARNING: No matching image usage type found in BIDS_Constants.py for %s" % file_tpl.entities['datatype'])
-                #make relative link to
-                acq_obj.add_attributes({Constants.NIDM_FILENAME:getRelPathToBIDS(join(file_tpl.dirname,file_tpl.filename), directory)})
-                #add sha512 sum
-                if isfile(join(directory,file_tpl.dirname,file_tpl.filename)):
-                    acq_obj.add_attributes({Constants.CRYPTO_SHA512:getsha512(join(directory,file_tpl.dirname,file_tpl.filename))})
-                else:
-                    logging.info("WARNINGL file %s doesn't exist! No SHA512 sum stored in NIDM files..." %join(directory,file_tpl.dirname,file_tpl.filename))
-
-                if 'run' in file_tpl._fields:
-                    acq_obj.add_attributes({BIDS_Constants.json_keys["run"]:file_tpl.run})
-
-                #get associated JSON file if exists
-                json_data = (bids_layout.get(suffix=file_tpl.entities['suffix'],subject=subject_id))[0].metadata
-
-                if len(json_data.info)>0:
-                    for key in json_data.info.items():
-                        if key in BIDS_Constants.json_keys:
-                            if type(json_data.info[key]) is list:
-                                acq_obj.add_attributes({BIDS_Constants.json_keys[key.replace(" ", "_")]:''.join(str(e) for e in json_data.info[key])})
-                            else:
-                                acq_obj.add_attributes({BIDS_Constants.json_keys[key.replace(" ", "_")]:json_data.info[key]})
-                #for bval and bvec files, what to do with those?
-
-                #for now, create new generic acquisition objects, link the files, and associate with the one for the DWI scan?
-                acq_obj_bval = AcquisitionObject(acq)
-                acq_obj_bval.add_attributes({PROV_TYPE:BIDS_Constants.scans["bval"]})
-                #add file link to bval files
-                acq_obj_bval.add_attributes({Constants.NIDM_FILENAME:getRelPathToBIDS(join(file_tpl.dirname,bids_layout.get_bval(file_tpl.filename)), directory)})
-                #WIP: add absolute location of BIDS directory on disk for later finding of files
-                acq_obj_bval.add_attributes({Constants.PROV['Location']:directory})
-
-                #add sha512 sum
-                if isfile(join(directory,file_tpl.dirname,file_tpl.filename)):
-                    acq_obj_bval.add_attributes({Constants.CRYPTO_SHA512:getsha512(join(directory,file_tpl.dirname,file_tpl.filename))})
-                else:
-                    logging.info("WARNINGL file %s doesn't exist! No SHA512 sum stored in NIDM files..." %join(directory,file_tpl.dirname,file_tpl.filename))
-                acq_obj_bvec = AcquisitionObject(acq)
-                acq_obj_bvec.add_attributes({PROV_TYPE:BIDS_Constants.scans["bvec"]})
-                #add file link to bvec files
-                acq_obj_bvec.add_attributes({Constants.NIDM_FILENAME:getRelPathToBIDS(join(file_tpl.dirname,bids_layout.get_bvec(file_tpl.filename)),directory)})
-                #WIP: add absolute location of BIDS directory on disk for later finding of files
-                acq_obj_bvec.add_attributes({Constants.PROV['Location']:directory})
-
-                if isfile(join(directory,file_tpl.dirname,file_tpl.filename)):
-                    #add sha512 sum
-                    acq_obj_bvec.add_attributes({Constants.CRYPTO_SHA512:getsha512(join(directory,file_tpl.dirname,file_tpl.filename))})
-                else:
-                    logging.info("WARNINGL file %s doesn't exist! No SHA512 sum stored in NIDM files..." %join(directory,file_tpl.dirname,file_tpl.filename))
-
-                #link bval and bvec acquisition object entities together or is their association with DWI scan...
-
-        #Added temporarily to support phenotype files
-        #for each *.tsv / *.json file pair in the phenotypes directory
-        #WIP: ADD VARIABLE -> TERM MAPPING HERE
+        # Added temporarily to support phenotype files
+        # for each *.tsv / *.json file pair in the phenotypes directory
+        # WIP: ADD VARIABLE -> TERM MAPPING HERE
         for tsv_file in glob.glob(os.path.join(directory,"phenotype","*.tsv")):
-            #for now, open the TSV file, extract the row for this subject, store it in an acquisition object and link to
-            #the associated JSON data dictionary file
+            # for now, open the TSV file, extract the row for this subject, store it in an acquisition object and link to
+            # the associated JSON data dictionary file
             with open(tsv_file) as phenofile:
                 pheno_data = csv.DictReader(phenofile, delimiter='\t')
                 for row in pheno_data:
@@ -613,9 +645,9 @@ def bidsmri2project(directory, args):
                     if not subjid[1] == subject_id:
                         continue
                     else:
-                        #add acquisition object
+                        # add acquisition object
                         acq = AssessmentAcquisition(session=session[subjid[1]])
-                        #add qualified association with person
+                        # add qualified association with person
                         acq.add_qualified_association(person=participant[subject_id]['person'],role=Constants.NIDM_PARTICIPANT)
 
                         acq_entity = AssessmentObject(acquisition=acq)
@@ -624,18 +656,18 @@ def bidsmri2project(directory, args):
                         for key,value in row.items():
                             if not value:
                                 continue
-                            #we're using participant_id in NIDM in agent so don't add to assessment as a triple.
-                            #BIDS phenotype files seem to have an index column with no column header variable name so skip those
+                            # we're using participant_id in NIDM in agent so don't add to assessment as a triple.
+                            # BIDS phenotype files seem to have an index column with no column header variable name so skip those
                             if ((not key == "participant_id") and (key != "")):
-                                #for now we're using a placeholder namespace for BIDS and simply the variable names as the concept IDs..
+                                # for now we're using a placeholder namespace for BIDS and simply the variable names as the concept IDs..
                                 acq_entity.add_attributes({Constants.BIDS[key]:value})
 
-                        #link TSV file
+                        # link TSV file
                         acq_entity.add_attributes({Constants.NIDM_FILENAME:getRelPathToBIDS(tsv_file,directory)})
-                        #WIP: add absolute location of BIDS directory on disk for later finding of files
+                        # WIP: add absolute location of BIDS directory on disk for later finding of files
                         acq_entity.add_attributes({Constants.PROV['Location']:directory})
 
-                        #link associated JSON file if it exists
+                        # link associated JSON file if it exists
                         data_dict = os.path.join(directory,"phenotype",os.path.splitext(os.path.basename(tsv_file))[0]+ ".json")
                         if os.path.isfile(data_dict):
                             acq_entity.add_attributes({Constants.BIDS["data_dictionary"]:getRelPathToBIDS(data_dict,directory)})
