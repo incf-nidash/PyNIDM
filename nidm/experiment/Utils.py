@@ -271,7 +271,7 @@ def add_metadata_for_subject (rdf_graph,subject_uri,namespaces,nidm_obj):
                 nidm_obj.add_attributes({predicate : get_RDFliteral_type(objects)})
 
 
-def QuerySciCrunchElasticSearch(key,query_string,type='cde', anscestors=True):
+def QuerySciCrunchElasticSearch(query_string,type='cde', anscestors=True):
     '''
     This function will perform an elastic search in SciCrunch on the [query_string] using API [key] and return the json package.
     :param key: API key from sci crunch
@@ -285,7 +285,11 @@ def QuerySciCrunchElasticSearch(key,query_string,type='cde', anscestors=True):
     #this allows interlex developers to dynamicall change the ancestor terms that are part of the ReproNim term trove and have this
     #query use that new information....
 
-
+    try:
+        os.environ["INTERLEX_API_KEY"]
+    except KeyError:
+        print("Please set the environment variable INTERLEX_API_KEY")
+        sys.exit(1)
     #Add check for internet connnection, if not then skip this query...return empty dictionary
 
 
@@ -294,7 +298,7 @@ def QuerySciCrunchElasticSearch(key,query_string,type='cde', anscestors=True):
     }
 
     params = (
-        ('key', key),
+        ('key', os.environ["INTERLEX_API_KEY"]),
     )
     if type is 'cde':
         if anscestors:
@@ -321,7 +325,7 @@ def QuerySciCrunchElasticSearch(key,query_string,type='cde', anscestors=True):
 
     return json.loads(response.text)
 
-def GetNIDMTermsFromSciCrunch(key,query_string,type='cde', ancestor=True):
+def GetNIDMTermsFromSciCrunch(query_string,type='cde', ancestor=True):
     '''
     Helper function which issues elastic search query of SciCrunch using QuerySciCrunchElasticSearch function and returns terms list
     with label, definition, and preferred URLs in dictionary
@@ -332,7 +336,7 @@ def GetNIDMTermsFromSciCrunch(key,query_string,type='cde', ancestor=True):
     :return: dictionary with keys 'ilx','label','definition','preferred_url'
     '''
 
-    json_data = QuerySciCrunchElasticSearch(key, query_string,type,ancestor)
+    json_data = QuerySciCrunchElasticSearch(query_string,type,ancestor)
     results={}
     #check if query was successful
     if json_data['timed_out'] != True:
@@ -348,10 +352,10 @@ def GetNIDMTermsFromSciCrunch(key,query_string,type='cde', ancestor=True):
 
     return results
 
-def InitializeInterlexRemote(key):
+def InitializeInterlexRemote():
     '''
-    This function initializes a connection to Interlex for use in adding personal data elements
-    :param key: Interlex API key
+    This function initializes a connection to Interlex for use in adding personal data elements. To use InterLex
+    it requires you to set an environment variable INTERLEX_API_KEY with your api key
     :return: interlex object
     '''
     endpoint = "https://scicrunch.org/api/1/"
@@ -359,12 +363,15 @@ def InitializeInterlexRemote(key):
     # endpoint = "https://beta.scicrunch.org/api/1/"
 
     InterLexRemote = oq.plugin.get('InterLex')
-    ilx_cli = InterLexRemote(api_key=key, apiEndpoint=endpoint)
+    # changed per tgbugs changes to InterLexRemote no longer taking api_key as a parameter
+    # set INTERLEX_API_KEY environment variable instead...ilx_cli = InterLexRemote(api_key=key, apiEndpoint=endpoint)
+    ilx_cli = InterLexRemote(apiEndpoint=endpoint)
     try:
-        ilx_cli.setup()
+        ilx_cli.setup(instrumented=oq.OntTerm)
     except Exception as e:
         print("error initializing InterLex connection...")
         print("you will not be able to add new personal data elements.")
+        print("Did you put your scicrunch API key in an environment variable INTERLEX_API_KEY?")
 
     return ilx_cli
 
@@ -568,13 +575,12 @@ def getSubjIDColumn(column_to_terms,df):
         id_field=df.columns[int(selection)-1]
     return id_field
 
-def map_variables_to_terms(df,apikey,directory, assessment_name, output_file=None,json_file=None,owl_file='nidm'):
+def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_file=None,owl_file='nidm'):
     '''
 
     :param df: data frame with first row containing variable names
     :param assessment_name: Name for the assessment to use in storing JSON mapping dictionary keys
     :param json_file: optional json document with variable names as keys and minimal fields "definition","label","url"
-    :param apikey: scicrunch key for rest API queries
     :param output_file: output filename to save variable-> term mappings
     :param directory: if output_file parameter is set to None then use this directory to store default JSON mapping file
     if doing variable->term mappings
@@ -608,7 +614,7 @@ def map_variables_to_terms(df,apikey,directory, assessment_name, output_file=Non
 
     # initialize InterLex connection
     try:
-        ilx_obj = InitializeInterlexRemote(key=apikey)
+        ilx_obj = InitializeInterlexRemote()
     except Exception as e:
         print("ERROR: initializing InterLex connection...")
         print("You will not be able to add new personal data elements.")
@@ -723,7 +729,7 @@ def map_variables_to_terms(df,apikey,directory, assessment_name, output_file=Non
 
             if ilx_obj is not None:
                 # for each column name, query Interlex for possible matches
-                search_result = GetNIDMTermsFromSciCrunch(apikey, search_term, type='fde', ancestor=ancestor)
+                search_result = GetNIDMTermsFromSciCrunch(search_term, type='fde', ancestor=ancestor)
 
                 temp = search_result.copy()
                 #print("Search Term: %s" %search_term)
@@ -739,7 +745,7 @@ def map_variables_to_terms(df,apikey,directory, assessment_name, output_file=Non
                         option = option+1
 
                 # for each column name, query Interlex for possible matches
-                cde_result = GetNIDMTermsFromSciCrunch(apikey, search_term, type='cde', ancestor=ancestor)
+                cde_result = GetNIDMTermsFromSciCrunch( search_term, type='cde', ancestor=ancestor)
                 if len(cde_result) != 0:
                     #only update search_result with new terms.  This handles what I consider a bug in InterLex queries
                     #where FDE and CDE queries return the same terms.
@@ -760,7 +766,7 @@ def map_variables_to_terms(df,apikey,directory, assessment_name, output_file=Non
 
 
                 # for each column name, query Interlex for possible matches
-                pde_result = GetNIDMTermsFromSciCrunch(apikey, search_term, type='pde', ancestor=ancestor)
+                pde_result = GetNIDMTermsFromSciCrunch(search_term, type='pde', ancestor=ancestor)
                 if len(pde_result) != 0:
                     search_result.update(pde_result)
                     #temp = search_result.copy()
