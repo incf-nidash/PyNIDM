@@ -79,10 +79,12 @@ def main(argv):
      variable names performing an elastic search of https://scicrunch.org/ for NIDM-ReproNim \
      tagged terms that fuzzy match the variable names.  The user will then interactively pick \
      a term to associate with the variable name.  The resulting annotated CSV data will \
-     then be written to a NIDM data file.')
+     then be written to a NIDM data file.  Note, you must obtain an API key to Interlex by signing up \
+     for an account at scicrunch.org then going to My Account and API Keys.  Then set the environment \
+     variable INTERLEX_API_KEY with your key.')
 
     parser.add_argument('-csv', dest='csv_file', required=True, help="Path to CSV file to convert")
-    parser.add_argument('-ilxkey', dest='key', required=True, help="Interlex/SciCrunch API key to use for query")
+    # parser.add_argument('-ilxkey', dest='key', required=True, help="Interlex/SciCrunch API key to use for query")
     parser.add_argument('-json_map', dest='json_map',required=False,help="User-suppled JSON file containing variable-term mappings.")
     parser.add_argument('-nidm', dest='nidm_file', required=False, help="Optional NIDM file to add CSV->NIDM converted graph to")
     # parser.add_argument('-owl', action='store_true', required=False, help='Optionally searches NIDM OWL files...internet connection required')
@@ -103,7 +105,7 @@ def main(argv):
     #if args.owl is not False:
     #    column_to_terms = map_variables_to_terms(df=df, apikey=args.key, directory=dirname(args.output_file), output_file=args.output_file, json_file=args.json_map, owl_file=args.owl)
     #else:
-    column_to_terms, cde = map_variables_to_terms(df=df, apikey=args.key, assessment_name=basename(args.csv_file),directory=dirname(args.output_file), output_file=args.output_file, json_file=args.json_map)
+    column_to_terms, cde = map_variables_to_terms(df=df,  assessment_name=basename(args.csv_file),directory=dirname(args.output_file), output_file=args.output_file, json_file=args.json_map)
 
 
     if args.logfile is not None:
