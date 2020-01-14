@@ -1,0 +1,3345 @@
+@prefix ants: <http://stnava.github.io/ANTs/> .
+@prefix ilx: <http://uri.interlex.org/base/ilx_> .
+@prefix nidm: <http://purl.org/nidash/nidm#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix uberon: <http://purl.obolibrary.org/obo/UBERON_> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+ants:ants_000001 a ants:DataElement ;
+    rdfs:label "PearsonCorrelation (None)" ;
+    nidm:isAbout uberon:0000955 ;
+    ants:measure "PearsonCorrelation" ;
+    ants:structure "Brain" .
+
+ants:ants_000002 a ants:DataElement ;
+    rdfs:label "BVOL (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasUnit "mm^3" ;
+    nidm:isAbout uberon:0000955 ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "BVOL" ;
+    ants:unit "mm^3" .
+
+ants:ants_000003 a ants:DataElement ;
+    rdfs:label "GVol (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasUnit "mm^3" ;
+    nidm:isAbout uberon:0000956 ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "GVol" ;
+    ants:unit "mm^3" .
+
+ants:ants_000004 a ants:DataElement ;
+    rdfs:label "WVol (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasUnit "mm^3" ;
+    nidm:isAbout uberon:0002437 ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "WVol" ;
+    ants:unit "mm^3" .
+
+ants:ants_000005 a ants:DataElement ;
+    rdfs:label "ThicknessSum (mm)" ;
+    nidm:isAbout uberon:0000955 ;
+    ants:measure "ThicknessSum" ;
+    ants:structure "Brain" ;
+    ants:unit "mm" .
+
+ants:ants_000006 a ants:DataElement ;
+    rdfs:label "Left-Lateral-Ventricle VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "voxel" ;
+    nidm:isAbout uberon:0002285 ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "Left-Lateral-Ventricle" ;
+    ants:structure_id 4 ;
+    ants:unit "voxel" .
+
+ants:ants_000007 a ants:DataElement ;
+    rdfs:label "Left-Lateral-Ventricle Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:isAbout uberon:0002285 ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "Left-Lateral-Ventricle" ;
+    ants:structure_id 4 ;
+    ants:unit "mm^3" .
+
+ants:ants_000008 a ants:DataElement ;
+    rdfs:label "Left-Lateral-Ventricle SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:isAbout uberon:0002285 ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "Left-Lateral-Ventricle" ;
+    ants:structure_id 4 ;
+    ants:unit "mm^2" .
+
+ants:ants_000009 a ants:DataElement ;
+    rdfs:label "Left-Inf-Lat-Vent VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "voxel" ;
+    nidm:isAbout uberon:0006091 ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "Left-Inf-Lat-Vent" ;
+    ants:structure_id 5 ;
+    ants:unit "voxel" .
+
+ants:ants_000010 a ants:DataElement ;
+    rdfs:label "Left-Inf-Lat-Vent Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:isAbout uberon:0006091 ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "Left-Inf-Lat-Vent" ;
+    ants:structure_id 5 ;
+    ants:unit "mm^3" .
+
+ants:ants_000011 a ants:DataElement ;
+    rdfs:label "Left-Inf-Lat-Vent SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:isAbout uberon:0006091 ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "Left-Inf-Lat-Vent" ;
+    ants:structure_id 5 ;
+    ants:unit "mm^2" .
+
+ants:ants_000012 a ants:DataElement ;
+    rdfs:label "Left-Cerebellum-Exterior VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "Left-Cerebellum-Exterior" ;
+    ants:structure_id 6 ;
+    ants:unit "voxel" .
+
+ants:ants_000013 a ants:DataElement ;
+    rdfs:label "Left-Cerebellum-Exterior Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "Left-Cerebellum-Exterior" ;
+    ants:structure_id 6 ;
+    ants:unit "mm^3" .
+
+ants:ants_000014 a ants:DataElement ;
+    rdfs:label "Left-Cerebellum-Exterior SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "Left-Cerebellum-Exterior" ;
+    ants:structure_id 6 ;
+    ants:unit "mm^2" .
+
+ants:ants_000015 a ants:DataElement ;
+    rdfs:label "Left-Cerebellum-White-Matter VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "voxel" ;
+    nidm:isAbout uberon:0002317 ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "Left-Cerebellum-White-Matter" ;
+    ants:structure_id 7 ;
+    ants:unit "voxel" .
+
+ants:ants_000016 a ants:DataElement ;
+    rdfs:label "Left-Cerebellum-White-Matter Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:isAbout uberon:0002317 ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "Left-Cerebellum-White-Matter" ;
+    ants:structure_id 7 ;
+    ants:unit "mm^3" .
+
+ants:ants_000017 a ants:DataElement ;
+    rdfs:label "Left-Cerebellum-White-Matter SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:isAbout uberon:0002317 ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "Left-Cerebellum-White-Matter" ;
+    ants:structure_id 7 ;
+    ants:unit "mm^2" .
+
+ants:ants_000018 a ants:DataElement ;
+    rdfs:label "Left-Thalamus-Proper VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "voxel" ;
+    nidm:isAbout uberon:0001897 ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "Left-Thalamus-Proper" ;
+    ants:structure_id 10 ;
+    ants:unit "voxel" .
+
+ants:ants_000019 a ants:DataElement ;
+    rdfs:label "Left-Thalamus-Proper Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:isAbout uberon:0001897 ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "Left-Thalamus-Proper" ;
+    ants:structure_id 10 ;
+    ants:unit "mm^3" .
+
+ants:ants_000020 a ants:DataElement ;
+    rdfs:label "Left-Thalamus-Proper SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:isAbout uberon:0001897 ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "Left-Thalamus-Proper" ;
+    ants:structure_id 10 ;
+    ants:unit "mm^2" .
+
+ants:ants_000021 a ants:DataElement ;
+    rdfs:label "Left-Caudate VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "voxel" ;
+    nidm:isAbout uberon:0001873 ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "Left-Caudate" ;
+    ants:structure_id 11 ;
+    ants:unit "voxel" .
+
+ants:ants_000022 a ants:DataElement ;
+    rdfs:label "Left-Caudate Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:isAbout uberon:0001873 ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "Left-Caudate" ;
+    ants:structure_id 11 ;
+    ants:unit "mm^3" .
+
+ants:ants_000023 a ants:DataElement ;
+    rdfs:label "Left-Caudate SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:isAbout uberon:0001873 ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "Left-Caudate" ;
+    ants:structure_id 11 ;
+    ants:unit "mm^2" .
+
+ants:ants_000024 a ants:DataElement ;
+    rdfs:label "Left-Putamen VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "voxel" ;
+    nidm:isAbout uberon:0001874 ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "Left-Putamen" ;
+    ants:structure_id 12 ;
+    ants:unit "voxel" .
+
+ants:ants_000025 a ants:DataElement ;
+    rdfs:label "Left-Putamen Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:isAbout uberon:0001874 ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "Left-Putamen" ;
+    ants:structure_id 12 ;
+    ants:unit "mm^3" .
+
+ants:ants_000026 a ants:DataElement ;
+    rdfs:label "Left-Putamen SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:isAbout uberon:0001874 ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "Left-Putamen" ;
+    ants:structure_id 12 ;
+    ants:unit "mm^2" .
+
+ants:ants_000027 a ants:DataElement ;
+    rdfs:label "Left-Pallidum VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "voxel" ;
+    nidm:isAbout uberon:0006514 ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "Left-Pallidum" ;
+    ants:structure_id 13 ;
+    ants:unit "voxel" .
+
+ants:ants_000028 a ants:DataElement ;
+    rdfs:label "Left-Pallidum Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:isAbout uberon:0006514 ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "Left-Pallidum" ;
+    ants:structure_id 13 ;
+    ants:unit "mm^3" .
+
+ants:ants_000029 a ants:DataElement ;
+    rdfs:label "Left-Pallidum SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:isAbout uberon:0006514 ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "Left-Pallidum" ;
+    ants:structure_id 13 ;
+    ants:unit "mm^2" .
+
+ants:ants_000030 a ants:DataElement ;
+    rdfs:label "3rd-Ventricle VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasUnit "voxel" ;
+    nidm:isAbout uberon:0002286 ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "3rd-Ventricle" ;
+    ants:structure_id 14 ;
+    ants:unit "voxel" .
+
+ants:ants_000031 a ants:DataElement ;
+    rdfs:label "3rd-Ventricle Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasUnit "mm^3" ;
+    nidm:isAbout uberon:0002286 ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "3rd-Ventricle" ;
+    ants:structure_id 14 ;
+    ants:unit "mm^3" .
+
+ants:ants_000032 a ants:DataElement ;
+    rdfs:label "3rd-Ventricle SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasUnit "mm^2" ;
+    nidm:isAbout uberon:0002286 ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "3rd-Ventricle" ;
+    ants:structure_id 14 ;
+    ants:unit "mm^2" .
+
+ants:ants_000033 a ants:DataElement ;
+    rdfs:label "4th-Ventricle VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasUnit "voxel" ;
+    nidm:isAbout uberon:0002422 ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "4th-Ventricle" ;
+    ants:structure_id 15 ;
+    ants:unit "voxel" .
+
+ants:ants_000034 a ants:DataElement ;
+    rdfs:label "4th-Ventricle Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasUnit "mm^3" ;
+    nidm:isAbout uberon:0002422 ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "4th-Ventricle" ;
+    ants:structure_id 15 ;
+    ants:unit "mm^3" .
+
+ants:ants_000035 a ants:DataElement ;
+    rdfs:label "4th-Ventricle SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasUnit "mm^2" ;
+    nidm:isAbout uberon:0002422 ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "4th-Ventricle" ;
+    ants:structure_id 15 ;
+    ants:unit "mm^2" .
+
+ants:ants_000036 a ants:DataElement ;
+    rdfs:label "Brain-Stem VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasUnit "voxel" ;
+    nidm:isAbout uberon:0002298 ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "Brain-Stem" ;
+    ants:structure_id 16 ;
+    ants:unit "voxel" .
+
+ants:ants_000037 a ants:DataElement ;
+    rdfs:label "Brain-Stem Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasUnit "mm^3" ;
+    nidm:isAbout uberon:0002298 ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "Brain-Stem" ;
+    ants:structure_id 16 ;
+    ants:unit "mm^3" .
+
+ants:ants_000038 a ants:DataElement ;
+    rdfs:label "Brain-Stem SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasUnit "mm^2" ;
+    nidm:isAbout uberon:0002298 ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "Brain-Stem" ;
+    ants:structure_id 16 ;
+    ants:unit "mm^2" .
+
+ants:ants_000039 a ants:DataElement ;
+    rdfs:label "Left-Hippocampus VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "voxel" ;
+    nidm:isAbout uberon:0001954 ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "Left-Hippocampus" ;
+    ants:structure_id 17 ;
+    ants:unit "voxel" .
+
+ants:ants_000040 a ants:DataElement ;
+    rdfs:label "Left-Hippocampus Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:isAbout uberon:0001954 ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "Left-Hippocampus" ;
+    ants:structure_id 17 ;
+    ants:unit "mm^3" .
+
+ants:ants_000041 a ants:DataElement ;
+    rdfs:label "Left-Hippocampus SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:isAbout uberon:0001954 ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "Left-Hippocampus" ;
+    ants:structure_id 17 ;
+    ants:unit "mm^2" .
+
+ants:ants_000042 a ants:DataElement ;
+    rdfs:label "Left-Amygdala VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "voxel" ;
+    nidm:isAbout uberon:0001876 ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "Left-Amygdala" ;
+    ants:structure_id 18 ;
+    ants:unit "voxel" .
+
+ants:ants_000043 a ants:DataElement ;
+    rdfs:label "Left-Amygdala Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:isAbout uberon:0001876 ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "Left-Amygdala" ;
+    ants:structure_id 18 ;
+    ants:unit "mm^3" .
+
+ants:ants_000044 a ants:DataElement ;
+    rdfs:label "Left-Amygdala SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:isAbout uberon:0001876 ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "Left-Amygdala" ;
+    ants:structure_id 18 ;
+    ants:unit "mm^2" .
+
+ants:ants_000045 a ants:DataElement ;
+    rdfs:label "CSF VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasUnit "voxel" ;
+    nidm:isAbout uberon:0001359 ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "CSF" ;
+    ants:structure_id 24 ;
+    ants:unit "voxel" .
+
+ants:ants_000046 a ants:DataElement ;
+    rdfs:label "CSF Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasUnit "mm^3" ;
+    nidm:isAbout uberon:0001359 ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "CSF" ;
+    ants:structure_id 24 ;
+    ants:unit "mm^3" .
+
+ants:ants_000047 a ants:DataElement ;
+    rdfs:label "CSF SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasUnit "mm^2" ;
+    nidm:isAbout uberon:0001359 ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "CSF" ;
+    ants:structure_id 24 ;
+    ants:unit "mm^2" .
+
+ants:ants_000048 a ants:DataElement ;
+    rdfs:label "Left-Accumbens-area VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "voxel" ;
+    nidm:isAbout uberon:0001882 ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "Left-Accumbens-area" ;
+    ants:structure_id 26 ;
+    ants:unit "voxel" .
+
+ants:ants_000049 a ants:DataElement ;
+    rdfs:label "Left-Accumbens-area Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:isAbout uberon:0001882 ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "Left-Accumbens-area" ;
+    ants:structure_id 26 ;
+    ants:unit "mm^3" .
+
+ants:ants_000050 a ants:DataElement ;
+    rdfs:label "Left-Accumbens-area SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:isAbout uberon:0001882 ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "Left-Accumbens-area" ;
+    ants:structure_id 26 ;
+    ants:unit "mm^2" .
+
+ants:ants_000051 a ants:DataElement ;
+    rdfs:label "Left-VentralDC VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "Left-VentralDC" ;
+    ants:structure_id 28 ;
+    ants:unit "voxel" .
+
+ants:ants_000052 a ants:DataElement ;
+    rdfs:label "Left-VentralDC Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "Left-VentralDC" ;
+    ants:structure_id 28 ;
+    ants:unit "mm^3" .
+
+ants:ants_000053 a ants:DataElement ;
+    rdfs:label "Left-VentralDC SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "Left-VentralDC" ;
+    ants:structure_id 28 ;
+    ants:unit "mm^2" .
+
+ants:ants_000054 a ants:DataElement ;
+    rdfs:label "Left-vessel VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "voxel" ;
+    nidm:isAbout uberon:0001981 ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "Left-vessel" ;
+    ants:structure_id 30 ;
+    ants:unit "voxel" .
+
+ants:ants_000055 a ants:DataElement ;
+    rdfs:label "Left-vessel Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:isAbout uberon:0001981 ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "Left-vessel" ;
+    ants:structure_id 30 ;
+    ants:unit "mm^3" .
+
+ants:ants_000056 a ants:DataElement ;
+    rdfs:label "Left-vessel SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:isAbout uberon:0001981 ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "Left-vessel" ;
+    ants:structure_id 30 ;
+    ants:unit "mm^2" .
+
+ants:ants_000057 a ants:DataElement ;
+    rdfs:label "Right-Lateral-Ventricle VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "voxel" ;
+    nidm:isAbout uberon:0002285 ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "Right-Lateral-Ventricle" ;
+    ants:structure_id 43 ;
+    ants:unit "voxel" .
+
+ants:ants_000058 a ants:DataElement ;
+    rdfs:label "Right-Lateral-Ventricle Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:isAbout uberon:0002285 ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "Right-Lateral-Ventricle" ;
+    ants:structure_id 43 ;
+    ants:unit "mm^3" .
+
+ants:ants_000059 a ants:DataElement ;
+    rdfs:label "Right-Lateral-Ventricle SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:isAbout uberon:0002285 ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "Right-Lateral-Ventricle" ;
+    ants:structure_id 43 ;
+    ants:unit "mm^2" .
+
+ants:ants_000060 a ants:DataElement ;
+    rdfs:label "Right-Inf-Lat-Vent VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "voxel" ;
+    nidm:isAbout uberon:0006091 ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "Right-Inf-Lat-Vent" ;
+    ants:structure_id 44 ;
+    ants:unit "voxel" .
+
+ants:ants_000061 a ants:DataElement ;
+    rdfs:label "Right-Inf-Lat-Vent Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:isAbout uberon:0006091 ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "Right-Inf-Lat-Vent" ;
+    ants:structure_id 44 ;
+    ants:unit "mm^3" .
+
+ants:ants_000062 a ants:DataElement ;
+    rdfs:label "Right-Inf-Lat-Vent SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:isAbout uberon:0006091 ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "Right-Inf-Lat-Vent" ;
+    ants:structure_id 44 ;
+    ants:unit "mm^2" .
+
+ants:ants_000063 a ants:DataElement ;
+    rdfs:label "Right-Cerebellum-Exterior VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "Right-Cerebellum-Exterior" ;
+    ants:structure_id 45 ;
+    ants:unit "voxel" .
+
+ants:ants_000064 a ants:DataElement ;
+    rdfs:label "Right-Cerebellum-Exterior Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "Right-Cerebellum-Exterior" ;
+    ants:structure_id 45 ;
+    ants:unit "mm^3" .
+
+ants:ants_000065 a ants:DataElement ;
+    rdfs:label "Right-Cerebellum-Exterior SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "Right-Cerebellum-Exterior" ;
+    ants:structure_id 45 ;
+    ants:unit "mm^2" .
+
+ants:ants_000066 a ants:DataElement ;
+    rdfs:label "Right-Cerebellum-White-Matter VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "voxel" ;
+    nidm:isAbout uberon:0002317 ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "Right-Cerebellum-White-Matter" ;
+    ants:structure_id 46 ;
+    ants:unit "voxel" .
+
+ants:ants_000067 a ants:DataElement ;
+    rdfs:label "Right-Cerebellum-White-Matter Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:isAbout uberon:0002317 ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "Right-Cerebellum-White-Matter" ;
+    ants:structure_id 46 ;
+    ants:unit "mm^3" .
+
+ants:ants_000068 a ants:DataElement ;
+    rdfs:label "Right-Cerebellum-White-Matter SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:isAbout uberon:0002317 ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "Right-Cerebellum-White-Matter" ;
+    ants:structure_id 46 ;
+    ants:unit "mm^2" .
+
+ants:ants_000069 a ants:DataElement ;
+    rdfs:label "Right-Thalamus-Proper VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "voxel" ;
+    nidm:isAbout uberon:0001897 ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "Right-Thalamus-Proper" ;
+    ants:structure_id 49 ;
+    ants:unit "voxel" .
+
+ants:ants_000070 a ants:DataElement ;
+    rdfs:label "Right-Thalamus-Proper Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:isAbout uberon:0001897 ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "Right-Thalamus-Proper" ;
+    ants:structure_id 49 ;
+    ants:unit "mm^3" .
+
+ants:ants_000071 a ants:DataElement ;
+    rdfs:label "Right-Thalamus-Proper SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:isAbout uberon:0001897 ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "Right-Thalamus-Proper" ;
+    ants:structure_id 49 ;
+    ants:unit "mm^2" .
+
+ants:ants_000072 a ants:DataElement ;
+    rdfs:label "Right-Caudate VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "voxel" ;
+    nidm:isAbout uberon:0001873 ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "Right-Caudate" ;
+    ants:structure_id 50 ;
+    ants:unit "voxel" .
+
+ants:ants_000073 a ants:DataElement ;
+    rdfs:label "Right-Caudate Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:isAbout uberon:0001873 ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "Right-Caudate" ;
+    ants:structure_id 50 ;
+    ants:unit "mm^3" .
+
+ants:ants_000074 a ants:DataElement ;
+    rdfs:label "Right-Caudate SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:isAbout uberon:0001873 ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "Right-Caudate" ;
+    ants:structure_id 50 ;
+    ants:unit "mm^2" .
+
+ants:ants_000075 a ants:DataElement ;
+    rdfs:label "Right-Putamen VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "voxel" ;
+    nidm:isAbout uberon:0001874 ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "Right-Putamen" ;
+    ants:structure_id 51 ;
+    ants:unit "voxel" .
+
+ants:ants_000076 a ants:DataElement ;
+    rdfs:label "Right-Putamen Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:isAbout uberon:0001874 ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "Right-Putamen" ;
+    ants:structure_id 51 ;
+    ants:unit "mm^3" .
+
+ants:ants_000077 a ants:DataElement ;
+    rdfs:label "Right-Putamen SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:isAbout uberon:0001874 ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "Right-Putamen" ;
+    ants:structure_id 51 ;
+    ants:unit "mm^2" .
+
+ants:ants_000078 a ants:DataElement ;
+    rdfs:label "Right-Pallidum VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "voxel" ;
+    nidm:isAbout uberon:0006514 ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "Right-Pallidum" ;
+    ants:structure_id 52 ;
+    ants:unit "voxel" .
+
+ants:ants_000079 a ants:DataElement ;
+    rdfs:label "Right-Pallidum Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:isAbout uberon:0006514 ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "Right-Pallidum" ;
+    ants:structure_id 52 ;
+    ants:unit "mm^3" .
+
+ants:ants_000080 a ants:DataElement ;
+    rdfs:label "Right-Pallidum SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:isAbout uberon:0006514 ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "Right-Pallidum" ;
+    ants:structure_id 52 ;
+    ants:unit "mm^2" .
+
+ants:ants_000081 a ants:DataElement ;
+    rdfs:label "Right-Hippocampus VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "voxel" ;
+    nidm:isAbout uberon:0001954 ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "Right-Hippocampus" ;
+    ants:structure_id 53 ;
+    ants:unit "voxel" .
+
+ants:ants_000082 a ants:DataElement ;
+    rdfs:label "Right-Hippocampus Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:isAbout uberon:0001954 ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "Right-Hippocampus" ;
+    ants:structure_id 53 ;
+    ants:unit "mm^3" .
+
+ants:ants_000083 a ants:DataElement ;
+    rdfs:label "Right-Hippocampus SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:isAbout uberon:0001954 ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "Right-Hippocampus" ;
+    ants:structure_id 53 ;
+    ants:unit "mm^2" .
+
+ants:ants_000084 a ants:DataElement ;
+    rdfs:label "Right-Amygdala VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "voxel" ;
+    nidm:isAbout uberon:0001876 ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "Right-Amygdala" ;
+    ants:structure_id 54 ;
+    ants:unit "voxel" .
+
+ants:ants_000085 a ants:DataElement ;
+    rdfs:label "Right-Amygdala Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:isAbout uberon:0001876 ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "Right-Amygdala" ;
+    ants:structure_id 54 ;
+    ants:unit "mm^3" .
+
+ants:ants_000086 a ants:DataElement ;
+    rdfs:label "Right-Amygdala SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:isAbout uberon:0001876 ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "Right-Amygdala" ;
+    ants:structure_id 54 ;
+    ants:unit "mm^2" .
+
+ants:ants_000087 a ants:DataElement ;
+    rdfs:label "Right-Accumbens-area VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "voxel" ;
+    nidm:isAbout uberon:0001882 ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "Right-Accumbens-area" ;
+    ants:structure_id 58 ;
+    ants:unit "voxel" .
+
+ants:ants_000088 a ants:DataElement ;
+    rdfs:label "Right-Accumbens-area Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:isAbout uberon:0001882 ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "Right-Accumbens-area" ;
+    ants:structure_id 58 ;
+    ants:unit "mm^3" .
+
+ants:ants_000089 a ants:DataElement ;
+    rdfs:label "Right-Accumbens-area SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:isAbout uberon:0001882 ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "Right-Accumbens-area" ;
+    ants:structure_id 58 ;
+    ants:unit "mm^2" .
+
+ants:ants_000090 a ants:DataElement ;
+    rdfs:label "Right-VentralDC VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "Right-VentralDC" ;
+    ants:structure_id 60 ;
+    ants:unit "voxel" .
+
+ants:ants_000091 a ants:DataElement ;
+    rdfs:label "Right-VentralDC Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "Right-VentralDC" ;
+    ants:structure_id 60 ;
+    ants:unit "mm^3" .
+
+ants:ants_000092 a ants:DataElement ;
+    rdfs:label "Right-VentralDC SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "Right-VentralDC" ;
+    ants:structure_id 60 ;
+    ants:unit "mm^2" .
+
+ants:ants_000093 a ants:DataElement ;
+    rdfs:label "Right-vessel VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "voxel" ;
+    nidm:isAbout uberon:0001981 ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "Right-vessel" ;
+    ants:structure_id 62 ;
+    ants:unit "voxel" .
+
+ants:ants_000094 a ants:DataElement ;
+    rdfs:label "Right-vessel Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:isAbout uberon:0001981 ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "Right-vessel" ;
+    ants:structure_id 62 ;
+    ants:unit "mm^3" .
+
+ants:ants_000095 a ants:DataElement ;
+    rdfs:label "Right-vessel SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:isAbout uberon:0001981 ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "Right-vessel" ;
+    ants:structure_id 62 ;
+    ants:unit "mm^2" .
+
+ants:ants_000096 a ants:DataElement ;
+    rdfs:label "Optic-Chiasm VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasUnit "voxel" ;
+    nidm:isAbout uberon:0000959 ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "Optic-Chiasm" ;
+    ants:structure_id 85 ;
+    ants:unit "voxel" .
+
+ants:ants_000097 a ants:DataElement ;
+    rdfs:label "Optic-Chiasm Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasUnit "mm^3" ;
+    nidm:isAbout uberon:0000959 ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "Optic-Chiasm" ;
+    ants:structure_id 85 ;
+    ants:unit "mm^3" .
+
+ants:ants_000098 a ants:DataElement ;
+    rdfs:label "Optic-Chiasm SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasUnit "mm^2" ;
+    nidm:isAbout uberon:0000959 ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "Optic-Chiasm" ;
+    ants:structure_id 85 ;
+    ants:unit "mm^2" .
+
+ants:ants_000099 a ants:DataElement ;
+    rdfs:label "Left basal forebrain VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "Left basal forebrain" ;
+    ants:structure_id 91 ;
+    ants:unit "voxel" .
+
+ants:ants_000100 a ants:DataElement ;
+    rdfs:label "Left basal forebrain Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "Left basal forebrain" ;
+    ants:structure_id 91 ;
+    ants:unit "mm^3" .
+
+ants:ants_000101 a ants:DataElement ;
+    rdfs:label "Left basal forebrain SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "Left basal forebrain" ;
+    ants:structure_id 91 ;
+    ants:unit "mm^2" .
+
+ants:ants_000102 a ants:DataElement ;
+    rdfs:label "Right basal forebrain VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "Right basal forebrain" ;
+    ants:structure_id 92 ;
+    ants:unit "voxel" .
+
+ants:ants_000103 a ants:DataElement ;
+    rdfs:label "Right basal forebrain Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "Right basal forebrain" ;
+    ants:structure_id 92 ;
+    ants:unit "mm^3" .
+
+ants:ants_000104 a ants:DataElement ;
+    rdfs:label "Right basal forebrain SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "Right basal forebrain" ;
+    ants:structure_id 92 ;
+    ants:unit "mm^2" .
+
+ants:ants_000105 a ants:DataElement ;
+    rdfs:label "Cerebellar vermal lobules I - V VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "Cerebellar vermal lobules I - V" ;
+    ants:structure_id 630 ;
+    ants:unit "voxel" .
+
+ants:ants_000106 a ants:DataElement ;
+    rdfs:label "Cerebellar vermal lobules I - V Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "Cerebellar vermal lobules I - V" ;
+    ants:structure_id 630 ;
+    ants:unit "mm^3" .
+
+ants:ants_000107 a ants:DataElement ;
+    rdfs:label "Cerebellar vermal lobules I - V SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "Cerebellar vermal lobules I - V" ;
+    ants:structure_id 630 ;
+    ants:unit "mm^2" .
+
+ants:ants_000108 a ants:DataElement ;
+    rdfs:label "Cerebellar vermal lobules VI - VII VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "Cerebellar vermal lobules VI - VII" ;
+    ants:structure_id 631 ;
+    ants:unit "voxel" .
+
+ants:ants_000109 a ants:DataElement ;
+    rdfs:label "Cerebellar vermal lobules VI - VII Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "Cerebellar vermal lobules VI - VII" ;
+    ants:structure_id 631 ;
+    ants:unit "mm^3" .
+
+ants:ants_000110 a ants:DataElement ;
+    rdfs:label "Cerebellar vermal lobules VI - VII SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "Cerebellar vermal lobules VI - VII" ;
+    ants:structure_id 631 ;
+    ants:unit "mm^2" .
+
+ants:ants_000111 a ants:DataElement ;
+    rdfs:label "Cerebellar vermal lobules VIII - X VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "Cerebellar vermal lobules VIII - X" ;
+    ants:structure_id 632 ;
+    ants:unit "voxel" .
+
+ants:ants_000112 a ants:DataElement ;
+    rdfs:label "Cerebellar vermal lobules VIII - X Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "Cerebellar vermal lobules VIII - X" ;
+    ants:structure_id 632 ;
+    ants:unit "mm^3" .
+
+ants:ants_000113 a ants:DataElement ;
+    rdfs:label "Cerebellar vermal lobules VIII - X SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "Cerebellar vermal lobules VIII - X" ;
+    ants:structure_id 632 ;
+    ants:unit "mm^2" .
+
+ants:ants_000114 a ants:DataElement ;
+    rdfs:label "ctx-lh-caudalanteriorcingulate VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "ctx-lh-caudalanteriorcingulate" ;
+    ants:structure_id 1002 ;
+    ants:unit "voxel" .
+
+ants:ants_000115 a ants:DataElement ;
+    rdfs:label "ctx-lh-caudalanteriorcingulate Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "ctx-lh-caudalanteriorcingulate" ;
+    ants:structure_id 1002 ;
+    ants:unit "mm^3" .
+
+ants:ants_000116 a ants:DataElement ;
+    rdfs:label "ctx-lh-caudalanteriorcingulate SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "ctx-lh-caudalanteriorcingulate" ;
+    ants:structure_id 1002 ;
+    ants:unit "mm^2" .
+
+ants:ants_000117 a ants:DataElement ;
+    rdfs:label "ctx-lh-caudalmiddlefrontal VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "ctx-lh-caudalmiddlefrontal" ;
+    ants:structure_id 1003 ;
+    ants:unit "voxel" .
+
+ants:ants_000118 a ants:DataElement ;
+    rdfs:label "ctx-lh-caudalmiddlefrontal Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "ctx-lh-caudalmiddlefrontal" ;
+    ants:structure_id 1003 ;
+    ants:unit "mm^3" .
+
+ants:ants_000119 a ants:DataElement ;
+    rdfs:label "ctx-lh-caudalmiddlefrontal SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "ctx-lh-caudalmiddlefrontal" ;
+    ants:structure_id 1003 ;
+    ants:unit "mm^2" .
+
+ants:ants_000120 a ants:DataElement ;
+    rdfs:label "ctx-lh-cuneus VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "ctx-lh-cuneus" ;
+    ants:structure_id 1005 ;
+    ants:unit "voxel" .
+
+ants:ants_000121 a ants:DataElement ;
+    rdfs:label "ctx-lh-cuneus Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "ctx-lh-cuneus" ;
+    ants:structure_id 1005 ;
+    ants:unit "mm^3" .
+
+ants:ants_000122 a ants:DataElement ;
+    rdfs:label "ctx-lh-cuneus SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "ctx-lh-cuneus" ;
+    ants:structure_id 1005 ;
+    ants:unit "mm^2" .
+
+ants:ants_000123 a ants:DataElement ;
+    rdfs:label "ctx-lh-entorhinal VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "ctx-lh-entorhinal" ;
+    ants:structure_id 1006 ;
+    ants:unit "voxel" .
+
+ants:ants_000124 a ants:DataElement ;
+    rdfs:label "ctx-lh-entorhinal Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "ctx-lh-entorhinal" ;
+    ants:structure_id 1006 ;
+    ants:unit "mm^3" .
+
+ants:ants_000125 a ants:DataElement ;
+    rdfs:label "ctx-lh-entorhinal SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "ctx-lh-entorhinal" ;
+    ants:structure_id 1006 ;
+    ants:unit "mm^2" .
+
+ants:ants_000126 a ants:DataElement ;
+    rdfs:label "ctx-lh-fusiform VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "ctx-lh-fusiform" ;
+    ants:structure_id 1007 ;
+    ants:unit "voxel" .
+
+ants:ants_000127 a ants:DataElement ;
+    rdfs:label "ctx-lh-fusiform Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "ctx-lh-fusiform" ;
+    ants:structure_id 1007 ;
+    ants:unit "mm^3" .
+
+ants:ants_000128 a ants:DataElement ;
+    rdfs:label "ctx-lh-fusiform SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "ctx-lh-fusiform" ;
+    ants:structure_id 1007 ;
+    ants:unit "mm^2" .
+
+ants:ants_000129 a ants:DataElement ;
+    rdfs:label "ctx-lh-inferiorparietal VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "ctx-lh-inferiorparietal" ;
+    ants:structure_id 1008 ;
+    ants:unit "voxel" .
+
+ants:ants_000130 a ants:DataElement ;
+    rdfs:label "ctx-lh-inferiorparietal Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "ctx-lh-inferiorparietal" ;
+    ants:structure_id 1008 ;
+    ants:unit "mm^3" .
+
+ants:ants_000131 a ants:DataElement ;
+    rdfs:label "ctx-lh-inferiorparietal SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "ctx-lh-inferiorparietal" ;
+    ants:structure_id 1008 ;
+    ants:unit "mm^2" .
+
+ants:ants_000132 a ants:DataElement ;
+    rdfs:label "ctx-lh-inferiortemporal VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "ctx-lh-inferiortemporal" ;
+    ants:structure_id 1009 ;
+    ants:unit "voxel" .
+
+ants:ants_000133 a ants:DataElement ;
+    rdfs:label "ctx-lh-inferiortemporal Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "ctx-lh-inferiortemporal" ;
+    ants:structure_id 1009 ;
+    ants:unit "mm^3" .
+
+ants:ants_000134 a ants:DataElement ;
+    rdfs:label "ctx-lh-inferiortemporal SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "ctx-lh-inferiortemporal" ;
+    ants:structure_id 1009 ;
+    ants:unit "mm^2" .
+
+ants:ants_000135 a ants:DataElement ;
+    rdfs:label "ctx-lh-isthmuscingulate VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "ctx-lh-isthmuscingulate" ;
+    ants:structure_id 1010 ;
+    ants:unit "voxel" .
+
+ants:ants_000136 a ants:DataElement ;
+    rdfs:label "ctx-lh-isthmuscingulate Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "ctx-lh-isthmuscingulate" ;
+    ants:structure_id 1010 ;
+    ants:unit "mm^3" .
+
+ants:ants_000137 a ants:DataElement ;
+    rdfs:label "ctx-lh-isthmuscingulate SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "ctx-lh-isthmuscingulate" ;
+    ants:structure_id 1010 ;
+    ants:unit "mm^2" .
+
+ants:ants_000138 a ants:DataElement ;
+    rdfs:label "ctx-lh-lateraloccipital VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "ctx-lh-lateraloccipital" ;
+    ants:structure_id 1011 ;
+    ants:unit "voxel" .
+
+ants:ants_000139 a ants:DataElement ;
+    rdfs:label "ctx-lh-lateraloccipital Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "ctx-lh-lateraloccipital" ;
+    ants:structure_id 1011 ;
+    ants:unit "mm^3" .
+
+ants:ants_000140 a ants:DataElement ;
+    rdfs:label "ctx-lh-lateraloccipital SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "ctx-lh-lateraloccipital" ;
+    ants:structure_id 1011 ;
+    ants:unit "mm^2" .
+
+ants:ants_000141 a ants:DataElement ;
+    rdfs:label "ctx-lh-lateralorbitofrontal VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "ctx-lh-lateralorbitofrontal" ;
+    ants:structure_id 1012 ;
+    ants:unit "voxel" .
+
+ants:ants_000142 a ants:DataElement ;
+    rdfs:label "ctx-lh-lateralorbitofrontal Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "ctx-lh-lateralorbitofrontal" ;
+    ants:structure_id 1012 ;
+    ants:unit "mm^3" .
+
+ants:ants_000143 a ants:DataElement ;
+    rdfs:label "ctx-lh-lateralorbitofrontal SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "ctx-lh-lateralorbitofrontal" ;
+    ants:structure_id 1012 ;
+    ants:unit "mm^2" .
+
+ants:ants_000144 a ants:DataElement ;
+    rdfs:label "ctx-lh-lingual VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "ctx-lh-lingual" ;
+    ants:structure_id 1013 ;
+    ants:unit "voxel" .
+
+ants:ants_000145 a ants:DataElement ;
+    rdfs:label "ctx-lh-lingual Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "ctx-lh-lingual" ;
+    ants:structure_id 1013 ;
+    ants:unit "mm^3" .
+
+ants:ants_000146 a ants:DataElement ;
+    rdfs:label "ctx-lh-lingual SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "ctx-lh-lingual" ;
+    ants:structure_id 1013 ;
+    ants:unit "mm^2" .
+
+ants:ants_000147 a ants:DataElement ;
+    rdfs:label "ctx-lh-medialorbitofrontal VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "ctx-lh-medialorbitofrontal" ;
+    ants:structure_id 1014 ;
+    ants:unit "voxel" .
+
+ants:ants_000148 a ants:DataElement ;
+    rdfs:label "ctx-lh-medialorbitofrontal Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "ctx-lh-medialorbitofrontal" ;
+    ants:structure_id 1014 ;
+    ants:unit "mm^3" .
+
+ants:ants_000149 a ants:DataElement ;
+    rdfs:label "ctx-lh-medialorbitofrontal SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "ctx-lh-medialorbitofrontal" ;
+    ants:structure_id 1014 ;
+    ants:unit "mm^2" .
+
+ants:ants_000150 a ants:DataElement ;
+    rdfs:label "ctx-lh-middletemporal VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "ctx-lh-middletemporal" ;
+    ants:structure_id 1015 ;
+    ants:unit "voxel" .
+
+ants:ants_000151 a ants:DataElement ;
+    rdfs:label "ctx-lh-middletemporal Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "ctx-lh-middletemporal" ;
+    ants:structure_id 1015 ;
+    ants:unit "mm^3" .
+
+ants:ants_000152 a ants:DataElement ;
+    rdfs:label "ctx-lh-middletemporal SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "ctx-lh-middletemporal" ;
+    ants:structure_id 1015 ;
+    ants:unit "mm^2" .
+
+ants:ants_000153 a ants:DataElement ;
+    rdfs:label "ctx-lh-parahippocampal VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "ctx-lh-parahippocampal" ;
+    ants:structure_id 1016 ;
+    ants:unit "voxel" .
+
+ants:ants_000154 a ants:DataElement ;
+    rdfs:label "ctx-lh-parahippocampal Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "ctx-lh-parahippocampal" ;
+    ants:structure_id 1016 ;
+    ants:unit "mm^3" .
+
+ants:ants_000155 a ants:DataElement ;
+    rdfs:label "ctx-lh-parahippocampal SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "ctx-lh-parahippocampal" ;
+    ants:structure_id 1016 ;
+    ants:unit "mm^2" .
+
+ants:ants_000156 a ants:DataElement ;
+    rdfs:label "ctx-lh-paracentral VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "ctx-lh-paracentral" ;
+    ants:structure_id 1017 ;
+    ants:unit "voxel" .
+
+ants:ants_000157 a ants:DataElement ;
+    rdfs:label "ctx-lh-paracentral Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "ctx-lh-paracentral" ;
+    ants:structure_id 1017 ;
+    ants:unit "mm^3" .
+
+ants:ants_000158 a ants:DataElement ;
+    rdfs:label "ctx-lh-paracentral SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "ctx-lh-paracentral" ;
+    ants:structure_id 1017 ;
+    ants:unit "mm^2" .
+
+ants:ants_000159 a ants:DataElement ;
+    rdfs:label "ctx-lh-parsopercularis VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "ctx-lh-parsopercularis" ;
+    ants:structure_id 1018 ;
+    ants:unit "voxel" .
+
+ants:ants_000160 a ants:DataElement ;
+    rdfs:label "ctx-lh-parsopercularis Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "ctx-lh-parsopercularis" ;
+    ants:structure_id 1018 ;
+    ants:unit "mm^3" .
+
+ants:ants_000161 a ants:DataElement ;
+    rdfs:label "ctx-lh-parsopercularis SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "ctx-lh-parsopercularis" ;
+    ants:structure_id 1018 ;
+    ants:unit "mm^2" .
+
+ants:ants_000162 a ants:DataElement ;
+    rdfs:label "ctx-lh-parsorbitalis VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "ctx-lh-parsorbitalis" ;
+    ants:structure_id 1019 ;
+    ants:unit "voxel" .
+
+ants:ants_000163 a ants:DataElement ;
+    rdfs:label "ctx-lh-parsorbitalis Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "ctx-lh-parsorbitalis" ;
+    ants:structure_id 1019 ;
+    ants:unit "mm^3" .
+
+ants:ants_000164 a ants:DataElement ;
+    rdfs:label "ctx-lh-parsorbitalis SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "ctx-lh-parsorbitalis" ;
+    ants:structure_id 1019 ;
+    ants:unit "mm^2" .
+
+ants:ants_000165 a ants:DataElement ;
+    rdfs:label "ctx-lh-parstriangularis VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "ctx-lh-parstriangularis" ;
+    ants:structure_id 1020 ;
+    ants:unit "voxel" .
+
+ants:ants_000166 a ants:DataElement ;
+    rdfs:label "ctx-lh-parstriangularis Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "ctx-lh-parstriangularis" ;
+    ants:structure_id 1020 ;
+    ants:unit "mm^3" .
+
+ants:ants_000167 a ants:DataElement ;
+    rdfs:label "ctx-lh-parstriangularis SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "ctx-lh-parstriangularis" ;
+    ants:structure_id 1020 ;
+    ants:unit "mm^2" .
+
+ants:ants_000168 a ants:DataElement ;
+    rdfs:label "ctx-lh-pericalcarine VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "ctx-lh-pericalcarine" ;
+    ants:structure_id 1021 ;
+    ants:unit "voxel" .
+
+ants:ants_000169 a ants:DataElement ;
+    rdfs:label "ctx-lh-pericalcarine Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "ctx-lh-pericalcarine" ;
+    ants:structure_id 1021 ;
+    ants:unit "mm^3" .
+
+ants:ants_000170 a ants:DataElement ;
+    rdfs:label "ctx-lh-pericalcarine SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "ctx-lh-pericalcarine" ;
+    ants:structure_id 1021 ;
+    ants:unit "mm^2" .
+
+ants:ants_000171 a ants:DataElement ;
+    rdfs:label "ctx-lh-postcentral VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "ctx-lh-postcentral" ;
+    ants:structure_id 1022 ;
+    ants:unit "voxel" .
+
+ants:ants_000172 a ants:DataElement ;
+    rdfs:label "ctx-lh-postcentral Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "ctx-lh-postcentral" ;
+    ants:structure_id 1022 ;
+    ants:unit "mm^3" .
+
+ants:ants_000173 a ants:DataElement ;
+    rdfs:label "ctx-lh-postcentral SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "ctx-lh-postcentral" ;
+    ants:structure_id 1022 ;
+    ants:unit "mm^2" .
+
+ants:ants_000174 a ants:DataElement ;
+    rdfs:label "ctx-lh-posteriorcingulate VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "ctx-lh-posteriorcingulate" ;
+    ants:structure_id 1023 ;
+    ants:unit "voxel" .
+
+ants:ants_000175 a ants:DataElement ;
+    rdfs:label "ctx-lh-posteriorcingulate Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "ctx-lh-posteriorcingulate" ;
+    ants:structure_id 1023 ;
+    ants:unit "mm^3" .
+
+ants:ants_000176 a ants:DataElement ;
+    rdfs:label "ctx-lh-posteriorcingulate SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "ctx-lh-posteriorcingulate" ;
+    ants:structure_id 1023 ;
+    ants:unit "mm^2" .
+
+ants:ants_000177 a ants:DataElement ;
+    rdfs:label "ctx-lh-precentral VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "ctx-lh-precentral" ;
+    ants:structure_id 1024 ;
+    ants:unit "voxel" .
+
+ants:ants_000178 a ants:DataElement ;
+    rdfs:label "ctx-lh-precentral Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "ctx-lh-precentral" ;
+    ants:structure_id 1024 ;
+    ants:unit "mm^3" .
+
+ants:ants_000179 a ants:DataElement ;
+    rdfs:label "ctx-lh-precentral SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "ctx-lh-precentral" ;
+    ants:structure_id 1024 ;
+    ants:unit "mm^2" .
+
+ants:ants_000180 a ants:DataElement ;
+    rdfs:label "ctx-lh-precuneus VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "ctx-lh-precuneus" ;
+    ants:structure_id 1025 ;
+    ants:unit "voxel" .
+
+ants:ants_000181 a ants:DataElement ;
+    rdfs:label "ctx-lh-precuneus Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "ctx-lh-precuneus" ;
+    ants:structure_id 1025 ;
+    ants:unit "mm^3" .
+
+ants:ants_000182 a ants:DataElement ;
+    rdfs:label "ctx-lh-precuneus SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "ctx-lh-precuneus" ;
+    ants:structure_id 1025 ;
+    ants:unit "mm^2" .
+
+ants:ants_000183 a ants:DataElement ;
+    rdfs:label "ctx-lh-rostralanteriorcingulate VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "ctx-lh-rostralanteriorcingulate" ;
+    ants:structure_id 1026 ;
+    ants:unit "voxel" .
+
+ants:ants_000184 a ants:DataElement ;
+    rdfs:label "ctx-lh-rostralanteriorcingulate Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "ctx-lh-rostralanteriorcingulate" ;
+    ants:structure_id 1026 ;
+    ants:unit "mm^3" .
+
+ants:ants_000185 a ants:DataElement ;
+    rdfs:label "ctx-lh-rostralanteriorcingulate SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "ctx-lh-rostralanteriorcingulate" ;
+    ants:structure_id 1026 ;
+    ants:unit "mm^2" .
+
+ants:ants_000186 a ants:DataElement ;
+    rdfs:label "ctx-lh-rostralmiddlefrontal VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "ctx-lh-rostralmiddlefrontal" ;
+    ants:structure_id 1027 ;
+    ants:unit "voxel" .
+
+ants:ants_000187 a ants:DataElement ;
+    rdfs:label "ctx-lh-rostralmiddlefrontal Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "ctx-lh-rostralmiddlefrontal" ;
+    ants:structure_id 1027 ;
+    ants:unit "mm^3" .
+
+ants:ants_000188 a ants:DataElement ;
+    rdfs:label "ctx-lh-rostralmiddlefrontal SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "ctx-lh-rostralmiddlefrontal" ;
+    ants:structure_id 1027 ;
+    ants:unit "mm^2" .
+
+ants:ants_000189 a ants:DataElement ;
+    rdfs:label "ctx-lh-superiorfrontal VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "ctx-lh-superiorfrontal" ;
+    ants:structure_id 1028 ;
+    ants:unit "voxel" .
+
+ants:ants_000190 a ants:DataElement ;
+    rdfs:label "ctx-lh-superiorfrontal Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "ctx-lh-superiorfrontal" ;
+    ants:structure_id 1028 ;
+    ants:unit "mm^3" .
+
+ants:ants_000191 a ants:DataElement ;
+    rdfs:label "ctx-lh-superiorfrontal SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "ctx-lh-superiorfrontal" ;
+    ants:structure_id 1028 ;
+    ants:unit "mm^2" .
+
+ants:ants_000192 a ants:DataElement ;
+    rdfs:label "ctx-lh-superiorparietal VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "ctx-lh-superiorparietal" ;
+    ants:structure_id 1029 ;
+    ants:unit "voxel" .
+
+ants:ants_000193 a ants:DataElement ;
+    rdfs:label "ctx-lh-superiorparietal Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "ctx-lh-superiorparietal" ;
+    ants:structure_id 1029 ;
+    ants:unit "mm^3" .
+
+ants:ants_000194 a ants:DataElement ;
+    rdfs:label "ctx-lh-superiorparietal SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "ctx-lh-superiorparietal" ;
+    ants:structure_id 1029 ;
+    ants:unit "mm^2" .
+
+ants:ants_000195 a ants:DataElement ;
+    rdfs:label "ctx-lh-superiortemporal VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "ctx-lh-superiortemporal" ;
+    ants:structure_id 1030 ;
+    ants:unit "voxel" .
+
+ants:ants_000196 a ants:DataElement ;
+    rdfs:label "ctx-lh-superiortemporal Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "ctx-lh-superiortemporal" ;
+    ants:structure_id 1030 ;
+    ants:unit "mm^3" .
+
+ants:ants_000197 a ants:DataElement ;
+    rdfs:label "ctx-lh-superiortemporal SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "ctx-lh-superiortemporal" ;
+    ants:structure_id 1030 ;
+    ants:unit "mm^2" .
+
+ants:ants_000198 a ants:DataElement ;
+    rdfs:label "ctx-lh-supramarginal VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "ctx-lh-supramarginal" ;
+    ants:structure_id 1031 ;
+    ants:unit "voxel" .
+
+ants:ants_000199 a ants:DataElement ;
+    rdfs:label "ctx-lh-supramarginal Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "ctx-lh-supramarginal" ;
+    ants:structure_id 1031 ;
+    ants:unit "mm^3" .
+
+ants:ants_000200 a ants:DataElement ;
+    rdfs:label "ctx-lh-supramarginal SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "ctx-lh-supramarginal" ;
+    ants:structure_id 1031 ;
+    ants:unit "mm^2" .
+
+ants:ants_000201 a ants:DataElement ;
+    rdfs:label "ctx-lh-transversetemporal VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "ctx-lh-transversetemporal" ;
+    ants:structure_id 1034 ;
+    ants:unit "voxel" .
+
+ants:ants_000202 a ants:DataElement ;
+    rdfs:label "ctx-lh-transversetemporal Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "ctx-lh-transversetemporal" ;
+    ants:structure_id 1034 ;
+    ants:unit "mm^3" .
+
+ants:ants_000203 a ants:DataElement ;
+    rdfs:label "ctx-lh-transversetemporal SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "ctx-lh-transversetemporal" ;
+    ants:structure_id 1034 ;
+    ants:unit "mm^2" .
+
+ants:ants_000204 a ants:DataElement ;
+    rdfs:label "ctx-lh-insula VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "ctx-lh-insula" ;
+    ants:structure_id 1035 ;
+    ants:unit "voxel" .
+
+ants:ants_000205 a ants:DataElement ;
+    rdfs:label "ctx-lh-insula Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "ctx-lh-insula" ;
+    ants:structure_id 1035 ;
+    ants:unit "mm^3" .
+
+ants:ants_000206 a ants:DataElement ;
+    rdfs:label "ctx-lh-insula SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Left" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "ctx-lh-insula" ;
+    ants:structure_id 1035 ;
+    ants:unit "mm^2" .
+
+ants:ants_000207 a ants:DataElement ;
+    rdfs:label "ctx-rh-caudalanteriorcingulate VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "ctx-rh-caudalanteriorcingulate" ;
+    ants:structure_id 2002 ;
+    ants:unit "voxel" .
+
+ants:ants_000208 a ants:DataElement ;
+    rdfs:label "ctx-rh-caudalanteriorcingulate Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "ctx-rh-caudalanteriorcingulate" ;
+    ants:structure_id 2002 ;
+    ants:unit "mm^3" .
+
+ants:ants_000209 a ants:DataElement ;
+    rdfs:label "ctx-rh-caudalanteriorcingulate SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "ctx-rh-caudalanteriorcingulate" ;
+    ants:structure_id 2002 ;
+    ants:unit "mm^2" .
+
+ants:ants_000210 a ants:DataElement ;
+    rdfs:label "ctx-rh-caudalmiddlefrontal VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "ctx-rh-caudalmiddlefrontal" ;
+    ants:structure_id 2003 ;
+    ants:unit "voxel" .
+
+ants:ants_000211 a ants:DataElement ;
+    rdfs:label "ctx-rh-caudalmiddlefrontal Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "ctx-rh-caudalmiddlefrontal" ;
+    ants:structure_id 2003 ;
+    ants:unit "mm^3" .
+
+ants:ants_000212 a ants:DataElement ;
+    rdfs:label "ctx-rh-caudalmiddlefrontal SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "ctx-rh-caudalmiddlefrontal" ;
+    ants:structure_id 2003 ;
+    ants:unit "mm^2" .
+
+ants:ants_000213 a ants:DataElement ;
+    rdfs:label "ctx-rh-cuneus VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "ctx-rh-cuneus" ;
+    ants:structure_id 2005 ;
+    ants:unit "voxel" .
+
+ants:ants_000214 a ants:DataElement ;
+    rdfs:label "ctx-rh-cuneus Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "ctx-rh-cuneus" ;
+    ants:structure_id 2005 ;
+    ants:unit "mm^3" .
+
+ants:ants_000215 a ants:DataElement ;
+    rdfs:label "ctx-rh-cuneus SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "ctx-rh-cuneus" ;
+    ants:structure_id 2005 ;
+    ants:unit "mm^2" .
+
+ants:ants_000216 a ants:DataElement ;
+    rdfs:label "ctx-rh-entorhinal VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "ctx-rh-entorhinal" ;
+    ants:structure_id 2006 ;
+    ants:unit "voxel" .
+
+ants:ants_000217 a ants:DataElement ;
+    rdfs:label "ctx-rh-entorhinal Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "ctx-rh-entorhinal" ;
+    ants:structure_id 2006 ;
+    ants:unit "mm^3" .
+
+ants:ants_000218 a ants:DataElement ;
+    rdfs:label "ctx-rh-entorhinal SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "ctx-rh-entorhinal" ;
+    ants:structure_id 2006 ;
+    ants:unit "mm^2" .
+
+ants:ants_000219 a ants:DataElement ;
+    rdfs:label "ctx-rh-fusiform VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "ctx-rh-fusiform" ;
+    ants:structure_id 2007 ;
+    ants:unit "voxel" .
+
+ants:ants_000220 a ants:DataElement ;
+    rdfs:label "ctx-rh-fusiform Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "ctx-rh-fusiform" ;
+    ants:structure_id 2007 ;
+    ants:unit "mm^3" .
+
+ants:ants_000221 a ants:DataElement ;
+    rdfs:label "ctx-rh-fusiform SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "ctx-rh-fusiform" ;
+    ants:structure_id 2007 ;
+    ants:unit "mm^2" .
+
+ants:ants_000222 a ants:DataElement ;
+    rdfs:label "ctx-rh-inferiorparietal VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "ctx-rh-inferiorparietal" ;
+    ants:structure_id 2008 ;
+    ants:unit "voxel" .
+
+ants:ants_000223 a ants:DataElement ;
+    rdfs:label "ctx-rh-inferiorparietal Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "ctx-rh-inferiorparietal" ;
+    ants:structure_id 2008 ;
+    ants:unit "mm^3" .
+
+ants:ants_000224 a ants:DataElement ;
+    rdfs:label "ctx-rh-inferiorparietal SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "ctx-rh-inferiorparietal" ;
+    ants:structure_id 2008 ;
+    ants:unit "mm^2" .
+
+ants:ants_000225 a ants:DataElement ;
+    rdfs:label "ctx-rh-inferiortemporal VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "ctx-rh-inferiortemporal" ;
+    ants:structure_id 2009 ;
+    ants:unit "voxel" .
+
+ants:ants_000226 a ants:DataElement ;
+    rdfs:label "ctx-rh-inferiortemporal Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "ctx-rh-inferiortemporal" ;
+    ants:structure_id 2009 ;
+    ants:unit "mm^3" .
+
+ants:ants_000227 a ants:DataElement ;
+    rdfs:label "ctx-rh-inferiortemporal SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "ctx-rh-inferiortemporal" ;
+    ants:structure_id 2009 ;
+    ants:unit "mm^2" .
+
+ants:ants_000228 a ants:DataElement ;
+    rdfs:label "ctx-rh-isthmuscingulate VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "ctx-rh-isthmuscingulate" ;
+    ants:structure_id 2010 ;
+    ants:unit "voxel" .
+
+ants:ants_000229 a ants:DataElement ;
+    rdfs:label "ctx-rh-isthmuscingulate Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "ctx-rh-isthmuscingulate" ;
+    ants:structure_id 2010 ;
+    ants:unit "mm^3" .
+
+ants:ants_000230 a ants:DataElement ;
+    rdfs:label "ctx-rh-isthmuscingulate SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "ctx-rh-isthmuscingulate" ;
+    ants:structure_id 2010 ;
+    ants:unit "mm^2" .
+
+ants:ants_000231 a ants:DataElement ;
+    rdfs:label "ctx-rh-lateraloccipital VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "ctx-rh-lateraloccipital" ;
+    ants:structure_id 2011 ;
+    ants:unit "voxel" .
+
+ants:ants_000232 a ants:DataElement ;
+    rdfs:label "ctx-rh-lateraloccipital Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "ctx-rh-lateraloccipital" ;
+    ants:structure_id 2011 ;
+    ants:unit "mm^3" .
+
+ants:ants_000233 a ants:DataElement ;
+    rdfs:label "ctx-rh-lateraloccipital SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "ctx-rh-lateraloccipital" ;
+    ants:structure_id 2011 ;
+    ants:unit "mm^2" .
+
+ants:ants_000234 a ants:DataElement ;
+    rdfs:label "ctx-rh-lateralorbitofrontal VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "ctx-rh-lateralorbitofrontal" ;
+    ants:structure_id 2012 ;
+    ants:unit "voxel" .
+
+ants:ants_000235 a ants:DataElement ;
+    rdfs:label "ctx-rh-lateralorbitofrontal Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "ctx-rh-lateralorbitofrontal" ;
+    ants:structure_id 2012 ;
+    ants:unit "mm^3" .
+
+ants:ants_000236 a ants:DataElement ;
+    rdfs:label "ctx-rh-lateralorbitofrontal SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "ctx-rh-lateralorbitofrontal" ;
+    ants:structure_id 2012 ;
+    ants:unit "mm^2" .
+
+ants:ants_000237 a ants:DataElement ;
+    rdfs:label "ctx-rh-lingual VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "ctx-rh-lingual" ;
+    ants:structure_id 2013 ;
+    ants:unit "voxel" .
+
+ants:ants_000238 a ants:DataElement ;
+    rdfs:label "ctx-rh-lingual Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "ctx-rh-lingual" ;
+    ants:structure_id 2013 ;
+    ants:unit "mm^3" .
+
+ants:ants_000239 a ants:DataElement ;
+    rdfs:label "ctx-rh-lingual SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "ctx-rh-lingual" ;
+    ants:structure_id 2013 ;
+    ants:unit "mm^2" .
+
+ants:ants_000240 a ants:DataElement ;
+    rdfs:label "ctx-rh-medialorbitofrontal VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "ctx-rh-medialorbitofrontal" ;
+    ants:structure_id 2014 ;
+    ants:unit "voxel" .
+
+ants:ants_000241 a ants:DataElement ;
+    rdfs:label "ctx-rh-medialorbitofrontal Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "ctx-rh-medialorbitofrontal" ;
+    ants:structure_id 2014 ;
+    ants:unit "mm^3" .
+
+ants:ants_000242 a ants:DataElement ;
+    rdfs:label "ctx-rh-medialorbitofrontal SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "ctx-rh-medialorbitofrontal" ;
+    ants:structure_id 2014 ;
+    ants:unit "mm^2" .
+
+ants:ants_000243 a ants:DataElement ;
+    rdfs:label "ctx-rh-middletemporal VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "ctx-rh-middletemporal" ;
+    ants:structure_id 2015 ;
+    ants:unit "voxel" .
+
+ants:ants_000244 a ants:DataElement ;
+    rdfs:label "ctx-rh-middletemporal Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "ctx-rh-middletemporal" ;
+    ants:structure_id 2015 ;
+    ants:unit "mm^3" .
+
+ants:ants_000245 a ants:DataElement ;
+    rdfs:label "ctx-rh-middletemporal SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "ctx-rh-middletemporal" ;
+    ants:structure_id 2015 ;
+    ants:unit "mm^2" .
+
+ants:ants_000246 a ants:DataElement ;
+    rdfs:label "ctx-rh-parahippocampal VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "ctx-rh-parahippocampal" ;
+    ants:structure_id 2016 ;
+    ants:unit "voxel" .
+
+ants:ants_000247 a ants:DataElement ;
+    rdfs:label "ctx-rh-parahippocampal Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "ctx-rh-parahippocampal" ;
+    ants:structure_id 2016 ;
+    ants:unit "mm^3" .
+
+ants:ants_000248 a ants:DataElement ;
+    rdfs:label "ctx-rh-parahippocampal SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "ctx-rh-parahippocampal" ;
+    ants:structure_id 2016 ;
+    ants:unit "mm^2" .
+
+ants:ants_000249 a ants:DataElement ;
+    rdfs:label "ctx-rh-paracentral VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "ctx-rh-paracentral" ;
+    ants:structure_id 2017 ;
+    ants:unit "voxel" .
+
+ants:ants_000250 a ants:DataElement ;
+    rdfs:label "ctx-rh-paracentral Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "ctx-rh-paracentral" ;
+    ants:structure_id 2017 ;
+    ants:unit "mm^3" .
+
+ants:ants_000251 a ants:DataElement ;
+    rdfs:label "ctx-rh-paracentral SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "ctx-rh-paracentral" ;
+    ants:structure_id 2017 ;
+    ants:unit "mm^2" .
+
+ants:ants_000252 a ants:DataElement ;
+    rdfs:label "ctx-rh-parsopercularis VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "ctx-rh-parsopercularis" ;
+    ants:structure_id 2018 ;
+    ants:unit "voxel" .
+
+ants:ants_000253 a ants:DataElement ;
+    rdfs:label "ctx-rh-parsopercularis Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "ctx-rh-parsopercularis" ;
+    ants:structure_id 2018 ;
+    ants:unit "mm^3" .
+
+ants:ants_000254 a ants:DataElement ;
+    rdfs:label "ctx-rh-parsopercularis SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "ctx-rh-parsopercularis" ;
+    ants:structure_id 2018 ;
+    ants:unit "mm^2" .
+
+ants:ants_000255 a ants:DataElement ;
+    rdfs:label "ctx-rh-parsorbitalis VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "ctx-rh-parsorbitalis" ;
+    ants:structure_id 2019 ;
+    ants:unit "voxel" .
+
+ants:ants_000256 a ants:DataElement ;
+    rdfs:label "ctx-rh-parsorbitalis Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "ctx-rh-parsorbitalis" ;
+    ants:structure_id 2019 ;
+    ants:unit "mm^3" .
+
+ants:ants_000257 a ants:DataElement ;
+    rdfs:label "ctx-rh-parsorbitalis SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "ctx-rh-parsorbitalis" ;
+    ants:structure_id 2019 ;
+    ants:unit "mm^2" .
+
+ants:ants_000258 a ants:DataElement ;
+    rdfs:label "ctx-rh-parstriangularis VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "ctx-rh-parstriangularis" ;
+    ants:structure_id 2020 ;
+    ants:unit "voxel" .
+
+ants:ants_000259 a ants:DataElement ;
+    rdfs:label "ctx-rh-parstriangularis Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "ctx-rh-parstriangularis" ;
+    ants:structure_id 2020 ;
+    ants:unit "mm^3" .
+
+ants:ants_000260 a ants:DataElement ;
+    rdfs:label "ctx-rh-parstriangularis SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "ctx-rh-parstriangularis" ;
+    ants:structure_id 2020 ;
+    ants:unit "mm^2" .
+
+ants:ants_000261 a ants:DataElement ;
+    rdfs:label "ctx-rh-pericalcarine VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "ctx-rh-pericalcarine" ;
+    ants:structure_id 2021 ;
+    ants:unit "voxel" .
+
+ants:ants_000262 a ants:DataElement ;
+    rdfs:label "ctx-rh-pericalcarine Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "ctx-rh-pericalcarine" ;
+    ants:structure_id 2021 ;
+    ants:unit "mm^3" .
+
+ants:ants_000263 a ants:DataElement ;
+    rdfs:label "ctx-rh-pericalcarine SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "ctx-rh-pericalcarine" ;
+    ants:structure_id 2021 ;
+    ants:unit "mm^2" .
+
+ants:ants_000264 a ants:DataElement ;
+    rdfs:label "ctx-rh-postcentral VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "ctx-rh-postcentral" ;
+    ants:structure_id 2022 ;
+    ants:unit "voxel" .
+
+ants:ants_000265 a ants:DataElement ;
+    rdfs:label "ctx-rh-postcentral Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "ctx-rh-postcentral" ;
+    ants:structure_id 2022 ;
+    ants:unit "mm^3" .
+
+ants:ants_000266 a ants:DataElement ;
+    rdfs:label "ctx-rh-postcentral SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "ctx-rh-postcentral" ;
+    ants:structure_id 2022 ;
+    ants:unit "mm^2" .
+
+ants:ants_000267 a ants:DataElement ;
+    rdfs:label "ctx-rh-posteriorcingulate VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "ctx-rh-posteriorcingulate" ;
+    ants:structure_id 2023 ;
+    ants:unit "voxel" .
+
+ants:ants_000268 a ants:DataElement ;
+    rdfs:label "ctx-rh-posteriorcingulate Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "ctx-rh-posteriorcingulate" ;
+    ants:structure_id 2023 ;
+    ants:unit "mm^3" .
+
+ants:ants_000269 a ants:DataElement ;
+    rdfs:label "ctx-rh-posteriorcingulate SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "ctx-rh-posteriorcingulate" ;
+    ants:structure_id 2023 ;
+    ants:unit "mm^2" .
+
+ants:ants_000270 a ants:DataElement ;
+    rdfs:label "ctx-rh-precentral VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "ctx-rh-precentral" ;
+    ants:structure_id 2024 ;
+    ants:unit "voxel" .
+
+ants:ants_000271 a ants:DataElement ;
+    rdfs:label "ctx-rh-precentral Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "ctx-rh-precentral" ;
+    ants:structure_id 2024 ;
+    ants:unit "mm^3" .
+
+ants:ants_000272 a ants:DataElement ;
+    rdfs:label "ctx-rh-precentral SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "ctx-rh-precentral" ;
+    ants:structure_id 2024 ;
+    ants:unit "mm^2" .
+
+ants:ants_000273 a ants:DataElement ;
+    rdfs:label "ctx-rh-precuneus VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "ctx-rh-precuneus" ;
+    ants:structure_id 2025 ;
+    ants:unit "voxel" .
+
+ants:ants_000274 a ants:DataElement ;
+    rdfs:label "ctx-rh-precuneus Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "ctx-rh-precuneus" ;
+    ants:structure_id 2025 ;
+    ants:unit "mm^3" .
+
+ants:ants_000275 a ants:DataElement ;
+    rdfs:label "ctx-rh-precuneus SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "ctx-rh-precuneus" ;
+    ants:structure_id 2025 ;
+    ants:unit "mm^2" .
+
+ants:ants_000276 a ants:DataElement ;
+    rdfs:label "ctx-rh-rostralanteriorcingulate VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "ctx-rh-rostralanteriorcingulate" ;
+    ants:structure_id 2026 ;
+    ants:unit "voxel" .
+
+ants:ants_000277 a ants:DataElement ;
+    rdfs:label "ctx-rh-rostralanteriorcingulate Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "ctx-rh-rostralanteriorcingulate" ;
+    ants:structure_id 2026 ;
+    ants:unit "mm^3" .
+
+ants:ants_000278 a ants:DataElement ;
+    rdfs:label "ctx-rh-rostralanteriorcingulate SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "ctx-rh-rostralanteriorcingulate" ;
+    ants:structure_id 2026 ;
+    ants:unit "mm^2" .
+
+ants:ants_000279 a ants:DataElement ;
+    rdfs:label "ctx-rh-rostralmiddlefrontal VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "ctx-rh-rostralmiddlefrontal" ;
+    ants:structure_id 2027 ;
+    ants:unit "voxel" .
+
+ants:ants_000280 a ants:DataElement ;
+    rdfs:label "ctx-rh-rostralmiddlefrontal Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "ctx-rh-rostralmiddlefrontal" ;
+    ants:structure_id 2027 ;
+    ants:unit "mm^3" .
+
+ants:ants_000281 a ants:DataElement ;
+    rdfs:label "ctx-rh-rostralmiddlefrontal SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "ctx-rh-rostralmiddlefrontal" ;
+    ants:structure_id 2027 ;
+    ants:unit "mm^2" .
+
+ants:ants_000282 a ants:DataElement ;
+    rdfs:label "ctx-rh-superiorfrontal VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "ctx-rh-superiorfrontal" ;
+    ants:structure_id 2028 ;
+    ants:unit "voxel" .
+
+ants:ants_000283 a ants:DataElement ;
+    rdfs:label "ctx-rh-superiorfrontal Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "ctx-rh-superiorfrontal" ;
+    ants:structure_id 2028 ;
+    ants:unit "mm^3" .
+
+ants:ants_000284 a ants:DataElement ;
+    rdfs:label "ctx-rh-superiorfrontal SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "ctx-rh-superiorfrontal" ;
+    ants:structure_id 2028 ;
+    ants:unit "mm^2" .
+
+ants:ants_000285 a ants:DataElement ;
+    rdfs:label "ctx-rh-superiorparietal VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "ctx-rh-superiorparietal" ;
+    ants:structure_id 2029 ;
+    ants:unit "voxel" .
+
+ants:ants_000286 a ants:DataElement ;
+    rdfs:label "ctx-rh-superiorparietal Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "ctx-rh-superiorparietal" ;
+    ants:structure_id 2029 ;
+    ants:unit "mm^3" .
+
+ants:ants_000287 a ants:DataElement ;
+    rdfs:label "ctx-rh-superiorparietal SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "ctx-rh-superiorparietal" ;
+    ants:structure_id 2029 ;
+    ants:unit "mm^2" .
+
+ants:ants_000288 a ants:DataElement ;
+    rdfs:label "ctx-rh-superiortemporal VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "ctx-rh-superiortemporal" ;
+    ants:structure_id 2030 ;
+    ants:unit "voxel" .
+
+ants:ants_000289 a ants:DataElement ;
+    rdfs:label "ctx-rh-superiortemporal Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "ctx-rh-superiortemporal" ;
+    ants:structure_id 2030 ;
+    ants:unit "mm^3" .
+
+ants:ants_000290 a ants:DataElement ;
+    rdfs:label "ctx-rh-superiortemporal SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "ctx-rh-superiortemporal" ;
+    ants:structure_id 2030 ;
+    ants:unit "mm^2" .
+
+ants:ants_000291 a ants:DataElement ;
+    rdfs:label "ctx-rh-supramarginal VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "ctx-rh-supramarginal" ;
+    ants:structure_id 2031 ;
+    ants:unit "voxel" .
+
+ants:ants_000292 a ants:DataElement ;
+    rdfs:label "ctx-rh-supramarginal Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "ctx-rh-supramarginal" ;
+    ants:structure_id 2031 ;
+    ants:unit "mm^3" .
+
+ants:ants_000293 a ants:DataElement ;
+    rdfs:label "ctx-rh-supramarginal SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "ctx-rh-supramarginal" ;
+    ants:structure_id 2031 ;
+    ants:unit "mm^2" .
+
+ants:ants_000294 a ants:DataElement ;
+    rdfs:label "ctx-rh-transversetemporal VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "ctx-rh-transversetemporal" ;
+    ants:structure_id 2034 ;
+    ants:unit "voxel" .
+
+ants:ants_000295 a ants:DataElement ;
+    rdfs:label "ctx-rh-transversetemporal Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "ctx-rh-transversetemporal" ;
+    ants:structure_id 2034 ;
+    ants:unit "mm^3" .
+
+ants:ants_000296 a ants:DataElement ;
+    rdfs:label "ctx-rh-transversetemporal SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "ctx-rh-transversetemporal" ;
+    ants:structure_id 2034 ;
+    ants:unit "mm^2" .
+
+ants:ants_000297 a ants:DataElement ;
+    rdfs:label "ctx-rh-insula VolumeInVoxels (voxel)" ;
+    nidm:datumType ilx:0102597 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "voxel" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "VolumeInVoxels" ;
+    ants:structure "ctx-rh-insula" ;
+    ants:structure_id 2035 ;
+    ants:unit "voxel" .
+
+ants:ants_000298 a ants:DataElement ;
+    rdfs:label "ctx-rh-insula Volume (mm^3)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^3" ;
+    nidm:measureOf ilx:0112559 ;
+    ants:measure "Volume" ;
+    ants:structure "ctx-rh-insula" ;
+    ants:structure_id 2035 ;
+    ants:unit "mm^3" .
+
+ants:ants_000299 a ants:DataElement ;
+    rdfs:label "ctx-rh-insula SurfaceAreaInMillimetersSquared (mm^2)" ;
+    nidm:datumType ilx:0738276 ;
+    nidm:hasLaterality "Right" ;
+    nidm:hasUnit "mm^2" ;
+    nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> ;
+    ants:measure "SurfaceAreaInMillimetersSquared" ;
+    ants:structure "ctx-rh-insula" ;
+    ants:structure_id 2035 ;
+    ants:unit "mm^2" .
+
+ants:DataElement rdfs:subClassOf nidm:DataElement .
+

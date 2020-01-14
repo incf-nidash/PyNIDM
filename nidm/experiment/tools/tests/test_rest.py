@@ -1,4 +1,5 @@
 import urllib
+import random
 
 import pytest
 import rdflib
@@ -10,6 +11,7 @@ import os
 from pathlib import Path
 from rdflib import Graph, util, URIRef
 import json
+
 
 from prov.model import ProvAgent
 
@@ -212,7 +214,7 @@ def test_uri_projects_subjects_id():
         # WIP commented out by DBK to get tests to pass for the moment.  Needs updating?
         assert  age > 0
 
-    assert len(result['stats']) > 0
+    assert len(result['derivatives']) > 0
 
 
 
@@ -242,7 +244,7 @@ def test_brain_vols():
     subjects = restParser(BRAIN_VOL_FILES, '/projects/{}/subjects'.format(projects[0]))
     subject = subjects[0]
 
-    data = Query.getStatsDataForSubject(BRAIN_VOL_FILES, subject)
+    data = Query.GetDerivativesDataForSubject(BRAIN_VOL_FILES, None, subject)
 
 
     assert(len(data) > 0)
@@ -255,6 +257,8 @@ def test_brain_vols():
 def test_GetParticipantDetails():
     projects  = restParser(BRAIN_VOL_FILES, '/projects')
     project = projects[0]
+    import time
+    start = time.time()
     subjects = restParser(BRAIN_VOL_FILES, '/projects/{}/subjects'.format(projects[0]))
     subject = subjects[0]
 
@@ -273,5 +277,80 @@ def test_GetParticipantDetails():
     assert ('id' in details)
     assert ('activity' in details)
     assert ('instruments' in details)
-    assert ('stats' in details)
+    assert ('derivatives' in details)
 
+
+def test_CheckSubjectMatchesFilter():
+    print ("brain vol = " + str(BRAIN_VOL_FILES))
+    projects  = restParser(BRAIN_VOL_FILES, '/projects')
+    project = projects[0]
+    subjects = restParser(BRAIN_VOL_FILES, '/projects/{}/subjects'.format(projects[0]))
+    subject = subjects[0]
+
+    derivatives = Query.GetDerivativesDataForSubject(BRAIN_VOL_FILES, project, subject)
+
+    for skey in derivatives:
+        for vkey in derivatives[skey]['values']:
+            dt = vkey
+            val = derivatives[skey]['values'][vkey]['value']
+            if (dt and val):
+                break
+
+    # find an actual stat and build a matching filter to make sure our matcher passes it
+    filter = "projects.subjects.derivatives.{} eq {}".format(dt,val)
+    assert Query.CheckSubjectMatchesFilter( BRAIN_VOL_FILES, project, subject, filter)
+
+
+    instruments = Query.GetParticipantInstrumentData( BRAIN_VOL_FILES, project, subject )
+    for key in instruments:
+        age = instruments[key]['AGE_AT_SCAN']
+
+    older = str(float(age) + 1)
+    younger = str(float(age) - 1)
+
+    assert Query.CheckSubjectMatchesFilter( BRAIN_VOL_FILES, project, subject, "projects.subjects.instruments.AGE_AT_SCAN eq {}".format( str(age) ) )
+    assert (Query.CheckSubjectMatchesFilter( BRAIN_VOL_FILES, project, subject, "projects.subjects.instruments.AGE_AT_SCAN lt {}".format( younger ) ) == False)
+    assert (Query.CheckSubjectMatchesFilter( BRAIN_VOL_FILES, project, subject, "projects.subjects.instruments.AGE_AT_SCAN gt {}".format( younger) ) == True)
+    assert Query.CheckSubjectMatchesFilter( BRAIN_VOL_FILES, project, subject, "projects.subjects.instruments.AGE_AT_SCAN lt {}".format( older ) )
+    assert (Query.CheckSubjectMatchesFilter( BRAIN_VOL_FILES, project, subject, "projects.subjects.instruments.AGE_AT_SCAN gt {}".format( older) ) == False)
+
+    eq__format = "projects.subjects.instruments.{} eq '{}'".format('WISC_IV_VOCAB_SCALED', 'nan')
+    assert Query.CheckSubjectMatchesFilter(BRAIN_VOL_FILES, project, subject, eq__format)
+    eq__format = "projects.subjects.instruments.{} eq '{}'".format('WISC_IV_VOCAB_SCALED', 'not a match')
+    assert (Query.CheckSubjectMatchesFilter( BRAIN_VOL_FILES, project, subject, eq__format ) == False)
+
+
+
+def test_OpenGraph():
+
+    g = Query.OpenGraph(BRAIN_VOL_FILES[0])
+    assert isinstance(g, rdflib.graph.Graph)
+
+    # if you call OpenGraph with something that is already a graph, it should send it back
+    g2 = Query.OpenGraph(g)
+    assert isinstance(g, rdflib.graph.Graph)
+
+
+def test_CDEs():
+    path = os.path.abspath(__file__)
+
+    dir_parts = path.split('/')
+    dir_parts = dir_parts[:-4]
+
+    dir_parts.append("core")
+    dir_parts.append("cde_dir")
+    dir = "/".join(dir_parts)
+
+    graph = Query.getCDEs([
+        "{}/ants_cde.ttl".format(dir),
+        "{}/fs_cde.ttl".format(dir)
+    ])
+
+    print ("{}/ants_cde.ttl".format(dir))
+    units = graph.objects(subject=Constants.FREESURFER['fs_000002'], predicate=Constants.NIDM['hasUnit'])
+    count = 0
+    for u in units:
+        count += 1
+        assert str(u) == 'mm^2'
+
+    assert count == 1

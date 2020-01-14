@@ -43,13 +43,15 @@ Query
 Options:
   -nl, --nidm_file_list TEXT  A comma separated list of NIDM files with full
                               path  [required]
+  -cl, --cde_file_list TEXT  A comma separated list of CDE files with full
+                              path  [optional]
   -q, --query_file PATH       Text file containing a SPARQL query to execute
                               [required]
   -o, --output_file TEXT      Optional output file (CSV) to store results of
                               query
   --help                      Show this message and exit.
 
-Setting the environment variable PYNIDM_GRAPH_CACHE will allow pynidm to create cache files holding precompiled graph data along side your .ttl files.
+NOTE: Cached versions of your RDF files will be stored in the TMP directory
 
 BIDS MRI Conversion to NIDM
 ---------------------------
