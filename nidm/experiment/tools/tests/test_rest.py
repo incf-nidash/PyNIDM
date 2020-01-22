@@ -20,10 +20,10 @@ REST_TEST_FILE = './agent.ttl'
 BRAIN_VOL_FILES = ['./cmu_a.nidm.ttl', './caltech.nidm.ttl']
 test_person_uuid = ""
 test_p2_subject_uuids = []
-
+cmu_test_project_uuid = None
 
 @pytest.fixture(scope="module", autouse="True")
-def makefile():
+def setup():
 
     if Path(REST_TEST_FILE).is_file():
         os.remove(REST_TEST_FILE)
@@ -38,13 +38,16 @@ def makefile():
             "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/wBrainVols/datasets.datalad.org/abide/RawDataBIDS/CMU_a/nidm.ttl",
             "cmu_a.nidm.ttl"
         )
-
+        restParser = RestParser(output_format=RestParser.OBJECT_FORMAT)
+        projects = restParser.run(['./cmu_a.nidm.ttl'], '/projects')
+        cmu_test_project_uuid = projects[0]
 
     if not Path('./caltech.nidm.ttl').is_file():
         urllib.request.urlretrieve (
             "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/wBrainVols/datasets.datalad.org/abide/RawDataBIDS/Caltech/nidm.ttl",
             "caltech.nidm.ttl"
         )
+
 
 
 def addData(acq, data):
@@ -192,8 +195,11 @@ def test_uri_projects_subjects_id():
     global test_person_uuid
 
     restParser = RestParser()
-    result = restParser.run(['./cmu_a.nidm.ttl'], '/projects')
-    project = result[0]
+    if cmu_test_project_uuid:
+        project = cmu_test_project_uuid
+    else:
+        result = restParser.run(['./cmu_a.nidm.ttl'], '/projects')
+        project = result[0]
     result = restParser.run(['./cmu_a.nidm.ttl'], '/projects/{}/subjects'.format(project))
     subject = result[0]
 
@@ -236,8 +242,11 @@ def test_get_software_agents():
 
 def test_brain_vols():
     restParser = RestParser()
-    projects  = restParser.run(BRAIN_VOL_FILES, '/projects')
-    subjects = restParser.run(BRAIN_VOL_FILES, '/projects/{}/subjects'.format(projects[0]))
+    if cmu_test_project_uuid:
+        project = cmu_test_project_uuid
+    else:
+        project  = (restParser.run(BRAIN_VOL_FILES, '/projects'))[0]
+    subjects = restParser.run(BRAIN_VOL_FILES, '/projects/{}/subjects'.format(project))
     subject = subjects[0]
 
     data = Query.GetDerivativesDataForSubject(BRAIN_VOL_FILES, None, subject)
@@ -251,22 +260,24 @@ def test_brain_vols():
 
 
 def test_GetParticipantDetails():
-    restParser = RestParser()
-    projects  = restParser.run(BRAIN_VOL_FILES, '/projects')
-    project = projects[0]
-    import time
-    start = time.time()
-    subjects = restParser.run(BRAIN_VOL_FILES, '/projects/{}/subjects'.format(projects[0]))
-    subject = subjects[0]
 
     import time
     start = time.time()
+
+    restParser = RestParser()
+    if cmu_test_project_uuid:
+        project = cmu_test_project_uuid
+    else:
+        projects  = restParser.run(BRAIN_VOL_FILES, '/projects')
+        project = projects[0]
+    import time
+    start = time.time()
+    subjects = restParser.run(BRAIN_VOL_FILES, '/projects/{}/subjects'.format(project))
+    subject = subjects[0]
+
 
     Query.GetParticipantInstrumentData( BRAIN_VOL_FILES, project, subject )
 
-    end = time.time()
-    runtime = end - start
-    # assert (runtime <  12)
 
     details = Query.GetParticipantDetails( BRAIN_VOL_FILES, project, subject )
 
@@ -276,12 +287,19 @@ def test_GetParticipantDetails():
     assert ('instruments' in details)
     assert ('derivatives' in details)
 
+    end = time.time()
+    runtime = end - start
+    # assert (runtime <  4)
+
+
 
 def test_CheckSubjectMatchesFilter():
     restParser = RestParser()
-    print ("brain vol = " + str(BRAIN_VOL_FILES))
-    projects  = restParser.run(BRAIN_VOL_FILES, '/projects')
-    project = projects[0]
+    if cmu_test_project_uuid:
+        project = cmu_test_project_uuid
+    else:
+        projects  = restParser.run(BRAIN_VOL_FILES, '/projects')
+        project = projects[0]
     subjects = restParser.run(BRAIN_VOL_FILES, '/projects/{}/subjects'.format(projects[0]))
     subject = subjects[0]
 
@@ -316,6 +334,22 @@ def test_CheckSubjectMatchesFilter():
     assert Query.CheckSubjectMatchesFilter(BRAIN_VOL_FILES, project, subject, eq__format)
     eq__format = "projects.subjects.instruments.{} eq '{}'".format('WISC_IV_VOCAB_SCALED', 'not a match')
     assert (Query.CheckSubjectMatchesFilter( BRAIN_VOL_FILES, project, subject, eq__format ) == False)
+
+def test_ExtremeFilters():
+    restParser = RestParser(output_format=RestParser.OBJECT_FORMAT)
+    if cmu_test_project_uuid:
+        project = cmu_test_project_uuid
+    else:
+        projects  = restParser.run(BRAIN_VOL_FILES, '/projects')
+        project = projects[0]
+
+    details = restParser.run(BRAIN_VOL_FILES, '/projects/{}?filter=AGE_AT_SCAN gt 200'.format(projects[0]))
+    assert len(details['subjects']) == 0
+    assert len(details['data_elements']) > 0
+
+    details = restParser.run(BRAIN_VOL_FILES, '/projects/{}?filter=projects.subjects.instruments.AGE_AT_SCAN gt 0'.format(projects[0]))
+    assert len(details['subjects']) > 0
+    assert len(details['data_elements']) > 0
 
 
 

@@ -195,7 +195,7 @@ class RestParser:
 
         result = Query.GetProjectAttributes(self.nidm_files, project_id=id)
 
-        result['subjects']  = Query.GetParticipantUUIDsForProject(self.nidm_files, project_id=id, filter="")
+        result['subjects']  = Query.GetParticipantUUIDsForProject(self.nidm_files, project_id=id, filter=self.filter)
         result['data_elements'] = Query.GetProjectDataElements(self.nidm_files, project_id=id)
 
         return self.projectSummaryFormat(result)
