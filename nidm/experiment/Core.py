@@ -488,6 +488,7 @@ class Core(object):
 
                         # add to DOT structure edge between project_node and session_node
                         dot.obj_dict['edges'][session_node,project_node] = dot.obj_dict['edges']['ann1',project_node]
+                        print()
                         dot.obj_dict['edges'][session_node,project_node][0]['points'][0]
                         #change some of the properties to be isPartOf and color
 
