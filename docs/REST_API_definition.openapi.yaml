@@ -1,0 +1,302 @@
+openapi: 3.0.0
+info:
+  title: PyNIDM REST API
+  description: This is the REST API for PyNIDM
+  contact:
+    email: albert.crowley@tcg.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 0.1.0
+servers:
+- url: https://virtserver.swaggerhub.com/albertcrowley/PyNIDM/1.0.0
+  description: SwaggerHub API Auto Mocking
+tags:
+- name: users
+  description: Operations available to regular users
+paths:
+  /projects:
+    get:
+      tags:
+      - users
+      summary: returns a list of projects
+      description: |
+        Get a list of all projects available at this endpoint
+      operationId: projectList
+      parameters:
+      - name: filter
+        in: query
+        description: pass an optional search string for filtering projects (not implemented)
+        required: false
+        style: form
+        explode: true
+        schema:
+          $ref: '#/components/schemas/filter'
+      responses:
+        "200":
+          description: projects matching filter criteria
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UUID'
+        "400":
+          description: bad input parameter
+  /projects/{project_id}:
+    get:
+      tags:
+      - users
+      summary: returns project details
+      description: Get details for a specific project
+      operationId: projectDetails
+      parameters:
+      - name: project_id
+        in: path
+        description: the project UUID
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+        example: dc1bf9be-10a3-11ea-8779-003ee1ce9545
+      responses:
+        "200":
+          description: project details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/project_details'
+        "400":
+          description: bad input parameter
+  /projects/{project_id}/subjects:
+    get:
+      tags:
+      - users
+      summary: returns subjects in the supplied project_id
+      description: Get subjects for a project
+      operationId: subjects
+      parameters:
+      - name: project_id
+        in: path
+        description: the project UUID
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+        example: dc1bf9be-10a3-11ea-8779-003ee1ce9545
+      - name: filter
+        in: query
+        description: pass an optional search string for filtering projects (not implemented)
+        required: false
+        style: form
+        explode: true
+        schema:
+          $ref: '#/components/schemas/filter'
+      responses:
+        "200":
+          description: subjects matching filter criteria
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UUID'
+        "400":
+          description: bad input parameter
+  /projects/{project_id}/subjects/{subject_id}:
+    get:
+      tags:
+      - users
+      summary: returns subject details
+      description: Get subject details
+      operationId: subjectsDetails
+      parameters:
+      - name: project_id
+        in: path
+        description: the project UUID
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+        example: dc1bf9be-10a3-11ea-8779-003ee1ce9545
+      - name: subject_id
+        in: path
+        description: the subject UUID
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+        example: dc1bf9be-10a3-11ea-8779-003ee1ce9545
+      responses:
+        "200":
+          description: subjects matching filter criteria
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/subject_details'
+        "400":
+          description: bad input parameter
+  /projects/{project_id}/subjects/{subject_id}/instruments:
+    get:
+      tags:
+      - users
+      summary: returns instrument UUIDs for a subject
+      description: Get instruments UUIDs for a subbject
+      operationId: subjectsInstrumets
+      parameters:
+      - name: project_id
+        in: path
+        description: the project UUID
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+        example: dc1bf9be-10a3-11ea-8779-003ee1ce9545
+      - name: subject_id
+        in: path
+        description: the subject UUID
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+        example: dc1bf9be-10a3-11ea-8779-003ee1ce9545
+      responses:
+        "200":
+          description: instrument UUIDs for the subjects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UUID'
+        "400":
+          description: bad input parameter
+  /projects/{project_id}/subjects/{subject_id}/derivatives:
+    get:
+      tags:
+      - users
+      summary: returns derivitve UUIDs for a subbject
+      description: Get derivitve UUIDs for a subbject
+      operationId: subjectsDerivative
+      parameters:
+      - name: project_id
+        in: path
+        description: the project UUID
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+        example: dc1bf9be-10a3-11ea-8779-003ee1ce9545
+      - name: subject_id
+        in: path
+        description: the subject UUID
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+        example: dc1bf9be-10a3-11ea-8779-003ee1ce9545
+      responses:
+        "200":
+          description: derivatives UUIDs for the subjects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UUID'
+        "400":
+          description: bad input parameter
+components:
+  schemas:
+    UUID:
+      type: string
+      format: uuid
+      example: d290f1ee-6c54-4b01-90e6-d701748f0851
+    filter:
+      type: string
+      example: AGE_AT_SCAN gt 18
+    instrument:
+      type: object
+      additionalProperties:
+        type: string
+    instruments:
+      type: object
+      additionalProperties:
+        $ref: '#/components/schemas/instrument'
+    derivative_value:
+      type: object
+      properties:
+        datumType:
+          type: string
+        label:
+          type: string
+        value:
+          type: string
+        units:
+          type: string
+    derivative_value_dict_item:
+      type: object
+      additionalProperties:
+        $ref: '#/components/schemas/derivative_value'
+    derivative:
+      type: object
+      properties:
+        URI:
+          type: string
+        StatsCollectionType:
+          type: string
+        values:
+          $ref: '#/components/schemas/derivative_value_dict_item'
+    derivatives:
+      type: object
+      additionalProperties:
+        $ref: '#/components/schemas/derivative'
+    project_details:
+      properties:
+        title:
+          type: string
+          example: ABIDE CMU_a Site
+        Identifier:
+          type: string
+          example: 1.0.1
+        age_max:
+          type: number
+          example: 35.4
+        age_min:
+          type: number
+          example: 18
+        gender:
+          type: array
+          items:
+            type: string
+        handedness:
+          type: array
+          items:
+            type: string
+    subject_details:
+      properties:
+        uuid:
+          $ref: '#/components/schemas/UUID'
+        id:
+          type: string
+          example: "0050665"
+        activity:
+          type: array
+          items:
+            $ref: '#/components/schemas/UUID'
+        derivatives:
+          type: array
+          items:
+            $ref: '#/components/schemas/derivatives'
+        instruments:
+          type: array
+          items:
+            $ref: '#/components/schemas/instruments'

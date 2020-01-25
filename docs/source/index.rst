@@ -5,7 +5,7 @@
 
 PyNIDM: Neuroimaging Data Model in Python
 ##########################################
-A Python library to manipulate the [Neuroimaging Data Model](http://nidm.nidash.org). 
+A Python library to manipulate the [Neuroimaging Data Model](http://nidm.nidash.org).
 
 
 .. toctree::
@@ -65,8 +65,13 @@ Options:
                               [required]
   -o, --output_file TEXT      Optional output file (CSV) to store results of
                               query
+  -u, --uri URI               URI for a :ref:`REST API style query<rest>`
+                              file
+  -j                          Output results in JSON format (default) or not
+                              json format
   --help                      Show this message and exit.
 
+Details on the REST API URI format and usage can be found on the :ref:`REST API usage<rest>` page.
 
 BIDS MRI Conversion to NIDM
 ---------------------------
@@ -185,3 +190,206 @@ optional arguments:
 
 
 
+
+.. _rest:
+
+PyNIDM: REST API and Command Line Usage
+##########################################
+
+Introduction
+============
+
+There are two main ways to interact with NIDM data using the PyNIDM REST API. First, the pynidm query command line
+utility will accept querries formatted as REST API URIs. Second, the rest-server.py script can be used to run a
+HTTP server to accept and process requests. This script can either be run directly or using a docker container
+defined in the docker directory of the project.
+
+Example usage:
+
+.. code-block:: bash
+
+   $ pynidm query -nl "cmu_a.ttl,cmu_b.ttl" -u /projects
+
+   dc1bf9be-10a3-11ea-8779-003ee1ce9545
+   ebe112da-10a3-11ea-af83-003ee1ce9545
+
+   $
+
+Installation
+============
+
+To use the REST API query syntax on the command line, follow the PyNIDM
+`installation instructions <https://github.com/incf-nidash/PyNIDM/>`_.
+
+The simplest way to deploy a HTTP REST API server would be with the provided docker container. You can find instructions
+for that process in the `README.md <https://github.com/incf-nidash/PyNIDM/tree/master/docker>`_ file in the docker
+directory of the Github repository.
+
+
+URI formats
+===========
+
+You can find details on the REST API at the `SwaggerHub API Documentation <https://app.swaggerhub.com/apis-docs/albertcrowley/PyNIDM>`_.
+The OpenAPI specification file is part of the Github repository in 'docs/REST_API_definition.openapi.yaml'
+
+Here is a short version of the supported URI formats. See the SwaggerHub page for more details and return formats.
+
+::
+
+- /projects
+- /projects/{project_id}
+- /projects/{project_id}/subjects
+- /projects/{project_id}/subjects?filter=[filter expression]
+- /projects/{project_id}/subjects/{subject_id}
+- /projects/{project_id}/subjects/{subject_id}/instruments/{instrument_id}
+- /projects/{project_id}/subjects/{subject_id}/derivatives/{derivative_id}
+
+Return Formatting
+==================
+
+By default the HTTP REST API server will return JSON formatted objects or arrays.  When using the pynidm query
+command line utility the default return format is text (when possible) or you can use the -j option to have the
+output formatted as JSON.
+
+
+
+Examples
+--------
+
+**Get the UUID for all the projects at this locaiton:**
+
+.. code-block:: bash
+
+   curl http://localhost:5000/projects
+
+Example response:
+
+.. code-block:: JSON
+
+   [
+       "dc1bf9be-10a3-11ea-8779-003ee1ce9545"
+   ]
+
+**Get the project summary details:**
+
+.. code-block:: HTML
+
+   curl http://localhost:5000/projects/dc1bf9be-10a3-11ea-8779-003ee1ce9545
+
+Example response:
+
+.. code-block:: JSON
+
+   {
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": "http://purl.org/nidash/nidm#Project",
+    "dctypes:title": "ABIDE CMU_a Site",
+    "http://www.w3.org/ns/prov#Location": "/datasets.datalad.org/abide/RawDataBIDS/CMU_a",
+    "sio:Identifier": "1.0.1",
+    "nidm:NIDM_0000171": 14,
+    "age_max": 33.0,
+    "age_min": 21.0,
+    "ndar:gender": [
+        "1",
+        "2"
+    ],
+    "obo:handedness": [
+        "R",
+        "L",
+        "Ambi"
+    ]
+   }
+
+**Get the subjects in a project:**
+
+.. code-block:: HTML
+
+   pynidm query -nl "cmu_a.nidm.ttl" -u http://localhost:5000/projects/dc1bf9be-10a3-11ea-8779-003ee1ce9545/subjects
+
+Example response:
+
+.. code-block:: JSON
+
+   deef8eb2-10a3-11ea-8779-003ee1ce9545
+   df533e6c-10a3-11ea-8779-003ee1ce9545
+   ddbfb454-10a3-11ea-8779-003ee1ce9545
+   df21cada-10a3-11ea-8779-003ee1ce9545
+   dcfa35b2-10a3-11ea-8779-003ee1ce9545
+   de89ce4c-10a3-11ea-8779-003ee1ce9545
+   dd2ce75a-10a3-11ea-8779-003ee1ce9545
+   ddf21020-10a3-11ea-8779-003ee1ce9545
+   debc0f74-10a3-11ea-8779-003ee1ce9545
+   de245134-10a3-11ea-8779-003ee1ce9545
+   dd5f2f30-10a3-11ea-8779-003ee1ce9545
+   dd8d4faa-10a3-11ea-8779-003ee1ce9545
+   df87cbaa-10a3-11ea-8779-003ee1ce9545
+   de55285e-10a3-11ea-8779-003ee1ce9545
+
+
+**Get details on a subject. Use -j for a JSON formatted resonse:**
+
+.. code-block:: HTML
+
+   pynidm query -j -nl "cmu_a.nidm.ttl" -u http://localhost:5000/projects/dc1bf9be-10a3-11ea-8779-003ee1ce9545/subjects/df21cada-10a3-11ea-8779-003ee1ce9545
+
+Example response:
+
+.. code-block:: JSON
+
+   {
+  "uuid": "df21cada-10a3-11ea-8779-003ee1ce9545",
+  "id": "0050665",
+  "activity": [
+    "e28dc764-10a3-11ea-a7d3-003ee1ce9545",
+    "df28e95a-10a3-11ea-8779-003ee1ce9545",
+    "df21c76a-10a3-11ea-8779-003ee1ce9545"
+  ],
+  "instruments": {
+    "e28dd218-10a3-11ea-a7d3-003ee1ce9545": {
+      "SRS_VERSION": "nan",
+      "ADOS_MODULE": "nan",
+      "WISC_IV_VCI": "nan",
+      "WISC_IV_PSI": "nan",
+      "ADOS_GOTHAM_SOCAFFECT": "nan",
+      "VINELAND_PLAY_V_SCALED": "nan",
+      "null": "http://www.w3.org/ns/prov#Entity",
+      "VINELAND_EXPRESSIVE_V_SCALED": "nan",
+      "SCQ_TOTAL": "nan",
+      "SRS_MOTIVATION": "nan",
+      "PIQ": "104.0",
+      "FIQ": "109.0",
+      "WISC_IV_PRI": "nan",
+      "FILE_ID": "CMU_a_0050665",
+      "VIQ": "111.0",
+      "WISC_IV_VOCAB_SCALED": "nan",
+      "VINELAND_DAILYLVNG_STANDARD": "nan",
+      "WISC_IV_SIM_SCALED": "nan",
+      "WISC_IV_DIGIT_SPAN_SCALED": "nan",
+      "AGE_AT_SCAN": "33.0"
+      }
+   },
+  "derivatives": {
+      "b9fe0398-16cc-11ea-8729-003ee1ce9545": {
+         "URI": "http://iri.nidash.org/b9fe0398-16cc-11ea-8729-003ee1ce9545",
+         "values": {
+           "http://purl.org/nidash/fsl#fsl_000005": {
+             "datumType": "ilx_0102597",
+             "label": "Left-Amygdala (voxels)",
+             "value": "1573",
+             "units": "voxel"
+           },
+           "http://purl.org/nidash/fsl#fsl_000004": {
+             "datumType": "ilx_0738276",
+             "label": "Left-Accumbens-area (mm^3)",
+             "value": "466.0",
+             "units": "mm^3"
+           },
+           "http://purl.org/nidash/fsl#fsl_000003": {
+             "datumType": "ilx_0102597",
+             "label": "Left-Accumbens-area (voxels)",
+             "value": "466",
+             "units": "voxel"
+           }
+         },
+         "StatCollectionType": "FSLStatsCollection"
+      }
+   }

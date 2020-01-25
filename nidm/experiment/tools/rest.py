@@ -5,15 +5,23 @@ import re
 from urllib import parse
 import pprint
 import os
+from tempfile import gettempdir
 
 
 def restParser (nidm_files, command, verbosity_level = 0):
 
     restLog("parsing command "+ command, 1, verbosity_level)
     restLog("Files to read:" + str(nidm_files), 1, verbosity_level)
-    text = ('On', 'Disable', 'unsetting') if os.getenv('PYNIDM_GRAPH_CACHE') != None else ('Off', 'Enable', 'setting')
-    restLog("Graph cache is {}".format(text[0]), 1, verbosity_level)
-    restLog("{} graph cache by {} the PYNIDM_GRAPH_CACHE environment variable".format(text[1], text[2]), 1, verbosity_level)
+    restLog("Using {} as the graph cache directory".format( gettempdir() ), 1, verbosity_level)
+
+    filter = ""
+    if str(command).find('?') != -1:
+        (command, query) = str(command).split('?')
+        for q in query.split('&'):
+            if len(q.split('=')) == 2:
+                left, right = q.split('=')[0], q.split('=')[1]
+                if left == 'filter':
+                    filter = right
 
     result = []
     if re.match(r"^/?projects/?$", command):
@@ -38,18 +46,41 @@ def restParser (nidm_files, command, verbosity_level = 0):
     elif re.match(r"^/?projects/[^/]+/subjects/?$", command):
         match = re.match(r"^/?projects/([^/]+)/subjects/?$", command)
         project = match.group((1))
-        restLog("Returning all agents for project {}".format(project), 2, verbosity_level)
-        agents = Query.GetParticipantUUIDsForProject(nidm_files,project)
-
-        result = []
-        vals = agents.values
-        for x in vals:
-            result.append( str(x[0]).replace("http://iri.nidash.org/", "") )
+        restLog("Returning all agents matching filter '{}' for project {}".format(filter, project), 2, verbosity_level)
+        result = Query.GetParticipantUUIDsForProject(nidm_files, project, filter, None)
 
     elif re.match(r"^/?projects/[^/]+/subjects/[^/]+/?$", command):
         match = re.match(r"^/?projects/([^/]+)/subjects/([^/]+)/?$", command)
         restLog("Returning info about subject {}".format(match.group(2)), 2, verbosity_level)
         result = Query.GetParticipantDetails(nidm_files,match.group(1), match.group(2))
+
+    elif re.match(r"^/?projects/[^/]+/subjects/[^/]+/instruments/?$", command):
+        match = re.match(r"^/?projects/([^/]+)/subjects/([^/]+)", command)
+        restLog("Returning instruments in subject {}".format(match.group(2)), 2, verbosity_level)
+        instruments = Query.GetParticipantInstrumentData(nidm_files, match.group(1), match.group(2))
+        for i in instruments:
+            result.append(i)
+
+    elif re.match(r"^/?projects/[^/]+/subjects/[^/]+/instruments/[^/]+/?$", command):
+        match = re.match(r"^/?projects/([^/]+)/subjects/([^/]+)/instruments/([^/]+)", command)
+        restLog("Returning instrument {} in subject {}".format(match.group(3), match.group(2)), 2, verbosity_level)
+        instruments = Query.GetParticipantInstrumentData(nidm_files, match.group(1), match.group(2))
+        result = instruments[match.group(3)]
+
+
+    elif re.match(r"^/?projects/[^/]+/subjects/[^/]+/derivatives/?$", command):
+        match = re.match(r"^/?projects/([^/]+)/subjects/([^/]+)", command)
+        restLog("Returning derivatives in subject {}".format(match.group(2)), 2, verbosity_level)
+        derivatives = Query.GetDerivativesDataForSubject(nidm_files, match.group(1), match.group(2))
+        for s in derivatives:
+            result.append(s)
+
+    elif re.match(r"^/?projects/[^/]+/subjects/[^/]+/derivatives/[^/]+/?$", command):
+        match = re.match(r"^/?projects/([^/]+)/subjects/([^/]+)/derivatives/([^/]+)", command)
+        restLog("Returning stat {} in subject {}".format(match.group(3), match.group(2)), 2, verbosity_level)
+        derivatives = Query.GetDerivativesDataForSubject(nidm_files, match.group(1), match.group(2))
+        result = derivatives[match.group(3)]
+
 
     else:
         restLog("NO MATCH!",2, verbosity_level)

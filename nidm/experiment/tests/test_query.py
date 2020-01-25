@@ -30,7 +30,7 @@ def test_GetProjectMetadata():
 
 
     #save a turtle file
-    with open("test.ttl",'w') as f:
+    with open("test_gpm.ttl",'w') as f:
         f.write(project.serializeTurtle())
 
     kwargs={Constants.NIDM_PROJECT_NAME:"FBIRN_PhaseIII",Constants.NIDM_PROJECT_IDENTIFIER:1200,Constants.NIDM_PROJECT_DESCRIPTION:"Test investigation2"}
@@ -38,7 +38,7 @@ def test_GetProjectMetadata():
 
 
     #save a turtle file
-    with open("test2.ttl",'w') as f:
+    with open("test2_gpm.ttl",'w') as f:
         f.write(project.serializeTurtle())
 
 
@@ -53,7 +53,8 @@ def test_GetProjectMetadata():
     #assert URIRef((Constants.NIDM_PROJECT_DESCRIPTION + "Test investigation")) in test
     #assert URIRef((Constants.NIDM_PROJECT_DESCRIPTION + "Test investigation2")) in test
 
-    remove("test2.ttl")
+    remove("test_gpm.ttl")
+    remove("test2_gpm.ttl")
 
 
 def test_GetProjects():
@@ -63,12 +64,12 @@ def test_GetProjects():
 
 
     #save a turtle file
-    with open("test.ttl",'w') as f:
+    with open("test_gp.ttl",'w') as f:
         f.write(project.serializeTurtle())
 
-    project_list = Query.GetProjectsUUID(["test.ttl"])
+    project_list = Query.GetProjectsUUID(["test_gp.ttl"])
 
-    remove("test.ttl")
+    remove("test_gp.ttl")
     assert URIRef(Constants.NIIRI + "_123456") in project_list
 
 def test_GetParticipantIDs():
@@ -86,12 +87,12 @@ def test_GetParticipantIDs():
     acq2.add_qualified_association(person=person2,role=Constants.NIDM_PARTICIPANT)
 
     #save a turtle file
-    with open("test.ttl",'w') as f:
+    with open("test_3.ttl",'w') as f:
         f.write(project.serializeTurtle())
 
-    participant_list = Query.GetParticipantIDs(["test.ttl"])
+    participant_list = Query.GetParticipantIDs(["test_3.ttl"])
 
-    remove("test.ttl")
+    remove("test_3.ttl")
     assert (participant_list['ID'].str.contains('9999').any())
     assert (participant_list['ID'].str.contains('8888').any())
 
@@ -112,13 +113,13 @@ def test_GetProjectInstruments():
     acq_obj2 = AssessmentObject(acq2,attributes=kwargs)
 
     #save a turtle file
-    with open("test.ttl",'w') as f:
+    with open("test_gpi.ttl",'w') as f:
         f.write(project.serializeTurtle())
 
 
-    assessment_list = Query.GetProjectInstruments(["test.ttl"],"_123456")
+    assessment_list = Query.GetProjectInstruments(["test_gpi.ttl"],"_123456")
 
-    #remove("test.ttl")
+    remove("test_gpi.ttl")
 
     assert URIRef(Constants.NIDM + "NorthAmericanAdultReadingTest") in assessment_list['assessment_type'].to_list()
     assert URIRef(Constants.NIDM + "PositiveAndNegativeSyndromeScale") in assessment_list['assessment_type'].to_list()
