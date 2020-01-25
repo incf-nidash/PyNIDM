@@ -434,13 +434,78 @@ class Core(object):
 
         return context
 
-    def save_DotGraph(self,filename,format=None):
+    def save_DotGraph(self, filename, format=None):
         dot = prov_to_dot(self.graph)
-        #add some logic to find nodes with dct:hasPart relation and add those edges to graph...prov_to_dot ignores these
-        if not (format == "None"):
-            dot.write(filename,format=format)
-        else:
-            dot.write(filename,format="pdf")
+
+        ###WIP: augmenting DOT graph with isPartOf edges
+
+        # query self.graph for Project uuids
+        # use RDFLib here for temporary graph making query easier
+        rdf_graph = Graph()
+        rdf_graph = rdf_graph.parse(source=StringIO(self.graph.serialize(None, format='rdf', rdf_format='ttl')),
+                                    format='turtle')
+
+        # SPARQL query to get project UUIDs
+        query = '''
+        PREFIX nidm:<http://purl.org/nidash/nidm#>
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+        SELECT distinct ?uuid
+        Where {
+            {
+                ?uuid rdf:type nidm:Project
+            }
+
+        }
+        '''
+        qres = rdf_graph.query(query)
+        for row in qres:
+            print("project uuid = %s" % row)
+            # parse uuid from project URI
+            # project_uuid = str(row[0]).rsplit('/', 1)[-1]
+            project_uuid = str(row[0])
+            # for each Project uuid search dot structure for Project uuid
+            project_node = None
+            for key, value in dot.obj_dict['nodes'].items():
+                # get node number in DOT graph for Project
+                if 'URL' in dot.obj_dict['nodes'][key][0]['attributes']:
+                    if project_uuid in str(dot.obj_dict['nodes'][key][0]['attributes']['URL']):
+                        project_node = key
+                        break
+
+        # for each Session in Project class self.sessions list, find node numbers in DOT graph
+
+        for session in self.sessions:
+            print(session)
+            for key, value in dot.obj_dict['nodes'].items():
+                # get node number in DOT graph for Project
+                if 'URL' in dot.obj_dict['nodes'][key][0]['attributes']:
+                    if session.identifier.uri in str(dot.obj_dict['nodes'][key][0]['attributes']['URL']):
+                        session_node = key
+                        print("session node = %s" % key)
+
+                        temp = {}
+                        temp = dot.obj_dict['edges']['n5', 'n4']
+                        temp[0]['points'] = (session_node, project_node)
+                        temp[0]['attributes']['label'] = 'isPartOf'
+                        dot.obj_dict['edges'][session_node,project_node]=[temp[0]]
+                        
+                # for each Acquisition in Session class session.getacquisitions() list, find node numbers in DOT graph
+                        for acquisition in session.get_acquisitions():
+                            # search through the nodes again to figure out node number for acquisition
+                            for key1, value1 in dot.obj_dict['nodes'].items():
+                                # get node number in DOT graph for Project
+                                if 'URL' in dot.obj_dict['nodes'][key1][0]['attributes']:
+                                    if acquisition.identifier.uri in str(
+                                            dot.obj_dict['nodes'][key1][0]['attributes']['URL']):
+                                        acquisition_node = key1
+                                        print("acquisition node = %s" % key1)
+                                        temp = {}
+                                        temp = dot.obj_dict['edges']['n5', 'n4']
+                                        temp[0]['points'] = (session_node, acquisition_node)
+                                        temp[0]['attributes']['label'] = 'isPartOf'
+                                        dot.obj_dict['edges'][session_node, acquisition_node] = [temp[0]]
+
 
     def prefix_to_context(self):
         '''
