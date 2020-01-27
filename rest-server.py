@@ -1,7 +1,8 @@
 from flask import Flask, request
 from flask_restful import Resource, Api
 import glob
-from nidm.experiment.tools.rest import restParser
+from nidm.experiment.tools.rest import RestParser
+from flask_cors import CORS
 
 def getTTLFiles():
     files = []
@@ -29,6 +30,7 @@ class Instructions(Resource):
 
 
 app = Flask(__name__)
+CORS(app)
 api = Api(app)
 api.add_resource(Instructions, '/')
 api.add_resource(NIDMRest, '/<path:all>')
