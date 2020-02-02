@@ -70,6 +70,10 @@ class RestParser:
                         appendix.append( [ json.dumps(line) ] )
                     appendicies.append(tabulate(appendix, [key]))
 
+                    # also put really short lists in as comma separated values
+                    if len ( json.dumps(result[key]) ) < 40:
+                        table.append( [ json.dumps(key), ",".join(result[key]) ] )
+
                 # format a string
                 elif type(result[key]) == str:
                     table.append([ json.dumps(key), result[key]])

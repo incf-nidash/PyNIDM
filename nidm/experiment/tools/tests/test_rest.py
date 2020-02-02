@@ -428,12 +428,11 @@ def test_cli_rest_routes():
     split_lines = [ str.split(x) for x in lines ]
     found_gender = found_age_max = found_age_min = found_title = False
     for split in split_lines:
-        assert len(split) > 1
-        if re.search('title', split[0]): found_title = True
-        if re.search('age_max', split[0]): found_age_max = True
-        if re.search('age_min', split[0]): found_age_min = True
-        if re.search('gender', split[0]): found_gender = True
-
+        if len(split) > 0: # skip blank lines between apendicies
+            if re.search('title', split[0]): found_title = True
+            if re.search('age_max', split[0]): found_age_max = True
+            if re.search('age_min', split[0]): found_age_min = True
+            if re.search('gender', split[0]): found_gender = True
 
     assert found_title
     assert found_age_max
