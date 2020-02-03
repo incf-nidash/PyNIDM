@@ -4,6 +4,9 @@ __pycache__/
 *.pyc
 *~
 *.png
+*.pickle
+pytest-of-root/*
+htmlcov/*
 
 /build
 /dist

@@ -232,7 +232,7 @@ URI formats
 You can find details on the REST API at the `SwaggerHub API Documentation <https://app.swaggerhub.com/apis-docs/albertcrowley/PyNIDM>`_.
 The OpenAPI specification file is part of the Github repository in 'docs/REST_API_definition.openapi.yaml'
 
-Here is a short version of the supported URI formats. See the SwaggerHub page for more details and return formats.
+Here is a list of the current operations. See the SwaggerHub page for more details and return formats.
 
 ::
 
@@ -243,6 +243,70 @@ Here is a short version of the supported URI formats. See the SwaggerHub page fo
 - /projects/{project_id}/subjects/{subject_id}
 - /projects/{project_id}/subjects/{subject_id}/instruments/{instrument_id}
 - /projects/{project_id}/subjects/{subject_id}/derivatives/{derivative_id}
+- /statistics/projects/{project_id}
+
+You can append the following query parameters to many of the operations:
+
+::
+
+- filter
+- field
+
+Operations
+-----------
+
+**/projects**
+ | Get a list of all project IDs available.
+ | Supported query parameters: none
+
+**/projects/{project_id}**
+ | See some details for a project. This will include the list of subject IDs and data elements used in the project
+ | Supported query parameters: fitler
+
+**/projects/{project_id}/subjects**
+ | Get the list of subjects in a project
+ | Supported query parameters: filter
+
+**/projects/{project_id}/subjects/{subject_id}**
+ | Get the details for a particular subject. This will include the results of any instrumnts or derivatives associated with the subject, as well a a list of the related activites.
+ | Supported query parameters: none
+
+**/projects/{project_id}/subjects/{subject_id}/instruments/{instrument_id}**
+ | Get the values for a particular instrument
+ | Supported query parameters: none
+
+**/projects/{project_id}/subjects/{subject_id}/derivatives/{derivative_id}**
+ | Get the values for a particular derivative
+ | Supported query parameters: none
+
+**/statistics/projects/{project_id}**
+ | See project statistics. You can also use this operation to get statsitcs on a particular instrument or derivative entry by use a *field* query option.
+ | Supported query parameters: filter, field
+
+**/statistics/projects/{project_id}/subjects/{subject_id}**
+ | See some details for a project. This will include the list of subject IDs and data elements used in the project
+ | Supported query parameters: none
+
+Query Parameters
+-----------------
+
+**filter**
+ | The filter query parameter is ues when you want to receive data only on subjects that match some criteria.  The format for the fitler value should be of the form:
+ |    *identifier op value [ and identifier op value and ... ]*
+ | Identifers should be formatted as "instrument.ID" or "derivatives.ID"  You can use any value for the instrument ID that is shown for an instrument or in the data_elements section of the project details. For the derivative ID, you can use the last component of a derivative field URI (ex. for the URI http://purl.org/nidash/fsl#fsl_000007, the ID would be "fsl_000007") or the exact label shown when viewing derivative data (ex. "Left-Caudate (mm^3)")
+ | The *op* can be one of "eq", "gt", "lt"
+
+ | **Example filters:**
+ |    *?filter=instruments.AGE_AT_SCAN gt 30*
+ |    *?filter=instrument.AGE_AT_SCAN eq 21 and derivative.fsl_000007 lt 3500*
+
+**fields**
+ | The fields query parameter is used to specify what fields should be detailed in a statistics operation. For each field specified the result will show minimum, maximum, average, median, and standard deviation for the values of that field across all subjects matching the operation and filter. Multiple fields can be specified by separating each field with a comma.
+ | Fields should be formatted in the same way as identifiers are specified in the filter parameter.
+
+ | **Example field query:**
+ |    *http://localhost:5000/statistics/projects/abc123?field=instruments.AGE_AT_SCAN,derivatives.fsl_000020*
+
 
 Return Formatting
 ==================
@@ -324,6 +388,70 @@ Example response:
    df87cbaa-10a3-11ea-8779-003ee1ce9545
    de55285e-10a3-11ea-8779-003ee1ce9545
 
+
+**Use the command line to get statistics on a project for the AGE_AT_SCAN and a FSL data element:**
+
+.. code-block:: HTML
+
+   pynidm query -nl ttl/cmu_a.nidm.ttl -u /statistics/projects/dc1bf9be-10a3-11ea-8779-003ee1ce9545?fields=instruments.AGE_AT_SCAN,derivatives.fsl_000001
+
+Example response:
+
+
+.. code-block:: bash
+
+  -------------------------------------------------  ---------------------------------------------
+  "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"  http://www.w3.org/ns/prov#Activity
+  "title"                                            ABIDE CMU_a Site
+  "Identifier"                                       1.0.1
+  "prov:Location"                                    /datasets.datalad.org/abide/RawDataBIDS/CMU_a
+  "NIDM_0000171"                                     14
+  "age_max"                                          33.0
+  "age_min"                                          21.0
+
+    gender
+  --------
+         1
+         2
+
+  handedness
+  ------------
+  R
+  L
+  Ambi
+
+  subjects
+  ------------------------------------
+  de89ce4c-10a3-11ea-8779-003ee1ce9545
+  deef8eb2-10a3-11ea-8779-003ee1ce9545
+  dd8d4faa-10a3-11ea-8779-003ee1ce9545
+  ddbfb454-10a3-11ea-8779-003ee1ce9545
+  de245134-10a3-11ea-8779-003ee1ce9545
+  debc0f74-10a3-11ea-8779-003ee1ce9545
+  dd5f2f30-10a3-11ea-8779-003ee1ce9545
+  ddf21020-10a3-11ea-8779-003ee1ce9545
+  dcfa35b2-10a3-11ea-8779-003ee1ce9545
+  df21cada-10a3-11ea-8779-003ee1ce9545
+  df533e6c-10a3-11ea-8779-003ee1ce9545
+  de55285e-10a3-11ea-8779-003ee1ce9545
+  df87cbaa-10a3-11ea-8779-003ee1ce9545
+  dd2ce75a-10a3-11ea-8779-003ee1ce9545
+
+  -----------  ------------------  --------
+  AGE_AT_SCAN  max                 33
+  AGE_AT_SCAN  min                 21
+  AGE_AT_SCAN  median              26
+  AGE_AT_SCAN  mean                26.2857
+  AGE_AT_SCAN  standard_deviation   4.14778
+  -----------  ------------------  --------
+
+  ----------  ------------------  -----------
+  fsl_000001  max                 1.14899e+07
+  fsl_000001  min                 5.5193e+06
+  fsl_000001  median              7.66115e+06
+  fsl_000001  mean                8.97177e+06
+  fsl_000001  standard_deviation  2.22465e+06
+  ----------  ------------------  -----------
 
 **Get details on a subject. Use -j for a JSON formatted resonse:**
 

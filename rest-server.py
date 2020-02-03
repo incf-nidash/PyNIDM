@@ -21,11 +21,14 @@ class NIDMRest(Resource):
         files = getTTLFiles()
         if len(files) == 0:
             return ({'error' : 'No NIDM files found. You may need to add NIDM ttl files to ~/PyNIDM/ttl'})
-        return restParser(files, "{}?{}".format(all,query), 5 )
+        restParser = RestParser(output_format=RestParser.OBJECT_FORMAT, verbosity_level=5)
+
+        return restParser.run(files, "{}?{}".format(all,query))
 
 class Instructions(Resource):
     def get(self):
-        return ({'message' : 'See instructions at PyNIDM/docker/README.md'})
+
+        return ({'message' : 'You probably want to start at {}projects  See instructions at PyNIDM/docker/README.md for details on the API and loading data.'.format(request.url_root)})
 
 
 

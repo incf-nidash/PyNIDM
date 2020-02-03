@@ -40,7 +40,7 @@ import csv
 from nidm.experiment.Query import sparql_query_nidm, GetParticipantIDs,GetProjectInstruments,GetProjectsUUID,GetInstrumentVariables,GetDataElements,GetBrainVolumes,GetBrainVolumeDataElements,getCDEs
 import click
 from nidm.experiment.tools.click_base import cli
-from nidm.experiment.tools.rest import restParser
+from nidm.experiment.tools.rest import RestParser
 from json import dumps, loads
 
 
@@ -48,7 +48,7 @@ from json import dumps, loads
 @click.option("--nidm_file_list", "-nl", required=True,
               help="A comma separated list of NIDM files with full path")
 @click.option("--cde_file_list", "-nc", required=False,
-              help="A comma separated list of NIDM CDE files with full path")
+              help="A comma separated list of NIDM CDE files with full path. Can also be set in the CDE_DIR environment variable")
 @click.option("--query_file", "-q", type=click.Path(exists=True), required=False,
               help="Text file containing a SPARQL query to execute")
 @click.option("--get_participants", "-p", is_flag=True,required=False,
@@ -137,18 +137,15 @@ def query(nidm_file_list, cde_file_list, query_file, output_file, get_participan
         else:
             print(datael.to_string())
     elif uri:
-        df = restParser(nidm_file_list.split(','), uri, int(verbosity))
+        restParser = RestParser(verbosity_level = int(verbosity))
         if j:
-            print (dumps(df, indent=2))
+            restParser.setOutputFormat(RestParser.JSON_FORMAT)
         else:
-            if type(df) == list:
-                for x in df:
-                    print (x)
-            elif type(df) == dict:
-                for k in df.keys():
-                    print (str(k) + ' ' + str(df[k]))
-            else:
-                print (df.to_string())
+            restParser.setOutputFormat(RestParser.CLI_FORMAT)
+        df = restParser.run(nidm_file_list.split(','), uri)
+
+        print (df)
+
     elif get_dataelements_brainvols:
         brainvol = GetBrainVolumeDataElements(nidm_file_list=nidm_file_list)
          #if output file parameter specified
