@@ -56,8 +56,44 @@ from bids import BIDSLayout
 import hashlib
 from io import StringIO
 from rdflib import Graph, RDF, Namespace, Literal,URIRef
+from subprocess import Popen, PIPE
+from datalad.support.annexrepo import AnnexRepo
 
 from nidm.core.Constants import DD
+
+def addDataladDatasetUUID(project_uuid,bidsroot_directory,graph):
+    '''
+    This function will add the datalad unique ID for this dataset to the project entity uuid in graph. This
+    UUID will ultimately be used by datalad to identify the dataset
+    :param project_uuid: unique project activity ID in graph to add tuple
+    :param bidsroot_directory: root directory for which to collect datalad uuids
+    :return: augmented graph with datalad unique IDs
+    '''
+
+def addGitAnnexSources(obj, bids_root, filepath = None):
+    '''
+    This function will add git-annex sources as tuples to entity uuid in graph. These sources
+    can ultimately be used to retrieve the file(s) described in the entity uuid using git-annex (or datalad)
+    :param obj: entity/activity object to add tuples
+    :param filepath: relative path to file (or directory) for which to add sources to graph.  If not set then bids_root
+    git annex source url will be added to obj instead of filepath git annex source url.
+    :param bids_root: root directory of BIDS dataset
+    :return: number of sources found
+    '''
+
+    # load git annex information if exists
+
+    repo = AnnexRepo(bids_root)
+    if filepath is not None:
+        sources = repo.get_urls(filepath)
+    else:
+        sources = repo.get_urls(bids_root)
+
+    for source in sources:
+        # add to graph uuid
+        obj.add_attributes({Constants.PROV["Location"]: URIRef(source)})
+
+    return len(sources)
 
 
 def getRelPathToBIDS(filepath, bids_root):
@@ -261,8 +297,15 @@ def addimagingsessions(bids_layout,subject_id,session,participant, directory,img
             # add file link
             # make relative link to
             acq_obj.add_attributes({Constants.NIDM_FILENAME:getRelPathToBIDS(join(file_tpl.dirname,file_tpl.filename), directory)})
-            # WIP: add absolute location of BIDS directory on disk for later finding of files
-            acq_obj.add_attributes({Constants.PROV['Location']:directory})
+
+            # add git-annex info if exists
+            num_sources = addGitAnnexSources(obj=acq_obj,filepath=join(file_tpl.dirname,file_tpl.filename),bids_root=directory)
+            # if there aren't any git annex sources then just store the local directory information
+            if num_sources == 0:
+                # WIP: add absolute location of BIDS directory on disk for later finding of files
+                acq_obj.add_attributes({Constants.PROV['Location']:"file:/" + join(file_tpl.dirname,file_tpl.filename)})
+
+
 
             # add sha512 sum
             if isfile(join(directory,file_tpl.dirname,file_tpl.filename)):
@@ -323,8 +366,16 @@ def addimagingsessions(bids_layout,subject_id,session,participant, directory,img
                 logging.info("WARNING: No matching image usage type found in BIDS_Constants.py for %s" % file_tpl.entities['datatype'])
             # make relative link to
             acq_obj.add_attributes({Constants.NIDM_FILENAME:getRelPathToBIDS(join(file_tpl.dirname,file_tpl.filename), directory)})
-            # WIP: add absolute location of BIDS directory on disk for later finding of files
-            acq_obj.add_attributes({Constants.PROV['Location']:directory})
+
+            # add git-annex/datalad info if exists
+            num_sources=addGitAnnexSources(obj=acq_obj,filepath=join(file_tpl.dirname,file_tpl.filename),bids_root=directory)
+
+            # if there aren't any git annex sources then just store the local directory information
+            if num_sources == 0:
+                # WIP: add absolute location of BIDS directory on disk for later finding of files
+                acq_obj.add_attributes({Constants.PROV['Location']:"file:/" + join(file_tpl.dirname,file_tpl.filename)})
+
+
 
             # add sha512 sum
             if isfile(join(directory,file_tpl.dirname,file_tpl.filename)):
@@ -359,6 +410,16 @@ def addimagingsessions(bids_layout,subject_id,session,participant, directory,img
                 events_obj.add_attributes({PROV_TYPE:Constants.NIDM_MRI_BOLD_EVENTS,BIDS_Constants.json_keys["TaskName"]: json_data["TaskName"], Constants.NIDM_FILENAME:getRelPathToBIDS(events_file[0].filename, directory)})
                 #link it to appropriate MR acquisition entity
                 events_obj.wasAttributedTo(acq_obj)
+
+                # add source links for this file
+                # add git-annex/datalad info if exists
+                num_sources=addGitAnnexSources(obj=events_obj,filepath=events_file,bids_root=directory)
+
+                # if there aren't any git annex sources then just store the local directory information
+                if num_sources == 0:
+                    # WIP: add absolute location of BIDS directory on disk for later finding of files
+                    events_obj.add_attributes({Constants.PROV['Location']:"file:/" + events_file})
+
 
             #Parse task-rest_bold.json file in BIDS directory to add the attributes contained inside
             if (os.path.isdir(os.path.join(directory))):
@@ -408,6 +469,12 @@ def addimagingsessions(bids_layout,subject_id,session,participant, directory,img
             else:
                 logging.info("WARNING file %s doesn't exist! No SHA512 sum stored in NIDM files..." %join(directory,file_tpl.dirname,file_tpl.filename))
 
+            # add git-annex/datalad info if exists
+            num_sources = addGitAnnexSources(obj=acq_obj,filepath=join(file_tpl.dirname,file_tpl.filename),bids_root=directory)
+
+            if num_sources == 0:
+                acq_obj.add_attributes({Constants.PROV['Location']: "file:/" + join(file_tpl.dirname,file_tpl.filename)})
+
             if 'run' in file_tpl.entities:
                 acq_obj.add_attributes({BIDS_Constants.json_keys["run"]:file_tpl.run})
 
@@ -428,8 +495,13 @@ def addimagingsessions(bids_layout,subject_id,session,participant, directory,img
             acq_obj_bval.add_attributes({PROV_TYPE:BIDS_Constants.scans["bval"]})
             # add file link to bval files
             acq_obj_bval.add_attributes({Constants.NIDM_FILENAME:getRelPathToBIDS(join(file_tpl.dirname,bids_layout.get_bval(join(file_tpl.dirname,file_tpl.filename))),directory)})
-            # WIP: add absolute location of BIDS directory on disk for later finding of files
-            acq_obj_bval.add_attributes({Constants.PROV['Location']:directory})
+
+            # add git-annex/datalad info if exists
+            num_sources = addGitAnnexSources(obj=acq_obj_bval,filepath=join(file_tpl.dirname,bids_layout.get_bval(join(file_tpl.dirname,file_tpl.filename))),bids_root=directory)
+
+            if num_sources == 0:
+                # WIP: add absolute location of BIDS directory on disk for later finding of files
+                acq_obj_bval.add_attributes({Constants.PROV['Location']:"file:/" + join(file_tpl.dirname,bids_layout.get_bval(join(file_tpl.dirname,file_tpl.filename)))})
 
             # add sha512 sum
             if isfile(join(directory,file_tpl.dirname,file_tpl.filename)):
@@ -440,8 +512,13 @@ def addimagingsessions(bids_layout,subject_id,session,participant, directory,img
             acq_obj_bvec.add_attributes({PROV_TYPE:BIDS_Constants.scans["bvec"]})
             #add file link to bvec files
             acq_obj_bvec.add_attributes({Constants.NIDM_FILENAME:getRelPathToBIDS(join(file_tpl.dirname,bids_layout.get_bvec(join(file_tpl.dirname,file_tpl.filename))),directory)})
-            #WIP: add absolute location of BIDS directory on disk for later finding of files
-            acq_obj_bvec.add_attributes({Constants.PROV['Location']:directory})
+
+            # add git-annex/datalad info if exists
+            num_sources = addGitAnnexSources(obj=acq_obj_bvec,filepath=join(file_tpl.dirname,bids_layout.get_bvec(join(file_tpl.dirname,file_tpl.filename))),bids_root=directory)
+
+            if num_sources == 0:
+               #WIP: add absolute location of BIDS directory on disk for later finding of files
+                acq_obj_bvec.add_attributes({Constants.PROV['Location']:"file:/" + join(file_tpl.dirname,bids_layout.get_bvec(join(file_tpl.dirname,file_tpl.filename)))})
 
             if isfile(join(directory,file_tpl.dirname,file_tpl.filename)):
                 #add sha512 sum
@@ -471,6 +548,13 @@ def bidsmri2project(directory, args):
     # create project / nidm-exp doc
     project = Project()
 
+    # if there are git annex sources then add them
+    num_sources=addGitAnnexSources(obj=project.get_uuid(),bids_root=directory)
+    # else just add the local path to the dataset
+    if num_sources == 0:
+        project.add_attributes({Constants.PROV['Location']:"file:/" + directory})
+
+
     # add various attributes if they exist in BIDS dataset
     for key in dataset:
         # if key from dataset_description file is mapped to term in BIDS_Constants.py then add to NIDM object
@@ -479,8 +563,9 @@ def bidsmri2project(directory, args):
                 project.add_attributes({BIDS_Constants.dataset_description[key]:"".join(dataset[key])})
             else:
                 project.add_attributes({BIDS_Constants.dataset_description[key]:dataset[key]})
-        # add absolute location of BIDS directory on disk for later finding of files which are stored relatively in NIDM document
-        project.add_attributes({Constants.PROV['Location']:directory})
+
+
+
 
     # get BIDS layout
     bids_layout = BIDSLayout(directory)
@@ -550,6 +635,8 @@ def bidsmri2project(directory, args):
                 participant[subjid] = {}
                 participant[subjid]['person'] = acq.add_person(attributes=({Constants.NIDM_SUBJECTID:row['participant_id']}))
 
+                # add nfo:filename entry to assessment entity to reflect provenance of where this data came from
+                acq_entity.add_attributes({Constants.NIDM_FILENAME:getRelPathToBIDS(os.path.join(directory,'participants.tsv'),directory)})
 
                 #add qualified association of participant with acquisition activity
                 acq.add_qualified_association(person=participant[subjid]['person'],role=Constants.NIDM_PARTICIPANT)
@@ -635,6 +722,7 @@ def bidsmri2project(directory, args):
         addimagingsessions(bids_layout=bids_layout,subject_id=subject_id,session=Session(project),participant=participant, directory=directory)
 
 
+
         # Added temporarily to support phenotype files
         # for each *.tsv / *.json file pair in the phenotypes directory
         # WIP: ADD VARIABLE -> TERM MAPPING HERE
@@ -654,6 +742,7 @@ def bidsmri2project(directory, args):
                         acq.add_qualified_association(person=participant[subject_id]['person'],role=Constants.NIDM_PARTICIPANT)
 
                         acq_entity = AssessmentObject(acquisition=acq)
+
 
 
                         for key,value in row.items():

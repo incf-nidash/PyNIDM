@@ -42,11 +42,14 @@ class Project(pm.ProvActivity,Core):
             self.graph = Constants.NIDMDocument(namespaces=Constants.namespaces)
 
         if uuid is None:
+            self._uuid = getUUID()
+
             #execute default parent class constructor
-            super(Project,self).__init__(self.graph, pm.QualifiedName(pm.Namespace("niiri",Constants.NIIRI),getUUID()),attributes)
+            super(Project,self).__init__(self.graph, pm.QualifiedName(pm.Namespace("niiri",Constants.NIIRI),self.get_uuid()),attributes)
         else:
+            self._uuid = uuid
             #execute default parent class constructor
-            super(Project,self).__init__(self.graph, pm.QualifiedName(pm.Namespace("niiri",Constants.NIIRI),uuid),attributes)
+            super(Project,self).__init__(self.graph, pm.QualifiedName(pm.Namespace("niiri",Constants.NIIRI),self.get_uuid()),attributes)
         #add record to graph
         self.graph._add_record(self)
         #create empty sessions list
