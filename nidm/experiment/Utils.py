@@ -259,7 +259,7 @@ def add_metadata_for_subject (rdf_graph,subject_uri,namespaces,nidm_obj):
                             nidm_obj.add_qualified_association(person=person,role=pm.QualifiedName(uris,obj_term))
 
         else:
-            if validators.url(objects):
+            if (validators.url(objects)) and (predicate != Constants.PROV['Location']):
                 #create qualified names for objects
                 obj_nm,obj_term = split_uri(objects)
                 for uris in namespaces:
@@ -268,7 +268,11 @@ def add_metadata_for_subject (rdf_graph,subject_uri,namespaces,nidm_obj):
                         nidm_obj.add_attributes({predicate : pm.QualifiedName(uris,obj_term)})
             else:
 
-                nidm_obj.add_attributes({predicate : get_RDFliteral_type(objects)})
+                # check if objects is a url and if so store it as a URIRef else a Literal
+                if validators.url(objects):
+                    nidm_obj.add_attributes({predicate : URIRef(objects)})
+                else:
+                    nidm_obj.add_attributes({predicate : get_RDFliteral_type(objects)})
 
 
 def QuerySciCrunchElasticSearch(query_string,type='cde', anscestors=True):
