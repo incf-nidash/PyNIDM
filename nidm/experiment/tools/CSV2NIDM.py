@@ -197,6 +197,9 @@ def main(argv):
                 #add qualified association with existing agent
                 acq.add_qualified_association(person=row[2],role=Constants.NIDM_PARTICIPANT)
 
+                # store file to acq_entity
+                acq_entity.add_attributes({Constants.NIDM_FILENAME : "file:/" + args.csv_file})
+
                 #store other data from row with columns_to_term mappings
                 for row_variable in csv_row:
                     #check if row_variable is subject id, if so skip it
@@ -286,6 +289,8 @@ def main(argv):
             #create prov:Agent for subject
             #acq.add_person(attributes=({Constants.NIDM_SUBJECTID:row['participant_id']}))
 
+            # store file to acq_entity
+            acq_entity.add_attributes({Constants.NIDM_FILENAME : "file:/" + args.csv_file})
 
 
             #store other data from row with columns_to_term mappings

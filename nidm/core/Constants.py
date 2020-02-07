@@ -60,6 +60,7 @@ BIDS = Namespace("http://bids.neuroimaging.io/")
 OWL = Namespace("http://www.w3.org/2002/07/owl#")
 ONLI = Namespace("http://neurolog.unice.fr/ontoneurolog/v3.0/instrument.owl#")
 PATO = Namespace("http://purl.obolibrary.org/obo/pato#")
+DATALAD = Namespace("http://datasets.datalad.org/")
 
 namespaces = {
    # "prov": PROV,
@@ -91,7 +92,8 @@ namespaces = {
     "bids" : BIDS,
     "owl" : OWL,
     "onli" : ONLI,
-    "pato" : PATO
+    "pato" : PATO,
+	"datalad" : DATALAD
     }
 
 # Empty graph used to compute qnames
@@ -375,6 +377,7 @@ NIDM_MRI_DIFFUSION_TENSOR = QualifiedName(provNamespace("nidm", NIDM),"Diffusion
 NIDM_MRI_FLOW = QualifiedName(provNamespace("nidm", NIDM),"FlowWeighted")
 NIDM_MRI_BOLD_EVENTS = QualifiedName(provNamespace("nidm", NIDM),"StimulusResponseFile")
 CRYPTO_SHA512  =QualifiedName(provNamespace("crypto", CRYPTO),"sha512")
+DATALAD_LOCATION = QualifiedName(provNamespace("datalad", DATALAD),"Location")
 ##############################################################################
 # OBO constants
 OBO_EXAMPLE = OBO['IAO_0000112']

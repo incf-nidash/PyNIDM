@@ -53,6 +53,8 @@ class Core(object):
         self.graph = Constants.NIDMDocument()
         #make a local copy of the namespaces
         self.namespaces = Constants.namespaces
+        # storage for uuid
+        self._uuid = None
 
     #class constructor with user-supplied PROV document/graph, namespaces from Constants.py
     @classmethod
@@ -86,6 +88,13 @@ class Core(object):
         #bind namespaces to self.graph
         for name, namespace in self.namespaces.items():
             self.graph.add_namespace(name, namespace)
+    def get_uuid(self):
+        '''
+        returns UUID of self
+        :return:
+        '''
+        return self._uuid
+
     def getGraph(self):
         """
         Returns rdflib.Graph object
