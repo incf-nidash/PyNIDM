@@ -37,7 +37,7 @@ import sys, getopt, os
 from nidm.experiment import Project,Session,MRAcquisition,AcquisitionObject,DemographicsObject, AssessmentAcquisition, \
     AssessmentObject,MRObject
 from nidm.core import BIDS_Constants,Constants
-from prov.model import PROV_LABEL,PROV_TYPE
+from prov.model import PROV_LABEL,PROV_TYPE, ProvInfluence
 from nidm.experiment.Utils import map_variables_to_terms, add_attributes_with_cde
 from pandas import DataFrame
 from prov.model import QualifiedName
@@ -615,6 +615,20 @@ def bidsmri2project(directory, args):
                     temp=DataFrame(columns=mapping_list)
                     column_to_terms, cde = map_variables_to_terms(directory=directory, assessment_name='participants.tsv', df=temp,output_file=os.path.join(directory,'participants.json'),json_file=args.json_map)
 
+            # if there's a JSON sidecar file then create an entity and associate it with all the assessment entities
+            if os.path.isfile(os.path.join(directory,'participants.json')):
+                json_sidecar = AssessmentObject(acquisition=acq)
+                json_sidecar.add_attributes({PROV_TYPE:Constants.BIDS["sidecar_file"], Constants.NIDM_FILENAME:
+                    getRelPathToBIDS(os.path.join(directory,'participants.json'),directory)})
+
+                # add Git Annex Sources
+                # if there are git annex sources for participants.tsv file then add them
+                num_sources=addGitAnnexSources(obj=json_sidecar.get_uuid(),filepath=os.path.join(directory,'participants.json'),bids_root=directory)
+                # else just add the local path to the dataset
+                if num_sources == 0:
+                    json_sidecar.add_attributes({Constants.PROV['Location']:"file:/" + os.path.join(directory,'participants.json')})
+
+
 
             for row in participants_data:
                 #create session object for subject to be used for participant metadata and image data
@@ -637,11 +651,22 @@ def bidsmri2project(directory, args):
 
                 # add nfo:filename entry to assessment entity to reflect provenance of where this data came from
                 acq_entity.add_attributes({Constants.NIDM_FILENAME:getRelPathToBIDS(os.path.join(directory,'participants.tsv'),directory)})
+                #acq_entity.add_attributes({Constants.NIDM_FILENAME:os.path.join(directory,'participants.tsv')})
 
                 #add qualified association of participant with acquisition activity
                 acq.add_qualified_association(person=participant[subjid]['person'],role=Constants.NIDM_PARTICIPANT)
                 # print(acq)
 
+                # if there are git annex sources for participants.tsv file then add them
+                num_sources=addGitAnnexSources(obj=acq_entity.get_uuid(),bids_root=directory)
+                # else just add the local path to the dataset
+                if num_sources == 0:
+                    acq_entity.add_attributes({Constants.PROV['Location']:"file:/" + os.path.join(directory,'participants.tsv')})
+
+                # check if json_sidecar entity exists and if so associate assessment entity with it
+                if 'json_sidecar' in  locals():
+                    #connect json_entity with acq_entity
+                    acq_entity.add_attributes({Constants.PROV["wasInfluencedBy"]:json_sidecar.get_uuid()})
 
                 for key,value in row.items():
                     if not value:
@@ -756,13 +781,34 @@ def bidsmri2project(directory, args):
 
                         # link TSV file
                         acq_entity.add_attributes({Constants.NIDM_FILENAME:getRelPathToBIDS(tsv_file,directory)})
-                        # WIP: add absolute location of BIDS directory on disk for later finding of files
-                        acq_entity.add_attributes({Constants.PROV['Location']:directory})
+                        #acq_entity.add_attributes({Constants.NIDM_FILENAME:tsv_file})
+
+                        # if there are git annex sources for participants.tsv file then add them
+                        num_sources=addGitAnnexSources(obj=acq_entity.get_uuid(),bids_root=directory)
+                        # else just add the local path to the dataset
+                        if num_sources == 0:
+                            acq_entity.add_attributes({Constants.PROV['Location']:"file:/" + tsv_file})
+
 
                         # link associated JSON file if it exists
                         data_dict = os.path.join(directory,"phenotype",os.path.splitext(os.path.basename(tsv_file))[0]+ ".json")
                         if os.path.isfile(data_dict):
-                            acq_entity.add_attributes({Constants.BIDS["data_dictionary"]:getRelPathToBIDS(data_dict,directory)})
+                            # if file exists, create a new entity and associate it with the appropriate activity  and a used relationship
+                            # with the TSV-related entity
+                            json_entity = AssessmentObject(acquisition=acq)
+                            json_entity.add_attributes({PROV_TYPE:Constants.BIDS["sidecar_file"], Constants.NIDM_FILENAME:
+                                getRelPathToBIDS(data_dict,directory)})
+
+                            # add Git Annex Sources
+                            # if there are git annex sources for participants.tsv file then add them
+                            num_sources=addGitAnnexSources(obj=json_entity.get_uuid(),filepath=data_dict,bids_root=directory)
+                            # else just add the local path to the dataset
+                            if num_sources == 0:
+                                json_entity.add_attributes({Constants.PROV['Location']:"file:/" + data_dict})
+
+                            #connect json_entity with acq_entity
+                            acq_entity.add_attributes({Constants.PROV["wasInfluencedBy"]:json_entity.get_uuid()})
+
 
     return project, cde
 
