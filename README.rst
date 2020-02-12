@@ -26,6 +26,8 @@ macOS
 	$ conda create -n pynidm_py3 python=3
 	$ source activate pynidm_py3
 	$ cd PyNIDM
+ 	$ pip install datalad
+	$ pip install neurdflib
 	$ pip install -e .
 
 You can try to run a test: `pytest`

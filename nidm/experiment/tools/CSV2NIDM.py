@@ -37,7 +37,7 @@
 import os,sys
 from nidm.experiment import Project,Session,AssessmentAcquisition,AssessmentObject
 from nidm.core import Constants
-from nidm.experiment.Utils import read_nidm, map_variables_to_terms, add_attributes_with_cde
+from nidm.experiment.Utils import read_nidm, map_variables_to_terms, add_attributes_with_cde, addGitAnnexSources
 from argparse import ArgumentParser
 from os.path import  dirname, join, splitext,basename
 import json
@@ -197,8 +197,15 @@ def main(argv):
                 #add qualified association with existing agent
                 acq.add_qualified_association(person=row[2],role=Constants.NIDM_PARTICIPANT)
 
+                # add git-annex info if exists
+                num_sources = addGitAnnexSources(obj=acq_entity,filepath=args.csv_file,bids_root=dirname(args.csv_file))
+                # if there aren't any git annex sources then just store the local directory information
+                if num_sources == 0:
+                    # WIP: add absolute location of BIDS directory on disk for later finding of files
+                    acq_entity.add_attributes({Constants.PROV['Location']:"file:/" + args.csv_file})
+
                 # store file to acq_entity
-                acq_entity.add_attributes({Constants.NIDM_FILENAME : "file:/" + args.csv_file})
+                acq_entity.add_attributes({Constants.NIDM_FILENAME:basename(args.csv_file)})
 
                 #store other data from row with columns_to_term mappings
                 for row_variable in csv_row:
@@ -289,8 +296,15 @@ def main(argv):
             #create prov:Agent for subject
             #acq.add_person(attributes=({Constants.NIDM_SUBJECTID:row['participant_id']}))
 
+            # add git-annex info if exists
+            num_sources = addGitAnnexSources(obj=acq_entity,filepath=args.csv_file,bids_root=os.path.dirname(args.csv_file))
+            # if there aren't any git annex sources then just store the local directory information
+            if num_sources == 0:
+                # WIP: add absolute location of BIDS directory on disk for later finding of files
+                acq_entity.add_attributes({Constants.PROV['Location']:"file:/" + args.csv_file})
+
             # store file to acq_entity
-            acq_entity.add_attributes({Constants.NIDM_FILENAME : "file:/" + args.csv_file})
+            acq_entity.add_attributes({Constants.NIDM_FILENAME : basename(args.csv_file)})
 
 
             #store other data from row with columns_to_term mappings

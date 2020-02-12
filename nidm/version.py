@@ -3,7 +3,7 @@ import os.path
 
 # Format expected by setup.py and doc/source/conf.py: string of form "X.Y.Z"
 _version_major = 0
-_version_minor = 3
+_version_minor = 4
 _version_micro = ''  # use '' for first of series, number for 1 and above
 _version_extra = 'dev'
 # _version_extra = ''  # Uncomment this for full releases
@@ -28,7 +28,7 @@ CLASSIFIERS = ["Development Status :: 3 - Alpha",
 
 # Description should be a one-liner:
 # TODO
-description = "PYNIDM: a Python NIDM library"
+description = "PYNIDM: a Python NIDM library and tools"
 # Long description will go up on the pypi page
 long_description = """
 NIDM
@@ -55,8 +55,6 @@ MAJOR = _version_major
 MINOR = _version_minor
 MICRO = _version_micro
 VERSION = __version__
-#REQUIRES = ["prov", "rdflib", "graphviz", "pydotplus", "pydot", "validators", "requests", "fuzzywuzzy", "pygithub",
-#            "pandas", "pybids", "duecredit", "pytest", "graphviz", "click", "ontquery"]
-INSTALL_REQUIRES = ["prov", "rdflib", "graphviz", "pydotplus", "pydot", "validators", "requests", "fuzzywuzzy", "pygithub",
-            "pandas", "pybids", "duecredit", "pytest", "graphviz", "click", "ontquery","rdflib-jsonld","pyld", "neurdflib","datalad","ontquery>=0.2.2[services]"]
+INSTALL_REQUIRES = ["prov", "graphviz", "pydotplus", "pydot", "validators", "requests", "fuzzywuzzy", "pygithub",
+"pandas", "pybids", "duecredit", "pytest", "graphviz", "click", "ontquery","rdflib-jsonld","pyld", "neurdflib","datalad","ontquery>=0.2.2", "orthauth>=0.0.8"]
 SCRIPTS = ["bin/nidm_query", "bin/BIDSMRI2NIDM", "bin/CSV2NIDM","bin/nidm_utils"]

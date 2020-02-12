@@ -37,8 +37,9 @@ import sys, getopt, os
 from nidm.experiment import Project,Session,MRAcquisition,AcquisitionObject,DemographicsObject, AssessmentAcquisition, \
     AssessmentObject,MRObject
 from nidm.core import BIDS_Constants,Constants
+
 from prov.model import PROV_LABEL,PROV_TYPE, ProvInfluence
-from nidm.experiment.Utils import map_variables_to_terms, add_attributes_with_cde
+from nidm.experiment.Utils import map_variables_to_terms, add_attributes_with_cde, addGitAnnexSources
 from pandas import DataFrame
 from prov.model import QualifiedName
 from prov.model import Namespace as provNamespace
@@ -60,41 +61,6 @@ from subprocess import Popen, PIPE
 from datalad.support.annexrepo import AnnexRepo
 
 from nidm.core.Constants import DD
-
-def addDataladDatasetUUID(project_uuid,bidsroot_directory,graph):
-    '''
-    This function will add the datalad unique ID for this dataset to the project entity uuid in graph. This
-    UUID will ultimately be used by datalad to identify the dataset
-    :param project_uuid: unique project activity ID in graph to add tuple
-    :param bidsroot_directory: root directory for which to collect datalad uuids
-    :return: augmented graph with datalad unique IDs
-    '''
-
-def addGitAnnexSources(obj, bids_root, filepath = None):
-    '''
-    This function will add git-annex sources as tuples to entity uuid in graph. These sources
-    can ultimately be used to retrieve the file(s) described in the entity uuid using git-annex (or datalad)
-    :param obj: entity/activity object to add tuples
-    :param filepath: relative path to file (or directory) for which to add sources to graph.  If not set then bids_root
-    git annex source url will be added to obj instead of filepath git annex source url.
-    :param bids_root: root directory of BIDS dataset
-    :return: number of sources found
-    '''
-
-    # load git annex information if exists
-
-    repo = AnnexRepo(bids_root)
-    if filepath is not None:
-        sources = repo.get_urls(filepath)
-    else:
-        sources = repo.get_urls(bids_root)
-
-    for source in sources:
-        # add to graph uuid
-        obj.add_attributes({Constants.PROV["Location"]: URIRef(source)})
-
-    return len(sources)
-
 
 def getRelPathToBIDS(filepath, bids_root):
     """
