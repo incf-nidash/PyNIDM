@@ -304,17 +304,17 @@ def QuerySciCrunchElasticSearch(query_string,type='cde', anscestors=True):
     params = (
         ('key', os.environ["INTERLEX_API_KEY"]),
     )
-    if type is 'cde':
+    if type == 'cde':
         if anscestors:
             data = '\n{\n  "query": {\n    "bool": {\n       "must" : [\n       {  "term" : { "type" : "cde" } },\n       { "terms" : { "ancestors.ilx" : ["ilx_0115066" , "ilx_0103210", "ilx_0115072", "ilx_0115070"] } },\n       { "multi_match" : {\n         "query":    "%s", \n         "fields": [ "label", "definition" ] \n       } }\n]\n    }\n  }\n}\n' %query_string
         else:
             data = '\n{\n  "query": {\n    "bool": {\n       "must" : [\n       {  "term" : { "type" : "cde" } },\n             { "multi_match" : {\n         "query":    "%s", \n         "fields": [ "label", "definition" ] \n       } }\n]\n    }\n  }\n}\n' %query_string
-    elif type is 'pde':
+    elif type == 'pde':
         if anscestors:
             data = '\n{\n  "query": {\n    "bool": {\n       "must" : [\n       {  "term" : { "type" : "pde" } },\n       { "terms" : { "ancestors.ilx" : ["ilx_0115066" , "ilx_0103210", "ilx_0115072", "ilx_0115070"] } },\n       { "multi_match" : {\n         "query":    "%s", \n         "fields": [ "label", "definition" ] \n       } }\n]\n    }\n  }\n}\n' %query_string
         else:
             data = '\n{\n  "query": {\n    "bool": {\n       "must" : [\n       {  "term" : { "type" : "pde" } },\n              { "multi_match" : {\n         "query":    "%s", \n         "fields": [ "label", "definition" ] \n       } }\n]\n    }\n  }\n}\n' %query_string
-    elif type is 'fde':
+    elif type == 'fde':
         if anscestors:
             data = '\n{\n  "query": {\n    "bool": {\n       "must" : [\n       {  "term" : { "type" : "fde" } },\n       { "terms" : { "ancestors.ilx" : ["ilx_0115066" , "ilx_0103210", "ilx_0115072", "ilx_0115070"] } },\n       { "multi_match" : {\n         "query":    "%s", \n         "fields": [ "label", "definition" ] \n       } }\n]\n    }\n  }\n}\n' %query_string
         else:
@@ -992,7 +992,7 @@ def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_
             # print("writing %s " %output_file)
             # logging.info("saving json mapping file: %s" %os.path.join(os.path.basename(output_file), \
             #                            os.path.splitext(output_file)[0]+".json"))
-            with open(os.path.join(os.path.basename(output_file),os.path.splitext(output_file)[0]+".json"),'w+') \
+            with open(os.path.join(os.path.dirname(output_file),os.path.splitext(output_file)[0]+".json"),'w+') \
                     as fp:
                 json.dump(column_to_terms,fp)
 

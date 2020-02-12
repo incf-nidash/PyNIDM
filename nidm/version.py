@@ -58,5 +58,5 @@ VERSION = __version__
 #REQUIRES = ["prov", "rdflib", "graphviz", "pydotplus", "pydot", "validators", "requests", "fuzzywuzzy", "pygithub",
 #            "pandas", "pybids", "duecredit", "pytest", "graphviz", "click", "ontquery"]
 INSTALL_REQUIRES = ["prov", "rdflib", "graphviz", "pydotplus", "pydot", "validators", "requests", "fuzzywuzzy", "pygithub",
-            "pandas", "pybids", "duecredit", "pytest", "graphviz", "click", "ontquery","rdflib-jsonld","pyld", "neurdflib","datalad"]
+            "pandas", "pybids", "duecredit", "pytest", "graphviz", "click", "ontquery","rdflib-jsonld","pyld", "neurdflib","datalad","ontquery>=0.2.2[services]"]
 SCRIPTS = ["bin/nidm_query", "bin/BIDSMRI2NIDM", "bin/CSV2NIDM","bin/nidm_utils"]
