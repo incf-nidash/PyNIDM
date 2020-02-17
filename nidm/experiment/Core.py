@@ -7,7 +7,7 @@ import types
 import graphviz
 from rdflib import Graph, RDF, URIRef, util, plugin
 from rdflib.serializer import Serializer
-
+from copy import deepcopy
 
 #sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from ..core import Constants
@@ -483,13 +483,13 @@ class Core(object):
                     if session.identifier.uri in str(dot.obj_dict['nodes'][key][0]['attributes']['URL']):
                         session_node = key
                         print("session node = %s" % key)
-
-                        temp = {}
-                        temp = dot.obj_dict['edges']['n5', 'n4']
+                        temp = deepcopy(dot.obj_dict['edges']['n1', 'b1'])
                         temp[0]['points'] = (session_node, project_node)
                         temp[0]['attributes']['label'] = 'isPartOf'
+                        temp[0]['attributes']['color'] = 'darkgreen'
+                        temp[0]['attributes']['fontsize'] = '10.0'
                         dot.obj_dict['edges'][session_node,project_node]=[temp[0]]
-                        
+
                 # for each Acquisition in Session class session.getacquisitions() list, find node numbers in DOT graph
                         for acquisition in session.get_acquisitions():
                             # search through the nodes again to figure out node number for acquisition
@@ -501,10 +501,13 @@ class Core(object):
                                         acquisition_node = key1
                                         print("acquisition node = %s" % key1)
                                         temp = {}
-                                        temp = dot.obj_dict['edges']['n5', 'n4']
+                                        temp = deepcopy(dot.obj_dict['edges']['n1', 'b1'])
                                         temp[0]['points'] = (session_node, acquisition_node)
                                         temp[0]['attributes']['label'] = 'isPartOf'
+                                        temp[0]['attributes']['color'] = 'darkgreen'
+                                        temp[0]['attributes']['fontsize'] = '10.0'
                                         dot.obj_dict['edges'][session_node, acquisition_node] = [temp[0]]
+        return 3;
 
 
     def prefix_to_context(self):
