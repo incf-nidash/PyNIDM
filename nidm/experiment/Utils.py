@@ -1144,17 +1144,20 @@ def addGitAnnexSources(obj, bids_root, filepath = None):
     '''
 
     # load git annex information if exists
+    try:
+        repo = AnnexRepo(bids_root)
+        if filepath is not None:
+            sources = repo.get_urls(filepath)
+        else:
+            sources = repo.get_urls(bids_root)
 
-    repo = AnnexRepo(bids_root)
-    if filepath is not None:
-        sources = repo.get_urls(filepath)
-    else:
-        sources = repo.get_urls(bids_root)
+        for source in sources:
+            # add to graph uuid
+            obj.add_attributes({Constants.PROV["Location"]: URIRef(source)})
 
-    for source in sources:
-        # add to graph uuid
-        obj.add_attributes({Constants.PROV["Location"]: URIRef(source)})
-
-    return len(sources)
+        return len(sources)
+    except:
+        print("Warning, error with AnnexRepo (Utils.py, addGitAnnexSources): %s" %sys.exc_info()[0])
+        return 0
 
 
