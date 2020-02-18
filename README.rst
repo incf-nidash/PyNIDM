@@ -11,7 +11,7 @@ A Python library to manipulate the [Neuroimaging Data Model](http://nidm.nidash.
 
 Dependencies
 ============
-
+* Git-annex <https://git-annex.branchable.com/install/>
 * Graphviz <http://graphviz.org> (native package):
 * Fedora: `dnf install graphviz`
 * OS-X: `brew install graphviz`
