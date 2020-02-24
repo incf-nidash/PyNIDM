@@ -29,10 +29,13 @@ class Acquisition(pm.ProvActivity,Core):
 
         """
         if uuid is None:
+            self._uuid = getUUID()
+
             #execute default parent class constructor
-            super(Acquisition,self).__init__(session.graph, pm.QualifiedName(pm.Namespace("niiri",Constants.NIIRI),getUUID()),attributes)
+            super(Acquisition,self).__init__(session.graph, pm.QualifiedName(pm.Namespace("niiri",Constants.NIIRI),self.get_uuid()),attributes)
         else:
-            super(Acquisition,self).__init__(session.graph, pm.QualifiedName(pm.Namespace("niiri",Constants.NIIRI),uuid),attributes)
+            self._uuid = uuid
+            super(Acquisition,self).__init__(session.graph, pm.QualifiedName(pm.Namespace("niiri",Constants.NIIRI),self.get_uuid()),attributes)
 
         session.graph._add_record(self)
 

@@ -29,11 +29,13 @@ class Session(pm.ProvActivity,Core):
 
         """
         if uuid is None:
+            self._uuid = getUUID()
             #execute default parent class constructor
-            super(Session,self).__init__(project.graph, pm.QualifiedName(pm.Namespace("niiri",Constants.NIIRI),getUUID()),attributes)
+            super(Session,self).__init__(project.graph, pm.QualifiedName(pm.Namespace("niiri",Constants.NIIRI),self.get_uuid()),attributes)
         else:
+            self._uuid = uuid
             #execute default parent class constructor
-            super(Session,self).__init__(project.graph, pm.QualifiedName(pm.Namespace("niiri",Constants.NIIRI),uuid),attributes)
+            super(Session,self).__init__(project.graph, pm.QualifiedName(pm.Namespace("niiri",Constants.NIIRI),self.get_uuid()),attributes)
 
         project.graph._add_record(self)
 
