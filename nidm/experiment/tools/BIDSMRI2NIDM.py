@@ -20,12 +20,6 @@
 #  Libraries: pybids, numpy, matplotlib, pandas, scipy, math, dateutil, datetime,argparse,
 #  os,sys,getopt,csv
 # **************************************************************************************
-#  Start date: 10-2-17
-#  Update history:
-#  DATE            MODIFICATION				Who
-#
-#
-# **************************************************************************************
 #  Programmer comments:
 #
 #
@@ -118,17 +112,17 @@ Example 4 (FULL MONTY): BIDS conversion with variable->term mappings, uses JSON 
 	\t\t } \n
     \t }""" ,formatter_class=RawTextHelpFormatter)
 
-    parser.add_argument('-d', dest='directory', required=True, help="Path to BIDS dataset directory")
+    parser.add_argument('-d', dest='directory', required=True, help="Full path to BIDS dataset directory")
     parser.add_argument('-jsonld', '--jsonld', action='store_true', help='If flag set, output is json-ld not TURTLE')
     parser.add_argument('-png', '--png', action='store_true', help='If flag set, tool will output PNG file of NIDM graph')
     parser.add_argument('-bidsignore', '--bidsignore', action='store_true', default = False, help='If flag set, tool will add NIDM-related files to .bidsignore file')
     # adding argument group for var->term mappings
     mapvars_group = parser.add_argument_group('map variables to terms arguments')
-    mapvars_group.add_argument('-json_map', '--json_map', dest='json_map',required=False,default=False,help="Optional user-suppled JSON file containing variable-term mappings.")
+    mapvars_group.add_argument('-json_map', '--json_map', dest='json_map',required=False,default=False,help="Optional full path to user-suppled JSON file containing variable-term mappings.")
     # mapvars_group.add_argument('-ilxkey', '--ilxkey', dest='key', required=False, default=None,  help="Interlex/SciCrunch API key to use for query and adding terms")
     # mapvars_group.add_argument('-owl', action='store_true', required=False, default=None,help='Optional flag to query nidm-experiment OWL files')
     # parser.add_argument('-mapvars', '--mapvars', action='store_true', help='If flag set, variables in participant.tsv and phenotype files will be interactively mapped to terms')
-    parser.add_argument('-log','--log', dest='logfile',required=False, default=None, help="directory to save log file. Log file name is bidsmri2nidm_[basename(args.directory)].log")
+    parser.add_argument('-log','--log', dest='logfile',required=False, default=None, help="Full path to directory to save log file. Log file name is bidsmri2nidm_[basename(args.directory)].log")
     parser.add_argument('-o', dest='outputfile', required=False, default="nidm.ttl", help="Outputs turtle file called nidm.ttl in BIDS directory by default..or whatever path/filename is set here")
 
     args = parser.parse_args()
@@ -560,7 +554,7 @@ def bidsmri2project(directory, args):
 
 
             #do variable-term mappings
-            if ( (args.json_map!=False) or (args.key != None) ):
+            if ( (args.json_map!=False)  ):
 
                  #if user didn't supply a json mapping file but we're doing some variable-term mapping create an empty one for column_to_terms to use
                  if args.json_map == False:
