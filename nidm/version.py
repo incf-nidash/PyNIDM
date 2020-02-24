@@ -3,7 +3,7 @@ import os.path
 
 # Format expected by setup.py and doc/source/conf.py: string of form "X.Y.Z"
 _version_major = 0
-_version_minor = 4
+_version_minor = 6
 _version_micro = ''  # use '' for first of series, number for 1 and above
 _version_extra = 'dev'
 # _version_extra = ''  # Uncomment this for full releases
@@ -17,7 +17,7 @@ if _version_extra:
 
 __version__ = '.'.join(map(str, _ver))
 
-CLASSIFIERS = ["Development Status :: 3 - Alpha",
+CLASSIFIERS = ["Development Status :: 4 - Beta",
                "Environment :: Console",
                "Intended Audience :: Science/Research",
                "License :: OSI Approved :: Apache Software License",
@@ -56,5 +56,5 @@ MINOR = _version_minor
 MICRO = _version_micro
 VERSION = __version__
 INSTALL_REQUIRES = ["prov", "graphviz", "pydotplus", "pydot", "validators", "requests", "fuzzywuzzy", "pygithub",
-"pandas", "pybids", "duecredit", "pytest", "graphviz", "click", "ontquery","rdflib-jsonld","pyld", "neurdflib","datalad","ontquery>=0.2.2", "orthauth>=0.0.8", "tabulate"]
-SCRIPTS = ["bin/nidm_query", "bin/BIDSMRI2NIDM", "bin/CSV2NIDM","bin/nidm_utils"]
+"pandas", "pybids", "duecredit", "pytest", "graphviz", "click", "ontquery","rdflib-jsonld","pyld", "neurdflib","datalad","ontquery>=0.2.2", "orthauth>=0.0.8", "tabulate","python-Levenshtein"]
+SCRIPTS = ["bin/nidm_query", "bin/bidsmri2nidm", "bin/csv2nidm","bin/nidm_utils"]

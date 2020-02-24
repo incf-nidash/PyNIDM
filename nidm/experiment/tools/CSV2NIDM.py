@@ -22,11 +22,6 @@
 # Libraries: pybids, numpy, matplotlib, pandas, scipy, math, dateutil, datetime,argparse,
 # os,sys,getopt,csv
 #**************************************************************************************
-# Start date: 01-19-18
-# Update history:
-# DATE            MODIFICATION				Who
-#
-#
 #**************************************************************************************
 # Programmer comments:
 #
@@ -83,15 +78,15 @@ def main(argv):
      for an account at scicrunch.org then going to My Account and API Keys.  Then set the environment \
      variable INTERLEX_API_KEY with your key.')
 
-    parser.add_argument('-csv', dest='csv_file', required=True, help="Path to CSV file to convert")
+    parser.add_argument('-csv', dest='csv_file', required=True, help="Full path to CSV file to convert")
     # parser.add_argument('-ilxkey', dest='key', required=True, help="Interlex/SciCrunch API key to use for query")
-    parser.add_argument('-json_map', dest='json_map',required=False,help="User-suppled JSON file containing variable-term mappings.")
-    parser.add_argument('-nidm', dest='nidm_file', required=False, help="Optional NIDM file to add CSV->NIDM converted graph to")
+    parser.add_argument('-json_map', dest='json_map',required=False,help="Full path to user-suppled JSON file containing variable-term mappings.")
+    parser.add_argument('-nidm', dest='nidm_file', required=False, help="Optional full path of NIDM file to add CSV->NIDM converted graph to")
     # parser.add_argument('-owl', action='store_true', required=False, help='Optionally searches NIDM OWL files...internet connection required')
     # parser.add_argument('-png', action='store_true', required=False, help='Optional flag, when set a PNG image file of RDF graph will be produced')
     # parser.add_argument('-jsonld', action='store_true', required=False, help='Optional flag, when set NIDM files are saved as JSON-LD instead of TURTLE')
-    parser.add_argument('-log','--log', dest='logfile',required=False, default=None, help="directory to save log file. Log file name is csv2nidm_[arg.csv_file].log")
-    parser.add_argument('-out', dest='output_file', required=True, help="Filename to save NIDM file")
+    parser.add_argument('-log','--log', dest='logfile',required=False, default=None, help="full path to directory to save log file. Log file name is csv2nidm_[arg.csv_file].log")
+    parser.add_argument('-out', dest='output_file', required=True, help="Full path with filename to save NIDM file")
     args = parser.parse_args()
 
 
@@ -233,22 +228,6 @@ def main(argv):
         copy2(src=args.nidm_file,dst=args.nidm_file+".bak")
         print("Writing NIDM file....")
         rdf_graph.serialize(destination=args.nidm_file,format='turtle')
-
-
-
-
-        #serialize NIDM file
-        # with open(args.nidm_file,'w') as f:
-        #    print("Writing NIDM file...")
-        #    if args.jsonld:
-        #        f.write(project.serializeJSONLD())
-        #    else:
-        #        f.write(project.serializeTurtle())
-        #
-        #    if args.png:
-        #        project.save_DotGraph(str(args.nidm_file + ".png"), format="png")
-
-
 
     else:
         print("Creating NIDM file...")
