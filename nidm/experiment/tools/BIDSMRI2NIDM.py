@@ -35,9 +35,7 @@ from nidm.core import BIDS_Constants,Constants
 from prov.model import PROV_LABEL,PROV_TYPE, ProvInfluence
 from nidm.experiment.Utils import map_variables_to_terms, add_attributes_with_cde, addGitAnnexSources
 from pandas import DataFrame
-from prov.model import QualifiedName
-from prov.model import Namespace as provNamespace
-from nidm.experiment.Core import Core
+from prov.model import QualifiedName,Namespace
 from os.path import isfile,join
 from argparse import RawTextHelpFormatter
 import json
@@ -50,11 +48,8 @@ from bids import BIDSLayout
 #  Python program to find SHA256 hash string of a file
 import hashlib
 from io import StringIO
-from rdflib import Graph, RDF, Namespace, Literal,URIRef
-from subprocess import Popen, PIPE
-from datalad.support.annexrepo import AnnexRepo
+from rdflib import Graph, RDF, Literal,URIRef
 
-from nidm.core.Constants import DD
 
 def getRelPathToBIDS(filepath, bids_root):
     """
@@ -553,40 +548,26 @@ def bidsmri2project(directory, args):
                     mapping_list.append(field)
 
 
-            #do variable-term mappings
-            if ( (args.json_map!=False)  ):
 
-                 #if user didn't supply a json mapping file but we're doing some variable-term mapping create an empty one for column_to_terms to use
-                 if args.json_map == False:
-                    #defaults to participants.json because here we're mapping the participants.tsv file variables to terms
-                    # if participants.json file doesn't exist then run without json mapping file
-                    if not os.path.isfile(os.path.join(directory,'participants.json')):
-                        #maps variables in CSV file to terms
-                        temp=DataFrame(columns=mapping_list)
-
-                        column_to_terms,cde = map_variables_to_terms(directory=directory,assessment_name='participants.tsv', df=temp,output_file=os.path.join(directory,'participants.json'))
-                    else:
-                        #maps variables in CSV file to terms
-                        temp=DataFrame(columns=mapping_list)
-                        column_to_terms,cde = map_variables_to_terms(directory=directory, assessment_name='participants.tsv', df=temp,output_file=os.path.join(directory,'participants.json'),json_file=os.path.join(directory,'participants.json'))
-
-                 else:
+            #if user didn't supply a json mapping file but we're doing some variable-term mapping create an empty one for column_to_terms to use
+            if args.json_map == False:
+                #defaults to participants.json because here we're mapping the participants.tsv file variables to terms
+                # if participants.json file doesn't exist then run without json mapping file
+                if not os.path.isfile(os.path.join(directory,'participants.json')):
                     #maps variables in CSV file to terms
                     temp=DataFrame(columns=mapping_list)
-                    column_to_terms, cde = map_variables_to_terms(directory=directory, assessment_name='participants.tsv', df=temp,output_file=os.path.join(directory,'participants.json'),json_file=args.json_map)
 
-            # if there's a JSON sidecar file then create an entity and associate it with all the assessment entities
-            if os.path.isfile(os.path.join(directory,'participants.json')):
-                json_sidecar = AssessmentObject(acquisition=acq)
-                json_sidecar.add_attributes({PROV_TYPE:Constants.BIDS["sidecar_file"], Constants.NIDM_FILENAME:
-                    getRelPathToBIDS(os.path.join(directory,'participants.json'),directory)})
+                    column_to_terms,cde = map_variables_to_terms(directory=directory,assessment_name='participants.tsv', df=temp,output_file=os.path.join(directory,'participants.json'))
+                else:
+                    #maps variables in CSV file to terms
+                    temp=DataFrame(columns=mapping_list)
+                    column_to_terms,cde = map_variables_to_terms(directory=directory, assessment_name='participants.tsv', df=temp,output_file=os.path.join(directory,'participants.json'),json_file=os.path.join(directory,'participants.json'))
 
-                # add Git Annex Sources
-                # if there are git annex sources for participants.tsv file then add them
-                num_sources=addGitAnnexSources(obj=json_sidecar.get_uuid(),filepath=os.path.join(directory,'participants.json'),bids_root=directory)
-                # else just add the local path to the dataset
-                if num_sources == 0:
-                    json_sidecar.add_attributes({Constants.PROV['Location']:"file:/" + os.path.join(directory,'participants.json')})
+            else:
+                #maps variables in CSV file to terms
+                temp=DataFrame(columns=mapping_list)
+                column_to_terms, cde = map_variables_to_terms(directory=directory, assessment_name='participants.tsv', df=temp,output_file=os.path.join(directory,'participants.json'),json_file=args.json_map)
+
 
 
 
@@ -623,10 +604,24 @@ def bidsmri2project(directory, args):
                 if num_sources == 0:
                     acq_entity.add_attributes({Constants.PROV['Location']:"file:/" + os.path.join(directory,'participants.tsv')})
 
+                 # if there's a JSON sidecar file then create an entity and associate it with all the assessment entities
+                if os.path.isfile(os.path.join(directory,'participants.json')):
+                    json_sidecar = AssessmentObject(acquisition=acq)
+                    json_sidecar.add_attributes({PROV_TYPE:QualifiedName(Namespace("bids",Constants.BIDS),"sidecar_file"), Constants.NIDM_FILENAME:
+                        getRelPathToBIDS(os.path.join(directory,'participants.json'),directory)})
+
+                    # add Git Annex Sources
+                    # if there are git annex sources for participants.tsv file then add them
+                    num_sources=addGitAnnexSources(obj=json_sidecar.get_uuid(),filepath=os.path.join(directory,'participants.json'),bids_root=directory)
+                    # else just add the local path to the dataset
+                    if num_sources == 0:
+                        json_sidecar.add_attributes({Constants.PROV['Location']:"file:/" + os.path.join(directory,'participants.json')})
+
+
                 # check if json_sidecar entity exists and if so associate assessment entity with it
                 if 'json_sidecar' in  locals():
                     #connect json_entity with acq_entity
-                    acq_entity.add_attributes({Constants.PROV["wasInfluencedBy"]:json_sidecar.get_uuid()})
+                    acq_entity.add_attributes({Constants.PROV["wasInfluencedBy"]:json_sidecar})
 
                 for key,value in row.items():
                     if not value:
