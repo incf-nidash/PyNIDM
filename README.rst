@@ -3,18 +3,6 @@ PyNIDM: Neuroimaging Data Model in Python
 ##########################################
 A Python library to manipulate the [Neuroimaging Data Model](http://nidm.nidash.org). 
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Contents:
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-
 
 |Build Status| |Docs|
 
