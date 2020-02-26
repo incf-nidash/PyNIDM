@@ -482,8 +482,15 @@ class Core(object):
                 if 'URL' in dot.obj_dict['nodes'][key][0]['attributes']:
                     if session.identifier.uri in str(dot.obj_dict['nodes'][key][0]['attributes']['URL']):
                         session_node = key
+                        for edges in dot.obj_dict['edges'].keys():
+                            if session_node in edges:
+                                # if we find one save it for deepcopy and break out of the loop
+                                temp_edge = edges
+                                #NOT DONE YET> STILL NEED TO SEE IF THIS WILL WORK. HAVE TO REPLACE TEMP W TEMP EDGES
+                                break
                         print("session node = %s" % key)
-                        temp = deepcopy(dot.obj_dict['edges']['n1', 'b1'])
+                        temp = deepcopy(dot.obj_dict['edges'][temp_edge])
+                        #temp = deepcopy(dot.obj_dict['edges']['n1', 'b1'])
                         temp[0]['points'] = (session_node, project_node)
                         temp[0]['attributes']['label'] = 'isPartOf'
                         temp[0]['attributes']['color'] = 'darkgreen'
@@ -499,15 +506,19 @@ class Core(object):
                                     if acquisition.identifier.uri in str(
                                             dot.obj_dict['nodes'][key1][0]['attributes']['URL']):
                                         acquisition_node = key1
+                                        for edges in dot.obj_dict['edges'].keys():
+                                            if session_node in edges:
+                                                # if we find one save it for deepcopy and break out of the loop
+                                                temp_edge = edges
+                                                break
                                         print("acquisition node = %s" % key1)
                                         temp = {}
-                                        temp = deepcopy(dot.obj_dict['edges']['n1', 'b1'])
+                                        temp = deepcopy(dot.obj_dict['edges'][temp_edge])
                                         temp[0]['points'] = (session_node, acquisition_node)
                                         temp[0]['attributes']['label'] = 'isPartOf'
                                         temp[0]['attributes']['color'] = 'darkgreen'
                                         temp[0]['attributes']['fontsize'] = '10.0'
                                         dot.obj_dict['edges'][session_node, acquisition_node] = [temp[0]]
-        return 3;
 
 
     def prefix_to_context(self):
