@@ -582,7 +582,7 @@ def getSubjIDColumn(column_to_terms,df):
         id_field=df.columns[int(selection)-1]
     return id_field
 
-def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_file=None,owl_file='nidm'):
+def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_file=None,bids=False,owl_file='nidm'):
     '''
 
     :param df: data frame with first row containing variable names
@@ -974,31 +974,44 @@ def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_
         # this is to be sure we've written out our work so far in case user ctrl-c exists program or it crashes
         # will have saved the output
         if output_file is not None:
-            # dir = os.path.dirname(output_file)
-            # file_path=os.path.relpath(output_file)
-            # print("writing %s " %output_file)
-            # logging.info("saving json mapping file: %s" %os.path.join(os.path.basename(output_file), \
-            #                            os.path.splitext(output_file)[0]+".json"))
-            with open(os.path.join(os.path.dirname(output_file),os.path.splitext(output_file)[0]+".json"),'w+') \
+            # if we're annotating a bids dataset then we should export json sidecar file using simple BIDS-style keys
+            # instead of our compound keys
+
+            # if we want a bids-style json sidecar file
+            if bids:
+                # convert to simple keys
+                temp_dict = tupleKeysToSimpleKeys(column_to_terms)
+                # write
+                with open(os.path.join(os.path.dirname(output_file),os.path.splitext(output_file)[0]+".json"),'w+') \
                     as fp:
-                json.dump(column_to_terms,fp)
+                    json.dump(temp_dict,fp)
+            else:
+
+                # logging.info("saving json mapping file: %s" %os.path.join(os.path.basename(output_file), \
+                #                            os.path.splitext(output_file)[0]+".json"))
+                with open(os.path.join(os.path.dirname(output_file),os.path.splitext(output_file)[0]+".json"),'w+') \
+                        as fp:
+                    json.dump(column_to_terms,fp)
 
 
     # write variable-> terms map as JSON file to disk
     # get -out directory from command line parameter
     if output_file is not None:
-        # dir = os.path.dirname(output_file)
-        # file_path=os.path.relpath(output_file)
-        # print("writing %s " %output_file)
-        # logging.info("saving json mapping file: %s" %os.path.join(os.path.basename(output_file), \
-        #                                os.path.splitext(output_file)[0]+".json"))
-        with open(os.path.join(os.path.dirname(output_file),os.path.splitext(output_file)[0]+".json"),'w+') \
+        # if we want a bids-style json sidecar file
+        if bids:
+            # convert to simple keys
+            temp_dict = tupleKeysToSimpleKeys(column_to_terms)
+            # write
+            with open(os.path.join(os.path.dirname(output_file),os.path.splitext(output_file)[0]+".json"),'w+') \
                     as fp:
-            json.dump(column_to_terms,fp)
-        #listb.pack()
-        #listb.autowidth()
-        #root.mainloop()
-        #input("Press Enter to continue...")
+                json.dump(temp_dict,fp)
+        else:
+
+            # logging.info("saving json mapping file: %s" %os.path.join(os.path.basename(output_file), \
+            #                            os.path.splitext(output_file)[0]+".json"))
+            with open(os.path.join(os.path.dirname(output_file),os.path.splitext(output_file)[0]+".json"),'w+') \
+                        as fp:
+                json.dump(column_to_terms,fp)
 
     # get CDEs for data dictonary and NIDM graph entity of data
     cde = DD_to_nidm(column_to_terms)
@@ -1160,4 +1173,23 @@ def addGitAnnexSources(obj, bids_root, filepath = None):
         print("Warning, error with AnnexRepo (Utils.py, addGitAnnexSources): %s" %sys.exc_info()[0])
         return 0
 
+def tupleKeysToSimpleKeys(dict):
+    '''
+    This function will change the keys in the supplied dictionary from tuple keys (e.g. from ..core.Constants import DD)
+    to simple keys where key is variable name
+    :param dict: dictionary created from map_variables_to_terms
+    :return: new dictionary with simple keys
+    '''
 
+    new_dict={}
+
+    for key in dict:
+        key_tuple = eval(key)
+        for subkey, item in key_tuple._asdict().items():
+            if subkey == 'variable':
+                new_dict[item]={}
+                for varkeys, varvalues in dict[str(key_tuple)].items():
+                    new_dict[item][varkeys] = varvalues
+
+
+    return new_dict
