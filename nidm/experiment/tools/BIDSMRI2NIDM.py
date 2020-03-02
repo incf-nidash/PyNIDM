@@ -557,16 +557,16 @@ def bidsmri2project(directory, args):
                     #maps variables in CSV file to terms
                     temp=DataFrame(columns=mapping_list)
 
-                    column_to_terms,cde = map_variables_to_terms(directory=directory,assessment_name='participants.tsv', df=temp,output_file=os.path.join(directory,'participants.json'))
+                    column_to_terms,cde = map_variables_to_terms(directory=directory,assessment_name='participants.tsv', df=temp,output_file=os.path.join(directory,'participants.json'),bids=True)
                 else:
                     #maps variables in CSV file to terms
                     temp=DataFrame(columns=mapping_list)
-                    column_to_terms,cde = map_variables_to_terms(directory=directory, assessment_name='participants.tsv', df=temp,output_file=os.path.join(directory,'participants.json'),json_file=os.path.join(directory,'participants.json'))
+                    column_to_terms,cde = map_variables_to_terms(directory=directory, assessment_name='participants.tsv', df=temp,output_file=os.path.join(directory,'participants.json'),json_file=os.path.join(directory,'participants.json'),bids=True)
 
             else:
                 #maps variables in CSV file to terms
                 temp=DataFrame(columns=mapping_list)
-                column_to_terms, cde = map_variables_to_terms(directory=directory, assessment_name='participants.tsv', df=temp,output_file=os.path.join(directory,'participants.json'),json_file=args.json_map)
+                column_to_terms, cde = map_variables_to_terms(directory=directory, assessment_name='participants.tsv', df=temp,output_file=os.path.join(directory,'participants.json'),json_file=args.json_map,bids=True)
 
 
 
