@@ -21,10 +21,11 @@ BRAIN_VOL_FILES = ['./cmu_a.nidm.ttl', './caltech.nidm.ttl']
 test_person_uuid = ""
 test_p2_subject_uuids = []
 cmu_test_project_uuid = None
+cmu_test_subject_uuid = None
 
 @pytest.fixture(scope="module", autouse="True")
 def setup():
-    global cmu_test_project_uuid
+    global cmu_test_project_uuid, cmu_test_subject_uuid
 
     if Path(REST_TEST_FILE).is_file():
         os.remove(REST_TEST_FILE)
@@ -42,6 +43,8 @@ def setup():
         restParser = RestParser(output_format=RestParser.OBJECT_FORMAT)
         projects = restParser.run(['./cmu_a.nidm.ttl'], '/projects')
         cmu_test_project_uuid = projects[0]
+        subjects = restParser.run(['./cmu_a.nidm.ttl'], '/projects/{}/subjects'.format(cmu_test_project_uuid))
+        cmu_test_subject_uuid = subjects[0]
 
     if not Path('./caltech.nidm.ttl').is_file():
         urllib.request.urlretrieve (
@@ -191,6 +194,20 @@ def test_uri_projects_subjects_1():
     assert test_p2_subject_uuids[0] in result
     assert test_p2_subject_uuids[1] in result
 
+def test_uri_subjects():
+    global cmu_test_subject_uuid
+
+    restParser = RestParser()
+    restParser.setOutputFormat(RestParser.OBJECT_FORMAT)
+    result = restParser.run(BRAIN_VOL_FILES, '/subjects/{}'.format(cmu_test_subject_uuid))
+
+    assert type(result) == dict
+    assert 'uuid' in result
+    assert 'instruments' in result
+    assert 'derivatives' in result
+
+    assert cmu_test_subject_uuid == result['uuid']
+
 
 def test_uri_projects_subjects_id():
     global test_person_uuid
@@ -209,13 +226,13 @@ def test_uri_projects_subjects_id():
 
     assert type(result) == dict
     assert result['uuid'] == subject
-    assert len(result['instruments']) == 1
+    assert len(result['instruments']) > 2
 
-    for i in result['instruments']:
-        assert 'AGE_AT_SCAN' in result['instruments'][i]
-        age = float(result['instruments'][i]['AGE_AT_SCAN'])
-        # WIP commented out by DBK to get tests to pass for the moment.  Needs updating?
-        assert  age > 0
+    instruments = result['instruments'].values()
+    all_keys = []
+    for i in instruments:
+        all_keys += i.keys()
+    assert 'AGE_AT_SCAN' in all_keys
 
     assert len(result['derivatives']) > 0
 
@@ -319,8 +336,9 @@ def test_CheckSubjectMatchesFilter():
 
 
     instruments = Query.GetParticipantInstrumentData( BRAIN_VOL_FILES, project, subject )
-    for key in instruments:
-        age = instruments[key]['AGE_AT_SCAN']
+    for (i,inst) in instruments.items():
+        if 'AGE_AT_SCAN' in inst:
+            age = inst['AGE_AT_SCAN']
 
     older = str(float(age) + 1)
     younger = str(float(age) - 1)
@@ -380,7 +398,6 @@ def test_CDEs():
             "{}/fs_cde.ttl".format(dir)
         ])
 
-        print ("{}/ants_cde.ttl".format(dir))
         units = graph.objects(subject=Constants.FREESURFER['fs_000002'], predicate=Constants.NIDM['hasUnit'])
         count = 0
         for u in units:
@@ -406,7 +423,7 @@ def is_uuid(uuid):
     return re.search('^[0-9a-z]+-[0-9a-z]+-[0-9a-z]+-[0-9a-z]+-[0-9a-z]+$', uuid) != None
 
 def test_cli_rest_routes():
-    rest_parser = RestParser(0)
+    rest_parser = RestParser(verbosity_level=0)
     rest_parser.setOutputFormat(RestParser.CLI_FORMAT)
 
     #
@@ -483,4 +500,47 @@ def test_cli_rest_routes():
     i_uuid = inst_lines[2].split()[0]
     assert is_uuid(i_uuid)
     assert i_uuid in summary['instruments'].split(',')
+
+
+def test_project_fields_deriv():
+    rest_parser = RestParser(verbosity_level=0)
+    rest_parser.setOutputFormat(RestParser.OBJECT_FORMAT)
+
+    field = 'fs_000003'
+    project = rest_parser.run( BRAIN_VOL_FILES, "/projects/{}?fields={}".format(cmu_test_project_uuid, field) )
+
+    assert( 'field_values' in project )
+    fv = project['field_values']
+    assert( type( fv ) == list )
+    fields_used = set( [ i["field"] for i in fv ]  )
+    assert field in fields_used
+
+def test_project_fields_instruments():
+    rest_parser = RestParser(verbosity_level=0)
+    rest_parser.setOutputFormat(RestParser.OBJECT_FORMAT)
+
+    field = 'AGE_AT_SCAN'
+    project = rest_parser.run( BRAIN_VOL_FILES, "/projects/{}?fields={}".format(cmu_test_project_uuid, field) )
+
+    assert( 'field_values' in project )
+    fv = project['field_values']
+    assert( type( fv ) == list )
+    fields_used = set( [ i["field"] for i in fv ]  )
+    assert field in fields_used
+
+
+def test_project_fields_not_found():
+    # test that things don't break if the field isn't in project
+    rest_parser = RestParser(verbosity_level=0)
+    rest_parser.setOutputFormat(RestParser.OBJECT_FORMAT)
+
+    field = 'not_real_field'
+    project = rest_parser.run( BRAIN_VOL_FILES, "/projects/{}?fields={}".format(cmu_test_project_uuid, field) )
+
+    assert( 'field_values' in project )
+    fv = project['field_values']
+    assert( type( fv ) == list )
+    assert len(fv) == 0
+
+
 

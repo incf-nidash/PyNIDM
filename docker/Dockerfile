@@ -6,7 +6,7 @@ RUN apt-get update &&  \
 RUN python3 -m pip install --upgrade pip && \
     pip3 install rdflib requests fuzzywuzzy pygithub pybids duecredit setuptools \
                  python-Levenshtein pytest graphviz prov pydot validators ontquery \
-                 click rdflib-jsonld pyld pytest-cov tabulate
+                 click rdflib-jsonld pyld pytest-cov tabulate joblib
 
 WORKDIR /opt
 RUN hg clone https://bitbucket.org/jibalamy/owlready2 && \
@@ -25,6 +25,8 @@ RUN cd / && \
     mv PyNIDM PyNIDM-snapshot && \
     cd PyNIDM-snapshot && \
     pip install -e .
+
+RUN git config --global user.name "docker user" && git config --global user.email "docker@example.com"
 
 ENV TMPDIR=/opt/project
 

@@ -29,24 +29,29 @@
 #**************************************************************************************
 #**************************************************************************************
 import os,sys
-import uuid
-
 import rdflib
-from rdflib import Graph, RDF, URIRef, util, term
+from rdflib import Graph, URIRef, util
 import pandas as pd
 import logging
-from .Utils import read_nidm
 from nidm.core import Constants
-from json import dumps, loads
 import re
 import tempfile
 from os import path
 import functools
 import hashlib
+from urllib.request import urlretrieve
 
 import pickle
 
+from joblib import Memory
+memory = Memory(tempfile.gettempdir(), verbose=0 )
+
+
 QUERY_CACHE_SIZE = 64
+ACQUISITION_MODALITY = 'AcquisitionModality'
+IMAGE_CONTRAST_TYPE = 'ImageContrastType'
+IMAGE_USAGE_TYPE = 'ImageUsageType'
+TASK = 'Task'
 
 def sparql_query_nidm(nidm_file_list,query, output_file=None, return_graph=False):
     '''
@@ -382,9 +387,7 @@ def GetNameForDataElement(graph, uri):
     label = isAbout = source_variable = None
 
 
-    # print ("comparing to " + Constants.NIDM['source_variable'])
     for data_element, predicate, value in graph.triples( (uri, None, None) ):
-        # print ("looking at " + str(predicate) + " " + str(value))
         if predicate == Constants.NIDM['source_variable']:
             source_variable = str(value)
         if predicate == Constants.NIDM['isAbout']:
@@ -392,7 +395,7 @@ def GetNameForDataElement(graph, uri):
         if predicate == Constants.RDFS['label']:
             label = str(value)
 
-    return source_variable or label or isAbout
+    return source_variable or label or isAbout or URITail(uri)
 
 
 def GetParticipantInstrumentData(nidm_file_list ,project_id, participant_id):
@@ -422,14 +425,13 @@ def GetParticipantInstrumentDataCached(nidm_file_list: tuple ,project_id, partic
     for f in nidm_file_list:
         rdf_graph = OpenGraph(f)
         # find all the instrument based assessments
-        for assessment in rdf_graph.subjects(isa, Constants.ONLI['instrument-based-assessment']):
+        for acquisition in rdf_graph.subjects(isa, Constants.NIDM['Acquisition']):
             # verify that the assessment is linked to a subject through a blank node
-            for blanknode in rdf_graph.objects(subject=assessment,predicate=Constants.PROV['qualifiedAssociation']):
+            for blanknode in rdf_graph.objects(subject=acquisition,predicate=Constants.PROV['qualifiedAssociation']):
                 # check to see if this assessment is about our participant
-                if ((blanknode, Constants.PROV['agent'], participant_id) in rdf_graph) or \
-                    ((blanknode, Constants.PROV['Agent'], participant_id) in rdf_graph) :
+                if ((blanknode, Constants.PROV['agent'], participant_id) in rdf_graph)  :
                     # now we know that the assessment is one we want, find the actual assessment data
-                    for instrument in rdf_graph.subjects(predicate=Constants.PROV['wasGeneratedBy'], object=assessment):
+                    for instrument in rdf_graph.subjects(predicate=Constants.PROV['wasGeneratedBy'], object=acquisition):
                         #load up all the assement data into the result
                         instrument_key = str(instrument).split('/')[-1]
                         result[instrument_key] = {}
@@ -470,22 +472,17 @@ def GetParticipantUUIDsForProjectCached(nidm_file_list:tuple, project_id, filter
 
 
     for file in nidm_file_list:
-        # print("searching file {}".format(file))
         rdf_graph = OpenGraph(file)
         #find all the sessions
         for (session, p, o) in rdf_graph.triples((None, None, Constants.NIDM['Session'])): #rdf_graph.subjects(object=isa, predicate=Constants.NIDM['Session']):
-            # print ("Session: {} {} {}".format(session, p, o))
             #check if it is part of our project
             if (session, Constants.DCT['isPartOf'], project) in rdf_graph:
                 #find all the activities/acquisitions/etc that are part of this session
                 for activity in rdf_graph.subjects(predicate=Constants.DCT['isPartOf'], object=session):
-                    # print ("activity: {}".format(activity))
                     # look to see if the activity is linked to a subject via blank node
                     for blank in rdf_graph.objects(subject=activity, predicate=Constants.PROV['qualifiedAssociation']):
-                        # print ("blank: ".format(blank))
                         if (blank, Constants.PROV['hadRole'], Constants.SIO['Subject']):
                             for participant in rdf_graph.objects(subject=blank, predicate=Constants.PROV['agent']):
-                                # print ("part: {}".format(participant))
                                 uuid = (str(participant)).split('/')[-1]  # srip off the http://whatever/whatever/
                                 if (not uuid in participants) and \
                                         ( (not filter) or CheckSubjectMatchesFilter( tuple([file]) , project, participant, filter) ):
@@ -493,28 +490,34 @@ def GetParticipantUUIDsForProjectCached(nidm_file_list:tuple, project_id, filter
 
     return participants
 
-def GetProjectAttributes(nidm_file_list, project_id):
-    result = {}
-    isa = URIRef('http://www.w3.org/1999/02/22-rdf-syntax-ns#type')
 
-    # if this isn't already a URI, make it one.
-    # calls from the REST api don't include the URI
-    project = project_id
-    if project_id.find('http') < 0:
-        project = Constants.NIIRI[project_id]
+# if this isn't already a URI, make it one.
+# calls from the REST api don't include the URI
+def expandUUID(partial_uuid):
+    uuid = partial_uuid
+    if partial_uuid.find('http') < 0:
+        uuid = Constants.NIIRI[partial_uuid]
+    return uuid
+
+
+def getProjectAcquisitionObjects(nidm_file_list, project_id):
+    acq_objects = []
+    isa = URIRef('http://www.w3.org/1999/02/22-rdf-syntax-ns#type')
+    project_uuid = expandUUID(project_id)
 
     for file in nidm_file_list:
-        # print("searching file {}".format(file))
         rdf_graph = OpenGraph(file)
-        #find all the sessions
-        for (session, p, o) in rdf_graph.triples((None, None, Constants.NIDM['Session'])): #rdf_graph.subjects(object=isa, predicate=Constants.NIDM['Session']):
-            # print ("Session: {} {} {}".format(session, p, o))
-            #check if it is part of our project
-            if (session, Constants.DCT['isPartOf'], project) in rdf_graph:
-                # get all the tripples directly linked to the project
-                for (proj, predicate, object) in rdf_graph.triples((project, None, None)):
-                    result[ matchPrefix(str(predicate)) ] = str(object)
-    return result
+        #find all the projects
+        for (project,pred,o) in rdf_graph.triples((None, None, Constants.NIDM['Project'])):
+            #check if it is our project
+            if str(project) == project_uuid:
+                for (session,p2,o2) in rdf_graph.triples((None,isa, Constants.NIDM['Session'])):
+                    for (acquisition,p3,o3) in rdf_graph.triples((None, Constants.DCT['isPartOf'], session)):
+                        for (acq_obj, p4, o4) in rdf_graph.triples((None, Constants.PROV['wasGeneratedBy'], acquisition)):
+                            if (acq_obj, isa, Constants.NIDM['AcquisitionObject']):
+                                acq_objects.append(acq_obj)
+    return acq_objects
+
 
 def GetProjectDataElements(nidm_file_list, project_id):
     result = []
@@ -527,11 +530,9 @@ def GetProjectDataElements(nidm_file_list, project_id):
         project = Constants.NIIRI[project_id]
 
     for file in nidm_file_list:
-        # print("searching file {}".format(file))
         rdf_graph = OpenGraph(file)
         #find all the sessions
         for (session, p, o) in rdf_graph.triples((None, None, Constants.NIDM['Session'])): #rdf_graph.subjects(object=isa, predicate=Constants.NIDM['Session']):
-            # print ("Session: {} {} {}".format(session, p, o))
             #check if it is part of our project
             if (session, Constants.DCT['isPartOf'], project) in rdf_graph:
                 # we know we have the right file, so just grab all the data elements from here
@@ -560,6 +561,12 @@ def URITail(URI):
     tail = URI.split('/')[-1]
     tail = tail.split('#')[-1]
     return  tail
+
+def trimWellKnownURIPrefix(uri):
+    trimed = uri
+    for p in ['http://purl.org/nidash/nidm#', 'http://www.w3.org/ns/prov#', 'http://iri.nidash.org/']:
+        trimed = str(trimed).replace(p, '')
+    return trimed
 
 def CheckSubjectMatchesFilter(nidm_file_list, project_uuid, subject_uuid, filter):
     '''
@@ -600,7 +607,6 @@ def CheckSubjectMatchesFilter(nidm_file_list, project_uuid, subject_uuid, filter
             instrument_details = GetParticipantInstrumentData(nidm_file_list, project_uuid, subject_uuid)
             for instrument_uuid in instrument_details:
                 for instrument_term in instrument_details[instrument_uuid]:
-                    # print ("checking {} {} {}".format(term, op, value))
                     if instrument_term == term:
                         found_match = filterCompare(instrument_details[instrument_uuid][term], op, value)
                     if found_match:
@@ -631,12 +637,9 @@ def filterCompare(left, op, right):
     try:
         if op == 'eq':
             return (left == right)
-            # print ("checked {} {} {}".format(instrument_details[instrument_uuid][term], op, value))
         elif op == 'lt':
             return (float(left) < float(right))
-            # print ("checked {} {} {}".format(instrument_details[instrument_uuid][term], op, value))
         elif op == 'gt':
-            # print ("checked {} {} {}".format(left, op, right))
             return (float(left) > float(right))
     except:
         pass
@@ -974,20 +977,26 @@ def getDataTypeInfo(source_graph, datatype):
     hasUnit = ''
     label = ''
     desc = ''
+    measureOf = ''
+    isAbout = ''
+    structure = ''
+
 
 
     # have to scan all tripples because the label can be in any namespace
     for s, p, o in rdf_graph.triples((datatype, None, None)):
         if (re.search(r'label$', str(p)) != None):
             label = o
-        if (re.search(r'hasUnit$', str(p)) != None):
+        if (re.search(r'hasUnit$', str(p), flags=re.IGNORECASE) != None):
             hasUnit = o
         if (re.search(r'datumType$', str(p)) != None):
             typeURI = str(o).split('/')[-1]
-        if (re.search(r'description$', str(p)) != None):
-            desc = o
+        if (re.search(r'measureOf$', str(p)) != None):
+            measureOf = o
+        if (re.search(r'isAbout$', str(p), flags=re.IGNORECASE) != None):
+            isAbout = o
 
-    return { 'label': label, 'hasUnit': hasUnit, 'datumType': typeURI, 'description': desc }
+    return {'label': label, 'hasUnit': hasUnit, 'datumType': typeURI, 'measureOf': measureOf, 'isAbout': isAbout}
 
 def getStatsCollectionForNode (rdf_graph, derivatives_node):
 
@@ -1034,6 +1043,10 @@ def OpenGraph(file):
     rdf_graph = Graph()
     rdf_graph.parse(file, format=util.guess_format(file))
     pickle.dump(rdf_graph, open(pickle_file, 'wb'))
+
+    # new graph, so to be safe clear out all cached entries
+    memory.clear(warn=False)
+
     return rdf_graph
 
 def GetDerivativesDataForSubject(files, project, subject):
@@ -1084,6 +1097,14 @@ def getSoftwareAgents(rdf_graph):
 
     return agents
 
+def download_cde_files():
+    cde_dir = tempfile.gettempdir()
+
+    for url in Constants.CDE_FILE_LOCATIONS:
+        urlretrieve( url, "{}/{}".format(cde_dir, url.split('/')[-1] ) )
+
+    return cde_dir
+
 
 def getCDEs(file_list=None):
 
@@ -1109,20 +1130,26 @@ def getCDEs(file_list=None):
         if "CDE_DIR" in os.environ:
             cde_dir = os.environ['CDE_DIR']
 
-        if not cde_dir:
+        if (not cde_dir) and (os.path.isfile( '/opt/project/nidm/core/cde_dir/ants_cde.ttl' )):
             cde_dir = '/opt/project/nidm/core/cde_dir'
 
-        file_list = [
-            '{}/ants_cde.ttl'.format(cde_dir),
-            '{}/fs_cde.ttl'.format(cde_dir),
-            '{}/fsl_cde.ttl'.format(cde_dir)
-        ]
+        if (not cde_dir):
+            cde_dir = download_cde_files()
+
+        file_list = [ ]
+        for f in ['ants_cde.ttl', 'fs_cde.ttl', 'fsl_cde.ttl']:
+            fname = '{}/{}'.format(cde_dir, f)
+            if os.path.isfile( fname ):
+                file_list.append( fname )
+
 
 
     for fname in file_list:
         if os.path.isfile(fname):
             cde_graph = OpenGraph(fname)
             rdf_graph = rdf_graph + cde_graph
+
+
 
 
     cache_file = open(cache_file_name , 'wb')
