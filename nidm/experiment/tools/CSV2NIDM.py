@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 #**************************************************************************************
 #**************************************************************************************
-#  CSV2NIDM.py
+#  csv2nidm.py
 #  License: GPL
 #**************************************************************************************
 #**************************************************************************************
 # Date: 01-19-18                 Coded by: David Keator (dbkeator@gmail.com)
-# Filename: CSV2NIDM.py
+# Filename: csv2nidm.py
 #
 # Program description:  This program will load in a CSV file and iterate over the header
 # variable names performing an elastic search of https://scicrunch.org/ for NIDM-ReproNim
@@ -293,6 +293,8 @@ def main(argv):
 
                 #check if row_variable is subject id, if so skip it
                 if row_variable==id_field:
+                    ### WIP: Check if agent already exists with the same ID.  If so, use it else create a new agent
+
                     #add qualified association with person
                     acq.add_qualified_association(person= acq.add_person(attributes=({Constants.NIDM_SUBJECTID:str(row_data)})),role=Constants.NIDM_PARTICIPANT)
 

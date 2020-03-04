@@ -1,12 +1,12 @@
 # !/usr/bin/env python
 # **************************************************************************************
 # **************************************************************************************
-#   BIDSMRI2NIDM.py
+#   bidsmri2nidm.py
 #   License: GPL
 # **************************************************************************************
 # **************************************************************************************
 #  Date: 10-2-17                 Coded by: David Keator (dbkeator@gmail.com)
-#  Filename: BIDSMRI2NIDM.py
+#  Filename: bidsmri2nidm.py
 #
 #  Program description:  This program will convert a BIDS MRI dataset to a NIDM-Experiment
 #  RDF document.  It will parse phenotype information and simply store variables/values
@@ -86,13 +86,13 @@ Note, you must obtain an API key to Interlex by signing up for an account at sci
 key.
 
 Example 1: No variable->term mapping, simple BIDS dataset conversion which will add nidm.ttl file to BIDS dataset and .bidsignore file:
-\t BIDSMRI2NIDM.py -d [root directory of BIDS dataset] -bidsignore
+\t bidsmri2nidm.py -d [root directory of BIDS dataset] -bidsignore
 Example 2: No variable->term mapping, simple BIDS dataset conversion but storing nidm file somewhere else: \n
-\t BIDSMRI2NIDM.py -d [root directory of BIDS dataset] -o [PATH/nidm.ttl] \n\n
+\t bidsmri2nidm.py -d [root directory of BIDS dataset] -o [PATH/nidm.ttl] \n\n
 Example 3: BIDS conversion with variable->term mappings, no existing mappings available, uses Interlex for terms, adds nidm.ttl file BIDS dataset and .bidsignore file: \n
-\t BIDSMRI2NIDM.py -d [root directory of BIDS dataset] -bidsignore  \n\n
+\t bidsmri2nidm.py -d [root directory of BIDS dataset] -bidsignore  \n\n
 Example 4 (FULL MONTY): BIDS conversion with variable->term mappings, uses JSON mapping file first then uses Interlex + NIDM OWL file for terms, adds nidm.ttl file BIDS dataset and .bidsignore file: \n
-\t BIDSMRI2NIDM.py -d [root directory of BIDS dataset] -json_map [Your JSON file]  -bidsignore\n
+\t bidsmri2nidm.py -d [root directory of BIDS dataset] -json_map [Your JSON file]  -bidsignore\n
 \t json mapping file has entries for each variable with mappings to formal terms.  Example:  \n
     \t { \n
     \t\t \"site\": { \n
