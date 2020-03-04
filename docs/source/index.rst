@@ -83,20 +83,20 @@ This program will convert a BIDS MRI dataset to a NIDM-Experiment RDF document. 
 
 .. code-block:: bash
 
-    $ BIDSMRI2NIDM -d [ROOT BIDS DIRECT] -bidsignore
+    $ bidsmri2nidm -d [ROOT BIDS DIRECT] -bidsignore
 
 Example 1:No variable->term mapping, simple BIDS dataset conversion which will add nidm.ttl file to BIDS dataset and .bidsignore file:
 
 .. code-block:: bash
 
-    $ BIDSMR2NIDM -d [root directory of BIDS dataset] -o [PATH/nidm.ttl]
+    $ bidsmri2nidm -d [root directory of BIDS dataset] -o [PATH/nidm.ttl]
 
 Example 2:No variable->term mapping, simple BIDS dataset conversion but storing nidm file somewhere else:
 
 
 .. code-block:: bash
 
-    $ BIDSMRI2NIDM -d [root directory of BIDS dataset] -json_map [Your JSON file] -bidsignore
+    $ bidsmri2nidm -d [root directory of BIDS dataset] -json_map [Your JSON file] -bidsignore
 
 Example 5 BIDS conversion with variable->term mappings, uses JSON mapping file first then uses Interlex, adds nidm.ttl file to root of BIDS dataset and adds to .bidsignore file:
 
@@ -163,7 +163,7 @@ annotated CSV data will then be written to a NIDM data file.  To use this tool p
 
 .. code-block:: bash
 
-    $ CSV2NIDM  [OPTIONS]
+    $ csv2nidm [OPTIONS]
 
 optional arguments:
   -h, --help            show this help message and exit
