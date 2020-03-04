@@ -1,0 +1,7 @@
+#!python
+
+import sys
+from nidm.experiment.tools.bidsmri2nidm import main
+
+if __name__ == "__main__":
+    main(sys.argv)
