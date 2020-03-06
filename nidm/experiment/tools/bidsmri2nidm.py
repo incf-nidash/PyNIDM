@@ -114,9 +114,7 @@ Example 4 (FULL MONTY): BIDS conversion with variable->term mappings, uses JSON 
     # adding argument group for var->term mappings
     mapvars_group = parser.add_argument_group('map variables to terms arguments')
     mapvars_group.add_argument('-json_map', '--json_map', dest='json_map',required=False,default=False,help="Optional full path to user-suppled JSON file containing variable-term mappings.")
-    # mapvars_group.add_argument('-ilxkey', '--ilxkey', dest='key', required=False, default=None,  help="Interlex/SciCrunch API key to use for query and adding terms")
-    # mapvars_group.add_argument('-owl', action='store_true', required=False, default=None,help='Optional flag to query nidm-experiment OWL files')
-    # parser.add_argument('-mapvars', '--mapvars', action='store_true', help='If flag set, variables in participant.tsv and phenotype files will be interactively mapped to terms')
+    #parser.add_argument('-nidm', dest='nidm_file', required=False, help="Optional full path of NIDM file to add BIDS data to. ")
     parser.add_argument('-log','--log', dest='logfile',required=False, default=None, help="Full path to directory to save log file. Log file name is bidsmri2nidm_[basename(args.directory)].log")
     parser.add_argument('-o', dest='outputfile', required=False, default="nidm.ttl", help="Outputs turtle file called nidm.ttl in BIDS directory by default..or whatever path/filename is set here")
 
