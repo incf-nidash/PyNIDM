@@ -4,7 +4,9 @@ from .Session import Session
 from .Acquisition import Acquisition
 from .AssessmentAcquisition import AssessmentAcquisition
 from .MRAcquisition import MRAcquisition
+from .PETAcquisition import PETAcquisition
 from .AcquisitionObject import AcquisitionObject
 from .MRObject import MRObject
+from .PETObject import PETObject
 from .DemographicsObject import DemographicsObject
 from .AssessmentObject import AssessmentObject

@@ -32,13 +32,13 @@ def setup():
 
     if not Path('./cmu_a.nidm.ttl').is_file():
         urllib.request.urlretrieve (
-            "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/wBrainVols/datasets.datalad.org/abide/RawDataBIDS/CMU_a/nidm.ttl",
+            "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/master/datasets.datalad.org/abide/RawDataBIDS/CMU_a/nidm.ttl",
             "cmu_a.nidm.ttl"
         )
 
     if not Path('./caltech.nidm.ttl').is_file():
         urllib.request.urlretrieve (
-            "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/wBrainVols/datasets.datalad.org/abide/RawDataBIDS/Caltech/nidm.ttl",
+            "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/master/datasets.datalad.org/abide/RawDataBIDS/Caltech/nidm.ttl",
             "caltech.nidm.ttl"
         )
 
