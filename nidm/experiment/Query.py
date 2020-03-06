@@ -46,6 +46,7 @@ import hashlib
 
 import pickle
 
+QUERY_CACHE_SIZE = 64
 
 def sparql_query_nidm(nidm_file_list,query, output_file=None, return_graph=False):
     '''
@@ -393,7 +394,11 @@ def GetNameForDataElement(graph, uri):
     return source_variable or label or isAbout
 
 
-def GetParticipantInstrumentData(nidm_file_list,project_id, participant_id):
+def GetParticipantInstrumentData(nidm_file_list ,project_id, participant_id):
+    return GetParticipantInstrumentDataCached(tuple(nidm_file_list) ,project_id, participant_id)
+
+@functools.lru_cache(maxsize=QUERY_CACHE_SIZE)
+def GetParticipantInstrumentDataCached(nidm_file_list: tuple ,project_id, participant_id):
     '''
     This query will return a list of all instrument data for prov:agent entity UUIDs that has
     prov:hadRole sio:Subject or Constants.NIDM_PARTICIPANT
@@ -440,8 +445,11 @@ def GetParticipantInstrumentData(nidm_file_list,project_id, participant_id):
 
     return result
 
+def GetParticipantUUIDsForProject(nidm_file_list: tuple, project_id, filter, output_file=None):
+    return GetParticipantUUIDsForProjectCached(tuple(nidm_file_list), project_id, filter, output_file=None)
 
-def GetParticipantUUIDsForProject(nidm_file_list, project_id, filter, output_file=None):
+@functools.lru_cache(maxsize=QUERY_CACHE_SIZE)
+def GetParticipantUUIDsForProjectCached(nidm_file_list:tuple, project_id, filter, output_file=None):
     '''
     This query will return a list of all prov:agent entity UUIDs within a single project
     that prov:hadRole sio:Subject or Constants.NIDM_PARTICIPANT
@@ -483,6 +491,54 @@ def GetParticipantUUIDsForProject(nidm_file_list, project_id, filter, output_fil
                                     participants.append(uuid)
 
     return participants
+
+def GetProjectAttributes(nidm_file_list, project_id):
+    result = {}
+    isa = URIRef('http://www.w3.org/1999/02/22-rdf-syntax-ns#type')
+
+    # if this isn't already a URI, make it one.
+    # calls from the REST api don't include the URI
+    project = project_id
+    if project_id.find('http') < 0:
+        project = Constants.NIIRI[project_id]
+
+    for file in nidm_file_list:
+        # print("searching file {}".format(file))
+        rdf_graph = OpenGraph(file)
+        #find all the sessions
+        for (session, p, o) in rdf_graph.triples((None, None, Constants.NIDM['Session'])): #rdf_graph.subjects(object=isa, predicate=Constants.NIDM['Session']):
+            # print ("Session: {} {} {}".format(session, p, o))
+            #check if it is part of our project
+            if (session, Constants.DCT['isPartOf'], project) in rdf_graph:
+                # get all the tripples directly linked to the project
+                for (proj, predicate, object) in rdf_graph.triples((project, None, None)):
+                    result[ matchPrefix(str(predicate)) ] = str(object)
+    return result
+
+def GetProjectDataElements(nidm_file_list, project_id):
+    result = []
+    isa = URIRef('http://www.w3.org/1999/02/22-rdf-syntax-ns#type')
+
+    # if this isn't already a URI, make it one.
+    # calls from the REST api don't include the URI
+    project = project_id
+    if project_id.find('http') < 0:
+        project = Constants.NIIRI[project_id]
+
+    for file in nidm_file_list:
+        # print("searching file {}".format(file))
+        rdf_graph = OpenGraph(file)
+        #find all the sessions
+        for (session, p, o) in rdf_graph.triples((None, None, Constants.NIDM['Session'])): #rdf_graph.subjects(object=isa, predicate=Constants.NIDM['Session']):
+            # print ("Session: {} {} {}".format(session, p, o))
+            #check if it is part of our project
+            if (session, Constants.DCT['isPartOf'], project) in rdf_graph:
+                # we know we have the right file, so just grab all the data elements from here
+                for de in rdf_graph.subjects(isa, Constants.NIDM['DataElement']):
+                    result.append(rdf_graph.namespace_manager.compute_qname(str(de))[0])
+                return result
+    return result
+
 
 # in case someone passes in a filter subject with a full http or https URI, strip it back to just the bit after the namespace
 def splitSubject(subject):
@@ -538,11 +594,8 @@ def CheckSubjectMatchesFilter(nidm_file_list, project_uuid, subject_uuid, filter
 
 
         sub_pieces = splitSubject(compound_sub)
-        if len(sub_pieces) == 4 and \
-            sub_pieces[0] == 'projects' and \
-            sub_pieces[1] == 'subjects' and \
-            sub_pieces[2] == 'instruments':
-            term = sub_pieces[3] # 'AGE_AT_SCAN' for example
+        if len(sub_pieces) == 2 and sub_pieces[0] == 'instruments':
+            term = sub_pieces[1] # 'AGE_AT_SCAN' for example
             instrument_details = GetParticipantInstrumentData(nidm_file_list, project_uuid, subject_uuid)
             for instrument_uuid in instrument_details:
                 for instrument_term in instrument_details[instrument_uuid]:
@@ -552,11 +605,8 @@ def CheckSubjectMatchesFilter(nidm_file_list, project_uuid, subject_uuid, filter
                     if found_match:
                         break
 
-        elif len(sub_pieces) == 4 and \
-            sub_pieces[0] == 'projects' and \
-            sub_pieces[1] == 'subjects' and \
-            sub_pieces[2] == 'derivatives':
-            type = sub_pieces[3] # 'ilx:0102597' for example
+        elif len(sub_pieces) == 2 and sub_pieces[0] == 'derivatives':
+            type = sub_pieces[1] # 'ilx:0102597' for example
             derivatives_details = GetDerivativesDataForSubject(nidm_file_list, project_uuid, subject_uuid)
             for key in derivatives_details:
                 derivatives = derivatives_details[key]['values']
@@ -840,7 +890,7 @@ def compressForJSONResponse(data) -> dict:
 
     return new_dict
 
-def matchPrefix(possible_URI) -> str:
+def matchPrefix(possible_URI, short=False) -> str:
     '''
     If the possible_URI is found in Constants.namespaces it will
     be replaced with the prefix
@@ -851,11 +901,14 @@ def matchPrefix(possible_URI) -> str:
     '''
     for k, n in Constants.namespaces.items():
         if possible_URI.startswith(n):
-            return "{}:{}".format(k, possible_URI.replace(n, ""))
+            if short:
+                return k
+            else:
+                return "{}:{}".format(k, possible_URI.replace(n, ""))
 
-    # also check the NIDM prefix
-    if possible_URI.startswith(Constants.NIDM_URL):
-        return "{}:{}".format("nidm:", possible_URI.replace(Constants.NIDM_URL, ""))
+    # also check the prov prefix
+    if possible_URI.startswith("http://www.w3.org/ns/prov#"):
+        return "{}:{}".format("prov", possible_URI.replace("http://www.w3.org/ns/prov#", ""))
 
     return possible_URI
 
@@ -873,6 +926,7 @@ def activityIsSWAgent(rdf_graph, activity, sw_agents):
 
     return False
 
+@functools.lru_cache(maxsize=QUERY_CACHE_SIZE)
 def getDerivativesNodesForSubject (rdf_graph, subject):
     '''
     Finds all the URIs that were generated by software agents and linked to the subject
@@ -952,7 +1006,7 @@ def getStatsCollectionForNode (rdf_graph, derivatives_node):
 
     return data
 
-@functools.lru_cache(maxsize=32)
+@functools.lru_cache(maxsize=QUERY_CACHE_SIZE)
 def OpenGraph(file):
     '''
     Returns a parsed RDFLib Graph object for the given file
@@ -986,6 +1040,10 @@ def OpenGraph(file):
     return rdf_graph
 
 def GetDerivativesDataForSubject(files, project, subject):
+    return GetDerivativesDataForSubjectCache (tuple(files), project, subject)
+
+@functools.lru_cache(maxsize=QUERY_CACHE_SIZE)
+def GetDerivativesDataForSubjectCache(files, project, subject):
     '''
     Searches for the subject in the supplied RDF .ttl files and returns
     an array of all the data generated by software agents about that subject

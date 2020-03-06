@@ -12,6 +12,7 @@ before_install:
   - sudo apt-get install graphviz -y
 
 install:
+  - pip install tabulate
   - pip install .
 
 script:

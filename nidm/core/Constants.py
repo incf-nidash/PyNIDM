@@ -362,6 +362,7 @@ NIDM_SUBJECTID = QualifiedName(provNamespace("ndar",NDAR),"src_subject_id")
 #MRI scan types
 NIDM_IMAGE_CONTRAST_TYPE = QualifiedName(provNamespace("nidm", NIDM),"hadImageContrastType")
 NIDM_IMAGE_USAGE_TYPE = QualifiedName(provNamespace("nidm", NIDM),"hadImageUsageType")
+NIDM_PET = QualifiedName(provNamespace("nidm", NIDM),"PositronEmissionTomography")
 NIDM_MRI = QualifiedName(provNamespace("nidm", NIDM),"MagneticResonanceImaging")
 NIDM_MRI_ANATOMIC_SCAN = QualifiedName(provNamespace("nidm", NIDM),"Anatomical")
 NIDM_MRI_STRUCTURE_SCAN = QualifiedName(provNamespace("nidm", NIDM),"Structural")

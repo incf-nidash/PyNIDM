@@ -2,12 +2,11 @@ import os, sys
 #sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import rdflib as rdf
 from ..core import Constants
-from ..experiment import Core
-from ..experiment.Core import getUUID
+from ..experiment import AcquisitionObject
 import prov.model as pm
 
-class AcquisitionObject(pm.ProvEntity,Core):
-    """Class for NIDM-Experimenent AcquisitionObject-Level Objects.
+class PETObject(AcquisitionObject):
+    """Class for NIDM-Experimenent MRAcquisitionObject-Level Objects.
 
     Default constructor uses empty graph with namespaces added from NIDM/Scripts/Constants.py.
     Additional alternate constructors for user-supplied graphs and default namespaces (i.e. from Constants.py)
@@ -18,7 +17,7 @@ class AcquisitionObject(pm.ProvEntity,Core):
 
     """
     #constructor
-    def __init__(self, acquisition,attributes=None, uuid=None):
+    def __init__(self, acquisition,attributes=None,uuid=None):
         """
         Default contructor, creates an acquisition object and links to acquisition activity object
 
@@ -28,23 +27,16 @@ class AcquisitionObject(pm.ProvEntity,Core):
         :return: none
 
         """
+        #execute default parent class constructor
+        super(PETObject,self).__init__(acquisition,attributes,uuid)
 
-        if uuid is None:
-            self._uuid = getUUID()
-            #execute default parent class constructor
-            super(AcquisitionObject,self).__init__(acquisition.graph, pm.QualifiedName(pm.Namespace("niiri",Constants.NIIRI),self.get_uuid()),attributes)
-        else:
-            self._uuid = uuid
-            super(AcquisitionObject,self).__init__(acquisition.graph, pm.QualifiedName(pm.Namespace("niiri",Constants.NIIRI),self.get_uuid()),attributes)
-
-        acquisition.graph._add_record(self)
+        self.add_attributes({pm.PROV_TYPE: Constants.NIDM_ACQUISITION_ENTITY})
+        self.add_attributes({Constants.NIDM_ACQUISITION_MODALITY: Constants.NIDM_PET})
 
         #carry graph object around
         self.graph = acquisition.graph
-        #create link to acquisition activity
-        acquisition.add_acquisition_object(self)
 
     def __str__(self):
-        return "NIDM-Experiment AcquisitionObject Class"
+        return "NIDM-Experiment PET Object Class"
 
 
