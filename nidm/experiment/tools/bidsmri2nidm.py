@@ -228,8 +228,9 @@ def addimagingsessions(bids_layout,subject_id,session,participant, directory,img
             participant[subject_id] = {}
             participant[subject_id]['person'] = acq.add_person(attributes=({Constants.NIDM_SUBJECTID:subject_id}))
 
-            # add qualified association with person
-            acq.add_qualified_association(person=participant[subject_id]['person'],role=Constants.NIDM_PARTICIPANT)
+
+        # add qualified association with person
+        acq.add_qualified_association(person=participant[subject_id]['person'],role=Constants.NIDM_PARTICIPANT)
 
 
 
