@@ -224,13 +224,20 @@ def addimagingsessions(bids_layout,subject_id,session,participant, directory,img
         acq=MRAcquisition(session)
 
         # check whether participant (i.e. agent) for this subject already exists (i.e. if participants.tsv file exists) else create one
-        if not (subject_id in participant):
+        if (not subject_id in participant) and (not subject_id.lstrip("0") in participant):
             participant[subject_id] = {}
             participant[subject_id]['person'] = acq.add_person(attributes=({Constants.NIDM_SUBJECTID:subject_id}))
+            acq.add_qualified_association(person=participant[subject_id]['person'],role=Constants.NIDM_PARTICIPANT)
 
-
-        # add qualified association with person
-        acq.add_qualified_association(person=participant[subject_id]['person'],role=Constants.NIDM_PARTICIPANT)
+        # added to account for errors in BIDS datasets where participants.tsv may have no leading 0's but
+        # subject directories do.  Since bidsmri2nidm starts with the participants.tsv file those are the IDs unless
+        # there's a subject directory and no entry in participants.tsv...
+        elif subject_id.lstrip("0") in participant:
+            # then link acquisition to the agent with participant ID without leading 00's
+            acq.add_qualified_association(person=participant[subject_id.lstrip("0")]['person'],role=Constants.NIDM_PARTICIPANT)
+        else:
+            # add qualified association with person
+            acq.add_qualified_association(person=participant[subject_id]['person'],role=Constants.NIDM_PARTICIPANT)
 
 
 
