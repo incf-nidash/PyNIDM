@@ -74,6 +74,7 @@ def sparql_query_nidm(nidm_file_list,query, output_file=None, return_graph=False
         # rdf_graph_parse = rdf_graph.parse(nidm_file,format=util.guess_format(nidm_file))
         rdf_graph_parse = OpenGraph(nidm_file)
 
+
         if not return_graph:
             #execute query
             qres = rdf_graph_parse.query(query)
@@ -699,6 +700,7 @@ def GetDataElements(nidm_file_list):
 def GetBrainVolumeDataElements(nidm_file_list):
     query='''
         prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
         prefix prov: <http://www.w3.org/ns/prov#>
         prefix ndar: <https://ndar.nih.gov/api/datadictionary/v2/dataelement/>
         prefix fsl: <http://purl.org/nidash/fsl#>
@@ -718,19 +720,19 @@ def GetBrainVolumeDataElements(nidm_file_list):
 				?measure ?volume .
 
 			{?measure a fsl:DataElement ;
-				    fsl:label ?softwareLabel;
+				    rdfs:label ?softwareLabel;
 				    nidm:measureOf <http://uri.interlex.org/base/ilx_0112559> ;
 				    nidm:datumType <http://uri.interlex.org/base/ilx_0738276> ;
 			}
 			UNION
 			{?measure a freesurfer:DataElement ;
-				    freesurfer:label ?softwareLabel;
+				    rdfs:label ?softwareLabel;
 				    nidm:measureOf <http://uri.interlex.org/base/ilx_0112559> ;
 				    nidm:datumType <http://uri.interlex.org/base/ilx_0738276> ;
 			}
 			UNION
 			{?measure a ants:DataElement ;
-				    ants:label ?softwareLabel;
+				    rdfs:label ?softwareLabel;
 				    nidm:measureOf <http://uri.interlex.org/base/ilx_0112559> ;
 				    nidm:datumType <http://uri.interlex.org/base/ilx_0738276> ;
 			}
@@ -743,6 +745,8 @@ def GetBrainVolumeDataElements(nidm_file_list):
 
 def GetBrainVolumes(nidm_file_list):
     query='''
+        # This query simply returns the brain volume data without dependencies on other demographics/assessment measures.
+
         prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
         prefix prov: <http://www.w3.org/ns/prov#>
         prefix ndar: <https://ndar.nih.gov/api/datadictionary/v2/dataelement/>
@@ -754,35 +758,28 @@ def GetBrainVolumes(nidm_file_list):
         prefix ants: <http://stnava.github.io/ANTs/>
         prefix dct: <http://purl.org/dc/terms/>
         prefix dctypes: <http://purl.org/dc/dcmitype/>
+        prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
-        SELECT DISTINCT ?ID ?tool ?softwareLabel ?federatedLabel ?laterality ?volume
+        select distinct ?ID ?tool ?softwareLabel ?federatedLabel ?laterality ?volume
         where {
  	        ?tool_act a prov:Activity ;
-		            prov:qualifiedAssociation [prov:agent [nidm:NIDM_0000164 ?tool]] ;
-					prov:qualifiedAssociation [prov:agent [ndar:src_subject_id ?ID]] .
+		            prov:qualifiedAssociation [prov:agent [nidm:NIDM_0000164 ?tool]] .
+			?tool_act prov:qualifiedAssociation [prov:agent [ndar:src_subject_id ?ID]] .
 			?tool_entity prov:wasGeneratedBy ?tool_act ;
 				?measure ?volume .
 
-			{?measure a fsl:DataElement ;
-				    fsl:label ?softwareLabel;
-				    nidm:measureOf <http://uri.interlex.org/base/ilx_0112559> ;
-				    nidm:datumType <http://uri.interlex.org/base/ilx_0738276> ;
-			}
-			UNION
-			{?measure a freesurfer:DataElement ;
-				    freesurfer:label ?softwareLabel;
-				    nidm:measureOf <http://uri.interlex.org/base/ilx_0112559> ;
-				    nidm:datumType <http://uri.interlex.org/base/ilx_0738276> ;
-			}
-			UNION
-			{?measure a ants:DataElement ;
-				    ants:label ?softwareLabel;
-				    nidm:measureOf <http://uri.interlex.org/base/ilx_0112559> ;
-				    nidm:datumType <http://uri.interlex.org/base/ilx_0738276> ;
-			}
-			OPTIONAL {?measure nidm:isAbout ?federatedLabel }.
-			OPTIONAL {?measure nidm:hasLaterality ?laterality }.
-		}'''
+				?tool_entity prov:wasGeneratedBy ?tool_act ;
+					?measure ?volume .
+
+					?measure a/rdfs:subClassOf* nidm:DataElement ;
+						 rdfs:label ?softwareLabel;
+						 nidm:measureOf <http://uri.interlex.org/base/ilx_0112559> ;
+						 nidm:datumType <http://uri.interlex.org/base/ilx_0738276> .
+					OPTIONAL {?measure nidm:isAbout ?federatedLabel }.
+					OPTIONAL {?measure nidm:hasLaterality ?laterality }.
+
+            }
+            '''
 
     df = sparql_query_nidm(nidm_file_list.split(','), query, output_file=None)
     return df
