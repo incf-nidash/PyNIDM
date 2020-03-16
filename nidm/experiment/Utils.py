@@ -657,7 +657,7 @@ def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_
             json_map
 
             # check for column in json file
-            json_key = [key for key in json_map if column in key]
+            json_key = [key for key in json_map if column == key]
             if (json_map is not None) and (len(json_key)>0):
 
                 column_to_terms[current_tuple]['label'] = json_map[json_key[0]]['label']
