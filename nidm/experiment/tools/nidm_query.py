@@ -49,7 +49,7 @@ from json import dumps, loads
               help="A comma separated list of NIDM files with full path")
 @click.option("--cde_file_list", "-nc", required=False,
               help="A comma separated list of NIDM CDE files with full path. Can also be set in the CDE_DIR environment variable")
-@click.option("--query_file", "-q", type=click.Path(exists=True), required=False,
+@click.option("--query_file", "-q", type=click.File('r'), required=False,
               help="Text file containing a SPARQL query to execute")
 @click.option("--get_participants", "-p", is_flag=True,required=False,
               help="Parameter, if set, query will return participant IDs and prov:agent entity IDs")
@@ -71,7 +71,9 @@ from json import dumps, loads
               help="Return result of a uri query as JSON")
 @click.option('-v', '--verbosity', required=False, help="Verbosity level 0-5, 0 is default", default="0")
 def query(nidm_file_list, cde_file_list, query_file, output_file, get_participants, get_instruments, get_instrument_vars, get_dataelements, get_brainvols,get_dataelements_brainvols, uri, j, verbosity):
-
+    """
+    This function provides query support for NIDM graphs.
+    """
     #query result list
     results = []
 
@@ -164,11 +166,7 @@ def query(nidm_file_list, cde_file_list, query_file, output_file, get_participan
             print(brainvol.to_string())
     else:
 
-        #read query from text fiile
-        with open(query_file, 'r') as fp:
-            query = fp.read()
-
-        df = sparql_query_nidm(nidm_file_list.split(','),query,output_file)
+        df = sparql_query_nidm(nidm_file_list.split(','),query_file,output_file)
 
         if ((output_file) is None):
 

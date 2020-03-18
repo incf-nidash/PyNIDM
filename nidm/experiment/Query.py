@@ -314,7 +314,7 @@ def GetParticipantIDs(nidm_file_list,output_file=None):
 
 def GetParticipantDetails(nidm_file_list,project_id, participant_id, output_file=None):
     '''
-    This query will return a list of all prov:agent entity UUIDs that prov:hadRole sio:Subject or Constants.NIDM_PARTICIPANT
+    This query will return a list of all prov:agent entity UUIDs that prov:hadRole Constants.NIDM_PARTICIPANT
     :param nidm_file_list: List of one or more NIDM files to query across for list of Projects
     :return: list of Constants.NIDM_PARTICIPANT UUIDs and Constants.NIDM_SUBJECTID
     '''
