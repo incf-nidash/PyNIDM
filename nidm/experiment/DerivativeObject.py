@@ -33,7 +33,7 @@ class DerivativeObject(pm.ProvEntity,Core):
             #execute default parent class constructor
             super(DerivativeObject,self).__init__(derivative.graph, pm.QualifiedName(pm.Namespace("niiri",Constants.NIIRI),getUUID()),attributes)
         else:
-            super(DerivativeObject,self).__init__(derivative.graph, pm.QualifiedName(pm.Namespace("niiri",Constants.NIIRI),uuid),attributes)
+            super(DerivativeObject,self).__init__(derivative.graph, pm.Identifier(uuid),attributes)
 
         derivative.graph._add_record(self)
 

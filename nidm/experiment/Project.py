@@ -54,6 +54,10 @@ class Project(pm.ProvActivity,Core):
         self.graph._add_record(self)
         #create empty sessions list
         self._sessions=[]
+        #create empty derivatives list
+        self._derivatives=[]
+        # create empty data elements list
+        self._dataelements=[]
 
         #prov toolbox doesn't like 2 attributes with PROV_TYPE in 1 add_attributes call so split them...
         self.add_attributes({pm.PROV_TYPE: Constants.NIDM_PROJECT})
@@ -62,6 +66,16 @@ class Project(pm.ProvActivity,Core):
     @property
     def sessions(self):
         return self._sessions
+
+    # added for derivatives and data elements
+    @property
+    def derivatives(self):
+        return self._derivatives
+
+    @property
+    def dataelements(self):
+        return self._dataelements
+
 
     def add_sessions(self,session):
         """
@@ -83,6 +97,43 @@ class Project(pm.ProvActivity,Core):
     def get_sessions(self):
         return self._sessions
 
+    def get_derivatives(self):
+        return self._derivatives
+
+    def get_dataelements(self):
+        return self._dataelements
+
+    def add_derivatives(self, derivative):
+        """
+        Adds derivatives to project, creating links and adding reference to derivatives list
+        :param derivative: object of type "Derivative" from nidm API
+        :return true if derivative object added to project, false if derivative object is already in project
+        """
+        if derivative in self._derivatives:
+            return False
+        else:
+            # add session to self.sessions list
+            self._derivatives.extend([derivative])
+            # create links in graph
+            # session.add_attributes({str("dct:isPartOf"):self})
+            derivative.add_attributes({pm.QualifiedName(pm.Namespace("dct", Constants.DCT), 'isPartOf'): self})
+            return True
+
+    def add_dataelements(self, dataelement):
+        """
+        Adds data elements to project, creating links and adding reference to data elements list
+        :param dataelement: object of type "DataElement" from nidm API
+        :return true if derivative object added to project, false if derivative object is already in project
+        """
+        if dataelement in self._dataelements:
+            return False
+        else:
+            # add session to self.sessions list
+            self._dataelements.extend([dataelement])
+            # create links in graph
+            # session.add_attributes({str("dct:isPartOf"):self})
+            dataelement.add_attributes({pm.QualifiedName(pm.Namespace("dct", Constants.DCT), 'isPartOf'): self})
+            return True
 
     def __str__(self):
         return "NIDM-Experiment Project Class"
@@ -91,4 +142,5 @@ class Project(pm.ProvActivity,Core):
 
 
     sessions = property(get_sessions,add_sessions)
-
+    derivatives = property(get_derivatives,add_derivatives)
+    dataelements = property(get_dataelements,add_dataelements)

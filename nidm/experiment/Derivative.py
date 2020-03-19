@@ -20,7 +20,7 @@ class Derivative(pm.ProvActivity,Core):
 
     """
     #constructor
-    def __init__(self, attributes=None, uuid=None):
+    def __init__(self, project, attributes=None, uuid=None):
         """
         Default contructor, creates a derivative activity
 
@@ -32,18 +32,21 @@ class Derivative(pm.ProvActivity,Core):
             self._uuid = getUUID()
 
             #execute default parent class constructor
-            super(Derivative,self).__init__(pm.QualifiedName(pm.Namespace("niiri",Constants.NIIRI),self.get_uuid()),attributes)
+            super(Derivative,self).__init__(project.graph, pm.QualifiedName(pm.Namespace("niiri",Constants.NIIRI),self.get_uuid()),attributes)
         else:
             self._uuid = uuid
-            super(Derivative,self).__init__(pm.QualifiedName(pm.Namespace("niiri",Constants.NIIRI),self.get_uuid()),attributes)
+            super(Derivative,self).__init__(project.graph, pm.Identifier(uuid),attributes)
 
+        project.graph._add_record(self)
 
         #list to store acquisition objects associated with this activity
         self._derivative_objects=[]
         #if constructor is called with a session object then add this acquisition to the session
 
         #carry graph object around
-        self.graph = Core.getGraph()
+        self.graph = project.graph
+
+        project.add_derivatives(self)
 
 
     def add_derivative_object(self,derivative_object):

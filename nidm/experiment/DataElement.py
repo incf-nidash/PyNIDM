@@ -33,12 +33,12 @@ class DataElement(pm.ProvEntity,Core):
             #execute default parent class constructor
             super(DataElement,self).__init__(project.graph, pm.QualifiedName(pm.Namespace("niiri",Constants.NIIRI),getUUID()),attributes)
         else:
-            super(DataElement,self).__init__(project.graph, pm.QualifiedName(pm.Namespace("niiri",Constants.NIIRI),uuid),attributes)
+            super(DataElement,self).__init__(project.graph,pm.Identifier(uuid),attributes)
 
         project.graph._add_record(self)
 
         self.add_attributes({pm.PROV_TYPE: Constants.NIDM_DATAELEMENT})
-        project.add_derivatives(self)
+        project.add_dataelements(self)
         self.graph = project.graph
 
         #list to store acquisition objects associated with this activity

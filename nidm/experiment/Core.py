@@ -88,6 +88,7 @@ class Core(object):
         #bind namespaces to self.graph
         for name, namespace in self.namespaces.items():
             self.graph.add_namespace(name, namespace)
+
     def get_uuid(self):
         '''
         returns UUID of self

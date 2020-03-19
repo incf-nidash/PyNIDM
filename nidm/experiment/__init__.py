@@ -10,3 +10,6 @@ from .MRObject import MRObject
 from .PETObject import PETObject
 from .DemographicsObject import DemographicsObject
 from .AssessmentObject import AssessmentObject
+from .Derivative import Derivative
+from .DerivativeObject import DerivativeObject
+from .DataElement import DataElement
