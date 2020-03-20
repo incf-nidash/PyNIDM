@@ -196,7 +196,7 @@ class Core(object):
         assoc = self.graph.association(agent=person, activity=self, other_attributes={pm.PROV_ROLE:role})
 
         #add wasAssociatedWith association
-        self.wasAssociatedWith(person)
+        #self.wasAssociatedWith(person)
 
         return assoc
 

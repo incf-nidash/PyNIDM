@@ -37,7 +37,7 @@ class Project(pm.ProvActivity,Core):
         """
 
         if (empty_graph):
-            self.graph = pm.ProvDocument()
+            self.graph = Constants.NIDMDocument(namespaces=None)
         else:
             self.graph = Constants.NIDMDocument(namespaces=Constants.namespaces)
 
@@ -50,6 +50,7 @@ class Project(pm.ProvActivity,Core):
             self._uuid = uuid
             #execute default parent class constructor
             super(Project,self).__init__(self.graph, pm.QualifiedName(pm.Namespace("niiri",Constants.NIIRI),self.get_uuid()),attributes)
+
         #add record to graph
         self.graph._add_record(self)
         #create empty sessions list

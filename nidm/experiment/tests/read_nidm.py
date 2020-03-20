@@ -11,6 +11,7 @@ def main(argv):
     parser = ArgumentParser()
     #parse command line arguments
     parser.add_argument('-nidm', dest='nidm_file', required=True, help="NIDM-Exp RDF File to import")
+    parser.add_argument('-out', dest='outfile',required=True, help="output file name")
     args = parser.parse_args()
 
     project = read_nidm(args.nidm_file)
@@ -39,7 +40,8 @@ def main(argv):
         derivobj = deriv.get_derivative_objects()
         print("Derivative Objects: \n %s" %derivobj)
 
-
-
+    with open(args.outfile, 'w') as f:
+        #serialize project for comparison with the original
+        f.write(project.serializeTurtle())
 if __name__ == "__main__":
    main(sys.argv[1:])

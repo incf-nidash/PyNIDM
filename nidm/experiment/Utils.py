@@ -262,6 +262,7 @@ def read_nidm(nidmDoc):
         '''
     qres = rdf_graph_parse.query(query)
     for row in qres:
+        print(row)
         # put this here so the following makes more sense
         derivobj_uuid = row['uuid']
         # if the parent activity of the derivative object (entity) doesn't exist in the graph then create it
@@ -274,20 +275,26 @@ def read_nidm(nidmDoc):
                 if row['parent_act'] == d.get_uuid():
                     deriv_act = d
 
+        #check if derivative object already created and if not create it
+        #if derivobj_uuid not in deriv_act.get_derivative_objects():
         # now instantiate the derivative object and add all triples
-        derivobj = DerivativeObject(derivative=deriv_act)
+        derivobj = DerivativeObject(derivative=deriv_act,uuid=derivobj_uuid)
+        add_metadata_for_subject(rdf_graph_parse, row['uuid'], project.graph.namespaces, derivobj)
 
 
     return(project)
 
 
 def get_RDFliteral_type(rdf_literal):
-    if (rdf_literal.datatype == XSD["int"]):
-        return (int(rdf_literal))
+    if (rdf_literal.datatype == XSD["integer"]):
+        #return (int(rdf_literal))
+        return(pm.Literal(rdf_literal,datatype=pm.XSD["integer"]))
     elif ((rdf_literal.datatype == XSD["float"]) or (rdf_literal.datatype == XSD["double"])):
-        return(float(rdf_literal))
+        #return(float(rdf_literal))
+        return(pm.Literal(rdf_literal,datatype=pm.XSD["float"]))
     else:
-        return (str(rdf_literal))
+        #return (str(rdf_literal))
+        return(pm.Literal(rdf_literal,datatype=pm.XSD["string"]))
 
 def add_metadata_for_subject (rdf_graph,subject_uri,namespaces,nidm_obj):
     """
@@ -302,70 +309,22 @@ def add_metadata_for_subject (rdf_graph,subject_uri,namespaces,nidm_obj):
     """
     #Cycle through remaining metadata and add attributes
     for predicate, objects in rdf_graph.predicate_objects(subject=subject_uri):
-        #if find qualified association
-        if predicate == URIRef(Constants.PROV['qualifiedAssociation']):
-            #need to get associated prov:Agent uri, add person information to graph
-            for agent in rdf_graph.objects(subject=subject_uri, predicate=Constants.PROV['wasAssociatedWith']):
-                #add person to graph and also add all metadata
-                person = nidm_obj.add_person(uuid=agent)
-                #now add metadata for person
-                add_metadata_for_subject(rdf_graph=rdf_graph,subject_uri=agent,namespaces=namespaces,nidm_obj=person)
-
-            #get role information
-            for bnode in rdf_graph.objects(subject=subject_uri,predicate=Constants.PROV['qualifiedAssociation']):
-                #for bnode, query for object which is role?  How?
-                #term.BNode.__dict__()
-
-                #create temporary resource for this bnode
-                r = Resource(rdf_graph,bnode)
-                #get the object for this bnode with predicate Constants.PROV['hadRole']
-                for r_obj in r.objects(predicate=Constants.PROV['hadRole']):
-                    # if this is a qualified association with a participant then create the prov:Person agent
-                    if r_obj.identifier == URIRef(Constants.NIDM_PARTICIPANT.uri):
-                        # get identifier for prov:agent part of the blank node
-                        for agent_obj in r.objects(predicate=Constants.PROV['agent']):
-                            # check if person exists already in graph, if not create it
-                            if agent_obj.identifier not in nidm_obj.graph.get_records():
-                                person = nidm_obj.add_person(uuid=agent_obj.identifier)
-                                # add rest of meatadata about person
-                                add_metadata_for_subject(rdf_graph=rdf_graph, subject_uri=agent_obj.identifier, namespaces=namespaces,nidm_obj=person)
-                            else:
-                                # we need the NIDM object here with uuid agent_obj.identifier and store it in person
-                                
-                            #create qualified names for objects
-                            obj_nm,obj_term = split_uri(r_obj.identifier)
-                            for uris in namespaces:
-                                if uris.uri == URIRef(obj_nm):
-                                    #create qualified association in graph
-                                    nidm_obj.add_qualified_association(person=person,role=pm.QualifiedName(uris,obj_term))
-                    # else it's an association with another agent which isn't a participant
-                    else:
-                        # get identifier for the prov:agent part of the blank node
-                        for agent_obj in r.objects(predicate=Constants.PROV['agent']):
-                            #check if the agent exists in the graph else add it
-                            if agent_obj.identifier not in nidm_obj.graph.get_records():
-                                generic_agent = nidm_obj.graph.agent(identifier=agent_obj.identifier)
-
-                                # add rest of meatadata about person
-                                add_metadata_for_subject(rdf_graph=rdf_graph, subject_uri=agent_obj.identifier,
-                                                     namespaces=namespaces, nidm_obj=generic_agent)
-                            # create qualified names for objects
-                            obj_nm, obj_term = split_uri(r_obj.identifier)
-                            for uris in namespaces:
-                                if uris.uri == URIRef(obj_nm):
-                                    # create qualified association in graph
-                                    nidm_obj.add_qualified_association(person=generic_agent, role=pm.QualifiedName(uris, obj_term))
-
-
-
-        else:
+        # if this isn't a qualified association, add triples
+        if predicate != URIRef(Constants.PROV['qualifiedAssociation']):
             if (validators.url(objects)) and (predicate != Constants.PROV['Location']):
-                #create qualified names for objects
-                obj_nm,obj_term = split_uri(objects)
-                for uris in namespaces:
-                    if uris.uri == URIRef(obj_nm):
-                        #prefix = uris.prefix
-                        nidm_obj.add_attributes({predicate : pm.QualifiedName(uris,obj_term)})
+                # try to split the URI to namespace and local parts, if fails just use the entire URI.
+                try:
+                    #create qualified names for objects
+                    obj_nm,obj_term = split_uri(objects)
+                    for uris in namespaces:
+                        if uris.uri == URIRef(obj_nm):
+                            # prefix = uris.prefix
+                            nidm_obj.add_attributes({predicate: pm.QualifiedName(uris, obj_term)})
+                            break
+                except:
+                    nidm_obj.add_attributes({predicate: pm.Identifier(objects)})
+
+
             else:
 
                 # check if objects is a url and if so store it as a URIRef else a Literal
@@ -373,6 +332,61 @@ def add_metadata_for_subject (rdf_graph,subject_uri,namespaces,nidm_obj):
                     nidm_obj.add_attributes({predicate : URIRef(objects)})
                 else:
                     nidm_obj.add_attributes({predicate : get_RDFliteral_type(objects)})
+
+    # now find qualified associations
+    for bnode in rdf_graph.objects(subject=subject_uri, predicate=Constants.PROV['qualifiedAssociation']):
+
+        # create temporary resource for this bnode
+        r = Resource(rdf_graph, bnode)
+        # get the object for this bnode with predicate Constants.PROV['hadRole']
+        for r_obj in r.objects(predicate=Constants.PROV['hadRole']):
+            # if this is a qualified association with a participant then create the prov:Person agent
+            if r_obj.identifier == URIRef(Constants.NIDM_PARTICIPANT.uri):
+                # get identifier for prov:agent part of the blank node
+                for agent_obj in r.objects(predicate=Constants.PROV['agent']):
+                    # check if person exists already in graph, if not create it
+                    if agent_obj.identifier not in nidm_obj.graph.get_records():
+                        person = nidm_obj.add_person(uuid=agent_obj.identifier)
+                        # add rest of meatadata about person
+                        add_metadata_for_subject(rdf_graph=rdf_graph, subject_uri=agent_obj.identifier,
+                                                 namespaces=namespaces, nidm_obj=person)
+                    else:
+                        # we need the NIDM object here with uuid agent_obj.identifier and store it in person
+                        for obj in nidm_obj.graph.get_records():
+                            if agent_obj.identifier == obj.identifier:
+                                person = obj
+                    # create qualified names for objects
+                    obj_nm, obj_term = split_uri(r_obj.identifier)
+                    for uris in namespaces:
+                        if uris.uri == URIRef(obj_nm):
+                            # create qualified association in graph
+                            nidm_obj.add_qualified_association(person=person, role=pm.QualifiedName(uris, obj_term))
+                            break
+            # else it's an association with another agent which isn't a participant
+            else:
+                # get identifier for the prov:agent part of the blank node
+                for agent_obj in r.objects(predicate=Constants.PROV['agent']):
+                    # check if the agent exists in the graph else add it
+                    if agent_obj.identifier not in nidm_obj.graph.get_records():
+                        generic_agent = nidm_obj.graph.agent(identifier=agent_obj.identifier)
+
+                        # add rest of meatadata about the agent
+                        add_metadata_for_subject(rdf_graph=rdf_graph, subject_uri=agent_obj.identifier,
+                                                 namespaces=namespaces, nidm_obj=generic_agent)
+                    # try and split uri into namespacea and local parts, if fails just use entire URI
+                    try:
+                        # create qualified names for objects
+                        obj_nm, obj_term = split_uri(r_obj.identifier)
+                        # special case if obj_nm is
+                        for uris in namespaces:
+                            if uris.uri == URIRef(obj_nm):
+                                # create qualified association in graph
+                                nidm_obj.add_qualified_association(person=generic_agent,
+                                                                   role=pm.QualifiedName(uris, obj_term))
+                                break
+
+                    except:
+                        nidm_obj.add_qualified_association(person=generic_agent, role=pm.Identifier(r_obj.identifier))
 
 
 def QuerySciCrunchElasticSearch(query_string,type='cde', anscestors=True):
