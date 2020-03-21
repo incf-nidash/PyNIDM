@@ -79,7 +79,7 @@ def main(argv):
         f.write (project.serializeTurtle())
 
     #save a DOT graph as PDF
-    project.save_DotGraph("test.png",format="png")
+    # project.save_DotGraph("test.png",format="png")
 
 if __name__ == "__main__":
    main(sys.argv[1:])
