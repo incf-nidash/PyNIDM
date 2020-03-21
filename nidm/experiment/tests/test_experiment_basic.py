@@ -99,7 +99,7 @@ def test_project_emptygraph():
     proj = Project(empty_graph=True)
 
     # checking if we created ProvDocument
-    assert type(proj.bundle) is prov.model.ProvDocument
+    assert type(proj.bundle) is Constants.NIDMDocument
 
     # checking graph namespace
     namesp = [i.prefix for i in proj.graph.namespaces]

@@ -301,6 +301,7 @@ NIDM_BINARY_MAP = NIDM['NIDM_0000004']
 NIDM_CONTRAST_ESTIMATION = NIDM['NIDM_0000001']
 NIDM_CONTRAST_MAP = NIDM['NIDM_0000002']
 # NIDM-Experiment##############################################################
+NIDM_DATAELEMENT = QualifiedName(provNamespace("nidm", NIDM), 'DataElement')
 NIDM_PROJECT = QualifiedName(provNamespace("nidm", NIDM), 'Project')
 #NIDM_PROJECT_TYPE = QualifiedName(provNamespace("dctypes", DCTYPES),"Dataset")
 NIDM_PROJECT_IDENTIFIER = QualifiedName(provNamespace("sio", SIO),"Identifier")

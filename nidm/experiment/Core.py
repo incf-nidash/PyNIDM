@@ -88,6 +88,7 @@ class Core(object):
         #bind namespaces to self.graph
         for name, namespace in self.namespaces.items():
             self.graph.add_namespace(name, namespace)
+
     def get_uuid(self):
         '''
         returns UUID of self
@@ -195,7 +196,7 @@ class Core(object):
         assoc = self.graph.association(agent=person, activity=self, other_attributes={pm.PROV_ROLE:role})
 
         #add wasAssociatedWith association
-        self.wasAssociatedWith(person)
+        #self.wasAssociatedWith(person)
 
         return assoc
 

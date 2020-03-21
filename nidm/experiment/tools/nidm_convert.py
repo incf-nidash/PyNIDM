@@ -35,89 +35,60 @@ from argparse import ArgumentParser
 from rdflib import Graph,util
 from rdflib.tools import rdf2dot
 from nidm.experiment.Utils import read_nidm
+from nidm.experiment.Query import GetMergedGraph
 from io import StringIO
 from os.path import basename,splitext
 import subprocess
 from graphviz import Source
 import tempfile
 
-def main(argv):
+import click
+from nidm.experiment.tools.click_base import cli
 
-    parser = ArgumentParser(description='This program contains various NIDM-Experiment utilities')
-    sub = parser.add_subparsers(dest='command')
-    concat = sub.add_parser('concat', description="This command will simply concatenate the supplied NIDM files into a single output")
-    visualize = sub.add_parser('visualize', description="This command will produce a visualization(pdf) of the supplied NIDM files")
-    jsonld = sub.add_parser('jsonld', description="This command will save NIDM files as jsonld")
-
-    for arg in [concat,visualize,jsonld]:
-        arg.add_argument('-nl', '--nl', dest="nidm_files", nargs="+", required=True, help="A comma separated list of NIDM files with full path")
-
-    concat.add_argument('-o', '--o', dest='output_file', required=True, help="Merged NIDM output file name + path")
-    # visualize.add_argument('-o', '--o', dest='output_file', required=True, help="Output file name+path of dot graph")
-
-
-    args=parser.parse_args()
-
-    #concatenate nidm files
-    if args.command == 'concat':
-
-        #create empty graph
-        graph=Graph()
-        for nidm_file in args.nidm_files:
-             tmp = Graph()
-             graph = graph + tmp.parse(nidm_file,format=util.guess_format(nidm_file))
-
-        graph.serialize(args.output_file, format='turtle')
+# adding click argument parsing
+@cli.command()
+@click.option("--nidm_file_list", "-nl", required=True,
+              help="A comma separated list of NIDM files with full path")
+@click.option("--type", "-t", required=True,type=click.Choice(['turtle', 'jsonld', 'xml-rdf','n3','trig'], case_sensitive=False),
+              help="If parameter set then NIDM file will be exported as JSONLD")
 
 
 
-    elif args.command == 'visualize':
+def convert(nidm_file_list, type):
+    """
+    This function will convert NIDM files to various RDF-supported formats and name then / put them in the same
+    place as the input file.
+    """
 
-        for nidm_file in args.nidm_files:
+    for nidm_file in nidm_file_list.split(','):
+        # WIP: for now we use pynidm for jsonld exports to make more human readable and rdflib for everything
+        # else.
+        if type == 'jsonld':
             # read in nidm file
-            project=read_nidm(nidm_file)
-
-            # split path and filename for output file writing
-            file_parts = os.path.split(nidm_file)
-
-            # write graph as nidm filename + .pdf
-            project.save_DotGraph(filename=os.path.join(file_parts[0], os.path.splitext(file_parts[1])[0] + '.pdf'), format='pdf' )
-
-        #create empty graph
-        #graph=Graph()
-        #for nidm_file in args.nidm_files:
-        #     tmp = Graph()
-        #     graph = graph + tmp.parse(nidm_file,format=util.guess_format(nidm_file))
-
-
-        # project=read_nidm(StringIO.write(graph.serialize(format='turtle')))
-        # project.save_DotGraph(filename=args.output_file+'.pdf',format='pdf')
-        # WIP: Workaround because not all NIDM files only contain NIDM-E objects and so read_nidm function needs to be
-        # updated for project.save_DotGraph to work...so this is a clunky workaround using the command line tool
-        # rdf2dot
-
-        # result is the standard output dot graph stream
-        # write temporary file to disk and use for stats
-        #temp = tempfile.NamedTemporaryFile(delete=False)
-        #temp.write(graph.serialize(format='turtle'))
-        #temp.close()
-        #uber_nidm_file = temp.name
-        #result = subprocess.run(['rdf2dot',uber_nidm_file], stdout=subprocess.PIPE)
-
-        # now use graphviz Source to create dot graph object
-        #src=Source(result)
-        #src.render(args.output_file+'.pdf',view=False,format='pdf')
-
-
-
-    elif args.command == 'jsonld':
-        #create empty graph
-        for nidm_file in args.nidm_files:
-            project=read_nidm(nidm_file)
-            #serialize to jsonld
-            with open(splitext(nidm_file)[0]+".json",'w') as f:
+            project = read_nidm(nidm_file)
+            #write jsonld file with same name
+            with open(splitext(nidm_file)[0] + ".json", 'w') as f:
                 f.write(project.serializeJSONLD())
+        elif type == 'turtle':
+            graph = Graph()
+            graph.parse(nidm_file, format=util.guess_format(nidm_file))
+            graph.serialize(splitext(nidm_file)[0] + ".ttl", format='turtle')
+        elif type == 'xml-rdf':
+            graph = Graph()
+            graph.parse(nidm_file, format=util.guess_format(nidm_file))
+            graph.serialize(splitext(nidm_file)[0] + ".xml", format='pretty-xml')
+        elif type == 'n3':
+            graph = Graph()
+            graph.parse(nidm_file, format=util.guess_format(nidm_file))
+            graph.serialize(splitext(nidm_file)[0] + ".n3", format='n3')
+        elif type == 'trig':
+            # read in nidm file
+            project = read_nidm(nidm_file)
+            with open(splitext(nidm_file)[0] + ".trig", 'w') as f:
+                f.write(project.serializeTrig())
+        else:
+            print("Error, type is not supported at this time")
 
 
 if __name__ == "__main__":
-   main(sys.argv[1:])
+   convert()
