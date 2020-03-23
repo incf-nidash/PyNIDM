@@ -339,6 +339,8 @@ def add_metadata_for_subject (rdf_graph,subject_uri,namespaces,nidm_obj):
                                 # prefix = uris.prefix
                                 nidm_obj.add_attributes({predicate: pm.QualifiedName(uris, obj_term)})
                                 break
+                        # if there's no namespace in document then it's likely just a URIRef so add it as such
+                        nidm_obj.add_attributes({predicate: pm.Identifier(objects)})
                 except:
                     nidm_obj.add_attributes({predicate: pm.Identifier(objects)})
 
