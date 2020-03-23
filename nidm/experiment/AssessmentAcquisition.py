@@ -15,7 +15,7 @@ class AssessmentAcquisition(Acquisition):
     """
 
     #constructor
-    def __init__(self, session,attributes=None, uuid=None):
+    def __init__(self, session,attributes=None, uuid=None, add_default_type=True):
         """
         Default contructor, creates an acquisition object and links to acquisition activity object
 
@@ -30,8 +30,9 @@ class AssessmentAcquisition(Acquisition):
         super(AssessmentAcquisition,self).__init__(session,attributes,uuid)
         #acquisition.graph._add_record(self)
 
-        self.add_attributes({pm.PROV_TYPE: Constants.NIDM_ACQUISITION_ACTIVITY})
-        self.add_attributes({pm.PROV_TYPE: Constants.NIDM_ASSESSMENT_ACQUISITION})
+        if add_default_type:
+            self.add_attributes({pm.PROV_TYPE: Constants.NIDM_ACQUISITION_ACTIVITY})
+            self.add_attributes({pm.PROV_TYPE: Constants.NIDM_ASSESSMENT_ACQUISITION})
 
         #carry graph object around
         self.graph = session.graph

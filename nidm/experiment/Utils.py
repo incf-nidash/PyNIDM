@@ -92,7 +92,7 @@ def read_nidm(nidmDoc):
     #print("project uuid=%s" %project_uuid)
 
     #create empty prov graph
-    project = Project(empty_graph=True,uuid=project_uuid)
+    project = Project(empty_graph=True,uuid=project_uuid,add_default_type=False)
 
     #add namespaces to prov graph
     for name, namespace in rdf_graph_parse.namespaces():
@@ -115,7 +115,7 @@ def read_nidm(nidmDoc):
         #print("session uuid= %s" %session_uuid)
 
         #instantiate session with this uuid
-        session = Session(project=project, uuid=session_uuid)
+        session = Session(project=project, uuid=session_uuid,add_default_type=False)
 
         #add session to project
         project.add_sessions(session)
@@ -148,14 +148,14 @@ def read_nidm(nidmDoc):
                             #check whether this acquisition activity has already been instantiated (maybe if there are multiple acquisition
                             #entities prov:wasGeneratedBy the acquisition
                             if not session.acquisition_exist(acq_uuid):
-                                acquisition=MRAcquisition(session=session,uuid=acq_uuid)
+                                acquisition=MRAcquisition(session=session,uuid=acq_uuid,add_default_type=False)
                                 session.add_acquisition(acquisition)
                                 #Cycle through remaining metadata for acquisition activity and add attributes
                                 add_metadata_for_subject (rdf_graph_parse,acq,project.graph.namespaces,acquisition)
 
 
                             #and add acquisition object
-                            acquisition_obj=MRObject(acquisition=acquisition,uuid=acq_obj_uuid)
+                            acquisition_obj=MRObject(acquisition=acquisition,uuid=acq_obj_uuid,add_default_type=False)
                             acquisition.add_acquisition_object(acquisition_obj)
                             #Cycle through remaining metadata for acquisition entity and add attributes
                             add_metadata_for_subject(rdf_graph_parse,acq_obj,project.graph.namespaces,acquisition_obj)
@@ -200,7 +200,7 @@ def read_nidm(nidmDoc):
                                 add_metadata_for_subject(rdf_graph_parse, acq, project.graph.namespaces, acquisition)
 
                             # and add acquisition object
-                            acquisition_obj = PETObject(acquisition=acquisition, uuid=acq_obj_uuid)
+                            acquisition_obj = PETObject(acquisition=acquisition, uuid=acq_obj_uuid,add_default_type=False)
                             acquisition.add_acquisition_object(acquisition_obj)
                             # Cycle through remaining metadata for acquisition entity and add attributes
                             add_metadata_for_subject(rdf_graph_parse, acq_obj, project.graph.namespaces,
@@ -212,12 +212,12 @@ def read_nidm(nidmDoc):
                         elif (acq_obj, RDF.type, URIRef(Constants.NIDM_ASSESSMENT_ENTITY._uri)) in rdf_graph:
 
                             #if str(acq_modality) == Constants.NIDM_ASSESSMENT_ENTITY._uri:
-                            acquisition=AssessmentAcquisition(session=session,uuid=acq_uuid)
+                            acquisition=AssessmentAcquisition(session=session,uuid=acq_uuid,add_default_type=False)
                             #Cycle through remaining metadata for acquisition activity and add attributes
                             add_metadata_for_subject (rdf_graph_parse,acq,project.graph.namespaces,acquisition)
 
                             #and add acquisition object
-                            acquisition_obj=AssessmentObject(acquisition=acquisition,uuid=acq_obj_uuid)
+                            acquisition_obj=AssessmentObject(acquisition=acquisition,uuid=acq_obj_uuid,add_default_type=False)
                             acquisition.add_acquisition_object(acquisition_obj)
                             #Cycle through remaining metadata for acquisition entity and add attributes
                             add_metadata_for_subject(rdf_graph_parse,acq_obj,project.graph.namespaces,acquisition_obj)
@@ -241,7 +241,7 @@ def read_nidm(nidmDoc):
     qres = rdf_graph_parse.query(query)
     for row in qres:
         # instantiate a data element class assigning it the existing uuid
-        de = DataElement(project=project, uuid=row['uuid'])
+        de = DataElement(project=project, uuid=row['uuid'],add_default_type=False)
         # get the rest of the attributes for this data element and store
         add_metadata_for_subject(rdf_graph_parse, row['uuid'], project.graph.namespaces, de)
 
@@ -306,6 +306,17 @@ def get_RDFliteral_type(rdf_literal):
         #return (str(rdf_literal))
         return(pm.Literal(rdf_literal,datatype=pm.XSD["string"]))
 
+def find_in_namespaces(search_uri, namespaces):
+    '''
+    Looks through namespaces for search_uri
+    :return: URI if found else False
+    '''
+
+    for uris in namespaces:
+        if uris.uri == search_uri:
+            return uris
+    
+    return False
 
 def add_metadata_for_subject (rdf_graph,subject_uri,namespaces,nidm_obj):
     """
@@ -332,24 +343,22 @@ def add_metadata_for_subject (rdf_graph,subject_uri,namespaces,nidm_obj):
                     # so we check explicitly here
                     if ((obj_nm == str(Constants.PROV))):
                         nidm_obj.add_attributes({predicate: pm.QualifiedName(Namespace(obj_nm), obj_term)})
-
                     else:
-                        for uris in namespaces:
-                            if uris.uri == URIRef(obj_nm):
-                                # prefix = uris.prefix
-                                nidm_obj.add_attributes({predicate: pm.QualifiedName(uris, obj_term)})
-                                break
-                        # if there's no namespace in document then it's likely just a URIRef so add it as such
-                        nidm_obj.add_attributes({predicate: pm.Identifier(objects)})
+                        found_uri = find_in_namespaces(search_uri=URIRef(obj_nm),namespaces=namespaces)
+                        # if obj_nm is not in namespaces then it must just be part of some URI in the triple
+                        # so just add it as a prov.Identifier
+                        if not found_uri:
+                            nidm_obj.add_attributes({predicate: pm.Identifier(objects)})
+                        # else add as explicit prov.QualifiedName because it's easier to read
+                        else:
+                            nidm_obj.add_attributes({predicate: pm.QualifiedName(found_uri, obj_term)})
                 except:
-                    nidm_obj.add_attributes({predicate: pm.Identifier(objects)})
-
-
+                    nidm_obj.add_attributes({predicate: URIRef(objects)})
             else:
 
                 # check if objects is a url and if so store it as a URIRef else a Literal
                 if validators.url(objects):
-                    nidm_obj.add_attributes({predicate : URIRef(objects)})
+                    nidm_obj.add_attributes({predicate : pm.Identifier(objects)})
                 else:
                     nidm_obj.add_attributes({predicate : get_RDFliteral_type(objects)})
 
@@ -365,7 +374,7 @@ def add_metadata_for_subject (rdf_graph,subject_uri,namespaces,nidm_obj):
                 for agent_obj in r.objects(predicate=Constants.PROV['agent']):
                     # check if person exists already in graph, if not create it
                     if agent_obj.identifier not in nidm_obj.graph.get_records():
-                        person = nidm_obj.add_person(uuid=agent_obj.identifier)
+                        person = nidm_obj.add_person(uuid=agent_obj.identifier,add_default_type=False)
                         # add rest of meatadata about person
                         add_metadata_for_subject(rdf_graph=rdf_graph, subject_uri=agent_obj.identifier,
                                                  namespaces=namespaces, nidm_obj=person)
@@ -376,11 +385,14 @@ def add_metadata_for_subject (rdf_graph,subject_uri,namespaces,nidm_obj):
                                 person = obj
                     # create qualified names for objects
                     obj_nm, obj_term = split_uri(r_obj.identifier)
-                    for uris in namespaces:
-                        if uris.uri == URIRef(obj_nm):
-                            # create qualified association in graph
-                            nidm_obj.add_qualified_association(person=person, role=pm.QualifiedName(uris, obj_term))
-                            break
+                    found_uri = find_in_namespaces(search_uri=URIRef(obj_nm),namespaces=namespaces)
+                    # if obj_nm is not in namespaces then it must just be part of some URI in the triple
+                    # so just add it as a prov.Identifier
+                    if not found_uri:
+                        nidm_obj.add_qualified_association(person=person, role=pm.Identifier(r_obj.identifier))
+                    else:
+                        nidm_obj.add_qualified_association(person=person, role=pm.QualifiedName(found_uri, obj_term))
+
             # else it's an association with another agent which isn't a participant
             else:
                 # get identifier for the prov:agent part of the blank node
@@ -397,15 +409,18 @@ def add_metadata_for_subject (rdf_graph,subject_uri,namespaces,nidm_obj):
                         # create qualified names for objects
                         obj_nm, obj_term = split_uri(r_obj.identifier)
 
-                        for uris in namespaces:
-                            if uris.uri == URIRef(obj_nm):
-                                # create qualified association in graph
-                                nidm_obj.add_qualified_association(person=generic_agent,
-                                                                   role=pm.QualifiedName(uris, obj_term))
-                                break
+                        found_uri = find_in_namespaces(search_uri=URIRef(obj_nm), namespaces=namespaces)
+                        # if obj_nm is not in namespaces then it must just be part of some URI in the triple
+                        # so just add it as a prov.Identifier
+                        if not found_uri:
+                            nidm_obj.add_qualified_association(person=generic_agent,
+                                                               role=URIRef(r_obj.identifier))
+                        else:
+                            nidm_obj.add_qualified_association(person=generic_agent,
+                                                               role=pm.QualifiedName(found_uri, obj_term))
 
                     except:
-                        nidm_obj.add_qualified_association(person=generic_agent, role=pm.Identifier(r_obj.identifier))
+                        nidm_obj.add_qualified_association(person=generic_agent, role=URIRef(r_obj.identifier))
 
 
 def QuerySciCrunchElasticSearch(query_string,type='cde', anscestors=True):

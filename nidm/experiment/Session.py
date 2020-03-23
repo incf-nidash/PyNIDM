@@ -20,7 +20,7 @@ class Session(pm.ProvActivity,Core):
 
     """
     #constructor
-    def __init__(self, project,uuid=None,attributes=None):
+    def __init__(self, project,uuid=None,attributes=None,add_default_type=True):
         """
         Default contructor, creates a session activity and links to project object
 
@@ -39,7 +39,9 @@ class Session(pm.ProvActivity,Core):
 
         project.graph._add_record(self)
 
-        self.add_attributes({pm.PROV_TYPE: Constants.NIDM_SESSION})
+        if add_default_type:
+            self.add_attributes({pm.PROV_TYPE: Constants.NIDM_SESSION})
+
         self.graph = project.graph
         project.add_sessions(self)
 
