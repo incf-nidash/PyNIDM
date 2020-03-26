@@ -604,3 +604,11 @@ NIDM_MRI_T2_STAR,
 NIDM_MRI_DIFFUSION_TENSOR,
 NIDM_MRI_FLOW,
 NIDM_MRI_BOLD_EVENTS]
+
+
+# cannonical CDE file locations
+CDE_FILE_LOCATIONS = [
+	"https://raw.githubusercontent.com/ReproNim/fsl_seg_to_nidm/master/fsl_seg_to_nidm/mapping_data/fsl_cde.ttl",
+	"https://raw.githubusercontent.com/ReproNim/ants_seg_to_nidm/master/ants_seg_to_nidm/mapping_data/ants_cde.ttl",
+	"https://raw.githubusercontent.com/ReproNim/segstats_jsonld/master/segstats_jsonld/mapping_data/fs_cde.ttl"
+]

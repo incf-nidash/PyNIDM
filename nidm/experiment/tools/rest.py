@@ -1,3 +1,4 @@
+import nidm.experiment.Navigate
 from nidm.experiment import Query
 from nidm.core import Constants
 import json
@@ -9,10 +10,15 @@ from tempfile import gettempdir
 from tabulate import tabulate
 from copy import copy, deepcopy
 from urllib.parse import urlparse, parse_qs
+from  nidm.experiment import Navigate
+
 
 from numpy import std, mean, median
 
-from nidm.experiment.Utils import read_nidm
+from joblib import Memory
+memory = Memory(gettempdir(), verbose=0)
+
+import simplejson
 
 
 class RestParser:
@@ -118,7 +124,14 @@ class RestParser:
         return (tabulate(flatten(result), headers=headers))
 
 
+    def activityDataTableFormat(self, data):
+        headers = ['uuid', 'measure', 'label', 'value', 'unit']
+        rows=[]
+        for inst_or_deriv in data:
+            for d in inst_or_deriv.data:
+                rows.append( [inst_or_deriv.uuid, d.measureOf, d.label, d.value, d.hasUnit] )
 
+        return (tabulate(rows, headers=headers))
 
 
     #####################
@@ -129,14 +142,21 @@ class RestParser:
         if self.output_format == self.CLI_FORMAT:
             toptable = []
             for key in result:
-                if not key in ['subjects', 'data_elements']:
-                    toptable.append([ key, result[key] ])
+                if not key in ['subjects', 'data_elements', 'field_values']:
+                    toptable.append([ key, simplejson.dumps(result[key]) ])
 
+            if 'field_values' in result and len(result['field_values']) > 0 :
+                fh_header = result['field_values'][0].keys()
+                fh_rows = [x.values() for x in result['field_values']]
+                field_table = tabulate(fh_rows, fh_header)
+            else:
+                field_table = ''
 
-            return "{}\n\n{}\n\n{}".format(
+            return "{}\n\n{}\n\n{}\n\n{}".format(
                 tabulate(toptable),
                 tabulate({"subjects": result["subjects"]}, headers="keys"),
-                tabulate({"data_elements": result["data_elements"]}, headers="keys")
+                tabulate({"data_elements": result["data_elements"]}, headers="keys"),
+                field_table
             )
         else:
             return self.format(result)
@@ -181,6 +201,33 @@ class RestParser:
                 derivatives,
                 instruments
             )
+        else:
+            return self.format(result)
+
+
+    def subjectSummaryFormat_v2(self,result):
+        if self.output_format == self.CLI_FORMAT:
+            special_keys = ['instruments', 'derivatives', "activity"]
+            toptable = []
+            for key in result:
+                if not key in special_keys:
+                    toptable.append([ key, result[key] ])
+
+            for key in special_keys:
+                if key in result:
+                    if type(result[key]) == dict:
+                        toptable.append( [ key, ",".join(result[key].keys()) ] )
+                    if type(result[key]) == list and type(result[key][0]) == Navigate.ActivityData:
+                        toptable.append( [ key, ",".join( [x.uuid for x in result[key] ]   ) ])
+                    elif type(result[key]) == list:
+                        toptable.append([key, ",".join])
+                    else:
+                        toptable.append([key, json.dumps(result[key]) ])
+
+            instruments = self.activityDataTableFormat(result['instruments'])
+            derivatives=  self.activityDataTableFormat(result['derivatives'])
+
+            return "{}\n\n{}\n\n{}".format(tabulate(toptable), derivatives, instruments )
         else:
             return self.format(result)
 
@@ -285,14 +332,54 @@ class RestParser:
 
     def projectSummary(self):
 
+        GetParticipantDetails_Cached = memory.cache(Query.GetParticipantDetails)
 
         match = re.match(r"^/?projects/([^/]+)$", self.command)
         id = parse.unquote(str(match.group(1)))
         self.restLog("Returing project {} summary".format(id), 2)
 
-        result = Query.GetProjectAttributes(self.nidm_files, project_id=id)
+        result = nidm.experiment.Navigate.GetProjectAttributes(self.nidm_files, project_id=id)
         result['subjects']  = Query.GetParticipantUUIDsForProject(self.nidm_files, project_id=id, filter=self.query['filter'])
         result['data_elements'] = Query.GetProjectDataElements(self.nidm_files, project_id=id)
+
+
+        # if we got fields, drill into each subject and pull out the field data
+        # subject details -> derivitives / instrument -> values -> element
+        if 'fields' in self.query and len(self.query['fields']) > 0:
+            self.restLog("Using fields {}".format(self.query['fields']), 2)
+            result['field_values'] = []
+            for sub in result['subjects']:
+                sub_data = GetParticipantDetails_Cached(self.nidm_files, id, sub)
+
+                for study_type in ['derivatives']:
+                    if study_type in sub_data:
+                        for key, deriv in sub_data[study_type].items():
+                            for element_uri, data_row in deriv['values'].items():
+                                field = self.getTailOfURI(element_uri)
+                                if field in self.query['fields']:
+                                    result['field_values'].append({
+                                        'subject': sub,
+                                        'field': field,
+                                        'datumType': data_row['datumType'],
+                                        'label': data_row['label'],
+                                        'value': data_row['value'],
+                                        'units': data_row['units']
+                                    })
+
+                for study_type in ['instruments']:
+                    if study_type in sub_data:
+                        for instrument_uri, instrument_dict in sub_data[study_type].items():
+                            for instrument_field, instument_value in instrument_dict.items():
+                                if instrument_field in self.query['fields']:
+                                    result['field_values'].append({
+                                        'subject': sub,
+                                        'field': instrument_field,
+                                        'datumType': '',
+                                        'label': '',
+                                        'value': instument_value,
+                                        'units': ''
+                                    })
+
 
         return self.projectSummaryFormat(result)
 
@@ -304,10 +391,25 @@ class RestParser:
         result = Query.GetParticipantUUIDsForProject(self.nidm_files, project, self.query['filter'], None)
         return self.format(result)
 
-    def subjectSummary(self):
+    def projectSubjectSummary(self):
         match = re.match(r"^/?projects/([^/]+)/subjects/([^/]+)/?$", self.command)
         self.restLog("Returning info about subject {}".format(match.group(2)), 2)
         return self.subjectSummaryFormat(Query.GetParticipantDetails(self.nidm_files, match.group(1), match.group(2)))
+
+    def subjectSummary(self):
+        match = re.match(r"^/?subjects/([^/]+)/?$", self.command)
+        self.restLog("Returning info about subject {}".format(match.group(1)), 2)
+        activities = Navigate.getActivities(self.nidm_files, match.group(1))
+        activityData = []
+        for a in activities:
+            data = Navigate.getActivityData(self.nidm_files, a)
+            activityData.append(data)
+
+        return self.subjectSummaryFormat_v2( {'uuid': match.group(1),
+                'instruments' : list(filter(lambda x: x.category == 'instrument', activityData)),
+                'derivatives' : list(filter(lambda x: x.category == 'derivative', activityData))
+                })
+
 
     def instrumentsList(self):
         result = []
@@ -378,9 +480,11 @@ class RestParser:
 
         if re.match(r"^/?projects/[^/]+$", self.command): return self.projectSummary()
 
+        if re.match(r"^/?subjects/[^/]+$", self.command): return self.subjectSummary()
+
         if re.match(r"^/?projects/[^/]+/subjects/?$", self.command): return self.subjectsList()
 
-        if re.match(r"^/?projects/[^/]+/subjects/[^/]+/?$", self.command): return self.subjectSummary()
+        if re.match(r"^/?projects/[^/]+/subjects/[^/]+/?$", self.command): return self.projectSubjectSummary()
 
         if re.match(r"^/?projects/[^/]+/subjects/[^/]+/instruments/?$", self.command): return self.instrumentsList()
 
@@ -399,9 +503,12 @@ class RestParser:
         if verbosity_of_message <= self.verbosity_level:
             print (message)
 
+
+
     def format(self, result, headers = [""]):
         if self.output_format == RestParser.JSON_FORMAT:
-            return json.dumps(result, indent=2)
+            json_str = simplejson.dumps(result, indent=2)
+            return json_str
 
         elif self.output_format == RestParser.CLI_FORMAT:
             if type(result) == dict:

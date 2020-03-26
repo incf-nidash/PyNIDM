@@ -1,8 +1,10 @@
+import nidm.experiment.Navigate
 from nidm.experiment import Project, Session, AssessmentAcquisition, AssessmentObject, Acquisition, AcquisitionObject, Query
 from nidm.core import Constants
 from rdflib import Namespace,URIRef
 import prov.model as pm
-from os import remove
+from os import remove, path
+import tempfile
 
 from prov.model import ProvDocument, QualifiedName
 from prov.model import Namespace as provNamespace
@@ -294,3 +296,49 @@ def test_prefix_helpers():
     assert Query.matchPrefix("http://purl.org/nidash/fsl#xyz", short=True) == "fsl"
 
 
+def test_getProjectAcquisitionObjects():
+    if not Path('./cmu_a.nidm.ttl').is_file():
+        urllib.request.urlretrieve (
+            "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/master/datasets.datalad.org/abide/RawDataBIDS/CMU_a/nidm.ttl",
+            "cmu_a.nidm.ttl"
+        )
+    files = ['cmu_a.nidm.ttl']
+
+    project_list = Query.GetProjectsUUID(files)
+    print (project_list)
+    project_uuid = str(project_list[0])
+    objects = Query.getProjectAcquisitionObjects(files,project_uuid)
+
+    assert isinstance(objects,list)
+
+
+def test_GetProjectAttributes():
+    if not Path('./cmu_a.nidm.ttl').is_file():
+        urllib.request.urlretrieve (
+            "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/master/datasets.datalad.org/abide/RawDataBIDS/CMU_a/nidm.ttl",
+            "cmu_a.nidm.ttl"
+        )
+    files = ['cmu_a.nidm.ttl']
+
+    project_list = Query.GetProjectsUUID(files)
+    print (project_list)
+    project_uuid = str(project_list[0])
+    project_attributes = nidm.experiment.Navigate.GetProjectAttributes(files, project_uuid)
+    assert ('prov:Location' in project_attributes) or ('Location' in project_attributes)
+    assert ('dctypes:title' in project_attributes) or ('title' in project_attributes)
+    assert ('http://www.w3.org/1999/02/22-rdf-syntax-ns#type' in project_attributes) or ('type' in project_attributes)
+    assert ('AcquisitionModality') in project_attributes
+    assert ('ImageContrastType') in project_attributes
+    assert ('Task') in project_attributes
+    assert ('ImageUsageType') in project_attributes
+
+
+def test_download_cde_files():
+    cde_dir = Query.download_cde_files()
+    assert cde_dir == tempfile.gettempdir()
+    fcount = 0
+    for url in Constants.CDE_FILE_LOCATIONS:
+        fname = url.split('/')[-1]
+        assert path.isfile("{}/{}".format(cde_dir, fname) )
+        fcount += 1
+    assert fcount > 0
