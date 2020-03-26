@@ -4,8 +4,8 @@ RUN apt-get update &&  \
     apt-get install -y git python3 graphviz python3-pip ssh mercurial python-setuptools
 
 RUN python3 -m pip install --upgrade pip && \
-    pip3 install rdflib requests fuzzywuzzy pygithub pybids duecredit setuptools \
-                 python-Levenshtein pytest graphviz prov pydot validators ontquery \
+    pip3 install rdflib requests rapidfuzz pygithub pybids duecredit setuptools \
+                 pytest graphviz prov pydot validators ontquery \
                  click rdflib-jsonld pyld pytest-cov tabulate joblib
 
 
