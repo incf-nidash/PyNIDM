@@ -3,6 +3,7 @@ from flask_restful import Resource, Api
 import glob
 from nidm.experiment.tools.rest import RestParser
 from flask_cors import CORS
+import simplejson
 
 def getTTLFiles():
     files = []
@@ -23,7 +24,10 @@ class NIDMRest(Resource):
             return ({'error' : 'No NIDM files found. You may need to add NIDM ttl files to ~/PyNIDM/ttl'})
         restParser = RestParser(output_format=RestParser.OBJECT_FORMAT, verbosity_level=5)
 
-        return restParser.run(files, "{}?{}".format(all,query))
+        json_str = simplejson.dumps(restParser.run(files, "{}?{}".format(all, query)), indent=2)
+        response = app.response_class(response=json_str, status=200, mimetype='application/json')
+
+        return response
 
 class Instructions(Resource):
     def get(self):
