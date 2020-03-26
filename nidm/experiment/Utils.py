@@ -12,7 +12,7 @@ import prov.model as pm
 from prov.model import QualifiedName
 from prov.model import Namespace as provNamespace
 import requests
-from rapidfuzz import fuzz
+from fuzzywuzzy import fuzz
 import json
 from github import Github, GithubException
 import getpass
