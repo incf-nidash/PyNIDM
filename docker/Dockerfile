@@ -8,6 +8,7 @@ RUN python3 -m pip install --upgrade pip && \
                  python-Levenshtein pytest graphviz prov pydot validators ontquery \
                  click rdflib-jsonld pyld pytest-cov tabulate joblib
 
+
 WORKDIR /opt
 RUN hg clone https://bitbucket.org/jibalamy/owlready2 && \
     cd owlready2 && \
