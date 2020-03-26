@@ -236,6 +236,7 @@ Here is a list of the current operations. See the SwaggerHub page for more detai
 - /projects/{project_id}/subjects/{subject_id}
 - /projects/{project_id}/subjects/{subject_id}/instruments/{instrument_id}
 - /projects/{project_id}/subjects/{subject_id}/derivatives/{derivative_id}
+- /subjects/{subject_id}
 - /statistics/projects/{project_id}
 
 You can append the following query parameters to many of the operations:
@@ -254,7 +255,7 @@ Operations
 
 **/projects/{project_id}**
  | See some details for a project. This will include the list of subject IDs and data elements used in the project
- | Supported query parameters: fitler
+ | Supported query parameters: fitler, fields
 
 **/projects/{project_id}/subjects**
  | Get the list of subjects in a project
@@ -270,6 +271,10 @@ Operations
 
 **/projects/{project_id}/subjects/{subject_id}/derivatives/{derivative_id}**
  | Get the values for a particular derivative
+ | Supported query parameters: none
+
+**/subjects/{subject_id}**
+ | Get the details for a particular subject. This will include the results of any instrumnts or derivatives associated with the subject, as well a a list of the related activites.
  | Supported query parameters: none
 
 **/statistics/projects/{project_id}**
@@ -338,23 +343,121 @@ Example response:
 .. code-block:: JSON
 
    {
-    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": "http://purl.org/nidash/nidm#Project",
-    "dctypes:title": "ABIDE CMU_a Site",
-    "http://www.w3.org/ns/prov#Location": "/datasets.datalad.org/abide/RawDataBIDS/CMU_a",
-    "sio:Identifier": "1.0.1",
-    "nidm:NIDM_0000171": 14,
-    "age_max": 33.0,
-    "age_min": 21.0,
-    "ndar:gender": [
-        "1",
-        "2"
-    ],
-    "obo:handedness": [
-        "R",
-        "L",
-        "Ambi"
-    ]
+     "AcquisitionModality": [
+       "MagneticResonanceImaging"
+     ],
+     "ImageContrastType": [
+       "T1Weighted",
+       "FlowWeighted"
+     ],
+     "ImageUsageType": [
+       "Anatomical",
+       "Functional"
+     ],
+     "Task": [
+       "rest"
+     ],
+     "sio:Identifier": "1.0.1",
+     "dctypes:title": "ABIDE CMU_a Site",
+     "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": "http://www.w3.org/ns/prov#Activity",
+     "prov:Location": "file://datasets.datalad.org/abide/RawDataBIDS/CMU_a",
+     "subjects": [
+       "fdb6c8bc-67aa-11ea-ba45-003ee1ce9545",
+       "b276ebb6-67aa-11ea-ba45-003ee1ce9545",
+       "a38c4e42-67aa-11ea-ba45-003ee1ce9545",
+       "a2ff751c-67aa-11ea-ba45-003ee1ce9545",
+       "cfce5728-67aa-11ea-ba45-003ee1ce9545",
+       "f165e7ae-67aa-11ea-ba45-003ee1ce9545",
+       "cf4605ee-67aa-11ea-ba45-003ee1ce9545",
+       "a1efa78c-67aa-11ea-ba45-003ee1ce9545",
+       "d0de8ebc-67aa-11ea-ba45-003ee1ce9545",
+       "a4a999ba-67aa-11ea-ba45-003ee1ce9545",
+       "a0555098-67aa-11ea-ba45-003ee1ce9545",
+       "b41d75f2-67aa-11ea-ba45-003ee1ce9545",
+       "be3fbff0-67aa-11ea-ba45-003ee1ce9545",
+       "eec5a0ca-67aa-11ea-ba45-003ee1ce9545"
+     ],
+     "data_elements": [
+       "SCQ_TOTAL", "VIQ", "VINELAND_WRITTEN_V_SCALED", "WISC_IV_VCI", "ADOS_COMM", "FILE_ID", "WISC_IV_BLK_DSN_SCALED",
+       "WISC_IV_SYM_SCALED", "ADI_R_SOCIAL_TOTAL_A", "WISC_IV_INFO_SCALED", "ADOS_GOTHAM_SEVERITY",
+       "VINELAND_COMMUNICATION_STANDARD", "VINELAND_PERSONAL_V_SCALED", "SUB_ID", "ADOS_GOTHAM_TOTAL",
+       "ADI_R_VERBAL_TOTAL_BV", "VINELAND_COPING_V_SCALED", "VINELAND_DOMESTIC_V_SCALED", "SRS_COGNITION",
+       "FIQ_TEST_TYPE", "WISC_IV_PSI", "OFF_STIMULANTS_AT_SCAN", "VINELAND_PLAY_V_SCALED", "AGE_AT_MPRAGE",
+       "VIQ_TEST_TYPE", "ADI_RRB_TOTAL_C", "WISC_IV_DIGIT_SPAN_SCALED", "FIQ", "DSM_IV_TR", "DX_GROUP",
+       "VINELAND_INTERPERSONAL_V_SCALED", "VINELAND_SUM_SCORES", "ADOS_STEREO_BEHAV", "ADI_R_ONSET_TOTAL_D",
+       "ADOS_GOTHAM_SOCAFFECT", "ADOS_GOTHAM_RRB", "CURRENT_MED_STATUS", "VINELAND_EXPRESSIVE_V_SCALED",
+       "AGE_AT_SCAN", "WISC_IV_PRI", "SEX", "SRS_RAW_TOTAL", "ADOS_RSRCH_RELIABLE", "WISC_IV_SIM_SCALED",
+       "WISC_IV_CODING_SCALED", "SRS_MANNERISMS", "AQ_TOTAL", "HANDEDNESS_SCORES", "HANDEDNESS_CATEGORY",
+       "SRS_VERSION", "ADI_R_RSRCH_RELIABLE", "EYE_STATUS_AT_SCAN", "MEDICATION_NAME", "ADOS_SOCIAL",
+       "ADOS_MODULE", "VINELAND_RECEPTIVE_V_SCALED", "VINELAND_DAILYLVNG_STANDARD", "VINELAND_ABC_STANDARD",
+       "PIQ", "VINELAND_SOCIAL_STANDARD", "SITE_ID", "COMORBIDITY", "BMI", "VINELAND_COMMUNITY_V_SCALED",
+       "ADOS_TOTAL", "VINELAND_INFORMANT", "WISC_IV_WMI", "WISC_IV_MATRIX_SCALED", "WISC_IV_LET_NUM_SCALED",
+       "PIQ_TEST_TYPE", "SRS_COMMUNICATION", "WISC_IV_VOCAB_SCALED", "SRS_AWARENESS", "WISC_IV_PIC_CON_SCALED",
+       "SRS_MOTIVATION"
+     ]
    }
+
+**Get Left-Pallidum volume (fsl_0000012) values for all subjects in a project**
+.. code-block:: HTML
+
+   pynidm query -nl ttl/cmu_a.ttl -u /projects/cc305b3e-67aa-11ea-ba45-003ee1ce9545?fields=fsl_000012
+
+.. code-block:: HTML
+
+   <pre>
+   -----------------------------------------------  -----------------------------------------------------
+   AcquisitionModality                              ["MagneticResonanceImaging"]
+   ImageContrastType                                ["FlowWeighted", "T1Weighted"]
+   ImageUsageType                                   ["Functional", "Anatomical"]
+   Task                                             ["rest"]
+   sio:Identifier                                   "1.0.1"
+   dctypes:title                                    "ABIDE CMU_a Site"
+   http://www.w3.org/1999/02/22-rdf-syntax-ns#type  "http://www.w3.org/ns/prov#Activity"
+   prov:Location                                    "file://datasets.datalad.org/abide/RawDataBIDS/CMU_a"
+   -----------------------------------------------  -----------------------------------------------------
+
+   subjects
+   ------------------------------------
+   fdb6c8bc-67aa-11ea-ba45-003ee1ce9545
+   b276ebb6-67aa-11ea-ba45-003ee1ce9545
+   a38c4e42-67aa-11ea-ba45-003ee1ce9545
+   a2ff751c-67aa-11ea-ba45-003ee1ce9545
+   cfce5728-67aa-11ea-ba45-003ee1ce9545
+   f165e7ae-67aa-11ea-ba45-003ee1ce9545
+   cf4605ee-67aa-11ea-ba45-003ee1ce9545
+   a1efa78c-67aa-11ea-ba45-003ee1ce9545
+   d0de8ebc-67aa-11ea-ba45-003ee1ce9545
+   a4a999ba-67aa-11ea-ba45-003ee1ce9545
+   a0555098-67aa-11ea-ba45-003ee1ce9545
+   b41d75f2-67aa-11ea-ba45-003ee1ce9545
+   be3fbff0-67aa-11ea-ba45-003ee1ce9545
+   eec5a0ca-67aa-11ea-ba45-003ee1ce9545
+
+   data_elements
+   -------------------------------
+   SCQ_TOTAL
+   VIQ
+   ...
+   WISC_IV_PIC_CON_SCALED
+   SRS_MOTIVATION
+
+   subject                               field       datumType    label                   value  units
+   ------------------------------------  ----------  -----------  --------------------  -------  -------
+   fdb6c8bc-67aa-11ea-ba45-003ee1ce9545  fsl_000012  ilx_0738276  Left-Pallidum (mm^3)     1630  mm^3
+   b276ebb6-67aa-11ea-ba45-003ee1ce9545  fsl_000012  ilx_0738276  Left-Pallidum (mm^3)     2062  mm^3
+   a38c4e42-67aa-11ea-ba45-003ee1ce9545  fsl_000012  ilx_0738276  Left-Pallidum (mm^3)     1699  mm^3
+   a2ff751c-67aa-11ea-ba45-003ee1ce9545  fsl_000012  ilx_0738276  Left-Pallidum (mm^3)     1791  mm^3
+   cfce5728-67aa-11ea-ba45-003ee1ce9545  fsl_000012  ilx_0738276  Left-Pallidum (mm^3)     2017  mm^3
+   f165e7ae-67aa-11ea-ba45-003ee1ce9545  fsl_000012  ilx_0738276  Left-Pallidum (mm^3)     2405  mm^3
+   cf4605ee-67aa-11ea-ba45-003ee1ce9545  fsl_000012  ilx_0738276  Left-Pallidum (mm^3)     2062  mm^3
+   a1efa78c-67aa-11ea-ba45-003ee1ce9545  fsl_000012  ilx_0738276  Left-Pallidum (mm^3)     1961  mm^3
+   d0de8ebc-67aa-11ea-ba45-003ee1ce9545  fsl_000012  ilx_0738276  Left-Pallidum (mm^3)     1568  mm^3
+   a4a999ba-67aa-11ea-ba45-003ee1ce9545  fsl_000012  ilx_0738276  Left-Pallidum (mm^3)     1948  mm^3
+   a0555098-67aa-11ea-ba45-003ee1ce9545  fsl_000012  ilx_0738276  Left-Pallidum (mm^3)     1764  mm^3
+   b41d75f2-67aa-11ea-ba45-003ee1ce9545  fsl_000012  ilx_0738276  Left-Pallidum (mm^3)     2031  mm^3
+   be3fbff0-67aa-11ea-ba45-003ee1ce9545  fsl_000012  ilx_0738276  Left-Pallidum (mm^3)     1935  mm^3
+   eec5a0ca-67aa-11ea-ba45-003ee1ce9545  fsl_000012  ilx_0738276  Left-Pallidum (mm^3)     1806  mm^3
+   </pre>
 
 **Get the subjects in a project:**
 
