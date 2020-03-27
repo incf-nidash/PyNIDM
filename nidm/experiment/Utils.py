@@ -348,17 +348,18 @@ def add_metadata_for_subject (rdf_graph,subject_uri,namespaces,nidm_obj):
                         # if obj_nm is not in namespaces then it must just be part of some URI in the triple
                         # so just add it as a prov.Identifier
                         if not found_uri:
-                            nidm_obj.add_attributes({predicate: pm.Identifier(objects)})
+                            nidm_obj.add_attributes({predicate: pm.QualifiedName(namespace=Namespace(str(objects)),localpart="")})
                         # else add as explicit prov.QualifiedName because it's easier to read
                         else:
                             nidm_obj.add_attributes({predicate: pm.QualifiedName(found_uri, obj_term)})
                 except:
-                    nidm_obj.add_attributes({predicate: URIRef(objects)})
+                    nidm_obj.add_attributes({predicate: pm.QualifiedName(namespace=Namespace(str(objects)),localpart="")})
             else:
 
                 # check if objects is a url and if so store it as a URIRef else a Literal
                 if validators.url(objects):
-                    nidm_obj.add_attributes({predicate : pm.Identifier(objects)})
+                    obj_nm, obj_term = split_uri(objects)
+                    nidm_obj.add_attributes({predicate : pm.QualifiedName(namespace=Namespace(obj_nm),localpart=obj_term)})
                 else:
                     nidm_obj.add_attributes({predicate : get_RDFliteral_type(objects)})
 
@@ -389,7 +390,8 @@ def add_metadata_for_subject (rdf_graph,subject_uri,namespaces,nidm_obj):
                     # if obj_nm is not in namespaces then it must just be part of some URI in the triple
                     # so just add it as a prov.Identifier
                     if not found_uri:
-                        nidm_obj.add_qualified_association(person=person, role=pm.Identifier(r_obj.identifier))
+                        #nidm_obj.add_qualified_association(person=person, role=pm.Identifier(r_obj.identifier))
+                        nidm_obj.add_qualified_association(person=person, role=pm.QualifiedName(Namespace(obj_nm),obj_term))
                     else:
                         nidm_obj.add_qualified_association(person=person, role=pm.QualifiedName(found_uri, obj_term))
 
@@ -413,14 +415,15 @@ def add_metadata_for_subject (rdf_graph,subject_uri,namespaces,nidm_obj):
                         # if obj_nm is not in namespaces then it must just be part of some URI in the triple
                         # so just add it as a prov.Identifier
                         if not found_uri:
+
                             nidm_obj.add_qualified_association(person=generic_agent,
-                                                               role=URIRef(r_obj.identifier))
+                                                               role=pm.QualifiedName(Namespace(obj_nm),obj_term))
                         else:
                             nidm_obj.add_qualified_association(person=generic_agent,
                                                                role=pm.QualifiedName(found_uri, obj_term))
 
                     except:
-                        nidm_obj.add_qualified_association(person=generic_agent, role=URIRef(r_obj.identifier))
+                        nidm_obj.add_qualified_association(person=generic_agent, role=pm.QualifiedName(Namespace(r_obj.identifier),""))
 
 
 def QuerySciCrunchElasticSearch(query_string,type='cde', anscestors=True):
