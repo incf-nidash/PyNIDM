@@ -148,7 +148,7 @@ class Core(object):
         else:
             print("datatype not found...")
             return None
-    def add_person(self,uuid=None,attributes=None):
+    def add_person(self,uuid=None,attributes=None,add_default_type=True):
         """
         Simply adds prov:agent to graph and returns object
         :param role:
@@ -163,8 +163,9 @@ class Core(object):
             #add Person agent
             person = self.graph.agent(Constants.namespaces["niiri"][getUUID()],other_attributes=attributes)
 
-        #add minimal attributes to person
-        person.add_attributes({pm.PROV_TYPE: pm.PROV['Person']})
+        if add_default_type:
+            #add minimal attributes to person
+            person.add_attributes({pm.PROV_TYPE: pm.PROV['Person']})
 
         #connect self to person serving as role
         #if(isinstance(self,pm.ProvActivity)):

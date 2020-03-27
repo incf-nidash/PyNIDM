@@ -17,7 +17,7 @@ class DemographicsObject(AcquisitionObject):
 
     """
     #constructor
-    def __init__(self, acquisition,attributes=None, uuid=None):
+    def __init__(self, acquisition,attributes=None, uuid=None, add_default_type=True):
         """
         Default contructor, creates an acquisition object and links to acquisition activity object
 
@@ -31,9 +31,12 @@ class DemographicsObject(AcquisitionObject):
           #execute default parent class constructor
         super(DemographicsObject,self).__init__(acquisition,attributes, uuid)
 
-        self.add_attributes({Constants.NIDM_ASSESSMENT_USAGE_TYPE: Constants.NIDM_DEMOGRAPHICS_ENTITY})
-        self.add_attributes({pm.PROV_TYPE: Constants.NIDM_ASSESSMENT_ENTITY})
-        self.add_attributes({pm.PROV_TYPE: Constants.NIDM_ACQUISITION_ENTITY})
+
+        if add_default_type:
+            self.add_attributes({pm.PROV_TYPE: Constants.NIDM_ASSESSMENT_ENTITY})
+            self.add_attributes({pm.PROV_TYPE: Constants.NIDM_ACQUISITION_ENTITY})
+            self.add_attributes({Constants.NIDM_ASSESSMENT_USAGE_TYPE: Constants.NIDM_DEMOGRAPHICS_ENTITY})
+
         #carry graph object around
         self.graph = acquisition.graph
 

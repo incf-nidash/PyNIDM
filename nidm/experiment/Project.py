@@ -26,7 +26,7 @@ class Project(pm.ProvActivity,Core):
 
     """
     #constructor, adds project
-    def __init__(self,attributes=None, empty_graph=False, uuid=None):
+    def __init__(self,attributes=None, empty_graph=False, uuid=None,add_default_type=True):
         """
         Default contructor, creates document and adds Project activity to graph with optional attributes
 
@@ -60,9 +60,9 @@ class Project(pm.ProvActivity,Core):
         # create empty data elements list
         self._dataelements=[]
 
-        #prov toolbox doesn't like 2 attributes with PROV_TYPE in 1 add_attributes call so split them...
-        self.add_attributes({pm.PROV_TYPE: Constants.NIDM_PROJECT})
-        #self.add_attributes({pm.PROV_TYPE: Constants.NIDM_PROJECT_TYPE})
+        if add_default_type:
+            self.add_attributes({pm.PROV_TYPE: Constants.NIDM_PROJECT})
+
 
     @property
     def sessions(self):

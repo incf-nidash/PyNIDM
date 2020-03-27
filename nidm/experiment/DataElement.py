@@ -18,7 +18,7 @@ class DataElement(pm.ProvEntity,Core):
 
     """
     #constructor
-    def __init__(self, project, attributes=None, uuid=None):
+    def __init__(self, project, attributes=None, uuid=None, add_default_type=True):
         """
         Default contructor, creates an acquisition object and links to acquisition activity object
 
@@ -37,7 +37,8 @@ class DataElement(pm.ProvEntity,Core):
 
         project.graph._add_record(self)
 
-        self.add_attributes({pm.PROV_TYPE: Constants.NIDM_DATAELEMENT})
+        if add_default_type:
+            self.add_attributes({pm.PROV_TYPE: Constants.NIDM_DATAELEMENT})
         project.add_dataelements(self)
         self.graph = project.graph
 
