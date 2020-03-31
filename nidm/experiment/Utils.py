@@ -48,6 +48,19 @@ import ontquery as oq
 
 from datalad.support.annexrepo import AnnexRepo
 
+# set if we're running in production or testing mode
+INTERLEX_MODE = 'test'
+#INTERLEX_MODE = 'production'
+if INTERLEX_MODE == 'test':
+    INTERLEX_PREFIX = 'tmp_'
+    #INTERLEX_ENDPOINT = "https://beta.scicrunch.org/api/1/"
+    INTERLEX_ENDPOINT = "https://scicrunch.org/api/1/"
+elif INTERLEX_MODE == 'production':
+    INTERLEX_PREFIX = 'ilx_'
+    INTERLEX_ENDPOINT = "https://scicrunch.org/api/1/"
+else:
+    print("ERROR: Interlex mode can only be 'test' or 'production'")
+    exit(1)
 
 def safe_string(string):
         return string.strip().replace(" ","_").replace("-", "_").replace(",", "_").replace("(", "_").replace(")","_")\
@@ -471,6 +484,12 @@ def QuerySciCrunchElasticSearch(query_string,type='cde', anscestors=True):
         else:
             data = '\n{\n  "query": {\n    "bool": {\n       "must" : [\n       {  "term" : { "type" : "fde" } },\n              { "multi_match" : {\n         "query":    "%s", \n         "fields": [ "label", "definition" ] \n       } }\n]\n    }\n  }\n}\n' %query_string
 
+    elif type == 'term':
+        if anscestors:
+            data = '\n{\n  "query": {\n    "bool": {\n       "must" : [\n       {  "term" : { "type" : "term" } },\n       { "terms" : { "ancestors.ilx" : ["ilx_0115066" , "ilx_0103210", "ilx_0115072", "ilx_0115070"] } },\n       { "multi_match" : {\n         "query":    "%s", \n         "fields": [ "label", "definition" ] \n       } }\n]\n    }\n  }\n}\n' % query_string
+        else:
+            data = '\n{\n  "query": {\n    "bool": {\n       "must" : [\n       {  "term" : { "type" : "term" } },\n              { "multi_match" : {\n         "query":    "%s", \n         "fields": [ "label", "definition" ] \n       } }\n]\n    }\n  }\n}\n' % query_string
+
     else:
         print("ERROR: Valid types for SciCrunch query are 'cde','pde', or 'fde'.  You set type: %s " %type)
         print("ERROR: in function Utils.py/QuerySciCrunchElasticSearch")
@@ -513,14 +532,14 @@ def InitializeInterlexRemote():
     it requires you to set an environment variable INTERLEX_API_KEY with your api key
     :return: interlex object
     '''
-    endpoint = "https://scicrunch.org/api/1/"
+    #endpoint = "https://scicrunch.org/api/1/"
     # beta endpoint for testing
     # endpoint = "https://beta.scicrunch.org/api/1/"
 
     InterLexRemote = oq.plugin.get('InterLex')
     # changed per tgbugs changes to InterLexRemote no longer taking api_key as a parameter
     # set INTERLEX_API_KEY environment variable instead...ilx_cli = InterLexRemote(api_key=key, apiEndpoint=endpoint)
-    ilx_cli = InterLexRemote(apiEndpoint=endpoint)
+    ilx_cli = InterLexRemote(apiEndpoint=INTERLEX_ENDPOINT)
     try:
         ilx_cli.setup(instrumented=oq.OntTerm)
     except Exception as e:
@@ -542,7 +561,7 @@ def AddPDEToInterlex(ilx_obj,label,definition,units, min, max, datatype, categor
     '''
 
     # Interlex uris for predicates, tmp_ prefix dor beta endpoing, ilx_ for production
-    prefix='ilx'
+    prefix=INTERLEX_PREFIX
     # for beta testing
     # prefix = 'tmp'
     uri_datatype = 'http://uri.interlex.org/base/' + prefix + '_0382131'
@@ -571,6 +590,23 @@ def AddPDEToInterlex(ilx_obj,label,definition,units, min, max, datatype, categor
         })
     return tmp
 
+def AddConceptToInterlex(ilx_obj, label, definition):
+    '''
+        This function will add a concept to Interlex using the Interlex ontquery API.
+
+        :param ilx_obj: Object created using ontquery.plugin.get() function (see: https://github.com/tgbugs/ontquery)
+        :param label: Label for term entity being created
+        :param definition: Definition for term entity being created
+        :param comment: Comments to help understand the object
+        :return: response from Interlex
+        '''
+
+    # Interlex uris for predicates, tmp_ prefix dor beta endpoing, ilx_ for production
+    #prefix = 'ilx'
+    # for beta testing
+    prefix = INTERLEX_PREFIX
+    tmp = ilx_obj.add_pde(label=label, definition=definition)
+    return tmp
 
 def load_nidm_owl_files():
     '''
@@ -730,7 +766,8 @@ def getSubjIDColumn(column_to_terms,df):
         id_field=df.columns[int(selection)-1]
     return id_field
 
-def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_file=None,bids=False,owl_file='nidm'):
+def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_file=None,bids=False,owl_file='nidm',
+                           associate_concepts=True):
     '''
 
     :param df: data frame with first row containing variable names
@@ -741,38 +778,28 @@ def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_
     if doing variable->term mappings
     :return:return dictionary mapping variable names (i.e. columns) to terms
     '''
-    # minimum match score for fuzzy matching NIDM terms
-    min_match_score = 50
+
 
     # dictionary mapping column name to preferred term
     column_to_terms = {}
 
-    # flag for whether a new term has been defined, on first occurance ask for namespace URL
-    new_term = True
-
     # check if user supplied a JSON file and we already know a mapping for this column
     if json_file is not None:
-        # load file and
-
+        # load file
         with open(json_file,'r+') as f:
             json_map = json.load(f)
 
     # if no JSON mapping file was specified then create a default one for variable-term mappings
-
     # create a json_file filename from the output file filename
     if output_file is None:
-        output_file = os.path.join(directory, "nidm_pde_terms.json")
-    # remove ".ttl" extension
-    # else:
-    #    output_file = os.path.join(os.path.dirname(output_file), os.path.splitext(os.path.basename(output_file))[0]
-    #                               + ".json")
+        output_file = os.path.join(directory, "nidm_annotations.json")
 
     # initialize InterLex connection
     try:
         ilx_obj = InitializeInterlexRemote()
     except Exception as e:
         print("ERROR: initializing InterLex connection...")
-        print("You will not be able to add new personal data elements.")
+        print("You will not be able to add or query for concepts.")
         ilx_obj=None
     # load NIDM OWL files if user requested it
     if owl_file=='nidm':
@@ -783,19 +810,16 @@ def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_
             print("ERROR: initializing internet connection to NIDM OWL files...")
             print("You will not be able to select terms from NIDM OWL files.")
             nidm_owl_graph = None
-
     # else load user-supplied owl file
     elif owl_file is not None:
         nidm_owl_graph = Graph()
         nidm_owl_graph.parse(location=owl_file)
+    else:
+        nidm_owl_graph = None
 
     # iterate over columns
     for column in df.columns:
 
-        # search term for elastic search
-        search_term=str(column)
-        # loop variable for terms markup
-        go_loop=True
         # set up a dictionary entry for this column
         current_tuple = str(DD(source=assessment_name, variable=column))
         column_to_terms[current_tuple] = {}
@@ -803,48 +827,56 @@ def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_
         # if we loaded a json file with existing mappings
         try:
             json_map
-
             # check for column in json file
-            json_key = [key for key in json_map if column == key]
+            json_key = [key for key in json_map if column == key.split("variable")[1].split("=")[1].split(")")[0].lstrip("'").rstrip("'")]
             if (json_map is not None) and (len(json_key)>0):
 
                 column_to_terms[current_tuple]['label'] = json_map[json_key[0]]['label']
-                column_to_terms[current_tuple]['definition'] = json_map[json_key[0]]['definition']
-                column_to_terms[current_tuple]['url'] = json_map[json_key[0]]['url']
+                column_to_terms[current_tuple]['description'] = json_map[json_key[0]]['description']
                 # column_to_terms[current_tuple]['variable'] = json_map[json_key[0]]['variable']
 
-                print("Column %s already mapped to terms in user supplied JSON mapping file" %column)
+                print("\n*************************************************************************************")
+                print("Column %s already annotated in user supplied JSON mapping file" %column)
                 print("Label: %s" %column_to_terms[current_tuple]['label'])
-                print("Definition: %s" %column_to_terms[current_tuple]['definition'])
-                print("Url: %s" %column_to_terms[current_tuple]['url'])
+                print("Description: %s" %column_to_terms[current_tuple]['description'])
+                if 'url' in json_map[json_key[0]]:
+                    column_to_terms[current_tuple]['url'] = json_map[json_key[0]]['url']
+                    print("Url: %s" %column_to_terms[current_tuple]['url'])
                 # print("Variable: %s" %column_to_terms[current_tuple]['variable'])
-
-                if 'description' in json_map[json_key[0]]:
-                    column_to_terms[current_tuple]['description'] = json_map[json_key[0]]['description']
-                    print("Description: %s" %column_to_terms[current_tuple]['description'])
 
                 if 'levels' in json_map[json_key[0]]:
                     column_to_terms[current_tuple]['levels'] = json_map[json_key[0]]['levels']
                     print("Levels: %s" %column_to_terms[current_tuple]['levels'])
 
+                if 'sameAs' in json_map[json_key[0]]:
+                    column_to_terms[current_tuple]['sameAs'] = json_map[json_key[0]]['sameAs']
+                    print("sameAs: %s" %column_to_terms[current_tuple]['sameAs'])
+
+                if 'source_variable' in json_map[json_key[0]]:
+                    column_to_terms[current_tuple]['source_variable'] = json_map[json_key[0]]['source_variable']
+                    print("Source Variable: %s" % column_to_terms[current_tuple]['source_variable'])
+                else:
+                    # add source variable if not there...
+                    column_to_terms[current_tuple]['source_variable'] = str(column)
+                    print("Added source variable (%s) to annotations" %column)
+
+                if "isAbout" in json_map[json_key[0]]:
+                    column_to_terms[current_tuple]['isAbout'] = json_map[json_key[0]]['isAbout']
+                    print("isAbout: %s" % column_to_terms[current_tuple]['isAbout'])
+                else:
+                    # if user ran in mode where they want to associate concepts
+                    if associate_concepts:
+                        # provide user with opportunity to associate a concept with this annotation
+                        find_concept_interactive(column,current_tuple,column_to_terms,ilx_obj,nidm_owl_graph=nidm_owl_graph)
+                        # write annotations to json file so user can start up again if not doing whole file
+                        write_json_mapping_file(column_to_terms,output_file,bids)
+
                 print("---------------------------------------------------------------------------------------")
                 continue
         except NameError:
-            print("json mapping file not supplied")
-        # flag for whether to use ancestors in Interlex query or not
-        ancestor = True
+            print("json annotation file not supplied")
 
-
-
-        #Before we run anything here if both InterLex and NIDM OWL file access is down we should just alert
-        #the user and return cause we're not going to be able to do really anything
-        if (nidm_owl_graph is None) and (ilx_obj is None):
-            print("Both InterLex and NIDM OWL file access is not possible")
-            print("Check your internet connection and try again or supply a JSON mapping file with all the variables "
-                  "mapped to terms")
-            return column_to_terms
-
-
+        search_term = str(column)
         #added for an automatic mapping of participant_id, subject_id, and variants
         if ( ("participant_id" in search_term.lower()) or ("subject_id" in search_term.lower()) or
             (("participant" in search_term.lower()) and ("id" in search_term.lower())) or
@@ -857,8 +889,9 @@ def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_
             subjid_tuple = str(DD(source='ndar', variable=search_term))
             column_to_terms[subjid_tuple] = {}
             column_to_terms[subjid_tuple]['label'] = search_term
-            column_to_terms[subjid_tuple]['definition'] = "subject/participant identifier"
-            column_to_terms[subjid_tuple]['url'] = Constants.NIDM_SUBJECTID.uri
+            column_to_terms[subjid_tuple]['description'] = "subject/participant identifier"
+            column_to_terms[subjid_tuple]['sameAs'] = Constants.NIDM_SUBJECTID.uri
+            column_to_terms[subjid_tuple]['source_variable'] = str(search_term)
             # column_to_terms[subjid_tuple]['variable'] = str(column)
 
             # delete temporary current_tuple key for this variable as it has been statically mapped to NIDM_SUBJECT
@@ -866,306 +899,291 @@ def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_
 
             print("Variable %s automatically mapped to participant/subject idenfier" %search_term)
             print("Label: %s" %column_to_terms[subjid_tuple]['label'])
-            print("Definition: %s" %column_to_terms[subjid_tuple]['definition'])
-            print("Url: %s" %column_to_terms[subjid_tuple]['url'])
+            print("Description: %s" %column_to_terms[subjid_tuple]['description'])
+            print("SameAs: %s" %column_to_terms[subjid_tuple]['sameAs'])
+            print("Source Variable: %s" % column_to_terms[subjid_tuple]['source_variable'])
             print("---------------------------------------------------------------------------------------")
-            # don't need to continue while loop because we've defined a term for this CSV column
-            go_loop=False
             continue
 
-        # loop to find a term definition by iteratively searching InterLex...or defining your own
-        while go_loop:
-            # variable for numbering options returned from elastic search
-            option = 1
-
-            print()
-            print("Query String: %s " %search_term)
-
-
-            if ilx_obj is not None:
-                # for each column name, query Interlex for possible matches
-                search_result = GetNIDMTermsFromSciCrunch(search_term, type='fde', ancestor=ancestor)
-
-                temp = search_result.copy()
-                #print("Search Term: %s" %search_term)
-                if len(temp)!=0:
-
-                    print("InterLex Terms (FDEs):")
-                    #print("Search Results: ")
-                    for key, value in temp.items():
-
-                        print("%d: Label: %s \t Definition: %s \t Preferred URL: %s " %(option,search_result[key]['label'],search_result[key]['definition'],search_result[key]['preferred_url']  ))
-
-                        search_result[str(option)] = key
-                        option = option+1
-
-                # for each column name, query Interlex for possible matches
-                cde_result = GetNIDMTermsFromSciCrunch( search_term, type='cde', ancestor=ancestor)
-                if len(cde_result) != 0:
-                    #only update search_result with new terms.  This handles what I consider a bug in InterLex queries
-                    #where FDE and CDE queries return the same terms.
-                    search_result.update(cde_result)
-                    #temp = search_result.copy()
-                    temp = cde_result.copy()
-
-                    if len(temp)!=0:
-                        print()
-                        print("InterLex Terms (CDEs):")
-                        #print("Search Results: ")
-                        for key, value in temp.items():
-
-                            print("%d: Label: %s \t Definition: %s \t Preferred URL: %s " %(option,search_result[key]['label'],search_result[key]['definition'],search_result[key]['preferred_url']  ))
-
-                            search_result[str(option)] = key
-                            option = option+1
+        # if we haven't already found an annotation for this column then have user create one.
+        annotate_data_element(column, current_tuple, column_to_terms)
+        # then ask user to find a concept if they selected to do so
+        if associate_concepts:
+            # provide user with opportunity to associate a concept with this annotation
+            find_concept_interactive(column, current_tuple, column_to_terms, ilx_obj, nidm_owl_graph=nidm_owl_graph)
+            # write annotations to json file so user can start up again if not doing whole file
+            write_json_mapping_file(column_to_terms, output_file, bids)
 
 
-                # for each column name, query Interlex for possible matches
-                pde_result = GetNIDMTermsFromSciCrunch(search_term, type='pde', ancestor=ancestor)
-                if len(pde_result) != 0:
-                    search_result.update(pde_result)
-                    #temp = search_result.copy()
-                    temp = pde_result.copy()
-
-                    if len(temp)!=0:
-                        print()
-                        print("InterLex Terms (PDEs):")
-                        #print("Search Results: ")
-                        for key, value in temp.items():
-
-                            print("%d: Label: %s \t Definition: %s \t Preferred URL: %s " %(option,search_result[key]['label'],search_result[key]['definition'],search_result[key]['preferred_url']  ))
-
-                            search_result[str(option)] = key
-                            option = option+1
-
-
-            # if user supplied an OWL file to search in for terms
-            #if owl_file:
-
-            if nidm_owl_graph is not None:
-                # Add existing NIDM Terms as possible selections which fuzzy match the search_term
-                nidm_constants_query = fuzzy_match_terms_from_graph(nidm_owl_graph, search_term)
-
-
-
-                first_nidm_term=True
-                for key, subdict in nidm_constants_query.items():
-                    if nidm_constants_query[key]['score'] > min_match_score:
-                        if first_nidm_term:
-                            print()
-                            print("NIDM Terms:")
-                            first_nidm_term=False
-
-
-                        print("%d: Label(NIDM Term): %s \t Definition: %s \t URL: %s" %(option, nidm_constants_query[key]['label'], nidm_constants_query[key]['definition'], nidm_constants_query[key]['url']))
-                        search_result[key] = {}
-                        search_result[key]['label']=nidm_constants_query[key]['label']
-                        search_result[key]['definition']=nidm_constants_query[key]['definition']
-                        search_result[key]['preferred_url']=nidm_constants_query[key]['url']
-                        search_result[str(option)] = key
-                        option=option+1
-
-            if ancestor:
-                # Broaden Interlex search
-                print("%d: Broaden Interlex query " %option)
-            else:
-                # Narrow Interlex search
-                print("%d: Narrow Interlex query " %option)
-            option = option+1
-
-            # Add option to change query string
-            print("%d: Change Interlex query string from: \"%s\"" % (option, search_term))
-
-            # Add option to define your own term
-            option = option + 1
-            print("%d: Define my own term for this variable" % option)
-
-            print("---------------------------------------------------------------------------------------")
-            # Wait for user input
-            selection=input("Please select an option (1:%d) from above: \t" % option)
-
-            # Make sure user selected one of the options.  If not present user with selection input again
-            while (not selection.isdigit()) or (int(selection) > int(option)):
-                # Wait for user input
-                selection = input("Please select an option (1:%d) from above: \t" % option)
-
-
-            # toggle use of ancestors in interlex query or not
-            if int(selection) == (option-2):
-                ancestor=not ancestor
-            # check if selection is to re-run query with new search term
-            elif int(selection) == (option-1):
-                # ask user for new search string
-                search_term = input("Please input new search term for CSV column: %s \t:" % column)
-                print("---------------------------------------------------------------------------------------")
-
-            elif int(selection) == option:
-                # user wants to define their own term.  Ask for term label and definition
-                print("\nYou selected to enter a new term for CSV column: %s" % column)
-
-                # collect term information from user
-                term_label = input("Please enter a term label for this column [%s]:\t" % column)
-                if term_label == '':
-                    term_label = column
-
-                # WIP do a quick query of Interlex to see if term already exists with that label. If so show user
-                # If user says it's the correct term then use it and stop dialog with user about new term
-
-
-                term_definition = input("Please enter a definition:\t")
-
-
-                #get datatype
-                while True:
-                    term_datatype = input("Please enter the datatype (string,integer,real,categorical):\t")
-                    # check datatypes if not in [integer,real,categorical] repeat until it is
-                    if (term_datatype == "string") or (term_datatype == "integer") or (term_datatype == "real") or (term_datatype == "categorical"):
-                        break
-
-                # now check if term_datatype is categorical and if so let's get the label <-> value mappings
-                if term_datatype == "categorical":
-                    term_category = {}
-                    # ask user for the number of categories
-                    while True:
-                        num_categories = input("Please enter the number of categories/labels for this term:\t")
-                        #check if user supplied a number else repeat question
-                        try:
-                            val = int(num_categories)
-                            break
-                        except ValueError:
-                            print("That's not a number, please try again!")
-
-                    # loop over number of categories and collect information
-                    for category in range(1, int(num_categories)+1):
-                        # term category dictionary has labels as keys and value associated with label as value
-                        cat_label = input("Please enter the text string label for the category %d:\t" % category)
-                        cat_value = input("Please enter the value associated with label \"%s\":\t" % cat_label)
-                        term_category[cat_label] = cat_value
-
-                # if term is not categorical then ask for min/max values.  If it is categorical then simply extract
-                # it from the term_category dictionary
-                if term_datatype != "categorical":
-                    term_min = input("Please enter the minimum value:\t")
-                    term_max = input("Please enter the maximum value:\t")
-                    term_units = input("Please enter the units:\t")
-                else:
-                    term_min = min(term_category.values())
-                    term_max = max(term_category.values())
-                    term_units = "categorical"
-
-                # set term variable name as column from CSV file we're currently interrogating
-                term_variable_name = column
-
-                # don't need to continue while loop because we've defined a term for this CSV column
-                go_loop = False
-
-                # Add personal data element to InterLex
-                if term_datatype != 'categorical':
-                    ilx_output = AddPDEToInterlex(ilx_obj=ilx_obj, label=term_label, definition=term_definition, min=term_min,
-                                max=term_max, units=term_units, datatype=term_datatype)
-                else:
-                    ilx_output = AddPDEToInterlex(ilx_obj=ilx_obj, label=term_label, definition=term_definition, min=term_min,
-                                max=term_max, units=term_units, datatype=term_datatype,categorymappings=json.dumps(term_category))
-
-                # store term info in dictionary
-                column_to_terms[current_tuple]['label'] = term_label
-                column_to_terms[current_tuple]['definition'] = term_definition
-                # column_to_terms[current_tuple]['variable'] = str(column)
-                column_to_terms[current_tuple]['url'] = ilx_output.iri + "#"
-                column_to_terms[current_tuple]['datatype'] = term_datatype
-                column_to_terms[current_tuple]['units'] = term_units
-                column_to_terms[current_tuple]['min'] = term_min
-                column_to_terms[current_tuple]['max'] = term_max
-                if term_datatype == 'categorical':
-                    column_to_terms[current_tuple]['levels'] = json.dumps(term_category)
-
-
-                # print mappings
-                print()
-                print("Stored mapping Column: %s ->  " % column)
-                print("Label: %s" % column_to_terms[current_tuple]['label'])
-                # print("Variable: %s" % column_to_terms[current_tuple]['variable'])
-                print("Definition: %s" % column_to_terms[current_tuple]['definition'])
-                print("Url: %s" % column_to_terms[current_tuple]['url'])
-                print("Datatype: %s" % column_to_terms[current_tuple]['datatype'])
-                print("Units: %s" % column_to_terms[current_tuple]['units'])
-                print("Min: %s" % column_to_terms[current_tuple]['min'])
-                print("Max: %s" % column_to_terms[current_tuple]['max'])
-                if term_datatype == 'categorical':
-                    print("Levels: %s" % column_to_terms[current_tuple]['levels'])
-                print("---------------------------------------------------------------------------------------")\
-
-                # don't need to continue while loop because we've defined a term for this CSV column
-                go_loop=False
-
-
-            else:
-                # add selected term to map
-                column_to_terms[current_tuple]['label'] = search_result[search_result[selection]]['label']
-                column_to_terms[current_tuple]['definition'] = search_result[search_result[selection]]['definition']
-                column_to_terms[current_tuple]['url'] = search_result[search_result[selection]]['preferred_url']
-                # column_to_terms[current_tuple]['variable'] = str(column)
-
-                # print mappings
-                print("Stored mapping Column: %s ->  " % current_tuple)
-                print("Label: %s" % column_to_terms[current_tuple]['label'])
-                print("Definition: %s" % column_to_terms[current_tuple]['definition'])
-                print("Url: %s" % column_to_terms[current_tuple]['url'])
-                # print("Variable: %s" % column_to_terms[current_tuple]['variable'])
-                print("---------------------------------------------------------------------------------------")
-
-                # don't need to continue while loop because we've selected a term for this CSV column
-                go_loop=False
-
-        # write variable-> terms map as JSON file to disk
-        # get -out directory from command line parameter
-        # this is to be sure we've written out our work so far in case user ctrl-c exists program or it crashes
-        # will have saved the output
-        if output_file is not None:
-            # if we're annotating a bids dataset then we should export json sidecar file using simple BIDS-style keys
-            # instead of our compound keys
-
-            # if we want a bids-style json sidecar file
-            if bids:
-                # convert to simple keys
-                temp_dict = tupleKeysToSimpleKeys(column_to_terms)
-                # write
-                with open(os.path.join(os.path.dirname(output_file),os.path.splitext(output_file)[0]+".json"),'w+') \
-                    as fp:
-                    json.dump(temp_dict,fp)
-            else:
-
-                # logging.info("saving json mapping file: %s" %os.path.join(os.path.basename(output_file), \
-                #                            os.path.splitext(output_file)[0]+".json"))
-                with open(os.path.join(os.path.dirname(output_file),os.path.splitext(output_file)[0]+".json"),'w+') \
-                        as fp:
-                    json.dump(column_to_terms,fp)
-
-
-    # write variable-> terms map as JSON file to disk
-    # get -out directory from command line parameter
-    if output_file is not None:
-        # if we want a bids-style json sidecar file
-        if bids:
-            # convert to simple keys
-            temp_dict = tupleKeysToSimpleKeys(column_to_terms)
-            # write
-            with open(os.path.join(os.path.dirname(output_file),os.path.splitext(output_file)[0]+".json"),'w+') \
-                    as fp:
-                json.dump(temp_dict,fp)
-        else:
-
-            # logging.info("saving json mapping file: %s" %os.path.join(os.path.basename(output_file), \
-            #                            os.path.splitext(output_file)[0]+".json"))
-            with open(os.path.join(os.path.dirname(output_file),os.path.splitext(output_file)[0]+".json"),'w+') \
-                        as fp:
-                json.dump(column_to_terms,fp)
+    # write annotations to json file since data element annotations are complete
+    write_json_mapping_file(column_to_terms, output_file, bids)
 
     # get CDEs for data dictonary and NIDM graph entity of data
     cde = DD_to_nidm(column_to_terms)
 
-
     return [column_to_terms, cde]
+
+def write_json_mapping_file(source_variable_annotations, output_file, bids=False):
+    # if we want a bids-style json sidecar file
+    if bids:
+        # convert to simple keys
+        temp_dict = tupleKeysToSimpleKeys(source_variable_annotations)
+        # write
+        with open(os.path.join(os.path.dirname(output_file), os.path.splitext(output_file)[0] + ".json"), 'w+') \
+                    as fp:
+            json.dump(temp_dict, fp,indent=4)
+    else:
+
+        # logging.info("saving json mapping file: %s" %os.path.join(os.path.basename(output_file), \
+        #                            os.path.splitext(output_file)[0]+".json"))
+        with open(os.path.join(os.path.dirname(output_file), os.path.splitext(output_file)[0] + "_annotations.json"), 'w+') \
+                    as fp:
+            json.dump(source_variable_annotations, fp,indent=4)
+
+def find_concept_interactive(source_variable, current_tuple, source_variable_annotations, ilx_obj,ancestor=False,nidm_owl_graph=None):
+    '''
+    This function will allow user to interactively find a concept in the InterLex to associate with the
+    source variable from the assessment encoded in the current_tuple
+
+    '''
+
+    # Before we run anything here if both InterLex and NIDM OWL file access is down we should just alert
+    # the user and return cause we're not going to be able to do really anything
+    if (nidm_owl_graph is None) and (ilx_obj is None):
+        print("Both InterLex and NIDM OWL file access is not possible")
+        print("Check your internet connection and try again or supply a JSON annotation file with all the variables "
+              "mapped to terms")
+        return source_variable_annotations
+
+    # minimum match score for fuzzy matching NIDM terms
+    min_match_score = 50
+    search_term = str(source_variable)
+    # loop to find a concept by iteratively searching InterLex...or defining your own
+    go_loop=True
+    while go_loop:
+        # variable for numbering options returned from elastic search
+        option = 1
+        print()
+        print("Concept Association")
+        print("Query String: %s " % search_term)
+
+        if ilx_obj is not None:
+            # for each column name, query Interlex for possible matches
+            search_result = GetNIDMTermsFromSciCrunch(search_term, type='term', ancestor=ancestor)
+
+            temp = search_result.copy()
+            # print("Search Term: %s" %search_term)
+            if len(temp) != 0:
+                print("InterLex Terms(Concepts):")
+                # print("Search Results: ")
+                for key, value in temp.items():
+                    print("%d: Label: %s \t Definition: %s \t Preferred URL: %s " % (
+                    option, search_result[key]['label'], search_result[key]['definition'],
+                    search_result[key]['preferred_url']))
+
+                    search_result[str(option)] = key
+                    option = option + 1
+
+        # if user supplied an OWL file to search in for terms
+        # if owl_file:
+
+        if nidm_owl_graph is not None:
+            # Add existing NIDM Terms as possible selections which fuzzy match the search_term
+            nidm_constants_query = fuzzy_match_terms_from_graph(nidm_owl_graph, search_term)
+
+            first_nidm_term = True
+            for key, subdict in nidm_constants_query.items():
+                if nidm_constants_query[key]['score'] > min_match_score:
+                    if first_nidm_term:
+                        print()
+                        print("NIDM Terms:")
+                        first_nidm_term = False
+
+                    print("%d: Label(NIDM Term): %s \t Definition: %s \t URL: %s" % (
+                    option, nidm_constants_query[key]['label'], nidm_constants_query[key]['definition'],
+                    nidm_constants_query[key]['url']))
+                    search_result[key] = {}
+                    search_result[key]['label'] = nidm_constants_query[key]['label']
+                    search_result[key]['definition'] = nidm_constants_query[key]['definition']
+                    search_result[key]['preferred_url'] = nidm_constants_query[key]['url']
+                    search_result[str(option)] = key
+                    option = option + 1
+
+        if ancestor:
+            # Broaden Interlex search
+            print("%d: Broaden Interlex query " % option)
+        else:
+            # Narrow Interlex search
+            print("%d: Narrow Interlex query " % option)
+        option = option + 1
+
+        # Add option to change query string
+        print("%d: Change Interlex query string from: \"%s\"" % (option, search_term))
+
+        # Add option to define your own term
+        option = option + 1
+        print("%d: Define my own concept for this variable" % option)
+
+        # Add option to define your own term
+        option = option + 1
+        print("%d: No concept needed for this variable, continue to data element definitions" % option)
+
+        print("---------------------------------------------------------------------------------------")
+        # Wait for user input
+        selection = input("Please select an option (1:%d) from above: \t" % option)
+
+        # Make sure user selected one of the options.  If not present user with selection input again
+        while (not selection.isdigit()) or (int(selection) > int(option)):
+            # Wait for user input
+            selection = input("Please select an option (1:%d) from above: \t" % option)
+
+        # toggle use of ancestors in interlex query or not
+        if int(selection) == (option - 3):
+            ancestor = not ancestor
+        # check if selection is to re-run query with new search term
+        elif int(selection) == (option - 2):
+            # ask user for new search string
+            search_term = input("Please input new search string for CSV column: %s \t:" % source_variable)
+            print("---------------------------------------------------------------------------------------")
+        elif int(selection) == (option - 1):
+            new_concept = define_new_concept(source_variable)
+            # add new concept to InterLex and retrieve URL for isAbout
+            #
+            #
+            #
+            source_variable_annotations[current_tuple]['isAbout'] = new_concept.iri + '#'
+            go_loop = False
+            # if user says no concept mapping needed then just exit this loop
+        elif int(selection) == (option):
+            # don't need to continue while loop because we've defined a term for this CSV column
+            go_loop = False
+        else:
+            # user selected one of the existing concepts to add its URL to the isAbout property
+            source_variable_annotations[current_tuple]['isAbout'] = search_result[search_result[selection]]['preferred_url']
+            print("\nConcept annotation added for source variable: %s" %source_variable)
+            go_loop = False
+
+
+
+
+def define_new_concept(source_variable, ilx_obj):
+    # user wants to define their own term.  Ask for term label and definition
+    print("\nYou selected to enter a new concept for CSV column: %s" % source_variable)
+
+    # collect term information from user
+    concept_label = input("Please enter a label for the new concept [%s]:\t" % source_variable)
+    concept_definition = input("Please enter a definition for this concept:\t")
+
+    # add concept to InterLex and get URL
+    # Add personal data element to InterLex
+
+    ilx_output = AddConceptToInterlex(ilx_obj=ilx_obj, label=concept_label, definition=concept_definition)
+
+    return ilx_output
+
+def annotate_data_element(source_variable, current_tuple, source_variable_annotations):
+    '''
+
+
+    '''
+
+    # user instructions
+    print("\nYou will now be asked a series of questions to annotate your source variable: %s" % source_variable)
+
+    # collect term information from user
+    term_label = input("Please enter a full name to associate with the variable [%s]:\t" % source_variable)
+    if term_label == '':
+        term_label = source_variable
+
+    term_definition = input("Please enter a definition for this variable:\t")
+
+    # get datatype
+    while True:
+        term_datatype = input("Please enter the datatype (str,int,real,cat):\t")
+        # check datatypes if not in [integer,real,categorical] repeat until it is
+        if (term_datatype == "str") or (term_datatype == "int") or (term_datatype == "real") or (
+                term_datatype == "cat"):
+            break
+
+    # now check if term_datatype is categorical and if so let's get the label <-> value mappings
+    if term_datatype == "cat":
+
+        # ask user for the number of categories
+        while True:
+            num_categories = input("Please enter the number of categories/labels for this term:\t")
+            # check if user supplied a number else repeat question
+            try:
+                val = int(num_categories)
+                break
+            except ValueError:
+                print("That's not an integer, please try again!")
+
+        # loop over number of categories and collect information
+        cat_value = input("Are there numerical values associated with your text-based categories?\t")
+        if cat_value in ['Y', 'y', 'YES', 'yes', 'Yes']:
+            # if yes then store this as a dictionary cat_label: cat_value
+            term_category = {}
+            for category in range(1, int(num_categories) + 1):
+                # term category dictionary has labels as keys and value associated with label as value
+                cat_label = input("Please enter the text string label for the category %d:\t" % category)
+                cat_value = input("Please enter the value associated with label \"%s\":\t" % cat_label)
+                term_category[cat_label] = cat_value
+        else:
+            # if we only have text-based categories then store as a list
+            term_category = []
+            for category in range(1, int(num_categories) + 1):
+                # term category dictionary has labels as keys and value associated with label as value
+                cat_label = input("Please enter the text string label for the category %d:\t" % category)
+                term_category.append(cat_label)
+
+    # if term is not categorical then ask for min/max values.  If it is categorical then simply extract
+    # it from the term_category dictionary
+    if term_datatype != "cat":
+        term_min = input("Please enter the minimum value:\t")
+        term_max = input("Please enter the maximum value:\t")
+        term_units = input("Please enter the units:\t")
+        # if user set any of these then store else ignore
+        if term_units != "":
+            source_variable_annotations[current_tuple]['hasUnit'] = term_units
+        if term_min != "":
+            source_variable_annotations[current_tuple]['minimumValue'] = term_min
+        if term_max != "":
+            source_variable_annotations[current_tuple]['maximumValue'] = term_max
+
+    # if the categorical data has numeric values then we can infer a min/max
+    elif cat_value in ['Y', 'y', 'YES', 'yes', 'Yes']:
+        term_min = min(term_category.values())
+        term_max = max(term_category.values())
+        term_units = "categorical"
+
+    # set term variable name as column from CSV file we're currently interrogating
+    term_variable_name = source_variable
+
+    # store term info in dictionary
+    source_variable_annotations[current_tuple]['label'] = term_label
+    source_variable_annotations[current_tuple]['description'] = term_definition
+    source_variable_annotations[current_tuple]['source_variable'] = str(source_variable)
+    source_variable_annotations[current_tuple]['valueType'] = term_datatype
+
+    if term_datatype == 'cat':
+        source_variable_annotations[current_tuple]['levels'] = json.dumps(term_category)
+
+    # print mappings
+    print("\n*************************************************************************************")
+    print("Stored mapping Column: %s ->  " % source_variable)
+    print("Label: %s" % source_variable_annotations[current_tuple]['label'])
+    print("Variable: %s" % source_variable_annotations[current_tuple]['source_variable'])
+    print("Description: %s" % source_variable_annotations[current_tuple]['description'])
+    print("Datatype: %s" % source_variable_annotations[current_tuple]['valueType'])
+    if 'hasUnit' in source_variable_annotations[current_tuple]:
+        print("Units: %s" % source_variable_annotations[current_tuple]['hasUnit'])
+    if 'mininumValue' in source_variable_annotations[current_tuple]:
+        print("Min: %s" % source_variable_annotations[current_tuple]['minimumValue'])
+    if 'maximumValue' in source_variable_annotations[current_tuple]:
+        print("Max: %s" % source_variable_annotations[current_tuple]['maximumValue'])
+    if term_datatype == 'cat':
+        print("Levels: %s" % source_variable_annotations[current_tuple]['levels'])
+    print("---------------------------------------------------------------------------------------")
 
 def DD_to_nidm(dd_struct):
     '''
@@ -1193,29 +1211,17 @@ def DD_to_nidm(dd_struct):
         # add the DataElement RDF type in the source namespace
         key_tuple = eval(key)
         for subkey, item in key_tuple._asdict().items():
-            # if subkey == 'source':
-                # check if namespace exists else bind it...
-                # namespace_found = False
-                #for prefix,namespace in g.namespaces():
-                #    if namespace == URIRef(dd_struct[str(key_tuple)]["url"].rsplit('/', 1)[0] +"/"):
-                #        namespace_found = True
-                #        break
-
-                #if namespace_found == False:
-                #    item_ns = Namespace(dd_struct[str(key_tuple)]["url"].rsplit('/', 1)[0] +"/")
-                #    g.bind(prefix=os.path.splitext(item)[0], namespace=item_ns)
-            # if subkey == 'source':
-            #    source = item
 
             if subkey == 'variable':
 
-            # else:
-                # cde_id = item_ns[dd_struct[str(key_tuple)]['label']]
-                # item_ns = Namespace(dd_struct[str(key_tuple)]["url"].rsplit('/', 1)[0] +"/")
-                item_ns = Namespace(dd_struct[str(key_tuple)]["url"]+"/")
-                g.bind(prefix=safe_string(item), namespace=item_ns)
+                #item_ns = Namespace(dd_struct[str(key_tuple)]["url"]+"/")
+                #g.bind(prefix=safe_string(item), namespace=item_ns)
+
                 nidm_ns = Namespace(Constants.NIDM)
                 g.bind(prefix='nidm', namespace=nidm_ns)
+                niiri_ns = Namespace(Constants.NIIRI)
+                g.bind(prefix='niiri', namespace=niiri_ns)
+
                 # cde_id = item_ns[str(key_num).zfill(4)]
                 import hashlib
                 # hash the key_tuple and use for local part of ID
@@ -1229,15 +1235,12 @@ def DD_to_nidm(dd_struct):
                     md5hash = string.ascii_lowercase[randint] + uid_temp[1:]
 
 
-                cde_id = item_ns[md5hash]
+                #cde_id = item_ns[md5hash
+                cde_id = URIRef(niiri_ns + safe_string(item) + "_" + str(md5hash))
                 g.add((cde_id,RDF.type, Constants.NIDM['DataElement']))
+                g.add((cde_id,RDF.type, Constants.PROV['Entity']))
 
 
-                g.add((cde_id,nidm_ns['source_variable'],Literal(item)))
-                # key_num = key_num + 1
-                # source_ns = Namespace("http://uri.interlex.org/base/")
-                # g.bind(prefix ='source',namespace=source_ns)
-                # g.add((cde_id,source_ns["ilx_0115023"],Literal(source)))
 
 
 
@@ -1253,9 +1256,22 @@ def DD_to_nidm(dd_struct):
                 g.add((cde_id,Constants.RDFS['label'],Literal(value)))
             elif key == 'levels':
                 g.add((cde_id,Constants.NIDM['levels'],Literal(value)))
-
-
-
+            elif key == 'source_variable':
+                g.add((cde_id, Constants.NIDM['source_variable'], Literal(value)))
+            elif key == 'isAbout':
+                dct_ns = Namespace(Constants.DCT)
+                g.bind(prefix='isAbout', namespace=dct_ns)
+                g.add((cde_id, dct_ns['isAbout'], URIRef(value)))
+            elif key == 'datatype':
+                g.add((cde_id, Constants.NIDM['datatype'], Literal(value)))
+            elif key == 'minimumValue':
+                g.add((cde_id, Constants.NIDM['minimumValue'], Literal(value)))
+            elif key == 'maximumValue':
+                g.add((cde_id, Constants.NIDM['maximumValue'], Literal(value)))
+            elif key == 'hasUnit':
+                g.add((cde_id, Constants.NIDM['hasUnit'], Literal(value)))
+            elif key == 'sameAs':
+                g.add((cde_id, Constants.NIDM['sameAs'], URIRef(value)))
 
             # testing
             # g.serialize(destination="/Users/dbkeator/Downloads/csv2nidm_cde.ttl", format='turtle')
@@ -1271,15 +1287,15 @@ def add_attributes_with_cde(prov_object, cde, row_variable, value):
     qres = cde.subjects(predicate=Constants.NIDM['source_variable'],object=Literal(row_variable))
     for s in qres:
         entity_id = s
-        # provNamespace(entity_id.rsplit('/', 1)[0] +"/")
         # find prefix matching our url in rdflib graph...this is because we're bouncing between
         # prov and rdflib objects
         for prefix,namespace in cde.namespaces():
             if namespace == URIRef(entity_id.rsplit('/',1)[0]+"/"):
                 cde_prefix = prefix
-                # this basically stores the row_data with the predicate being the cde id from above.
+            # this basically stores the row_data with the predicate being the cde id from above.
                 prov_object.add_attributes({QualifiedName(provNamespace(prefix=cde_prefix, \
                        uri=entity_id.rsplit('/',1)[0]+"/"),entity_id.rsplit('/', 1)[-1]):value})
+        #prov_object.add_attributes({QualifiedName(Constants.NIIRI,entity_id):value})
                 break
 
 
@@ -1306,7 +1322,7 @@ def addGitAnnexSources(obj, bids_root, filepath = None):
 
     # load git annex information if exists
     try:
-        repo = AnnexRepo(bids_root)
+        repo = AnnexRepo(bids_root,create=False)
         if filepath is not None:
             sources = repo.get_urls(filepath)
         else:
@@ -1317,9 +1333,11 @@ def addGitAnnexSources(obj, bids_root, filepath = None):
             obj.add_attributes({Constants.PROV["Location"]: URIRef(source)})
 
         return len(sources)
-    except:
-        print("Warning, error with AnnexRepo (Utils.py, addGitAnnexSources): %s" %sys.exc_info()[0])
+    except Exception as e:
+        if "No annex found at" not in str(e):
+            print("Warning, error with AnnexRepo (Utils.py, addGitAnnexSources): %s" %str(e))
         return 0
+
 
 def tupleKeysToSimpleKeys(dict):
     '''
