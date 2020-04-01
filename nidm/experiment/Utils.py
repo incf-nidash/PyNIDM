@@ -867,24 +867,28 @@ def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_
 
                     print("\n*************************************************************************************")
                     print("Column %s already annotated in user supplied JSON mapping file" %column)
-                    print("Label: %s" %column_to_terms[current_tuple]['label'])
-                    print("Description: %s" %column_to_terms[current_tuple]['description'])
+                    print("label: %s" %column_to_terms[current_tuple]['label'])
+                    print("description: %s" %column_to_terms[current_tuple]['description'])
                     if 'url' in json_map[json_key[0]]:
                         column_to_terms[current_tuple]['url'] = json_map[json_key[0]]['url']
-                        print("Url: %s" %column_to_terms[current_tuple]['url'])
+                        print("url: %s" %column_to_terms[current_tuple]['url'])
                     # print("Variable: %s" %column_to_terms[current_tuple]['variable'])
 
                     if 'levels' in json_map[json_key[0]]:
                         column_to_terms[current_tuple]['levels'] = json_map[json_key[0]]['levels']
-                        print("Levels: %s" %column_to_terms[current_tuple]['levels'])
+                        print("levels: %s" %column_to_terms[current_tuple]['levels'])
 
                     if 'sameAs' in json_map[json_key[0]]:
                         column_to_terms[current_tuple]['sameAs'] = json_map[json_key[0]]['sameAs']
                         print("sameAs: %s" %column_to_terms[current_tuple]['sameAs'])
 
+                    if 'valueType' in json_map[json_key[0]]:
+                        column_to_terms[current_tuple]['valueType'] = json_map[json_key[0]]['valueType']
+                        print("valueType: %s" % column_to_terms[current_tuple]['valueType'])
+
                     if 'source_variable' in json_map[json_key[0]]:
                         column_to_terms[current_tuple]['source_variable'] = json_map[json_key[0]]['source_variable']
-                        print("Source Variable: %s" % column_to_terms[current_tuple]['source_variable'])
+                        print("source variable: %s" % column_to_terms[current_tuple]['source_variable'])
                     else:
                         # add source variable if not there...
                         column_to_terms[current_tuple]['source_variable'] = str(column)
@@ -902,7 +906,8 @@ def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_
                             write_json_mapping_file(column_to_terms,output_file,bids)
 
                     print("---------------------------------------------------------------------------------------")
-            continue
+            if (json_map is not None) and (len(json_key)>0):
+                continue
         except Exception as e:
             # so if this is an IndexError then it's likely our json mapping file keys are of the BIDS type
             # (simply variable names) instead of the more complex NIDM ones DD(file=XX,variable=YY)
@@ -927,6 +932,7 @@ def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_
             column_to_terms[subjid_tuple]['description'] = "subject/participant identifier"
             column_to_terms[subjid_tuple]['sameAs'] = Constants.NIDM_SUBJECTID.uri
             column_to_terms[subjid_tuple]['source_variable'] = str(search_term)
+            column_to_terms[subjid_tuple]['valueType'] = URIRef(Constants.XSD["string"])
             # column_to_terms[subjid_tuple]['variable'] = str(column)
 
             # delete temporary current_tuple key for this variable as it has been statically mapped to NIDM_SUBJECT
@@ -1013,7 +1019,8 @@ def find_concept_interactive(source_variable, current_tuple, source_variable_ann
             temp = search_result.copy()
             # print("Search Term: %s" %search_term)
             if len(temp) != 0:
-                print("InterLex Terms(Concepts):")
+                print("InterLex:")
+                print()
                 # print("Search Results: ")
                 for key, value in temp.items():
                     print("%d: Label: %s \t Definition: %s \t Preferred URL: %s " % (
@@ -1056,7 +1063,8 @@ def find_concept_interactive(source_variable, current_tuple, source_variable_ann
                 if cogatlas_concepts_query[key]['score'] > min_match_score+20:
                     if first_cogatlas_concept:
                         print()
-                        print("Cognitive Atlas Concepts:")
+                        print("Cognitive Atlas:")
+                        print()
                         first_cogatlas_concept = False
 
                     print("%d: Label: %s \t Definition:   %s " % (
@@ -1096,15 +1104,16 @@ def find_concept_interactive(source_variable, current_tuple, source_variable_ann
         option = option + 1
 
         # Add option to change query string
-        print("%d: Change Interlex query string from: \"%s\"" % (option, search_term))
+        print("%d: Change query string from: \"%s\"" % (option, search_term))
 
+        ########DEFINE NEW CONCEPT COMMENTED OUT RIGHT NOW####################################
+        ## Add option to define your own term
+        #option = option + 1
+        #print("%d: Define my own concept for this variable" % option)
+        ########DEFINE NEW CONCEPT COMMENTED OUT RIGHT NOW####################################
         # Add option to define your own term
         option = option + 1
-        print("%d: Define my own concept for this variable" % option)
-
-        # Add option to define your own term
-        option = option + 1
-        print("%d: No concept needed for this variable, continue to data element definitions" % option)
+        print("%d: No concept needed for this variable" % option)
 
         print("---------------------------------------------------------------------------------------")
         # Wait for user input
@@ -1116,22 +1125,25 @@ def find_concept_interactive(source_variable, current_tuple, source_variable_ann
             selection = input("Please select an option (1:%d) from above: \t" % option)
 
         # toggle use of ancestors in interlex query or not
-        if int(selection) == (option - 3):
+        if int(selection) == (option - 2):
             ancestor = not ancestor
         # check if selection is to re-run query with new search term
-        elif int(selection) == (option - 2):
+        elif int(selection) == (option - 1):
             # ask user for new search string
             search_term = input("Please input new search string for CSV column: %s \t:" % source_variable)
             print("---------------------------------------------------------------------------------------")
-        elif int(selection) == (option - 1):
-            new_concept = define_new_concept(source_variable)
+
+        ########DEFINE NEW CONCEPT COMMENTED OUT RIGHT NOW####################################
+        #elif int(selection) == (option - 1):
+        #    new_concept = define_new_concept(source_variable,ilx_obj)
             # add new concept to InterLex and retrieve URL for isAbout
             #
             #
             #
-            source_variable_annotations[current_tuple]['isAbout'] = new_concept.iri + '#'
-            go_loop = False
+        #    source_variable_annotations[current_tuple]['isAbout'] = new_concept.iri + '#'
+        #    go_loop = False
             # if user says no concept mapping needed then just exit this loop
+        ########DEFINE NEW CONCEPT COMMENTED OUT RIGHT NOW####################################
         elif int(selection) == (option):
             # don't need to continue while loop because we've defined a term for this CSV column
             go_loop = False
@@ -1177,14 +1189,47 @@ def annotate_data_element(source_variable, current_tuple, source_variable_annota
 
     # get datatype
     while True:
-        term_datatype = input("Please enter the datatype (str,int,real,cat):\t")
+        print("Please enter the value type for this variable from the following list:")
+        print("\t 1: string - The string datatype represents character strings")
+        print("\t 2: categorical - A variable that can take on one of a limited number of possible values, assigning each to a nominal category on the basis of some qualitative property.")
+        print("\t 3: boolean - Binary-valued logic:{true,false}")
+        print("\t 4: integer - Integer is a number that can be written without a fractional component")
+        print("\t 5: float - Float consists of the values m × 2^e, where m is an integer whose absolute value is less than 2^24, and e is an integer between -149 and 104, inclusive")
+        print("\t 6: double - Double consists of the values m × 2^e, where m is an integer whose absolute value is less than 2^53, and e is an integer between -1075 and 970, inclusive")
+        print("\t 7: duration - Duration represents a duration of time")
+        print("\t 8: dateTime - Values with integer-valued year, month, day, hour and minute properties, a decimal-valued second property, and a boolean timezoned property.")
+        print("\t 9: time - Time represents an instant of time that recurs every day")
+        print("\t 10: date - Date consists of top-open intervals of exactly one day in length on the timelines of dateTime, beginning on the beginning moment of each day (in each timezone)")
+        print("\t 11: anyURI - anyURI represents a Uniform Resource Identifier Reference (URI). An anyURI value can be absolute or relative, and may have an optional fragment identifier")
+        term_datatype = input("Please enter the datatype [1:11]:\t")
         # check datatypes if not in [integer,real,categorical] repeat until it is
-        if (term_datatype == "str") or (term_datatype == "int") or (term_datatype == "real") or (
-                term_datatype == "cat"):
+        if int(term_datatype) >= 1 and int(term_datatype) <= 11:
+            if(int(term_datatype) == 1):
+                term_datatype = URIRef(Constants.XSD["string"])
+            elif (int(term_datatype) == 3):
+                term_datatype = URIRef(Constants.XSD["boolean"])
+            elif (int(term_datatype) == 4):
+                term_datatype = URIRef(Constants.XSD["integer"])
+            elif (int(term_datatype) == 5):
+                term_datatype = URIRef(Constants.XSD["float"])
+            elif (int(term_datatype) == 6):
+                term_datatype = URIRef(Constants.XSD["double"])
+            elif (int(term_datatype) == 7):
+                term_datatype = URIRef(Constants.XSD["duration"])
+            elif (int(term_datatype) == 8):
+                term_datatype = URIRef(Constants.XSD["dateTime"])
+            elif (int(term_datatype) == 9):
+                term_datatype = URIRef(Constants.XSD["time"])
+            elif (int(term_datatype) == 10):
+                term_datatype = URIRef(Constants.XSD["date"])
+            elif (int(term_datatype) == 11):
+                term_datatype = URIRef(Constants.XSD["anyURI"])
+            elif (int(term_datatype) == 2):
+                term_datatype = URIRef(Constants.XSD["complexType"])
             break
 
     # now check if term_datatype is categorical and if so let's get the label <-> value mappings
-    if term_datatype == "cat":
+    if term_datatype == URIRef(Constants.XSD["complexType"]):
 
         # ask user for the number of categories
         while True:
@@ -1197,8 +1242,8 @@ def annotate_data_element(source_variable, current_tuple, source_variable_annota
                 print("That's not an integer, please try again!")
 
         # loop over number of categories and collect information
-        cat_value = input("Are there numerical values associated with your text-based categories?\t")
-        if cat_value in ['Y', 'y', 'YES', 'yes', 'Yes']:
+        cat_value = input("Are there numerical values associated with your text-based categories [yes]?\t")
+        if (cat_value in ['Y', 'y', 'YES', 'yes', 'Yes']) or (cat_value == ""):
             # if yes then store this as a dictionary cat_label: cat_value
             term_category = {}
             for category in range(1, int(num_categories) + 1):
@@ -1216,10 +1261,10 @@ def annotate_data_element(source_variable, current_tuple, source_variable_annota
 
     # if term is not categorical then ask for min/max values.  If it is categorical then simply extract
     # it from the term_category dictionary
-    if term_datatype != "cat":
-        term_min = input("Please enter the minimum value:\t")
-        term_max = input("Please enter the maximum value:\t")
-        term_units = input("Please enter the units:\t")
+    if term_datatype != URIRef(Constants.XSD["complexType"]):
+        term_min = input("Please enter the minimum value [NA]:\t")
+        term_max = input("Please enter the maximum value [NA]:\t")
+        term_units = input("Please enter the units [NA]:\t")
         # if user set any of these then store else ignore
         if term_units != "":
             source_variable_annotations[current_tuple]['hasUnit'] = term_units
@@ -1243,24 +1288,24 @@ def annotate_data_element(source_variable, current_tuple, source_variable_annota
     source_variable_annotations[current_tuple]['source_variable'] = str(source_variable)
     source_variable_annotations[current_tuple]['valueType'] = term_datatype
 
-    if term_datatype == 'cat':
+    if term_datatype == URIRef(Constants.XSD["complexType"]):
         source_variable_annotations[current_tuple]['levels'] = json.dumps(term_category)
 
     # print mappings
     print("\n*************************************************************************************")
     print("Stored mapping Column: %s ->  " % source_variable)
-    print("Label: %s" % source_variable_annotations[current_tuple]['label'])
-    print("Variable: %s" % source_variable_annotations[current_tuple]['source_variable'])
-    print("Description: %s" % source_variable_annotations[current_tuple]['description'])
-    print("Datatype: %s" % source_variable_annotations[current_tuple]['valueType'])
+    print("label: %s" % source_variable_annotations[current_tuple]['label'])
+    print("source variable: %s" % source_variable_annotations[current_tuple]['source_variable'])
+    print("description: %s" % source_variable_annotations[current_tuple]['description'])
+    print("valueType: %s" % source_variable_annotations[current_tuple]['valueType'])
     if 'hasUnit' in source_variable_annotations[current_tuple]:
-        print("Units: %s" % source_variable_annotations[current_tuple]['hasUnit'])
+        print("hasUnit: %s" % source_variable_annotations[current_tuple]['hasUnit'])
     if 'mininumValue' in source_variable_annotations[current_tuple]:
-        print("Min: %s" % source_variable_annotations[current_tuple]['minimumValue'])
+        print("minimumValue: %s" % source_variable_annotations[current_tuple]['minimumValue'])
     if 'maximumValue' in source_variable_annotations[current_tuple]:
-        print("Max: %s" % source_variable_annotations[current_tuple]['maximumValue'])
+        print("maximumValue: %s" % source_variable_annotations[current_tuple]['maximumValue'])
     if term_datatype == 'cat':
-        print("Levels: %s" % source_variable_annotations[current_tuple]['levels'])
+        print("levels: %s" % source_variable_annotations[current_tuple]['levels'])
     print("---------------------------------------------------------------------------------------")
 
 def DD_to_nidm(dd_struct):
@@ -1342,8 +1387,8 @@ def DD_to_nidm(dd_struct):
                 dct_ns = Namespace(Constants.DCT)
                 g.bind(prefix='isAbout', namespace=dct_ns)
                 g.add((cde_id, dct_ns['isAbout'], URIRef(value)))
-            elif key == 'datatype':
-                g.add((cde_id, Constants.NIDM['datatype'], Literal(value)))
+            elif key == 'valueType':
+                g.add((cde_id, Constants.NIDM['valueType'], URIRef(value)))
             elif key == 'minimumValue':
                 g.add((cde_id, Constants.NIDM['minimumValue'], Literal(value)))
             elif key == 'maximumValue':
