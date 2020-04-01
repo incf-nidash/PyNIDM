@@ -145,6 +145,10 @@ def main(argv):
                 print("%d: %s" %(option,column))
                 option=option+1
             selection=input("Please select the subject ID field from the list above: ")
+            # Make sure user selected one of the options.  If not present user with selection input again
+            while (not selection.isdigit()) or (int(selection) > int(option)):
+                # Wait for user input
+                selection = input("Please select the subject ID field from the list above: \t" % option)
             id_field=df.columns[int(selection)-1]
             #make sure id_field is a string for zero-padded subject ids
             #re-read data file with constraint that key field is read as string
@@ -269,6 +273,10 @@ def main(argv):
                 print("%d: %s" %(option,column))
                 option=option+1
             selection=input("Please select the subject ID field from the list above: ")
+            # Make sure user selected one of the options.  If not present user with selection input again
+            while (not selection.isdigit()) or (int(selection) > int(option)):
+                # Wait for user input
+                selection = input("Please select the subject ID field from the list above: \t" % option)
             id_field=df.columns[int(selection)-1]
             #make sure id_field is a string for zero-padded subject ids
             #re-read data file with constraint that key field is read as string

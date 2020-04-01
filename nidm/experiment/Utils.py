@@ -46,7 +46,13 @@ import random
 #Interlex stuff
 import ontquery as oq
 
+# datalad / git-annex sources
 from datalad.support.annexrepo import AnnexRepo
+
+# cognitive atlas
+from cognitiveatlas.api import get_concept, get_disorder
+
+
 
 # set if we're running in production or testing mode
 INTERLEX_MODE = 'test'
@@ -693,7 +699,22 @@ def fuzzy_match_terms_from_graph(graph,query_string):
     #for term in owl_graph.classes():
     #    print(term.get_properties())
     return match_scores
+def fuzzy_match_terms_from_cogatlas_json(json_struct,query_string):
 
+    match_scores={}
+
+    #search for labels rdfs:label and obo:IAO_0000115 (description) for each rdf:type owl:Class
+    for entry in json_struct:
+
+        match_scores[entry['name']] = {}
+        match_scores[entry['name']]['score'] = fuzz.token_sort_ratio(query_string,entry['name'])
+        match_scores[entry['name']]['label'] = entry['name']
+        match_scores[entry['name']]['url'] = "https://www.cognitiveatlas.org/concept/id/" + entry['id']
+        match_scores[entry['name']]['definition']=entry['definition_text']
+
+    #for term in owl_graph.classes():
+    #    print(term.get_properties())
+    return match_scores
 
 def authenticate_github(authed=None,credentials=None):
     '''
@@ -967,6 +988,10 @@ def find_concept_interactive(source_variable, current_tuple, source_variable_ann
               "mapped to terms")
         return source_variable_annotations
 
+    # Retrieve cognitive atlas concepts and disorders
+    cogatlas_concepts = get_concept(silent=True)
+    cogatlas_disorders = get_disorder(silent=True)
+
     # minimum match score for fuzzy matching NIDM terms
     min_match_score = 50
     search_term = str(source_variable)
@@ -1020,6 +1045,45 @@ def find_concept_interactive(source_variable, current_tuple, source_variable_ann
                     search_result[key]['preferred_url'] = nidm_constants_query[key]['url']
                     search_result[str(option)] = key
                     option = option + 1
+
+        # Cognitive Atlas Concepts Search
+        try:
+            cogatlas_concepts_query = fuzzy_match_terms_from_cogatlas_json(cogatlas_concepts.json,search_term)
+            first_cogatlas_concept = True
+            for key, subdict in cogatlas_concepts_query.items():
+                if cogatlas_concepts_query[key]['score'] > min_match_score+20:
+                    if first_cogatlas_concept:
+                        print()
+                        print("Cognitive Atlas Concepts:")
+                        first_cogatlas_concept = False
+
+                    print("%d: Label: %s \t Definition:   %s " % (
+                        option, cogatlas_concepts_query[key]['label'], cogatlas_concepts_query[key]['definition'].rstrip('\r\n')))
+                    search_result[key] = {}
+                    search_result[key]['label'] = cogatlas_concepts_query[key]['label']
+                    search_result[key]['definition'] = cogatlas_concepts_query[key]['definition'].rstrip('\r\n')
+                    search_result[key]['preferred_url'] = cogatlas_concepts_query[key]['url']
+                    search_result[str(option)] = key
+                    option = option + 1
+        except:
+            pass
+
+        # Cognitive Atlas Disorders Search
+        try:
+            cogatlas_disorders_query = fuzzy_match_terms_from_cogatlas_json(cogatlas_disorders.json, search_term)
+            for key, subdict in cogatlas_disorders_query.items():
+                if cogatlas_disorders_query[key]['score'] > min_match_score+20:
+                    print("%d: Label: %s \t Definition:   %s " % (
+                        option, cogatlas_disorders_query[key]['label'], cogatlas_disorders_query[key]['definition'].rstrip('\r\n'),
+                        ))
+                    search_result[key] = {}
+                    search_result[key]['label'] = cogatlas_disorders_query[key]['label']
+                    search_result[key]['definition'] = cogatlas_disorders_query[key]['definition'].rstrip('\r\n')
+                    search_result[key]['preferred_url'] = cogatlas_disorders_query[key]['url']
+                    search_result[str(option)] = key
+                    option = option + 1
+        except:
+            pass
 
         if ancestor:
             # Broaden Interlex search
