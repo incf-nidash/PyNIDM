@@ -827,60 +827,72 @@ def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_
         # if we loaded a json file with existing mappings
         try:
             json_map
-            # check for column in json file
-            json_key = [key for key in json_map if column == key.split("variable")[1].split("=")[1].split(")")[0].lstrip("'").rstrip("'")]
-            if (json_map is not None) and (len(json_key)>0):
+            #try:
+                # check for column in json file
+            try:
+                json_key = [key for key in json_map if column == key.split("variable")[1].split("=")[1].split(")")[0].lstrip("'").rstrip("'")]
+            except Exception as e:
+                if "list index out of range" in str(e):
+                    json_key = [key for key in json_map if column == key]
+            finally:
 
-                column_to_terms[current_tuple]['label'] = json_map[json_key[0]]['label']
-                column_to_terms[current_tuple]['description'] = json_map[json_key[0]]['description']
-                # column_to_terms[current_tuple]['variable'] = json_map[json_key[0]]['variable']
+                if (json_map is not None) and (len(json_key)>0):
 
-                print("\n*************************************************************************************")
-                print("Column %s already annotated in user supplied JSON mapping file" %column)
-                print("Label: %s" %column_to_terms[current_tuple]['label'])
-                print("Description: %s" %column_to_terms[current_tuple]['description'])
-                if 'url' in json_map[json_key[0]]:
-                    column_to_terms[current_tuple]['url'] = json_map[json_key[0]]['url']
-                    print("Url: %s" %column_to_terms[current_tuple]['url'])
-                # print("Variable: %s" %column_to_terms[current_tuple]['variable'])
+                    column_to_terms[current_tuple]['label'] = json_map[json_key[0]]['label']
+                    column_to_terms[current_tuple]['description'] = json_map[json_key[0]]['description']
+                    # column_to_terms[current_tuple]['variable'] = json_map[json_key[0]]['variable']
 
-                if 'levels' in json_map[json_key[0]]:
-                    column_to_terms[current_tuple]['levels'] = json_map[json_key[0]]['levels']
-                    print("Levels: %s" %column_to_terms[current_tuple]['levels'])
+                    print("\n*************************************************************************************")
+                    print("Column %s already annotated in user supplied JSON mapping file" %column)
+                    print("Label: %s" %column_to_terms[current_tuple]['label'])
+                    print("Description: %s" %column_to_terms[current_tuple]['description'])
+                    if 'url' in json_map[json_key[0]]:
+                        column_to_terms[current_tuple]['url'] = json_map[json_key[0]]['url']
+                        print("Url: %s" %column_to_terms[current_tuple]['url'])
+                    # print("Variable: %s" %column_to_terms[current_tuple]['variable'])
 
-                if 'sameAs' in json_map[json_key[0]]:
-                    column_to_terms[current_tuple]['sameAs'] = json_map[json_key[0]]['sameAs']
-                    print("sameAs: %s" %column_to_terms[current_tuple]['sameAs'])
+                    if 'levels' in json_map[json_key[0]]:
+                        column_to_terms[current_tuple]['levels'] = json_map[json_key[0]]['levels']
+                        print("Levels: %s" %column_to_terms[current_tuple]['levels'])
 
-                if 'source_variable' in json_map[json_key[0]]:
-                    column_to_terms[current_tuple]['source_variable'] = json_map[json_key[0]]['source_variable']
-                    print("Source Variable: %s" % column_to_terms[current_tuple]['source_variable'])
-                else:
-                    # add source variable if not there...
-                    column_to_terms[current_tuple]['source_variable'] = str(column)
-                    print("Added source variable (%s) to annotations" %column)
+                    if 'sameAs' in json_map[json_key[0]]:
+                        column_to_terms[current_tuple]['sameAs'] = json_map[json_key[0]]['sameAs']
+                        print("sameAs: %s" %column_to_terms[current_tuple]['sameAs'])
 
-                if "isAbout" in json_map[json_key[0]]:
-                    column_to_terms[current_tuple]['isAbout'] = json_map[json_key[0]]['isAbout']
-                    print("isAbout: %s" % column_to_terms[current_tuple]['isAbout'])
-                else:
-                    # if user ran in mode where they want to associate concepts
-                    if associate_concepts:
-                        # provide user with opportunity to associate a concept with this annotation
-                        find_concept_interactive(column,current_tuple,column_to_terms,ilx_obj,nidm_owl_graph=nidm_owl_graph)
-                        # write annotations to json file so user can start up again if not doing whole file
-                        write_json_mapping_file(column_to_terms,output_file,bids)
+                    if 'source_variable' in json_map[json_key[0]]:
+                        column_to_terms[current_tuple]['source_variable'] = json_map[json_key[0]]['source_variable']
+                        print("Source Variable: %s" % column_to_terms[current_tuple]['source_variable'])
+                    else:
+                        # add source variable if not there...
+                        column_to_terms[current_tuple]['source_variable'] = str(column)
+                        print("Added source variable (%s) to annotations" %column)
 
-                print("---------------------------------------------------------------------------------------")
-                continue
-        except NameError:
-            print("json annotation file not supplied")
+                    if "isAbout" in json_map[json_key[0]]:
+                        column_to_terms[current_tuple]['isAbout'] = json_map[json_key[0]]['isAbout']
+                        print("isAbout: %s" % column_to_terms[current_tuple]['isAbout'])
+                    else:
+                        # if user ran in mode where they want to associate concepts
+                        if associate_concepts:
+                            # provide user with opportunity to associate a concept with this annotation
+                            find_concept_interactive(column,current_tuple,column_to_terms,ilx_obj,nidm_owl_graph=nidm_owl_graph)
+                            # write annotations to json file so user can start up again if not doing whole file
+                            write_json_mapping_file(column_to_terms,output_file,bids)
+
+                    print("---------------------------------------------------------------------------------------")
+            continue
+        except Exception as e:
+            # so if this is an IndexError then it's likely our json mapping file keys are of the BIDS type
+            # (simply variable names) instead of the more complex NIDM ones DD(file=XX,variable=YY)
+
+            if "NameError" in str(e):
+                print("json annotation file not supplied")
 
         search_term = str(column)
         #added for an automatic mapping of participant_id, subject_id, and variants
         if ( ("participant_id" in search_term.lower()) or ("subject_id" in search_term.lower()) or
             (("participant" in search_term.lower()) and ("id" in search_term.lower())) or
-            (("subject" in search_term.lower()) and ("id" in search_term.lower())) ):
+            (("subject" in search_term.lower()) and ("id" in search_term.lower())) or
+            (("sub" in search_term.lower()) and ("id" in search_term.lower())) ):
 
             # map this term to Constants.NIDM_SUBJECTID
             # since our subject ids are statically mapped to the Constants.NIDM_SUBJECTID we're creating a new
@@ -1251,7 +1263,7 @@ def DD_to_nidm(dd_struct):
             elif key == 'description':
                 g.add((cde_id,Constants.DCT['description'],Literal(value)))
             elif key == 'url':
-                g.add((cde_id,Constants.NIDM['isAbout'],URIRef(value)))
+                g.add((cde_id,Constants.NIDM['url'],URIRef(value)))
             elif key == 'label':
                 g.add((cde_id,Constants.RDFS['label'],Literal(value)))
             elif key == 'levels':
