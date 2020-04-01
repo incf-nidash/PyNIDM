@@ -1289,7 +1289,7 @@ def annotate_data_element(source_variable, current_tuple, source_variable_annota
     source_variable_annotations[current_tuple]['valueType'] = term_datatype
 
     if term_datatype == URIRef(Constants.XSD["complexType"]):
-        source_variable_annotations[current_tuple]['levels'] = json.dumps(term_category)
+        source_variable_annotations[current_tuple]['levels'] = term_category
 
     # print mappings
     print("\n*************************************************************************************")
