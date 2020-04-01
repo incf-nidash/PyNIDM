@@ -16,6 +16,8 @@ from fuzzywuzzy import fuzz
 import json
 from github import Github, GithubException
 import getpass
+from numpy import base_repr
+from binascii import crc32
 
 #NIDM imports
 from ..core import Constants
@@ -1299,25 +1301,27 @@ def DD_to_nidm(dd_struct):
                 g.bind(prefix='niiri', namespace=niiri_ns)
 
                 # cde_id = item_ns[str(key_num).zfill(4)]
-                import hashlib
-                # hash the key_tuple and use for local part of ID
-                md5hash = hashlib.md5(str(key).encode()).hexdigest()
+
+                # hash the key_tuple (e.g. DD(source=[FILENAME],variable=[VARNAME]))
+                crc32hash = base_repr(crc32(str(key).encode()),32).lower()
+                # md5hash = hashlib.md5(str(key).encode()).hexdigest()
+
                 # added to address some weird bug in rdflib where if the uuid starts with a number, everything up until the first
                 # alpha character becomes a prefix...
-                if not (re.match("^[a-fA-F]+.*", md5hash)):
+
+                #if not (re.match("^[a-fA-F]+.*", md5hash)):
+
                 # if first digit is not a character than replace it with a randomly selected hex character (a-f).
-                    uid_temp = md5hash
-                    randint = random.randint(0,5)
-                    md5hash = string.ascii_lowercase[randint] + uid_temp[1:]
+                #    uid_temp = md5hash
+                #    randint = random.randint(0,5)
+                #    md5hash = string.ascii_lowercase[randint] + uid_temp[1:]
 
 
                 #cde_id = item_ns[md5hash
-                cde_id = URIRef(niiri_ns + safe_string(item) + "_" + str(md5hash))
+                #cde_id = URIRef(niiri_ns + safe_string(item) + "_" + str(md5hash))
+                cde_id = URIRef(niiri_ns + safe_string(item) + "_" + str(crc32hash))
                 g.add((cde_id,RDF.type, Constants.NIDM['DataElement']))
                 g.add((cde_id,RDF.type, Constants.PROV['Entity']))
-
-
-
 
 
         # this code adds the properties about the particular CDE into NIDM document
