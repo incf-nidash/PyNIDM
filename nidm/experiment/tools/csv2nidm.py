@@ -82,6 +82,9 @@ def main(argv):
     # parser.add_argument('-ilxkey', dest='key', required=True, help="Interlex/SciCrunch API key to use for query")
     parser.add_argument('-json_map', dest='json_map',required=False,help="Full path to user-suppled JSON file containing variable-term mappings.")
     parser.add_argument('-nidm', dest='nidm_file', required=False, help="Optional full path of NIDM file to add CSV->NIDM converted graph to")
+    parser.add_argument('-no_concepts', action='store_true', required=False, help='If this flag is set then no concept associations will be'
+                                'asked of the user.  This is useful if you already have a -json_map specified without concepts and want to'
+                                'simply run this program to get a NIDM file with user interaction to associate concepts.')
     # parser.add_argument('-owl', action='store_true', required=False, help='Optionally searches NIDM OWL files...internet connection required')
     # parser.add_argument('-png', action='store_true', required=False, help='Optional flag, when set a PNG image file of RDF graph will be produced')
     # parser.add_argument('-jsonld', action='store_true', required=False, help='Optional flag, when set NIDM files are saved as JSON-LD instead of TURTLE')
@@ -100,8 +103,14 @@ def main(argv):
     #if args.owl is not False:
     #    column_to_terms = map_variables_to_terms(df=df, apikey=args.key, directory=dirname(args.output_file), output_file=args.output_file, json_file=args.json_map, owl_file=args.owl)
     #else:
-    column_to_terms, cde = map_variables_to_terms(df=df,  assessment_name=basename(args.csv_file),directory=dirname(args.output_file), output_file=args.output_file, json_file=args.json_map)
-
+    # if user did not specify -no_concepts then associate concepts interactively with user
+    if not args.no_concepts:
+        column_to_terms, cde = map_variables_to_terms(df=df,  assessment_name=basename(args.csv_file),directory=dirname(args.output_file), output_file=args.output_file, json_file=args.json_map)
+    # run without concept mappings
+    else:
+        column_to_terms, cde = map_variables_to_terms(df=df, assessment_name=basename(args.csv_file),
+                                                      directory=dirname(args.output_file), output_file=args.output_file,
+                                                      json_file=args.json_map, associate_concepts=False)
 
     if args.logfile is not None:
         logging.basicConfig(filename=join(args.logfile,'csv2nidm_' + os.path.splitext(os.path.basename(args.csv_file))[0] + '.log'), level=logging.DEBUG)
@@ -136,6 +145,10 @@ def main(argv):
                 print("%d: %s" %(option,column))
                 option=option+1
             selection=input("Please select the subject ID field from the list above: ")
+            # Make sure user selected one of the options.  If not present user with selection input again
+            while (not selection.isdigit()) or (int(selection) > int(option)):
+                # Wait for user input
+                selection = input("Please select the subject ID field from the list above: \t" % option)
             id_field=df.columns[int(selection)-1]
             #make sure id_field is a string for zero-padded subject ids
             #re-read data file with constraint that key field is read as string
@@ -242,13 +255,16 @@ def main(argv):
         #look at column_to_terms dictionary for NIDM URL for subject id  (Constants.NIDM_SUBJECTID)
         id_field=None
         for key, value in column_to_terms.items():
-            if Constants.NIDM_SUBJECTID._str == column_to_terms[key]['label']:
-                key_tuple = eval(key)
-                id_field=key_tuple.variable
-                #make sure id_field is a string for zero-padded subject ids
-                #re-read data file with constraint that key field is read as string
-                df = pd.read_csv(args.csv_file,dtype={id_field : str})
-                break
+            # using skos:sameAs relationship to associate subject identifier variable from csv with a known term
+            # for subject IDs
+            if 'sameAs' in column_to_terms[key]:
+                if Constants.NIDM_SUBJECTID.uri == column_to_terms[key]['sameAs']:
+                    key_tuple = eval(key)
+                    id_field=key_tuple.variable
+                    #make sure id_field is a string for zero-padded subject ids
+                    #re-read data file with constraint that key field is read as string
+                    df = pd.read_csv(args.csv_file,dtype={id_field : str})
+                    break
 
         #if we couldn't find a subject ID field in column_to_terms, ask user
         if id_field is None:
@@ -257,6 +273,10 @@ def main(argv):
                 print("%d: %s" %(option,column))
                 option=option+1
             selection=input("Please select the subject ID field from the list above: ")
+            # Make sure user selected one of the options.  If not present user with selection input again
+            while (not selection.isdigit()) or (int(selection) > int(option)):
+                # Wait for user input
+                selection = input("Please select the subject ID field from the list above: \t" % option)
             id_field=df.columns[int(selection)-1]
             #make sure id_field is a string for zero-padded subject ids
             #re-read data file with constraint that key field is read as string

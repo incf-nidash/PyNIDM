@@ -81,36 +81,17 @@ def getsha512(filename):
 
 def main(argv):
     parser = ArgumentParser(description=
-"""This program will convert a BIDS MRI dataset to a NIDM-Experiment RDF document.  It will parse phenotype information and simply store variables/values and link to the associated json data dictionary file.\n\n
-Note, you must obtain an API key to Interlex by signing up for an account at scicrunch.org then going to My Account and API Keys.  Then set the environment variable INTERLEX_API_KEY with your
-key.
-
-Example 1: No variable->term mapping, simple BIDS dataset conversion which will add nidm.ttl file to BIDS dataset and .bidsignore file:
-\t bidsmri2nidm.py -d [root directory of BIDS dataset] -bidsignore
-Example 2: No variable->term mapping, simple BIDS dataset conversion but storing nidm file somewhere else: \n
-\t bidsmri2nidm.py -d [root directory of BIDS dataset] -o [PATH/nidm.ttl] \n\n
-Example 3: BIDS conversion with variable->term mappings, no existing mappings available, uses Interlex for terms, adds nidm.ttl file BIDS dataset and .bidsignore file: \n
-\t bidsmri2nidm.py -d [root directory of BIDS dataset] -bidsignore  \n\n
-Example 4 (FULL MONTY): BIDS conversion with variable->term mappings, uses JSON mapping file first then uses Interlex + NIDM OWL file for terms, adds nidm.ttl file BIDS dataset and .bidsignore file: \n
-\t bidsmri2nidm.py -d [root directory of BIDS dataset] -json_map [Your JSON file]  -bidsignore\n
-\t json mapping file has entries for each variable with mappings to formal terms.  Example:  \n
-    \t { \n
-    \t\t \"site\": { \n
-	\t\t \"definition\": \"Number assigned to site\", \n
-	\t\t \"label\": \"site_id (UC Provider Care)\", \n
-	\t\t \"url\": \"http://uri.interlex.org/NDA/uris/datadictionary/elements/2031448\" \n
-	\t\t }, \n
-	\t\t \"gender\": { \n
-	\t\t \"definition\": \"ndar:gender\", \n
-	\t\t \"label\": \"ndar:gender\", \n
-	\t\t \"url\": \"https://ndar.nih.gov/api/datadictionary/v2/dataelement/gender\" \n
-	\t\t } \n
-    \t }""" ,formatter_class=RawTextHelpFormatter)
+"""This program will represent a BIDS MRI dataset as a NIDM RDF document and provide user with opportunity to annotate
+the dataset (i.e. create sidecar files) and associate selected variables with broader concepts to make datasets more
+FAIR. \n\n
+Note, you must obtain an API key to Interlex by signing up for an account at scicrunch.org then going to My Account
+and API Keys.  Then set the environment variable INTERLEX_API_KEY with your key. """ ,formatter_class=RawTextHelpFormatter)
 
     parser.add_argument('-d', dest='directory', required=True, help="Full path to BIDS dataset directory")
     parser.add_argument('-jsonld', '--jsonld', action='store_true', help='If flag set, output is json-ld not TURTLE')
-    parser.add_argument('-png', '--png', action='store_true', help='If flag set, tool will output PNG file of NIDM graph')
+    #parser.add_argument('-png', '--png', action='store_true', help='If flag set, tool will output PNG file of NIDM graph')
     parser.add_argument('-bidsignore', '--bidsignore', action='store_true', default = False, help='If flag set, tool will add NIDM-related files to .bidsignore file')
+    parser.add_argument('-no_concepts', '--no_concepts', action='store_true', default = False, help='If flag set, tool will no do concept mapping')
     # adding argument group for var->term mappings
     mapvars_group = parser.add_argument_group('map variables to terms arguments')
     mapvars_group.add_argument('-json_map', '--json_map', dest='json_map',required=False,default=False,help="Optional full path to user-suppled JSON file containing variable-term mappings.")
@@ -562,19 +543,30 @@ def bidsmri2project(directory, args):
                 if not os.path.isfile(os.path.join(directory,'participants.json')):
                     #maps variables in CSV file to terms
                     temp=DataFrame(columns=mapping_list)
-
-                    column_to_terms,cde = map_variables_to_terms(directory=directory,assessment_name='participants.tsv', df=temp,output_file=os.path.join(directory,'participants.json'),bids=True)
+                    if args.no_concepts:
+                        column_to_terms,cde = map_variables_to_terms(directory=directory,assessment_name='participants.tsv',
+                            df=temp,output_file=os.path.join(directory,'participants.json'),bids=True,associate_concepts=False)
+                    else:
+                        column_to_terms,cde = map_variables_to_terms(directory=directory,assessment_name='participants.tsv',
+                            df=temp,output_file=os.path.join(directory,'participants.json'),bids=True)
                 else:
                     #maps variables in CSV file to terms
                     temp=DataFrame(columns=mapping_list)
-                    column_to_terms,cde = map_variables_to_terms(directory=directory, assessment_name='participants.tsv', df=temp,output_file=os.path.join(directory,'participants.json'),json_file=os.path.join(directory,'participants.json'),bids=True)
-
+                    if args.no_concepts:
+                        column_to_terms,cde = map_variables_to_terms(directory=directory, assessment_name='participants.tsv', df=temp,
+                            output_file=os.path.join(directory,'participants.json'),json_file=os.path.join(directory,'participants.json'),bids=True,associate_concepts=False)
+                    else:
+                        column_to_terms,cde = map_variables_to_terms(directory=directory, assessment_name='participants.tsv', df=temp,
+                            output_file=os.path.join(directory,'participants.json'),json_file=os.path.join(directory,'participants.json'),bids=True)
             else:
                 #maps variables in CSV file to terms
                 temp=DataFrame(columns=mapping_list)
-                column_to_terms, cde = map_variables_to_terms(directory=directory, assessment_name='participants.tsv', df=temp,output_file=os.path.join(directory,'participants.json'),json_file=args.json_map,bids=True)
-
-
+                if args.no_concepts:
+                    column_to_terms, cde = map_variables_to_terms(directory=directory, assessment_name='participants.tsv', df=temp,
+                        output_file=os.path.join(directory,'participants.json'),json_file=args.json_map,bids=True,associate_concepts=False)
+                else:
+                    column_to_terms, cde = map_variables_to_terms(directory=directory, assessment_name='participants.tsv', df=temp,
+                        output_file=os.path.join(directory,'participants.json'),json_file=args.json_map,bids=True)
 
 
             for row in participants_data:
@@ -649,11 +641,14 @@ def bidsmri2project(directory, args):
                             cde_id = Constants.BIDS[key]
                             # add the data element to the CDE graph
                             cde.add((cde_id,RDF.type, Constants.NIDM['DataElement']))
+                            cde.add((cde_id,RDF.type, Constants.PROV['Entity']))
                             # add some basic information about this data element
                             cde.add((cde_id,Constants.RDFS['label'],Literal(BIDS_Constants.participants[key].localpart)))
                             cde.add((cde_id,Constants.NIDM['isAbout'],URIRef(BIDS_Constants.participants[key].uri)))
                             cde.add((cde_id,Constants.NIDM['source_variable'],Literal(key)))
-                            cde.add((cde_id,Constants.RDFS['comment'],Literal("BIDS participants variable fixed in specification")))
+                            cde.add((cde_id,Constants.NIDM['description'],Literal("participant/subject identifier")))
+                            cde.add((cde_id,Constants.RDFS['comment'],Literal("BIDS participants_id variable fixed in specification")))
+                            cde.add((cde_id,Constants.RDFS['valueType'],URIRef(Constants.XSD["string"])))
 
                             acq_entity.add_attributes({cde_id:Literal(value)})
 

@@ -2,7 +2,7 @@ from __future__ import absolute_import, division, print_function
 import os.path
 
 # Format expected by setup.py and doc/source/conf.py: string of form "X.Y.Z"
-_version_major = 1
+_version_major = 2
 _version_minor = 0 
 _version_micro = ''  # use '' for first of series, number for 1 and above
 _version_extra = 'dev'
@@ -57,5 +57,5 @@ MICRO = _version_micro
 VERSION = __version__
 INSTALL_REQUIRES = ["prov", "graphviz", "pydotplus", "pydot", "validators", "requests", "fuzzywuzzy", "pygithub",
                     "pandas", "pybids", "duecredit", "pytest", "graphviz", "click", "neurdflib-jsonld",
-                    "pyld", "neurdflib", "datalad", "ontquery>=0.2.2", "orthauth>=0.0.8","tabulate", "joblib"]
+                    "pyld", "neurdflib", "datalad", "ontquery>=0.2.2", "orthauth>=0.0.8","tabulate", "joblib", "cognitiveatlas", "numpy"]
 SCRIPTS = ["bin/nidm_query", "bin/bidsmri2nidm", "bin/csv2nidm","bin/nidm_utils"]

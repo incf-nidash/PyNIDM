@@ -133,7 +133,7 @@ class Project(pm.ProvActivity,Core):
             self._dataelements.extend([dataelement])
             # create links in graph
             # session.add_attributes({str("dct:isPartOf"):self})
-            dataelement.add_attributes({pm.QualifiedName(pm.Namespace("dct", Constants.DCT), 'isPartOf'): self})
+            #dataelement.add_attributes({pm.QualifiedName(pm.Namespace("dct", Constants.DCT), 'isPartOf'): self})
             return True
 
     def __str__(self):
