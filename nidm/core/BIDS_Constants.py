@@ -15,12 +15,12 @@ dataset_description = {
 
 #BIDS Participants file -> NIDM constants mappings
 participants = {
-    "participant_id" : Constants.NIDM_SUBJECTID,
-    "sex" : Constants.NIDM_GENDER,
-    "age" : Constants.NIDM_AGE,
-    "gender" : Constants.NIDM_GENDER,
-    "diagnosis" : Constants.NIDM_DIAGNOSIS,
-    "handedness" : Constants.NIDM_HANDEDNESS
+    "participant_id" : Constants.NIDM_SUBJECTID
+    #"sex" : Constants.NIDM_GENDER,
+    #"age" : Constants.NIDM_AGE,
+    #"gender" : Constants.NIDM_GENDER,
+    #"diagnosis" : Constants.NIDM_DIAGNOSIS,
+    #"handedness" : Constants.NIDM_HANDEDNESS
 }
 #scan metadata -> NIDM constants mappings
 scans = {

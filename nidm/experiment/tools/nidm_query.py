@@ -164,7 +164,7 @@ def query(nidm_file_list, cde_file_list, query_file, output_file, get_participan
             brainvol.to_csv(output_file)
         else:
             print(brainvol.to_string())
-    else:
+    elif query_file:
 
         df = sparql_query_nidm(nidm_file_list.split(','),query_file,output_file)
 
@@ -172,8 +172,12 @@ def query(nidm_file_list, cde_file_list, query_file, output_file, get_participan
 
             print(df.to_string())
 
-
         return df
+    else:
+        print("ERROR: No query parameter provided.  See help:")
+        print()
+        os.system("pynidm query --help")
+        exit(1)
 
 
 # it can be used calling the script `python nidm_query.py -nl ... -q ..
