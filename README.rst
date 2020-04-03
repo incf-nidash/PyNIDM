@@ -16,6 +16,15 @@ Dependencies
 * Graphviz <http://graphviz.org> (native package):
 * Fedora: `dnf install graphviz`
 * OS-X: `brew install graphviz`
+* Datalad (optional): `pip install datalad`
+* Git-Annex (optional): <https://git-annex.branchable.com/>
+
+PyPi
+======
+
+.. code-block:: bash
+
+	$ pip install pynidm
 
 Creating a conda environment and installing the library (tested with OSX)
 =========================================================================
@@ -36,28 +45,6 @@ You can try to run a test: `pytest`
 NIDM-Experiment Tools
 =====================
 
-Query
------
-
-.. code-block:: bash
-
-	$ pynidm query [OPTIONS]
-
-Options:
-  -nl, --nidm_file_list TEXT  A comma separated list of NIDM files with full
-                              path  [required]
-  -q, --query_file PATH       Text file containing a SPARQL query to execute
-                              [required]
-  -o, --output_file TEXT      Optional output file (CSV) to store results of
-                              query
-  -u, --uri URI               URI for a :ref:`REST API style query<rest>`
-                              file
-  -j                          Output results in JSON format (default) or not
-                              json format
-  --help                      Show this message and exit.
-
-Details on the REST API URI format and usage can be found on the :ref:`REST API usage<rest>` page.
-
 BIDS MRI Conversion to NIDM
 ---------------------------
 
@@ -66,73 +53,33 @@ This program will convert a BIDS MRI dataset to a NIDM-Experiment RDF document. 
 
 .. code-block:: bash
 
-    $ bidsmri2nidm -d [ROOT BIDS DIRECT] -bidsignore
+   $ bidsmri2nidm -d [ROOT BIDS DIRECT] -bidsignore
 
-Example 1:No variable->term mapping, simple BIDS dataset conversion which will add nidm.ttl file to BIDS dataset and .bidsignore file:
+   usage: bidsmri2nidm [-h] -d DIRECTORY [-jsonld] [-bidsignore] [-no_concepts]
+                    [-json_map JSON_MAP] [-log LOGFILE] [-o OUTPUTFILE]
 
-.. code-block:: bash
+   This program will represent a BIDS MRI dataset as a NIDM RDF document and provide user with opportunity to annotate
+   the dataset (i.e. create sidecar files) and associate selected variables with broader concepts to make datasets more
+   FAIR. 
 
-    $ bidsmri2nidm -d [root directory of BIDS dataset] -o [PATH/nidm.ttl]
+   Note, you must obtain an API key to Interlex by signing up for an account at scicrunch.org then going to My Account
+   and API Keys.  Then set the environment variable INTERLEX_API_KEY with your key. 
 
-Example 2:No variable->term mapping, simple BIDS dataset conversion but storing nidm file somewhere else:
+   optional arguments:
+     -h, --help            show this help message and exit
+     -d DIRECTORY          Full path to BIDS dataset directory
+     -jsonld, --jsonld     If flag set, output is json-ld not TURTLE
+     -bidsignore, --bidsignore
+                        If flag set, tool will add NIDM-related files to .bidsignore file
+     -no_concepts, --no_concepts
+                        If flag set, tool will no do concept mapping
+     -log LOGFILE, --log LOGFILE
+                        Full path to directory to save log file. Log file name is bidsmri2nidm_[basename(args.directory)].log
+     -o OUTPUTFILE         Outputs turtle file called nidm.ttl in BIDS directory by default..or whatever path/filename is set here
 
-
-.. code-block:: bash
-
-    $ bidsmri2nidm -d [root directory of BIDS dataset] -json_map [Your JSON file] -bidsignore
-
-Example 5 BIDS conversion with variable->term mappings, uses JSON mapping file first then uses Interlex, adds nidm.ttl file to root of BIDS dataset and adds to .bidsignore file:
-
-	 json mapping file has entries for each variable with mappings to formal terms.  Example:
-
-    	 {
-
-    		 "site": {
-
-			 "definition": "Number assigned to site",
-
-			 "label": "site_id (UC Provider Care)",
-
-			 "url": "http://uri.interlex.org/NDA/uris/datadictionary/elements/2031448"
-
-			 },
-
-			 "gender": {
-
-			 "definition": "ndar:gender",
-
-			 "label": "ndar:gender",
-
-			 "url": "https://ndar.nih.gov/api/datadictionary/v2/dataelement/gender"
-
-			 }
-
-    	 }
-
-optional arguments:
-	-h, --help            show this help message and exit
-
-	-d DIRECTORY          Path to BIDS dataset directory
-
-	-jsonld, --jsonld     If flag set, output is json-ld not TURTLE
-
-	-png, --png           If flag set, tool will output PNG file of NIDM graph
-
-	-bidsignore, --bidsignore
-
-	                      If flag set, tool will add NIDM-related files to .bidsignore file
-
-	-o OUTPUTFILE         Outputs turtle file called nidm.ttl in BIDS directory by default
-
-	map variables to terms arguments:
-
-	-json_map JSON_MAP, --json_map JSON_MAP
-
-	                      Optional user-suppled JSON file containing variable-term mappings.
-
-	-ilxkey KEY, --ilxkey KEY
-
-	                      Interlex/SciCrunch API key to use for query
+   map variables to terms arguments:
+     -json_map JSON_MAP, --json_map JSON_MAP
+                        Optional full path to user-suppled JSON file containing data element defintitions.
 
 
 CSV File to NIDM Conversion
@@ -146,19 +93,51 @@ annotated CSV data will then be written to a NIDM data file.  To use this tool p
 
 .. code-block:: bash
 
-    $ csv2nidm [OPTIONS]
+  usage: csv2nidm [-h] -csv CSV_FILE [-json_map JSON_MAP] [-nidm NIDM_FILE]
+                  [-no_concepts] [-log LOGFILE] -out OUTPUT_FILE
 
-optional arguments:
-  -h, --help            show this help message and exit
+  This program will load in a CSV file and iterate over the header variable
+  names performing an elastic search of https://scicrunch.org/ for NIDM-ReproNim
+  tagged terms that fuzzy match the variable names. The user will then
+  interactively pick a term to associate with the variable name. The resulting
+  annotated CSV data will then be written to a NIDM data file. Note, you must
+  obtain an API key to Interlex by signing up for an account at scicrunch.org
+  then going to My Account and API Keys. Then set the environment variable
+  INTERLEX_API_KEY with your key.
 
-  -csv CSV_FILE         Path to CSV file to convert
+  optional arguments:
+    -h, --help            show this help message and exit
+    -csv CSV_FILE         Full path to CSV file to convert
+    -json_map JSON_MAP    Full path to user-suppled JSON file containing
+                          variable-term mappings.
+    -nidm NIDM_FILE       Optional full path of NIDM file to add CSV->NIDM
+                          converted graph to
+    -no_concepts          If this flag is set then no concept associations will
+                          beasked of the user. This is useful if you already
+                          have a -json_map specified without concepts and want
+                          tosimply run this program to get a NIDM file with user
+                          interaction to associate concepts.
+    -log LOGFILE, --log LOGFILE
+                          full path to directory to save log file. Log file name
+                          is csv2nidm_[arg.csv_file].log
+    -out OUTPUT_FILE      Full path with filename to save NIDM file
 
-  -json_map JSON_MAP    User-suppled JSON file containing variable-term mappings.
+convert
+-------
+This function will convert NIDM files to various RDF-supported formats and
+name then / put them in the same place as the input file.
 
-  -nidm NIDM_FILE       Optional NIDM file to add CSV->NIDM converted graph to
+.. code-block:: bash
 
-  -out OUTPUT_FILE      Filename to save NIDM file
+  Usage: pynidm convert [OPTIONS]
 
+  Options:
+    -nl, --nidm_file_list TEXT      A comma separated list of NIDM files with
+                                  full path  [required]
+    -t, --type [turtle|jsonld|xml-rdf|n3|trig]
+                                  If parameter set then NIDM file will be
+                                  exported as JSONLD  [required]
+    --help                          Show this message and exit.
 
 .. |Build Status| image:: https://travis-ci.org/incf-nidash/PyNIDM.svg?branch=master
     :target: https://travis-ci.org/incf-nidash/PyNIDM
@@ -167,6 +146,95 @@ optional arguments:
     :target: https://pynidm.readthedocs.io/en/latest/
     :alt: ReadTheDocs Documentation of master branch
 
+concatenate
+-----------
+This function will concatenate NIDM files.  Warning, no merging will be
+done so you may end up with multiple prov:agents with the same subject id
+if you're concatenating NIDM files from multiple vists of the same study.
+If you want to merge NIDM files on subject ID see pynidm merge
+
+.. code-block:: bash
+
+  Usage: pynidm concat [OPTIONS]
+
+  Options:
+    -nl, --nidm_file_list TEXT  A comma separated list of NIDM files with full
+                              path  [required]
+    -o, --out_file TEXT         File to write concatenated NIDM files
+                              [required]
+    --help                      Show this message and exit.
+  
+visualize
+---------
+This command will produce a visualization(pdf) of the supplied NIDM files
+named the same as the input files and stored in the same directories.
+
+.. code-block:: bash
+
+  Usage: pynidm visualize [OPTIONS]
+
+  Options:
+    -nl, --nidm_file_list TEXT  A comma separated list of NIDM files with full
+                              path  [required]
+    --help                      Show this message and exit.
+  
+merge
+-----
+This function will merge NIDM files.  See command line parameters for
+supported merge operations.
+
+.. code-block:: bash
+
+   Usage: pynidm merge [OPTIONS]
+
+   Options:
+     -nl, --nidm_file_list TEXT  A comma separated list of NIDM files with full
+                              path  [required]
+     -s, --s                     If parameter set then files will be merged by
+                              ndar:src_subjec_id of prov:agents
+	 -o, --out_file TEXT         File to write concatenated NIDM files
+                              [required]
+	 --help                      Show this message and exit.
+
+Query
+-----
+This function provides query support for NIDM graphs.
+
+.. code-block:: bash
+
+Usage: pynidm query [OPTIONS]
+
+Options:
+  -nl, --nidm_file_list TEXT      A comma separated list of NIDM files with
+                                  full path  [required]
+  -nc, --cde_file_list TEXT       A comma separated list of NIDM CDE files
+                                  with full path. Can also be set in the
+                                  CDE_DIR environment variable
+  -q, --query_file FILENAME       Text file containing a SPARQL query to
+                                  execute
+  -p, --get_participants          Parameter, if set, query will return
+                                  participant IDs and prov:agent entity IDs
+  -i, --get_instruments           Parameter, if set, query will return list of
+                                  onli:assessment-instrument:
+  -iv, --get_instrument_vars      Parameter, if set, query will return list of
+                                  onli:assessment-instrument: variables
+  -de, --get_dataelements         Parameter, if set, will return all
+                                  DataElements in NIDM file
+  -debv, --get_dataelements_brainvols
+                                  Parameter, if set, will return all brain
+                                  volume DataElements in NIDM file along with
+                                  details
+  -bv, --get_brainvols            Parameter, if set, will return all brain
+                                  volume data elements and values along with
+                                  participant IDs in NIDM file
+  -o, --output_file TEXT          Optional output file (CSV) to store results
+                                  of query
+  -u, --uri TEXT                  A REST API URI query
+  -j / -no_j                      Return result of a uri query as JSON
+  -v, --verbosity TEXT            Verbosity level 0-5, 0 is default
+  --help                          Show this message and exit.
+
+Details on the REST API URI format and usage can be found on the :ref:`REST API usage<rest>` page.
 
 .. _rest:
 
@@ -498,3 +566,13 @@ Example response:
          "StatCollectionType": "FSLStatsCollection"
       }
    }
+
+Additional NIDM-related Tools
+=============================
+
+* NIDM-Terms <https://github.com/NIDM-Terms/terms>
+* NIDM-Terms Scicrunch Interface <https://scicrunch.org/nidm-terms>
+* Freesurfer stats -> NIDM <https://github.com/repronim/segstats_jsonld>
+* FSL structural segmentation -> NIDM <https://github.com/ReproNim/fsl_seg_to_nidm>
+* ANTS structural segmentation -> NIDM <https://github.com/ReproNim/ants_seg_to_nidm>
+
