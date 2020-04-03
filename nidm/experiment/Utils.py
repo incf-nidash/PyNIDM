@@ -1384,9 +1384,9 @@ def DD_to_nidm(dd_struct):
             elif key == 'source_variable':
                 g.add((cde_id, Constants.NIDM['source_variable'], Literal(value)))
             elif key == 'isAbout':
-                dct_ns = Namespace(Constants.DCT)
-                g.bind(prefix='dct', namespace=dct_ns)
-                g.add((cde_id, dct_ns['isAbout'], URIRef(value)))
+                #dct_ns = Namespace(Constants.DCT)
+                #g.bind(prefix='dct', namespace=dct_ns)
+                g.add((cde_id, Constants.NIDM['isAbout'], URIRef(value)))
             elif key == 'valueType':
                 g.add((cde_id, Constants.NIDM['valueType'], URIRef(value)))
             elif key == 'minimumValue':
