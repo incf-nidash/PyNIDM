@@ -4,4 +4,4 @@ import __main__
 
 if not hasattr(__main__, "__file__"):
     import etelemetry
-    etelemetry.check_available_version("pynidm", __version__)
+    etelemetry.check_available_version("incf-nidash/pynidm", __version__)
