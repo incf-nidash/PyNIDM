@@ -20,6 +20,7 @@ import re
 import string
 import random
 
+from pydot import Edge
 
 def getUUID():
     uid = str(uuid.uuid1())
@@ -449,7 +450,16 @@ class Core(object):
     def save_DotGraph(self,filename,format=None):
         dot = prov_to_dot(self.graph)
 
-        ###WIP: augmenting DOT graph with isPartOf edges
+        ISPARTOF = {
+            'label': 'isPartOf',
+            'fontsize': '10.0',
+            'color': 'darkgreen',
+            'fontcolor' : 'darkgreen'
+        }
+        style = ISPARTOF
+
+
+
 
 
         # query self.graph for Project uuids
@@ -495,12 +505,13 @@ class Core(object):
                 if 'URL' in dot.obj_dict['nodes'][key][0]['attributes']:
                     if session.identifier.uri in str(dot.obj_dict['nodes'][key][0]['attributes']['URL']):
                         session_node= key
-                        print("session node = %s" %key)
+                        #print("session node = %s" %key)
 
                         # add to DOT structure edge between project_node and session_node
-                        dot.obj_dict['edges'][session_node,project_node] = dot.obj_dict['edges']['ann1',project_node]
-                        dot.obj_dict['edges'][session_node,project_node][0]['points'][0]
-                        #change some of the properties to be isPartOf and color
+                        dot.add_edge(Edge(session_node, project_node, **style))
+
+
+
 
                         # for each Acquisition in Session class ._acquisitions list, find node numbers in DOT graph
                         for acquisition in session.get_acquisitions():
@@ -510,13 +521,9 @@ class Core(object):
                                 if 'URL' in dot.obj_dict['nodes'][key][0]['attributes']:
                                     if acquisition.identifier.uri in str(dot.obj_dict['nodes'][key][0]['attributes']['URL']):
                                         acquisition_node = key
-                                        print("acquisition node = %s" %key)
+                                        #print("acquisition node = %s" %key)
 
-                                        # add edge to DOT structure connecting acquisition node with session node.
-
-
-
-
+                                        dot.add_edge(Edge(acquisition_node, session_node, **style))
 
 
         #add some logic to find nodes with dct:hasPart relation and add those edges to graph...prov_to_dot ignores these
