@@ -5,7 +5,7 @@ from ..core import Constants
 from ..experiment import AcquisitionObject
 import prov.model as pm
 
-class MRObject(AcquisitionObject):
+class PETObject(AcquisitionObject):
     """Class for NIDM-Experimenent MRAcquisitionObject-Level Objects.
 
     Default constructor uses empty graph with namespaces added from NIDM/Scripts/Constants.py.
@@ -28,16 +28,16 @@ class MRObject(AcquisitionObject):
 
         """
         #execute default parent class constructor
-        super(MRObject,self).__init__(acquisition,attributes,uuid)
+        super(PETObject,self).__init__(acquisition,attributes,uuid)
 
         if add_default_type:
             self.add_attributes({pm.PROV_TYPE: Constants.NIDM_ACQUISITION_ENTITY})
-            self.add_attributes({Constants.NIDM_ACQUISITION_MODALITY: Constants.NIDM_MRI})
+            self.add_attributes({Constants.NIDM_ACQUISITION_MODALITY: Constants.NIDM_PET})
 
         #carry graph object around
         self.graph = acquisition.graph
 
     def __str__(self):
-        return "NIDM-Experiment MRI Object Class"
+        return "NIDM-Experiment PET Object Class"
 
 

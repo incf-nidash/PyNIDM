@@ -60,6 +60,7 @@ BIDS = Namespace("http://bids.neuroimaging.io/")
 OWL = Namespace("http://www.w3.org/2002/07/owl#")
 ONLI = Namespace("http://neurolog.unice.fr/ontoneurolog/v3.0/instrument.owl#")
 PATO = Namespace("http://purl.obolibrary.org/obo/pato#")
+DATALAD = Namespace("http://datasets.datalad.org/")
 
 namespaces = {
    # "prov": PROV,
@@ -91,7 +92,8 @@ namespaces = {
     "bids" : BIDS,
     "owl" : OWL,
     "onli" : ONLI,
-    "pato" : PATO
+    "pato" : PATO,
+	"datalad" : DATALAD
     }
 
 # Empty graph used to compute qnames
@@ -299,6 +301,7 @@ NIDM_BINARY_MAP = NIDM['NIDM_0000004']
 NIDM_CONTRAST_ESTIMATION = NIDM['NIDM_0000001']
 NIDM_CONTRAST_MAP = NIDM['NIDM_0000002']
 # NIDM-Experiment##############################################################
+NIDM_DATAELEMENT = QualifiedName(provNamespace("nidm", NIDM), 'DataElement')
 NIDM_PROJECT = QualifiedName(provNamespace("nidm", NIDM), 'Project')
 #NIDM_PROJECT_TYPE = QualifiedName(provNamespace("dctypes", DCTYPES),"Dataset")
 NIDM_PROJECT_IDENTIFIER = QualifiedName(provNamespace("sio", SIO),"Identifier")
@@ -360,6 +363,7 @@ NIDM_SUBJECTID = QualifiedName(provNamespace("ndar",NDAR),"src_subject_id")
 #MRI scan types
 NIDM_IMAGE_CONTRAST_TYPE = QualifiedName(provNamespace("nidm", NIDM),"hadImageContrastType")
 NIDM_IMAGE_USAGE_TYPE = QualifiedName(provNamespace("nidm", NIDM),"hadImageUsageType")
+NIDM_PET = QualifiedName(provNamespace("nidm", NIDM),"PositronEmissionTomography")
 NIDM_MRI = QualifiedName(provNamespace("nidm", NIDM),"MagneticResonanceImaging")
 NIDM_MRI_ANATOMIC_SCAN = QualifiedName(provNamespace("nidm", NIDM),"Anatomical")
 NIDM_MRI_STRUCTURE_SCAN = QualifiedName(provNamespace("nidm", NIDM),"Structural")
@@ -375,6 +379,7 @@ NIDM_MRI_DIFFUSION_TENSOR = QualifiedName(provNamespace("nidm", NIDM),"Diffusion
 NIDM_MRI_FLOW = QualifiedName(provNamespace("nidm", NIDM),"FlowWeighted")
 NIDM_MRI_BOLD_EVENTS = QualifiedName(provNamespace("nidm", NIDM),"StimulusResponseFile")
 CRYPTO_SHA512  =QualifiedName(provNamespace("crypto", CRYPTO),"sha512")
+DATALAD_LOCATION = QualifiedName(provNamespace("datalad", DATALAD),"Location")
 ##############################################################################
 # OBO constants
 OBO_EXAMPLE = OBO['IAO_0000112']
@@ -599,3 +604,11 @@ NIDM_MRI_T2_STAR,
 NIDM_MRI_DIFFUSION_TENSOR,
 NIDM_MRI_FLOW,
 NIDM_MRI_BOLD_EVENTS]
+
+
+# cannonical CDE file locations
+CDE_FILE_LOCATIONS = [
+	"https://raw.githubusercontent.com/ReproNim/fsl_seg_to_nidm/master/fsl_seg_to_nidm/mapping_data/fsl_cde.ttl",
+	"https://raw.githubusercontent.com/ReproNim/ants_seg_to_nidm/master/ants_seg_to_nidm/mapping_data/ants_cde.ttl",
+	"https://raw.githubusercontent.com/ReproNim/segstats_jsonld/master/segstats_jsonld/mapping_data/fs_cde.ttl"
+]

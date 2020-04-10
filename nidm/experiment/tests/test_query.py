@@ -1,11 +1,10 @@
-import pytest
+import nidm.experiment.Navigate
 from nidm.experiment import Project, Session, AssessmentAcquisition, AssessmentObject, Acquisition, AcquisitionObject, Query
 from nidm.core import Constants
 from rdflib import Namespace,URIRef
 import prov.model as pm
-from os import remove
-import os
-import pprint
+from os import remove, path
+import tempfile
 
 from prov.model import ProvDocument, QualifiedName
 from prov.model import Namespace as provNamespace
@@ -30,7 +29,7 @@ def test_GetProjectMetadata():
 
 
     #save a turtle file
-    with open("test.ttl",'w') as f:
+    with open("test_gpm.ttl",'w') as f:
         f.write(project.serializeTurtle())
 
     kwargs={Constants.NIDM_PROJECT_NAME:"FBIRN_PhaseIII",Constants.NIDM_PROJECT_IDENTIFIER:1200,Constants.NIDM_PROJECT_DESCRIPTION:"Test investigation2"}
@@ -38,7 +37,7 @@ def test_GetProjectMetadata():
 
 
     #save a turtle file
-    with open("test2.ttl",'w') as f:
+    with open("test2_gpm.ttl",'w') as f:
         f.write(project.serializeTurtle())
 
 
@@ -53,7 +52,8 @@ def test_GetProjectMetadata():
     #assert URIRef((Constants.NIDM_PROJECT_DESCRIPTION + "Test investigation")) in test
     #assert URIRef((Constants.NIDM_PROJECT_DESCRIPTION + "Test investigation2")) in test
 
-    remove("test2.ttl")
+    remove("test_gpm.ttl")
+    remove("test2_gpm.ttl")
 
 
 def test_GetProjects():
@@ -63,12 +63,12 @@ def test_GetProjects():
 
 
     #save a turtle file
-    with open("test.ttl",'w') as f:
+    with open("test_gp.ttl",'w') as f:
         f.write(project.serializeTurtle())
 
-    project_list = Query.GetProjectsUUID(["test.ttl"])
+    project_list = Query.GetProjectsUUID(["test_gp.ttl"])
 
-    remove("test.ttl")
+    remove("test_gp.ttl")
     assert URIRef(Constants.NIIRI + "_123456") in project_list
 
 def test_GetParticipantIDs():
@@ -86,12 +86,12 @@ def test_GetParticipantIDs():
     acq2.add_qualified_association(person=person2,role=Constants.NIDM_PARTICIPANT)
 
     #save a turtle file
-    with open("test.ttl",'w') as f:
+    with open("test_3.ttl",'w') as f:
         f.write(project.serializeTurtle())
 
-    participant_list = Query.GetParticipantIDs(["test.ttl"])
+    participant_list = Query.GetParticipantIDs(["test_3.ttl"])
 
-    remove("test.ttl")
+    remove("test_3.ttl")
     assert (participant_list['ID'].str.contains('9999').any())
     assert (participant_list['ID'].str.contains('8888').any())
 
@@ -112,13 +112,13 @@ def test_GetProjectInstruments():
     acq_obj2 = AssessmentObject(acq2,attributes=kwargs)
 
     #save a turtle file
-    with open("test.ttl",'w') as f:
+    with open("test_gpi.ttl",'w') as f:
         f.write(project.serializeTurtle())
 
 
-    assessment_list = Query.GetProjectInstruments(["test.ttl"],"_123456")
+    assessment_list = Query.GetProjectInstruments(["test_gpi.ttl"],"_123456")
 
-    #remove("test.ttl")
+    remove("test_gpi.ttl")
 
     assert URIRef(Constants.NIDM + "NorthAmericanAdultReadingTest") in assessment_list['assessment_type'].to_list()
     assert URIRef(Constants.NIDM + "PositiveAndNegativeSyndromeScale") in assessment_list['assessment_type'].to_list()
@@ -236,6 +236,8 @@ def test_GetProjectsMetadata():
             "cmu_a.nidm.ttl"
         )
         files.append("cmu_a.nidm.ttl")
+    elif Path('./cmu_a.nidm.ttl').is_file():
+        files.append("cmu_a.nidm.ttl")
 
     parsed = Query.GetProjectsMetadata(files)
 
@@ -275,14 +277,68 @@ def test_GetProjectsComputedMetadata():
 
     if USE_GITHUB_DATA:
         for project_id in parsed['projects']:
-            print ("looking at {}".format(project_id))
             if project_id != p1 and project_id != p2:
                 p3 = project_id
-        print ("got p3 of {}".format(p3))
         assert parsed['projects'][p3][str(Constants.NIDM_PROJECT_NAME)] == "ABIDE CMU_a Site"
         assert parsed['projects'][p3][Query.matchPrefix(str(Constants.NIDM_NUMBER_OF_SUBJECTS))] == 14
-        assert parsed['projects'][p3]["age_min"] == 21
-        assert parsed['projects'][p3]["age_max"] == 33
+        assert parsed['projects'][p3]["age_min"] == 21.0
+        assert parsed['projects'][p3]["age_max"] == 33.0
         assert parsed['projects'][p3][str(Constants.NIDM_GENDER)] == ['1', '2']
 
 
+def test_prefix_helpers():
+
+    assert Query.expandNIDMAbbreviation("ndar:src_subject_id") == "https://ndar.nih.gov/api/datadictionary/v2/dataelement/src_subject_id"
+
+    assert Query.matchPrefix("http://purl.org/nidash/nidm#abc") == "nidm:abc"
+    assert Query.matchPrefix("http://www.w3.org/ns/prov#123") == "prov:123"
+    assert Query.matchPrefix("http://purl.org/nidash/fsl#xyz") == "fsl:xyz"
+    assert Query.matchPrefix("http://purl.org/nidash/fsl#xyz", short=True) == "fsl"
+
+
+def test_getProjectAcquisitionObjects():
+    if not Path('./cmu_a.nidm.ttl').is_file():
+        urllib.request.urlretrieve (
+            "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/master/datasets.datalad.org/abide/RawDataBIDS/CMU_a/nidm.ttl",
+            "cmu_a.nidm.ttl"
+        )
+    files = ['cmu_a.nidm.ttl']
+
+    project_list = Query.GetProjectsUUID(files)
+    print (project_list)
+    project_uuid = str(project_list[0])
+    objects = Query.getProjectAcquisitionObjects(files,project_uuid)
+
+    assert isinstance(objects,list)
+
+
+def test_GetProjectAttributes():
+    if not Path('./cmu_a.nidm.ttl').is_file():
+        urllib.request.urlretrieve (
+            "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/master/datasets.datalad.org/abide/RawDataBIDS/CMU_a/nidm.ttl",
+            "cmu_a.nidm.ttl"
+        )
+    files = ['cmu_a.nidm.ttl']
+
+    project_list = Query.GetProjectsUUID(files)
+    print (project_list)
+    project_uuid = str(project_list[0])
+    project_attributes = nidm.experiment.Navigate.GetProjectAttributes(files, project_uuid)
+    assert ('prov:Location' in project_attributes) or ('Location' in project_attributes)
+    assert ('dctypes:title' in project_attributes) or ('title' in project_attributes)
+    assert ('http://www.w3.org/1999/02/22-rdf-syntax-ns#type' in project_attributes) or ('type' in project_attributes)
+    assert ('AcquisitionModality') in project_attributes
+    assert ('ImageContrastType') in project_attributes
+    assert ('Task') in project_attributes
+    assert ('ImageUsageType') in project_attributes
+
+
+def test_download_cde_files():
+    cde_dir = Query.download_cde_files()
+    assert cde_dir == tempfile.gettempdir()
+    fcount = 0
+    for url in Constants.CDE_FILE_LOCATIONS:
+        fname = url.split('/')[-1]
+        assert path.isfile("{}/{}".format(cde_dir, fname) )
+        fcount += 1
+    assert fcount > 0

@@ -37,17 +37,19 @@ import pandas as pd
 from argparse import ArgumentParser
 import logging
 import csv
-from nidm.experiment.Query import sparql_query_nidm, GetParticipantIDs,GetProjectInstruments,GetProjectsUUID,GetInstrumentVariables,GetDataElements,GetBrainVolumes,GetBrainVolumeDataElements
+from nidm.experiment.Query import sparql_query_nidm, GetParticipantIDs,GetProjectInstruments,GetProjectsUUID,GetInstrumentVariables,GetDataElements,GetBrainVolumes,GetBrainVolumeDataElements,getCDEs
 import click
 from nidm.experiment.tools.click_base import cli
-from nidm.experiment.tools.rest import restParser
+from nidm.experiment.tools.rest import RestParser
 from json import dumps, loads
 
 
 @cli.command()
 @click.option("--nidm_file_list", "-nl", required=True,
               help="A comma separated list of NIDM files with full path")
-@click.option("--query_file", "-q", type=click.Path(exists=True), required=False,
+@click.option("--cde_file_list", "-nc", required=False,
+              help="A comma separated list of NIDM CDE files with full path. Can also be set in the CDE_DIR environment variable")
+@click.option("--query_file", "-q", type=click.File('r'), required=False,
               help="Text file containing a SPARQL query to execute")
 @click.option("--get_participants", "-p", is_flag=True,required=False,
               help="Parameter, if set, query will return participant IDs and prov:agent entity IDs")
@@ -68,10 +70,16 @@ from json import dumps, loads
 @click.option("-j/-no_j", required=False, default=False,
               help="Return result of a uri query as JSON")
 @click.option('-v', '--verbosity', required=False, help="Verbosity level 0-5, 0 is default", default="0")
-def query(nidm_file_list, query_file, output_file, get_participants, get_instruments, get_instrument_vars, get_dataelements, get_brainvols,get_dataelements_brainvols, uri, j, verbosity):
-
+def query(nidm_file_list, cde_file_list, query_file, output_file, get_participants, get_instruments, get_instrument_vars, get_dataelements, get_brainvols,get_dataelements_brainvols, uri, j, verbosity):
+    """
+    This function provides query support for NIDM graphs.
+    """
     #query result list
     results = []
+
+    # if there is a CDE file list, seed the CDE cache
+    if cde_file_list:
+        getCDEs(cde_file_list.split(","))
 
     if get_participants:
         df = GetParticipantIDs(nidm_file_list.split(','),output_file=output_file)
@@ -131,18 +139,15 @@ def query(nidm_file_list, query_file, output_file, get_participants, get_instrum
         else:
             print(datael.to_string())
     elif uri:
-        df = restParser(nidm_file_list.split(','), uri, int(verbosity))
+        restParser = RestParser(verbosity_level = int(verbosity))
         if j:
-            print (dumps(df, indent=2))
+            restParser.setOutputFormat(RestParser.JSON_FORMAT)
         else:
-            if type(df) == list:
-                for x in df:
-                    print (x)
-            elif type(df) == dict:
-                for k in df.keys():
-                    print (str(k) + ' ' + str(df[k]))
-            else:
-                print (df.to_string())
+            restParser.setOutputFormat(RestParser.CLI_FORMAT)
+        df = restParser.run(nidm_file_list.split(','), uri)
+
+        print (df)
+
     elif get_dataelements_brainvols:
         brainvol = GetBrainVolumeDataElements(nidm_file_list=nidm_file_list)
          #if output file parameter specified
@@ -159,20 +164,20 @@ def query(nidm_file_list, query_file, output_file, get_participants, get_instrum
             brainvol.to_csv(output_file)
         else:
             print(brainvol.to_string())
-    else:
+    elif query_file:
 
-        #read query from text fiile
-        with open(query_file, 'r') as fp:
-            query = fp.read()
-
-        df = sparql_query_nidm(nidm_file_list.split(','),query,output_file)
+        df = sparql_query_nidm(nidm_file_list.split(','),query_file,output_file)
 
         if ((output_file) is None):
 
             print(df.to_string())
 
-
         return df
+    else:
+        print("ERROR: No query parameter provided.  See help:")
+        print()
+        os.system("pynidm query --help")
+        exit(1)
 
 
 # it can be used calling the script `python nidm_query.py -nl ... -q ..

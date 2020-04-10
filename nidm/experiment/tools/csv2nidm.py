@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 #**************************************************************************************
 #**************************************************************************************
-#  CSV2NIDM.py
+#  csv2nidm.py
 #  License: GPL
 #**************************************************************************************
 #**************************************************************************************
 # Date: 01-19-18                 Coded by: David Keator (dbkeator@gmail.com)
-# Filename: CSV2NIDM.py
+# Filename: csv2nidm.py
 #
 # Program description:  This program will load in a CSV file and iterate over the header
 # variable names performing an elastic search of https://scicrunch.org/ for NIDM-ReproNim
@@ -22,11 +22,6 @@
 # Libraries: pybids, numpy, matplotlib, pandas, scipy, math, dateutil, datetime,argparse,
 # os,sys,getopt,csv
 #**************************************************************************************
-# Start date: 01-19-18
-# Update history:
-# DATE            MODIFICATION				Who
-#
-#
 #**************************************************************************************
 # Programmer comments:
 #
@@ -37,7 +32,7 @@
 import os,sys
 from nidm.experiment import Project,Session,AssessmentAcquisition,AssessmentObject
 from nidm.core import Constants
-from nidm.experiment.Utils import read_nidm, map_variables_to_terms, add_attributes_with_cde
+from nidm.experiment.Utils import read_nidm, map_variables_to_terms, add_attributes_with_cde, addGitAnnexSources
 from argparse import ArgumentParser
 from os.path import  dirname, join, splitext,basename
 import json
@@ -45,9 +40,9 @@ import pandas as pd
 from rdflib import Graph,URIRef,RDF,Literal
 from io import StringIO
 from shutil import copy2
-
-
-
+from nidm.core.Constants import DD
+import logging
+import csv
 
 
 #def createDialogBox(search_results):
@@ -79,27 +74,48 @@ def main(argv):
      variable names performing an elastic search of https://scicrunch.org/ for NIDM-ReproNim \
      tagged terms that fuzzy match the variable names.  The user will then interactively pick \
      a term to associate with the variable name.  The resulting annotated CSV data will \
-     then be written to a NIDM data file.')
+     then be written to a NIDM data file.  Note, you must obtain an API key to Interlex by signing up \
+     for an account at scicrunch.org then going to My Account and API Keys.  Then set the environment \
+     variable INTERLEX_API_KEY with your key.')
 
-    parser.add_argument('-csv', dest='csv_file', required=True, help="Path to CSV file to convert")
-    parser.add_argument('-ilxkey', dest='key', required=True, help="Interlex/SciCrunch API key to use for query")
-    parser.add_argument('-json_map', dest='json_map',required=False,help="User-suppled JSON file containing variable-term mappings.")
-    parser.add_argument('-nidm', dest='nidm_file', required=False, help="Optional NIDM file to add CSV->NIDM converted graph to")
+    parser.add_argument('-csv', dest='csv_file', required=True, help="Full path to CSV file to convert")
+    # parser.add_argument('-ilxkey', dest='key', required=True, help="Interlex/SciCrunch API key to use for query")
+    parser.add_argument('-json_map', dest='json_map',required=False,help="Full path to user-suppled JSON file containing variable-term mappings.")
+    parser.add_argument('-nidm', dest='nidm_file', required=False, help="Optional full path of NIDM file to add CSV->NIDM converted graph to")
+    parser.add_argument('-no_concepts', action='store_true', required=False, help='If this flag is set then no concept associations will be'
+                                'asked of the user.  This is useful if you already have a -json_map specified without concepts and want to'
+                                'simply run this program to get a NIDM file with user interaction to associate concepts.')
     # parser.add_argument('-owl', action='store_true', required=False, help='Optionally searches NIDM OWL files...internet connection required')
     # parser.add_argument('-png', action='store_true', required=False, help='Optional flag, when set a PNG image file of RDF graph will be produced')
     # parser.add_argument('-jsonld', action='store_true', required=False, help='Optional flag, when set NIDM files are saved as JSON-LD instead of TURTLE')
-    parser.add_argument('-out', dest='output_file', required=True, help="Filename to save NIDM file")
+    parser.add_argument('-log','--log', dest='logfile',required=False, default=None, help="full path to directory to save log file. Log file name is csv2nidm_[arg.csv_file].log")
+    parser.add_argument('-out', dest='output_file', required=True, help="Full path with filename to save NIDM file")
     args = parser.parse_args()
+
+
 
     #open CSV file and load into
     df = pd.read_csv(args.csv_file)
+    #temp = csv.reader(args.csv_file)
+    #df = pd.DataFrame(temp)
 
     #maps variables in CSV file to terms
     #if args.owl is not False:
     #    column_to_terms = map_variables_to_terms(df=df, apikey=args.key, directory=dirname(args.output_file), output_file=args.output_file, json_file=args.json_map, owl_file=args.owl)
     #else:
-    column_to_terms, cde = map_variables_to_terms(df=df, apikey=args.key, assessment_name=basename(args.csv_file),directory=dirname(args.output_file), output_file=args.output_file, json_file=args.json_map)
+    # if user did not specify -no_concepts then associate concepts interactively with user
+    if not args.no_concepts:
+        column_to_terms, cde = map_variables_to_terms(df=df,  assessment_name=basename(args.csv_file),directory=dirname(args.output_file), output_file=args.output_file, json_file=args.json_map)
+    # run without concept mappings
+    else:
+        column_to_terms, cde = map_variables_to_terms(df=df, assessment_name=basename(args.csv_file),
+                                                      directory=dirname(args.output_file), output_file=args.output_file,
+                                                      json_file=args.json_map, associate_concepts=False)
 
+    if args.logfile is not None:
+        logging.basicConfig(filename=join(args.logfile,'csv2nidm_' + os.path.splitext(os.path.basename(args.csv_file))[0] + '.log'), level=logging.DEBUG)
+        # add some logging info
+        logging.info("csv2nidm %s" %args)
 
 
     #If user has added an existing NIDM file as a command line parameter then add to existing file for subjects who exist in the NIDM file
@@ -114,10 +130,13 @@ def main(argv):
         id_field=None
         for key, value in column_to_terms.items():
             if Constants.NIDM_SUBJECTID._str == column_to_terms[key]['label']:
-                id_field=key
+                key_tuple = eval(key)
+                #id_field=key
+                id_field = key_tuple.variable
                 #make sure id_field is a string for zero-padded subject ids
                 #re-read data file with constraint that key field is read as string
-                #df = pd.read_csv(args.csv_file,dtype={id_field : str})
+                df = pd.read_csv(args.csv_file,dtype={id_field : str})
+                break
 
         #if we couldn't find a subject ID field in column_to_terms, ask user
         if id_field is None:
@@ -126,10 +145,14 @@ def main(argv):
                 print("%d: %s" %(option,column))
                 option=option+1
             selection=input("Please select the subject ID field from the list above: ")
+            # Make sure user selected one of the options.  If not present user with selection input again
+            while (not selection.isdigit()) or (int(selection) > int(option)):
+                # Wait for user input
+                selection = input("Please select the subject ID field from the list above: \t" % option)
             id_field=df.columns[int(selection)-1]
             #make sure id_field is a string for zero-padded subject ids
             #re-read data file with constraint that key field is read as string
-            #df = pd.read_csv(args.csv_file,dtype={id_field : str})
+            df = pd.read_csv(args.csv_file,dtype={id_field : str})
 
 
 
@@ -151,7 +174,7 @@ def main(argv):
 
 
         for row in qres:
-            print('%s \t %s' %(row[0],row[1]))
+            logging.info("found existing participant %s \t %s" %(row[0],row[1]))
             #find row in CSV file with subject id matching agent from NIDM file
 
             #csv_row = df.loc[df[id_field]==type(df[id_field][0])(row[1])]
@@ -182,6 +205,16 @@ def main(argv):
                 #add qualified association with existing agent
                 acq.add_qualified_association(person=row[2],role=Constants.NIDM_PARTICIPANT)
 
+                # add git-annex info if exists
+                num_sources = addGitAnnexSources(obj=acq_entity,filepath=args.csv_file,bids_root=dirname(args.csv_file))
+                # if there aren't any git annex sources then just store the local directory information
+                if num_sources == 0:
+                    # WIP: add absolute location of BIDS directory on disk for later finding of files
+                    acq_entity.add_attributes({Constants.PROV['Location']:"file:/" + args.csv_file})
+
+                # store file to acq_entity
+                acq_entity.add_attributes({Constants.NIDM_FILENAME:basename(args.csv_file)})
+
                 #store other data from row with columns_to_term mappings
                 for row_variable in csv_row:
                     #check if row_variable is subject id, if so skip it
@@ -209,22 +242,6 @@ def main(argv):
         print("Writing NIDM file....")
         rdf_graph.serialize(destination=args.nidm_file,format='turtle')
 
-
-
-
-        #serialize NIDM file
-        # with open(args.nidm_file,'w') as f:
-        #    print("Writing NIDM file...")
-        #    if args.jsonld:
-        #        f.write(project.serializeJSONLD())
-        #    else:
-        #        f.write(project.serializeTurtle())
-        #
-        #    if args.png:
-        #        project.save_DotGraph(str(args.nidm_file + ".png"), format="png")
-
-
-
     else:
         print("Creating NIDM file...")
         #If user did not choose to add this data to an existing NIDM file then create a new one for the CSV data
@@ -238,11 +255,16 @@ def main(argv):
         #look at column_to_terms dictionary for NIDM URL for subject id  (Constants.NIDM_SUBJECTID)
         id_field=None
         for key, value in column_to_terms.items():
-            if Constants.NIDM_SUBJECTID._str == column_to_terms[key]['label']:
-                id_field=key
-                #make sure id_field is a string for zero-padded subject ids
-                #re-read data file with constraint that key field is read as string
-                #df = pd.read_csv(args.csv_file,dtype={id_field : str})
+            # using skos:sameAs relationship to associate subject identifier variable from csv with a known term
+            # for subject IDs
+            if 'sameAs' in column_to_terms[key]:
+                if Constants.NIDM_SUBJECTID.uri == column_to_terms[key]['sameAs']:
+                    key_tuple = eval(key)
+                    id_field=key_tuple.variable
+                    #make sure id_field is a string for zero-padded subject ids
+                    #re-read data file with constraint that key field is read as string
+                    df = pd.read_csv(args.csv_file,dtype={id_field : str})
+                    break
 
         #if we couldn't find a subject ID field in column_to_terms, ask user
         if id_field is None:
@@ -251,7 +273,14 @@ def main(argv):
                 print("%d: %s" %(option,column))
                 option=option+1
             selection=input("Please select the subject ID field from the list above: ")
+            # Make sure user selected one of the options.  If not present user with selection input again
+            while (not selection.isdigit()) or (int(selection) > int(option)):
+                # Wait for user input
+                selection = input("Please select the subject ID field from the list above: \t" % option)
             id_field=df.columns[int(selection)-1]
+            #make sure id_field is a string for zero-padded subject ids
+            #re-read data file with constraint that key field is read as string
+            df = pd.read_csv(args.csv_file,dtype={id_field : str})
 
 
         #iterate over rows and store in NIDM file
@@ -263,16 +292,31 @@ def main(argv):
             acq=AssessmentAcquisition(session)
             acq_entity=AssessmentObject(acq)
 
+            #create prov:Agent for subject
+            #acq.add_person(attributes=({Constants.NIDM_SUBJECTID:row['participant_id']}))
+
+            # add git-annex info if exists
+            num_sources = addGitAnnexSources(obj=acq_entity,filepath=args.csv_file,bids_root=os.path.dirname(args.csv_file))
+            # if there aren't any git annex sources then just store the local directory information
+            if num_sources == 0:
+                # WIP: add absolute location of BIDS directory on disk for later finding of files
+                acq_entity.add_attributes({Constants.PROV['Location']:"file:/" + args.csv_file})
+
+            # store file to acq_entity
+            acq_entity.add_attributes({Constants.NIDM_FILENAME : basename(args.csv_file)})
 
 
             #store other data from row with columns_to_term mappings
             for row_variable,row_data in csv_row.iteritems():
                 if not row_data:
                     continue
+
                 #check if row_variable is subject id, if so skip it
                 if row_variable==id_field:
+                    ### WIP: Check if agent already exists with the same ID.  If so, use it else create a new agent
+
                     #add qualified association with person
-                    acq.add_qualified_association(person= acq.add_person(attributes=({Constants.NIDM_SUBJECTID:row_data})),role=Constants.NIDM_PARTICIPANT)
+                    acq.add_qualified_association(person= acq.add_person(attributes=({Constants.NIDM_SUBJECTID:str(row_data)})),role=Constants.NIDM_PARTICIPANT)
 
                     continue
                 else:

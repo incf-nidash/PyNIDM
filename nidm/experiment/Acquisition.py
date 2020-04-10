@@ -19,7 +19,7 @@ class Acquisition(pm.ProvActivity,Core):
 
     """
     #constructor
-    def __init__(self, session, attributes=None, uuid=None):
+    def __init__(self, session, attributes=None, uuid=None, add_default_type=True):
         """
         Default contructor, creates a session activity and links to project object
 
@@ -29,14 +29,18 @@ class Acquisition(pm.ProvActivity,Core):
 
         """
         if uuid is None:
+            self._uuid = getUUID()
+
             #execute default parent class constructor
-            super(Acquisition,self).__init__(session.graph, pm.QualifiedName(pm.Namespace("niiri",Constants.NIIRI),getUUID()),attributes)
+            super(Acquisition,self).__init__(session.graph, pm.QualifiedName(pm.Namespace("niiri",Constants.NIIRI),self.get_uuid()),attributes)
         else:
-            super(Acquisition,self).__init__(session.graph, pm.QualifiedName(pm.Namespace("niiri",Constants.NIIRI),uuid),attributes)
+            self._uuid = uuid
+            super(Acquisition,self).__init__(session.graph, pm.QualifiedName(pm.Namespace("niiri",Constants.NIIRI),self.get_uuid()),attributes)
 
         session.graph._add_record(self)
 
-        self.add_attributes({pm.PROV_TYPE: Constants.NIDM_ACQUISITION_ACTIVITY})
+        if add_default_type:
+            self.add_attributes({pm.PROV_TYPE: Constants.NIDM_ACQUISITION_ACTIVITY})
         #self.add_attributes({pm.QualifiedName(pm.Namespace("dct",Constants.DCT),'isPartOf'):self})
 
         #list to store acquisition objects associated with this activity

@@ -11,15 +11,14 @@ def main(argv):
     parser = ArgumentParser()
     #parse command line arguments
     parser.add_argument('-nidm', dest='nidm_file', required=True, help="NIDM-Exp RDF File to import")
+    parser.add_argument('-out', dest='outfile',required=True, help="output file name")
     args = parser.parse_args()
 
     project = read_nidm(args.nidm_file)
-    project.save_DotGraph(join(dirname(args.nidm_file),splitext(args.nidm_file)[0]+".png"),format="png")
 
+    print("Project: \n %s" %project.get_uuid())
     sessions = project.get_sessions()
     print("Sessions:\n %s" % sessions)
-    #example add attributes to existing session
-    #sessions[0].add_attributes({Constants.NIDM: "test"})
 
     acquisitions=[]
     for session in sessions:
@@ -30,15 +29,19 @@ def main(argv):
             acquisition_objects = acq.get_acquisition_objects()
             print("Acquisition Objects:\n %s" % acquisition_objects)
 
-    #save a turtle file
-    with open(join(dirname(args.nidm_file),splitext(args.nidm_file)[0]+"_read.ttl"),'w') as f:
-        f.write (project.serializeTurtle())
+    # check for data elements
+    print("Data Elements: \n %s" % project.get_dataelements())
 
-    #save a json file
-    with open(join(dirname(args.nidm_file),splitext(args.nidm_file)[0]+"_read.json"),'w') as f:
-        f.write (project.serializeJSONLD())
+    # derivatives
 
+    #and for derivatives
+    print("Derivatives: \n %s" % project.get_derivatives())
+    for deriv in project.get_derivatives():
+        derivobj = deriv.get_derivative_objects()
+        print("Derivative Objects: \n %s" %derivobj)
 
-
+    with open(args.outfile, 'w') as f:
+        #serialize project for comparison with the original
+        f.write(project.serializeTurtle())
 if __name__ == "__main__":
    main(sys.argv[1:])

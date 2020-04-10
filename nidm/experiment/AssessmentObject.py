@@ -17,7 +17,7 @@ class AssessmentObject(AcquisitionObject):
 
     """
     #constructor
-    def __init__(self, acquisition,assessment_type=None,attributes=None, uuid=None):
+    def __init__(self, acquisition,assessment_type=None,attributes=None, uuid=None, add_default_type=True):
         """
         Default contructor, creates an acquisition object and links to acquisition activity object
 
@@ -32,8 +32,10 @@ class AssessmentObject(AcquisitionObject):
           #execute default parent class constructor
         super(AssessmentObject,self).__init__(acquisition,attributes, uuid)
 
-        self.add_attributes({pm.PROV_TYPE: Constants.NIDM_ASSESSMENT_ENTITY})
-        self.add_attributes({pm.PROV_TYPE: Constants.NIDM_ACQUISITION_ENTITY})
+        if add_default_type:
+            self.add_attributes({pm.PROV_TYPE: Constants.NIDM_ASSESSMENT_ENTITY})
+            self.add_attributes({pm.PROV_TYPE: Constants.NIDM_ACQUISITION_ENTITY})
+
         if assessment_type is not None:
             self.add_attributes({pm.PROV_TYPE: assessment_type})
         #carry graph object around

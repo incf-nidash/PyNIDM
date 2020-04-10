@@ -3,10 +3,9 @@ import os, sys
 import rdflib as rdf
 from ..experiment import Acquisition
 from ..core import Constants
-from ..experiment.Core import getUUID
 import prov.model as pm
 
-class AssessmentAcquisition(Acquisition):
+class PETAcquisition(Acquisition):
     """
         Default contructor, creates a session activity and links to project object
 
@@ -27,16 +26,15 @@ class AssessmentAcquisition(Acquisition):
         """
         #execute default parent class constructor
           #execute default parent class constructor
-        super(AssessmentAcquisition,self).__init__(session,attributes,uuid)
+        super(PETAcquisition,self).__init__(session,attributes,uuid)
         #acquisition.graph._add_record(self)
 
         if add_default_type:
             self.add_attributes({pm.PROV_TYPE: Constants.NIDM_ACQUISITION_ACTIVITY})
-            self.add_attributes({pm.PROV_TYPE: Constants.NIDM_ASSESSMENT_ACQUISITION})
 
         #carry graph object around
         self.graph = session.graph
 
 
     def __str__(self):
-        return "NIDM-Experiment Assessment Acquisition Class"
+        return "NIDM-Experiment PET Acquisition Class"

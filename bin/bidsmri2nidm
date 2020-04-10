@@ -1,7 +1,7 @@
 #!python
 
 import sys
-from nidm.experiment.tools.CSV2NIDM import main
+from nidm.experiment.tools.bidsmri2nidm import main
 
 if __name__ == "__main__":
     main(sys.argv)
