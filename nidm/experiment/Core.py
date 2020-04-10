@@ -1,13 +1,12 @@
 import os,sys
 import uuid
-
+import marshal
 from rdflib import Namespace
 from rdflib.namespace import XSD
-import types 
+import types
 import graphviz
 from rdflib import Graph, RDF, URIRef, util, plugin
 from rdflib.serializer import Serializer
-from copy import deepcopy
 
 #sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from ..core import Constants
@@ -19,6 +18,9 @@ import json
 import re
 import string
 import random
+
+
+
 
 def getUUID():
     uid = str(uuid.uuid1())
@@ -52,6 +54,8 @@ class Core(object):
         self.graph = Constants.NIDMDocument()
         #make a local copy of the namespaces
         self.namespaces = Constants.namespaces
+        # storage for uuid
+        self._uuid = None
 
     #class constructor with user-supplied PROV document/graph, namespaces from Constants.py
     @classmethod
@@ -85,6 +89,13 @@ class Core(object):
         #bind namespaces to self.graph
         for name, namespace in self.namespaces.items():
             self.graph.add_namespace(name, namespace)
+    def get_uuid(self):
+        '''
+        returns UUID of self
+        :return:
+        '''
+        return self._uuid
+
     def getGraph(self):
         """
         Returns rdflib.Graph object
@@ -459,6 +470,8 @@ class Core(object):
         }
         '''
         qres = rdf_graph.query(query)
+
+
         for row in qres:
             print("project uuid = %s" % row)
             # parse uuid from project URI
@@ -466,11 +479,11 @@ class Core(object):
             project_uuid = str(row[0])
             # for each Project uuid search dot structure for Project uuid
             project_node = None
-            for key, value in dot.obj_dict['nodes'].items():
+            for key0, value in dot.obj_dict['nodes'].items():
                 # get node number in DOT graph for Project
-                if 'URL' in dot.obj_dict['nodes'][key][0]['attributes']:
-                    if project_uuid in str(dot.obj_dict['nodes'][key][0]['attributes']['URL']):
-                        project_node = key
+                if 'URL' in dot.obj_dict['nodes'][key0][0]['attributes']:
+                    if project_uuid in str(dot.obj_dict['nodes'][key0][0]['attributes']['URL']):
+                        project_node = key0
                         break
 
         # for each Session in Project class self.sessions list, find node numbers in DOT graph
@@ -486,40 +499,54 @@ class Core(object):
                             if session_node in edges:
                                 # if we find one save it for deepcopy and break out of the loop
                                 temp_edge = edges
+                                temp = {**dot.obj_dict['edges'][temp_edge][0]}
+                                with open('file.json', 'w') as file:
+                                    file.write(json.dumps({dot.obj_dict['edges'][temp_edge][0]['points']}))
+                                #file = open("edge.txt")
+                                #temp = json.loads("file.txt")
+                                input = marshal.dumps({dot.obj_dict['edges'][temp_edge][0]})
+                                temp = marshal.loads(input)
+
                                 #NOT DONE YET> STILL NEED TO SEE IF THIS WILL WORK. HAVE TO REPLACE TEMP W TEMP EDGES
                                 break
                         print("session node = %s" % key)
-                        temp = deepcopy(dot.obj_dict['edges'][temp_edge])
+
+                        #temp_edge = __deepcopy__(dot.obj_dict['edges'][temp_edge], memodict={})
                         #temp = deepcopy(dot.obj_dict['edges']['n1', 'b1'])
-                        temp[0]['points'] = (session_node, project_node)
-                        temp[0]['attributes']['label'] = 'isPartOf'
-                        temp[0]['attributes']['color'] = 'darkgreen'
-                        temp[0]['attributes']['fontsize'] = '10.0'
-                        dot.obj_dict['edges'][session_node,project_node]=[temp[0]]
+                        temp['points'] = (session_node, project_node)
+                        temp['attributes']['label'] = 'isPartOf'
+                        temp['attributes']['color'] = 'darkgreen'
+                        temp['attributes']['fontsize'] = '10.0'
+                        dot.obj_dict['edges'][session_node,project_node]=[temp]
+                        os.remove("edge.txt")
+                        #the characteristics copied for some weird reason, except for the pts. Please look into that.
+            # for each Acquisition in Session class session.getacquisitions() list, find node numbers in DOT graph
+            for acquisition in session.get_acquisitions():
+                # search through the nodes again to figure out node number for acquisition
+                for key1, value1 in dot.obj_dict['nodes'].items():
+                    # get node number in DOT graph for Project
+                    if 'URL' in dot.obj_dict['nodes'][key1][0]['attributes']:
+                        if acquisition.identifier.uri in str(dot.obj_dict['nodes'][key1][0]['attributes']['URL']):
+                            acquisition_node = key1
+                            for edges in dot.obj_dict['edges'].keys():
+                                if session_node in edges:
+                                    # if we find one save it for deepcopy and break out of the loop
+                                    temp_edge = edges
+                                    temp = {**dot.obj_dict['edges'][temp_edge][0]}
+                                    break
+                            print("acquisition node = %s" % key1)
+                            temp['points'] = (session_node, acquisition_node)
+                            temp['attributes']['label'] = 'isPartOf'
+                            temp['attributes']['color'] = 'darkgreen'
+                            temp['attributes']['fontsize'] = '10.0'
+                            dot.obj_dict['edges'][session_node, acquisition_node] = [temp]
 
-                # for each Acquisition in Session class session.getacquisitions() list, find node numbers in DOT graph
-                        for acquisition in session.get_acquisitions():
-                            # search through the nodes again to figure out node number for acquisition
-                            for key1, value1 in dot.obj_dict['nodes'].items():
-                                # get node number in DOT graph for Project
-                                if 'URL' in dot.obj_dict['nodes'][key1][0]['attributes']:
-                                    if acquisition.identifier.uri in str(
-                                            dot.obj_dict['nodes'][key1][0]['attributes']['URL']):
-                                        acquisition_node = key1
-                                        for edges in dot.obj_dict['edges'].keys():
-                                            if session_node in edges:
-                                                # if we find one save it for deepcopy and break out of the loop
-                                                temp_edge = edges
-                                                break
-                                        print("acquisition node = %s" % key1)
-                                        temp = {}
-                                        temp = deepcopy(dot.obj_dict['edges'][temp_edge])
-                                        temp[0]['points'] = (session_node, acquisition_node)
-                                        temp[0]['attributes']['label'] = 'isPartOf'
-                                        temp[0]['attributes']['color'] = 'darkgreen'
-                                        temp[0]['attributes']['fontsize'] = '10.0'
-                                        dot.obj_dict['edges'][session_node, acquisition_node] = [temp[0]]
 
+        #add some logic to find nodes with dct:hasPart relation and add those edges to graph...prov_to_dot ignores these
+        if not (format == "None"):
+            dot.write(filename,format=format)
+        else:
+            dot.write(filename,format="pdf")
 
     def prefix_to_context(self):
         '''
