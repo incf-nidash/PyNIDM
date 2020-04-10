@@ -1,0 +1,4 @@
+
+               [console_scripts]
+               pynidm=nidm.experiment.tools.click_main:cli
+            
