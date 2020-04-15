@@ -554,19 +554,19 @@ def bidsmri2project(directory, args):
                     temp=DataFrame(columns=mapping_list)
                     if args.no_concepts:
                         column_to_terms,cde = map_variables_to_terms(directory=directory, assessment_name='participants.tsv', df=temp,
-                            output_file=os.path.join(directory,'participants.json'),json_file=os.path.join(directory,'participants.json'),bids=True,associate_concepts=False)
+                            output_file=os.path.join(directory,'participants.json'),json_source=os.path.join(directory,'participants.json'),bids=True,associate_concepts=False)
                     else:
                         column_to_terms,cde = map_variables_to_terms(directory=directory, assessment_name='participants.tsv', df=temp,
-                            output_file=os.path.join(directory,'participants.json'),json_file=os.path.join(directory,'participants.json'),bids=True)
+                            output_file=os.path.join(directory,'participants.json'),json_source=os.path.join(directory,'participants.json'),bids=True)
             else:
                 #maps variables in CSV file to terms
                 temp=DataFrame(columns=mapping_list)
                 if args.no_concepts:
                     column_to_terms, cde = map_variables_to_terms(directory=directory, assessment_name='participants.tsv', df=temp,
-                        output_file=os.path.join(directory,'participants.json'),json_file=args.json_map,bids=True,associate_concepts=False)
+                        output_file=os.path.join(directory,'participants.json'),json_source=args.json_map,bids=True,associate_concepts=False)
                 else:
                     column_to_terms, cde = map_variables_to_terms(directory=directory, assessment_name='participants.tsv', df=temp,
-                        output_file=os.path.join(directory,'participants.json'),json_file=args.json_map,bids=True)
+                        output_file=os.path.join(directory,'participants.json'),json_source=args.json_map,bids=True)
 
 
             for row in participants_data:
