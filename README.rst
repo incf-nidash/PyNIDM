@@ -93,8 +93,9 @@ annotated CSV data will then be written to a NIDM data file.  To use this tool p
 
 .. code-block:: bash
 
-  usage: csv2nidm [-h] -csv CSV_FILE [-json_map JSON_MAP] [-nidm NIDM_FILE]
-                  [-no_concepts] [-log LOGFILE] -out OUTPUT_FILE
+  usage: csv2nidm [-h] -csv CSV_FILE [-json_map JSON_MAP | -redcap REDCAP]
+                  [-nidm NIDM_FILE] [-no_concepts] [-log LOGFILE] -out
+                  OUTPUT_FILE
 
   This program will load in a CSV file and iterate over the header variable
   names performing an elastic search of https://scicrunch.org/ for NIDM-ReproNim
@@ -103,13 +104,17 @@ annotated CSV data will then be written to a NIDM data file.  To use this tool p
   annotated CSV data will then be written to a NIDM data file. Note, you must
   obtain an API key to Interlex by signing up for an account at scicrunch.org
   then going to My Account and API Keys. Then set the environment variable
-  INTERLEX_API_KEY with your key.
+  INTERLEX_API_KEY with your key.  The tool supports import of RedCap data
+  dictionaries and will convert relevant information into a json-formatted
+  annotation file used to annotate the data elements in the resulting NIDM file.
 
   optional arguments:
     -h, --help            show this help message and exit
     -csv CSV_FILE         Full path to CSV file to convert
     -json_map JSON_MAP    Full path to user-suppled JSON file containing
                           variable-term mappings.
+    -redcap REDCAP        Full path to a user-supplied RedCap formatted data
+                          dictionary for csv file.
     -nidm NIDM_FILE       Optional full path of NIDM file to add CSV->NIDM
                           converted graph to
     -no_concepts          If this flag is set then no concept associations will
