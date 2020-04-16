@@ -34,6 +34,7 @@ from nidm.experiment import Project,Session,AssessmentAcquisition,AssessmentObje
 from nidm.core import Constants
 from nidm.experiment.Utils import read_nidm, map_variables_to_terms, add_attributes_with_cde, addGitAnnexSources, \
     redcap_datadictionary_to_json
+from nidm.experiment.Query import GetParticipantIDs
 
 from argparse import ArgumentParser
 from os.path import  dirname, join, splitext,basename
@@ -45,6 +46,7 @@ from shutil import copy2
 from nidm.core.Constants import DD
 import logging
 import csv
+import tempfile
 
 
 #def createDialogBox(search_results):
@@ -125,6 +127,9 @@ def main(argv):
     #If user has added an existing NIDM file as a command line parameter then add to existing file for subjects who exist in the NIDM file
     if args.nidm_file:
         print("Adding to NIDM file...")
+        # get subjectID list for later
+        qres = GetParticipantIDs([args.nidm_file])
+
         #read in NIDM file
         project = read_nidm(args.nidm_file)
         #get list of session objects
@@ -160,24 +165,27 @@ def main(argv):
 
 
 
-        #use RDFLib here for temporary graph making query easier
-        rdf_graph = Graph()
-        rdf_graph.parse(source=StringIO(project.serializeTurtle()),format='turtle')
+        ###use RDFLib here for temporary graph making query easier
+        #rdf_graph = Graph()
+        #rdf_graph.parse(source=StringIO(project.serializeTurtle()),format='turtle')
 
-        print("Querying for existing participants in NIDM graph....")
-        #find subject ids and sessions in NIDM document
-        query = """SELECT DISTINCT ?session ?nidm_subj_id ?agent
-                    WHERE {
-                        ?activity prov:wasAssociatedWith ?agent ;
-                            dct:isPartOf ?session  .
-                        ?agent rdf:type prov:Agent ;
-                            ndar:src_subject_id ?nidm_subj_id .
-                    }"""
-        #print(query)
-        qres = rdf_graph.query(query)
+        #print("Querying for existing participants in NIDM graph....")
+
+        ###find subject ids and sessions in NIDM document
+        #query = """SELECT DISTINCT ?session ?nidm_subj_id ?agent
+        #            WHERE {
+        #                ?activity prov:wasAssociatedWith ?agent ;
+        #                    dct:isPartOf ?session  .
+        #                ?agent rdf:type prov:Agent ;
+        #                    ndar:src_subject_id ?nidm_subj_id .
+        #            }"""
+        ###print(query)
+        #qres = rdf_graph.query(query)
 
 
-        for row in qres:
+
+
+        for index,row in qres.iterrows():
             logging.info("found existing participant %s \t %s" %(row[0],row[1]))
             #find row in CSV file with subject id matching agent from NIDM file
 

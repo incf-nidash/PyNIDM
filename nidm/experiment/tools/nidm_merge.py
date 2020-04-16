@@ -60,80 +60,93 @@ def merge(nidm_file_list, s,out_file):
     This function will merge NIDM files.  See command line parameters for supported merge operations.
     """
 
-    graph = Graph()
-    for nidm_file in nidm_file_list.split(','):
-        graph.parse(nidm_file,format=util.guess_format(nidm_file))
+    #graph = Graph()
+    #for nidm_file in nidm_file_list.split(','):
+    #    graph.parse(nidm_file,format=util.guess_format(nidm_file))
 
     # create empty graph
     graph=Graph()
     # start with the first NIDM file and merge the rest into the first
     first=True
     for nidm_file in nidm_file_list.split(','):
-        if first:
-            graph.parse(nidm_file,format=util.guess_format(nidm_file))
-            first=False
-        # if argument -s is set then merge by subject IDs
-        elif s:
-            # first get all subject UUIDs in current nidm_file
-            subj = GetParticipantIDs([nidm_file])
+        # if merging by subject:
+        if s:
+            if first:
+                # get list of all subject IDs
+                first_file_subjids = GetParticipantIDs([nidm_file])
+                first = False
+                first_graph = Graph()
+                first_graph.parse(nidm_file,format=util.guess_format(nidm_file))
+            else:
+                # load second graph
+                graph.parse(nidm_file,format=util.guess_format(nidm_file))
 
-            # for each UUID / subject ID look in graph and see if you can find the same ID.  If so get the UUID of
-            # that prov:agent and change all the UUIDs in nidm_file to match then concatenate the two graphs.
-            query = '''
+                # get list of second file subject IDs
+                subj = GetParticipantIDs([nidm_file])
 
-                PREFIX prov:<http://www.w3.org/ns/prov#>
-                PREFIX sio: <http://semanticscience.org/ontology/sio.owl#>
-                PREFIX ndar: <https://ndar.nih.gov/api/datadictionary/v2/dataelement/>
-                PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-                PREFIX prov:<http://www.w3.org/ns/prov#>
+                # for each UUID / subject ID look in graph and see if you can find the same ID.  If so get the UUID of
+                # that prov:agent and change all the UUIDs in nidm_file to match then concatenate the two graphs.
+                query = '''
 
-                SELECT DISTINCT ?uuid ?ID
-                WHERE {
+                    PREFIX prov:<http://www.w3.org/ns/prov#>
+                    PREFIX sio: <http://semanticscience.org/ontology/sio.owl#>
+                    PREFIX ndar: <https://ndar.nih.gov/api/datadictionary/v2/dataelement/>
+                    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+                    PREFIX prov:<http://www.w3.org/ns/prov#>
 
-                        ?uuid a prov:Person ;
+                    SELECT DISTINCT ?uuid ?ID
+                    WHERE {
+
+                        ?uuid a prov:Agent ;
                             %s ?ID .
-                FILTER(?ID =
-                ''' % Constants.NIDM_SUBJECTID
+                    FILTER(?ID =
+                    ''' % Constants.NIDM_SUBJECTID
 
-            first = True
-            for ID in subj['ID']:
-                if first:
-                    query = query + "\"" + ID + "\""
-                    first = False
-                else:
-                    query = query + "|| ?ID= \"" + ID + "\""
+                # add filters to above query to only look for subject IDs which are in the first file to merge into
+                temp=True
+                for ID in first_file_subjids['ID']:
+                    if temp:
+                        query = query + "\"" + ID + "\""
+                        temp = False
+                    else:
+                        query = query + "|| ?ID= \"" + ID + "\""
 
-            query = query + ") }"
+                query = query + ") }"
 
-            qres = graph.query(query)
+                qres = graph.query(query)
 
-            # if len(qres) > 0 then we have matches so load the nidm_file into a temporary graph so we can
-            # make changes to it then concatenate it.
-            if len(qres) > 0:
-                tmp = Graph()
-                tmp.parse(nidm_file,format=util.guess_format(nidm_file))
+                # if len(qres) > 0 then we have matches so load the nidm_file into a temporary graph so we can
+                # make changes to it then concatenate it.
+                if len(qres) > 0:
+                    #tmp = Graph()
+                    #tmp.parse(nidm_file,format=util.guess_format(nidm_file))
 
-                # for each ID in the merged graph that matches an ID in the nidm_file graph
-                for row in qres:
-                    # find the UUID in the subj data frame for the matching ID and change all triples that reference
-                    # this uuid to the one in row['uuid']
-                    uuid_to_replace = (subj[subj['ID'].str.match(row['ID'])])['uuid'].values[0]
+                    # for each ID in the merged graph that matches an ID in the nidm_file graph
+                    for row in qres:
+                        # find ID from first file that matches ID in this file
+                        t=first_file_subjids['ID'].str.match(row['ID'])
+                        # then get uuid for that match from first file
+                        uuid_replacement = first_file_subjids.iloc[ [*filter(t.get,t.index)][0],0]
 
-                    for s,p,o in tmp.triples((None,None,None)):
-                        if (s == uuid_to_replace):
-                            #print("replacing subject in triple %s %s %s with %s" %(s,p,o,uuid_to_replace))
-                            tmp.set((uuid_to_replace,p,o))
-                        elif (o == uuid_to_replace):
-                            #print("replacing object in triple %s %s %s with %s" %(s,p,o,uuid_to_replace))
-                            tmp.set((s,p,uuid_to_replace))
-                        elif (p == uuid_to_replace):
-                            #print("replacing predicate in triple %s %s %s with %s" %(s,p,o,uuid_to_replace))
-                            tmp.set((s,uuid_to_replace,o))
+                        for s,p,o in graph.triples((None,None,None)):
+                            if (s == row['uuid']):
+                                #print("replacing subject in triple %s %s %s with %s" %(s,p,o,uuid_to_replace))
+                                graph.add((uuid_replacement,p,o))
+                                graph.remove((row['uuid'],p,o))
+                            elif (o == row['uuid']):
+                                #print("replacing object in triple %s %s %s with %s" %(s,p,o,uuid_to_replace))
+                                graph.add((s,p,uuid_replacement))
+                                graph.remove((s,p,row['uuid']))
+                            elif (p == row['uuid']):
+                                #print("replacing predicate in triple %s %s %s with %s" %(s,p,o,uuid_to_replace))
+                                graph.add((s,uuid_replacement,o))
+                                graph.remove((s,row['uuid'],o))
 
-            # merge updated graph
-            graph = graph + tmp
+                # merge updated graph
 
-    graph.serialize(out_file, format='turtle')
+                graph = first_graph + graph
+
+        graph.serialize(out_file, format='turtle')
 
 
 

@@ -106,24 +106,33 @@ def read_nidm(nidmDoc):
 
     if proj_id is None:
         print("Error reading NIDM-Exp Document %s, Must have Project Object" % nidmDoc)
-        exit(1)
+        print()
+        create_obj = input("Should read_nidm create a Project object for you [yes]: ")
+        if (create_obj == 'yes' or create_obj == ''):
+            project = Project(empty_graph=True,add_default_type=True)
+            # add namespaces to prov graph
+            for name, namespace in rdf_graph_parse.namespaces():
+                # skip these default namespaces in prov Document
+                if (name != 'prov') and (name != 'xsd') and (name != 'nidm'):
+                    project.graph.add_namespace(name, namespace)
 
-    #Split subject URI into namespace, term
-    nm,project_uuid = split_uri(proj_id)
+        else:
+            exit(1)
+    else:
+        #Split subject URI into namespace, term
+        nm,project_uuid = split_uri(proj_id)
 
-    #print("project uuid=%s" %project_uuid)
+        #create empty prov graph
+        project = Project(empty_graph=True,uuid=project_uuid,add_default_type=False)
 
-    #create empty prov graph
-    project = Project(empty_graph=True,uuid=project_uuid,add_default_type=False)
+        #add namespaces to prov graph
+        for name, namespace in rdf_graph_parse.namespaces():
+            #skip these default namespaces in prov Document
+            if (name != 'prov') and (name != 'xsd') and (name != 'nidm'):
+                project.graph.add_namespace(name, namespace)
 
-    #add namespaces to prov graph
-    for name, namespace in rdf_graph_parse.namespaces():
-        #skip these default namespaces in prov Document
-        if (name != 'prov') and (name != 'xsd') and (name != 'nidm'):
-            project.graph.add_namespace(name, namespace)
-
-    #Cycle through Project metadata adding to prov graph
-    add_metadata_for_subject (rdf_graph_parse,proj_id,project.graph.namespaces,project)
+        #Cycle through Project metadata adding to prov graph
+        add_metadata_for_subject (rdf_graph_parse,proj_id,project.graph.namespaces,project)
 
 
     #Query graph for sessions, instantiate session objects, and add to project._session list
@@ -355,6 +364,16 @@ def add_metadata_for_subject (rdf_graph,subject_uri,namespaces,nidm_obj):
     for predicate, objects in rdf_graph.predicate_objects(subject=subject_uri):
         # if this isn't a qualified association, add triples
         if predicate != URIRef(Constants.PROV['qualifiedAssociation']):
+            # make predicate a qualified name
+            obj_nm, obj_term = split_uri(predicate)
+            found_uri = find_in_namespaces(search_uri=URIRef(obj_nm), namespaces=namespaces)
+            # if obj_nm is not in namespaces then it must just be part of some URI in the triple
+            # so just add it as a prov.Identifier
+            if not found_uri:
+                predicate = pm.QualifiedName(namespace=Namespace(str(predicate)), localpart="")
+            # else add as explicit prov.QualifiedName because it's easier to read
+            else:
+                predicate = pm.QualifiedName(namespace=Namespace(obj_nm),localpart=obj_term)
             if (validators.url(objects)) and (predicate != Constants.PROV['Location']):
                 # try to split the URI to namespace and local parts, if fails just use the entire URI.
                 try:
@@ -861,7 +880,7 @@ def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_
             # check if json_source is a file
             if os.path.isfile(json_source):
                 # load file
-                with open(json_file,'r+') as f:
+                with open(json_source,'r+') as f:
                     json_map = json.load(f)
         except:
             # if not then it's a json structure already
