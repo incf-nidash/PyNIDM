@@ -537,7 +537,7 @@ def GetProjectDataElements(nidm_file_list, project_id):
             if (session, Constants.DCT['isPartOf'], project) in rdf_graph:
                 # we know we have the right file, so just grab all the data elements from here
                 for de in rdf_graph.subjects(isa, Constants.NIDM['DataElement']):
-                    result.append(rdf_graph.namespace_manager.compute_qname(str(de))[0])
+                    result.append(rdf_graph.namespace_manager.compute_qname(str(de))[2])
                 return result
     return result
 
