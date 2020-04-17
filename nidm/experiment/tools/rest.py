@@ -139,7 +139,12 @@ class RestParser:
     #####################
 
     def projectSummaryFormat(self, result):
+
         if self.output_format == self.CLI_FORMAT:
+            ### added by DBK to sort things
+            result["subjects"]["uuid"],result["subjects"]["subject id"] = self.sort_list(result["subjects"]["uuid"], result["subjects"]["subject id"])
+            result["data_elements"]["uuid"],result["data_elements"]["label"] = self.sort_list(result["data_elements"]["uuid"], result["data_elements"]["label"])
+
             toptable = []
             for key in result:
                 if not key in ['subjects', 'data_elements', 'field_values']:
@@ -152,10 +157,16 @@ class RestParser:
             else:
                 field_table = ''
 
-            return "{}\n\n{}\n\n{}\n\n{}".format(
+            return "{}\n\n{}\n{}\n\n{}\n{}\n\n{}".format(
                 tabulate(toptable),
-                tabulate({"subjects": result["subjects"]}, headers="keys"),
-                tabulate({"data_elements": result["data_elements"]}, headers="keys"),
+                ### modified by DBK to account for new dictionary format of results
+                # tabulate({"subjects": result["subjects"]}, headers="keys"),
+                # sort list 2 by list 1 and replace unsorted version
+                tabulate([],headers=["Subject Information"]),
+                tabulate(result["subjects"], headers="keys"),
+                #tabulate({"data_elements": result["data_elements"]}, headers="keys"),
+                tabulate([],headers = ["Data Elements"]),
+                tabulate(result["data_elements"], headers="keys"),
                 field_table
             )
         else:
@@ -231,6 +242,17 @@ class RestParser:
         else:
             return self.format(result)
 
+    ### Added by DBK to sorty data elements lists
+    #####################
+    # Sort Functions
+    #####################
+    def sort_list (self,list1,list2):
+        '''
+        This function will sort list 1 using list 2 values, returning sorted list 1, sorted list 2
+        '''
+
+        list1 = list(zip(*sorted(zip(list2,list1))))[1]
+        return list1,sorted(list2)
 
     #####################
     # Route Functions
@@ -271,11 +293,11 @@ class RestParser:
         for field in self.query['fields']:
             if subjects == None:
                 subjects = Query.GetParticipantUUIDsForProject(tuple(self.nidm_files), project_id=id, filter=self.query['filter'])
-                result['subjects'] = subjects
+                result['subjects'] = subjects['uuid']
             bits = field.split('.')
             if len(bits) > 1:
                 stat_type = self.getStatType(bits[0]) # should be either instruments or derivatives for now.
-                self.addFieldStats(result, id, subjects, bits[1], stat_type) # bits[1] will be the ID
+                self.addFieldStats(result, id, subjects['uuid'], bits[1], stat_type) # bits[1] will be the ID
 
         return self.dictFormat(result)
 
@@ -348,7 +370,7 @@ class RestParser:
         if 'fields' in self.query and len(self.query['fields']) > 0:
             self.restLog("Using fields {}".format(self.query['fields']), 2)
             result['field_values'] = []
-            for sub in result['subjects']:
+            for sub in result['subjects']['uuid']:
                 sub_data = GetParticipantDetails_Cached(self.nidm_files, id, sub)
 
                 for study_type in ['derivatives']:
