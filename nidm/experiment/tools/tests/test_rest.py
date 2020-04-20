@@ -516,8 +516,11 @@ def test_project_fields_deriv():
     field = 'fs_000003'
     project = rest_parser.run( BRAIN_VOL_FILES, "/projects/{}?fields={}".format(cmu_test_project_uuid, field) )
 
-    assert( 'field_values' in project )
-    fv = project['field_values']
+    # edited by DBK to account for only field values being returned
+    #assert( 'field_values' in project )
+    assert (len(project) > 0)
+    #fv = project['field_values']
+    fv = project
     assert( type( fv ) == list )
     fields_used = set( [ i["field"] for i in fv ]  )
     assert field in fields_used
@@ -529,8 +532,11 @@ def test_project_fields_instruments():
     field = 'AGE_AT_SCAN'
     project = rest_parser.run( BRAIN_VOL_FILES, "/projects/{}?fields={}".format(cmu_test_project_uuid, field) )
 
-    assert( 'field_values' in project )
-    fv = project['field_values']
+    # edited by DBK to account for only field values being returned
+    #assert( 'field_values' in project )
+    assert (len(project) > 0)
+    #fv = project['field_values']
+    fv = project
     assert( type( fv ) == list )
     fields_used = set( [ i["field"] for i in fv ]  )
     assert field in fields_used
@@ -544,8 +550,11 @@ def test_project_fields_not_found():
     field = 'not_real_field'
     project = rest_parser.run( BRAIN_VOL_FILES, "/projects/{}?fields={}".format(cmu_test_project_uuid, field) )
 
-    assert( 'field_values' in project )
-    fv = project['field_values']
+    # edited by DBK to account for only field values being returned
+    # assert( 'field_values' in project )
+    assert (len(project) == 0)
+    # fv = project['field_values']
+    fv = project
     assert( type( fv ) == list )
     assert len(fv) == 0
 
