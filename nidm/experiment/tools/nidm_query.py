@@ -142,11 +142,20 @@ def query(nidm_file_list, cde_file_list, query_file, output_file, get_participan
         restParser = RestParser(verbosity_level = int(verbosity))
         if j:
             restParser.setOutputFormat(RestParser.JSON_FORMAT)
+        elif (output_file is not None):
+            restParser.setOutputFormat(RestParser.OBJECT_FORMAT)
         else:
             restParser.setOutputFormat(RestParser.CLI_FORMAT)
         df = restParser.run(nidm_file_list.split(','), uri)
-
-        print (df)
+        if (output_file is not None):
+            if j:
+                with open(output_file,"w+") as f:
+                    f.write(dumps(df))
+            else:
+                # convert object df to dataframe and output
+                pd.DataFrame(df).to_csv(output_file)
+        else:
+            print (df)
 
     elif get_dataelements_brainvols:
         brainvol = GetBrainVolumeDataElements(nidm_file_list=nidm_file_list)

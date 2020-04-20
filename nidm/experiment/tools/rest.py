@@ -20,7 +20,14 @@ memory = Memory(gettempdir(), verbose=0)
 
 import simplejson
 
-
+def convertListtoDict(lst):
+    '''
+    This function converts a list to a dictionary
+    :param lst: list to convert
+    :return: dictionary
+    '''
+    res_dct = {lst[i]: lst[i+1] for i in range(0,len(lst),2)}
+    return res_dct
 class RestParser:
 
 
@@ -154,6 +161,8 @@ class RestParser:
                 fh_header = result['field_values'][0].keys()
                 fh_rows = [x.values() for x in result['field_values']]
                 field_table = tabulate(fh_rows, fh_header)
+                #added by DBK, if they asked for fields then just give them the fields
+                return "{}".format(field_table)
             else:
                 field_table = ''
 
@@ -170,7 +179,12 @@ class RestParser:
                 field_table
             )
         else:
-            return self.format(result)
+            # added by DBK to check if we had fields requested then we should just return those
+            if 'field_values' in result:
+                # convert result['field_values'] to a list for json export
+                return self.format(result['field_values'])
+            else:
+                return self.format(result)
 
     def formatDerivatives(self, derivative):
         self.restLog("formatting derivatives in format {}".format(self.output_format), 5)
