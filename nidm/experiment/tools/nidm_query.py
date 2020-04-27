@@ -39,6 +39,7 @@ import logging
 import csv
 from nidm.experiment.Query import sparql_query_nidm, GetParticipantIDs,GetProjectInstruments,GetProjectsUUID,GetInstrumentVariables,GetDataElements,GetBrainVolumes,GetBrainVolumeDataElements,getCDEs
 import click
+from click_option_group import optgroup, RequiredMutuallyExclusiveOptionGroup
 from nidm.experiment.tools.click_base import cli
 from nidm.experiment.tools.rest import RestParser
 from json import dumps, loads
@@ -49,28 +50,32 @@ from json import dumps, loads
               help="A comma separated list of NIDM files with full path")
 @click.option("--cde_file_list", "-nc", required=False,
               help="A comma separated list of NIDM CDE files with full path. Can also be set in the CDE_DIR environment variable")
-@click.option("--query_file", "-q", type=click.File('r'), required=False,
+@optgroup.group('Query Type',help='Pick among the following query type selections',cls=RequiredMutuallyExclusiveOptionGroup)
+@optgroup.option("--query_file", "-q", type=click.File('r'),
               help="Text file containing a SPARQL query to execute")
-@click.option("--get_participants", "-p", is_flag=True,required=False,
+@optgroup.option("--get_participants", "-p", is_flag=True,
               help="Parameter, if set, query will return participant IDs and prov:agent entity IDs")
-@click.option("--get_instruments", "-i", is_flag=True,required=False,
+@optgroup.option("--get_instruments", "-i", is_flag=True,
               help="Parameter, if set, query will return list of onli:assessment-instrument:")
-@click.option("--get_instrument_vars", "-iv", is_flag=True,required=False,
+@optgroup.option("--get_instrument_vars", "-iv", is_flag=True,
               help="Parameter, if set, query will return list of onli:assessment-instrument: variables")
-@click.option("--get_dataelements", "-de", is_flag=True, required=False,
+@optgroup.option("--get_dataelements", "-de", is_flag=True,
               help="Parameter, if set, will return all DataElements in NIDM file")
-@click.option("--get_dataelements_brainvols", "-debv", is_flag=True, required=False,
+@optgroup.option("--get_dataelements_brainvols", "-debv", is_flag=True,
               help="Parameter, if set, will return all brain volume DataElements in NIDM file along with details")
-@click.option("--get_brainvols", "-bv", is_flag=True, required=False,
+@optgroup.option("--get_brainvols", "-bv", is_flag=True,
               help="Parameter, if set, will return all brain volume data elements and values along with participant IDs in NIDM file")
+@optgroup.option("--get_fields", "-gf",
+              help="This parameter will return data for only the field names in the comma separated list (e.g. -gf age,fs_00003) from all nidm files supplied")
+@optgroup.option("--uri", "-u",
+              help="A REST API URI query")
 @click.option("--output_file", "-o", required=False,
               help="Optional output file (CSV) to store results of query")
-@click.option("--uri", "-u", required=False,
-              help="A REST API URI query")
 @click.option("-j/-no_j", required=False, default=False,
               help="Return result of a uri query as JSON")
 @click.option('-v', '--verbosity', required=False, help="Verbosity level 0-5, 0 is default", default="0")
-def query(nidm_file_list, cde_file_list, query_file, output_file, get_participants, get_instruments, get_instrument_vars, get_dataelements, get_brainvols,get_dataelements_brainvols, uri, j, verbosity):
+
+def query(nidm_file_list, cde_file_list, query_file, output_file, get_participants, get_instruments, get_instrument_vars, get_dataelements, get_brainvols,get_dataelements_brainvols, get_fields, uri, j, verbosity):
     """
     This function provides query support for NIDM graphs.
     """
@@ -138,6 +143,32 @@ def query(nidm_file_list, cde_file_list, query_file, output_file, get_participan
             datael.to_csv(output_file)
         else:
             print(datael.to_string())
+    elif get_fields:
+        # fields only query.  We'll do it with the rest api
+        restParser = RestParser(verbosity_level=int(verbosity))
+        if (output_file is not None):
+            restParser.setOutputFormat(RestParser.OBJECT_FORMAT)
+            df_list = []
+        else:
+            restParser.setOutputFormat(RestParser.CLI_FORMAT)
+        # set up uri to do fields query for each nidm file
+        for nidm_file in nidm_file_list.split(","):
+            # get project UUID
+            project = GetProjectsUUID([nidm_file])
+            uri = "/projects/" +  project[0].toPython().split("/")[-1] + "?fields=" + get_fields
+            # get fields output from each file and concatenate
+            if (output_file is None):
+                # just print results
+                print(restParser.run([nidm_file], uri))
+            else:
+                df_list.append(pd.DataFrame(restParser.run([nidm_file], uri)))
+
+        if (output_file is not None):
+            # concatenate data frames
+            df = pd.concat(df_list)
+            # output to csv file
+            df.to_csv(output_file)
+
     elif uri:
         restParser = RestParser(verbosity_level = int(verbosity))
         if j:
