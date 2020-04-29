@@ -1466,22 +1466,16 @@ def DD_to_nidm(dd_struct):
                 # first get a uuid has for the isAbout collection for this we'll use a hash of the isAbout list
                 # as a string
                 crc32hash = base_repr(crc32(str(value).encode()), 32).lower()
-                isabout_collection_id = URIRef(niiri_ns + str(crc32hash))
-                # add collection id to graph
-                #g.add((cde_id, Constants.NIDM['isAbout'], URIRef(value)))
-                g.add((cde_id, Constants.NIDM['isAbout'], URIRef(isabout_collection_id)))
                 # now create the collection and for each isAbout create an entity to add to collection with
                 # properties for label and url
-                g.add((isabout_collection_id, RDF.type, Constants.PROV['Collection']))
+                #g.add((isabout_collection_id, RDF.type, Constants.PROV['Collection']))
                 # for each isAbout entry, create new prov:Entity, store metadata and link it to the collection
                 for isabout_key, isabout_value in value.items():
-                    # first create a hash for the id of the url:label
-                    isabout_id = URIRef(niiri_ns + str(base_repr(crc32(str(isabout_key+":"+isabout_value).encode()), 32).lower()))
-                    g.add((isabout_id, RDF.type,Constants.PROV['Entity']))
-                    g.add((isabout_id, Constants.RDFS['label'], Literal(isabout_value)))
-                    g.add((isabout_id, Constants.NIDM['url'], URIRef(isabout_key)))
-                    # connect this entity to the isAbout collection
-                    g.add((isabout_collection_id, Constants.PROV["hadMember"], isabout_id))
+                    # add isAbout key which is the url
+                    g.add((cde_id, Constants.NIDM['isAbout'], URIRef(isabout_key)))
+                    # now add another entity to contain the label
+                    g.add((URIRef(isabout_key), RDF.type,Constants.PROV['Entity']))
+                    g.add((URIRef(isabout_key), Constants.RDFS['label'], Literal(isabout_value)))
 
             elif key == 'valueType':
                 g.add((cde_id, Constants.NIDM['valueType'], URIRef(value)))
