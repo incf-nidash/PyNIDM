@@ -12,12 +12,13 @@ import prov.model as pm
 from prov.model import QualifiedName
 from prov.model import Namespace as provNamespace
 import requests
-from fuzzywuzzy import fuzz
+from rapidfuzz import fuzz
 import json
 from github import Github, GithubException
 import getpass
 from numpy import base_repr
 from binascii import crc32
+import pandas as pd
 
 #NIDM imports
 from ..core import Constants
@@ -106,24 +107,33 @@ def read_nidm(nidmDoc):
 
     if proj_id is None:
         print("Error reading NIDM-Exp Document %s, Must have Project Object" % nidmDoc)
-        exit(1)
+        print()
+        create_obj = input("Should read_nidm create a Project object for you [yes]: ")
+        if (create_obj == 'yes' or create_obj == ''):
+            project = Project(empty_graph=True,add_default_type=True)
+            # add namespaces to prov graph
+            for name, namespace in rdf_graph_parse.namespaces():
+                # skip these default namespaces in prov Document
+                if (name != 'prov') and (name != 'xsd') and (name != 'nidm'):
+                    project.graph.add_namespace(name, namespace)
 
-    #Split subject URI into namespace, term
-    nm,project_uuid = split_uri(proj_id)
+        else:
+            exit(1)
+    else:
+        #Split subject URI into namespace, term
+        nm,project_uuid = split_uri(proj_id)
 
-    #print("project uuid=%s" %project_uuid)
+        #create empty prov graph
+        project = Project(empty_graph=True,uuid=project_uuid,add_default_type=False)
 
-    #create empty prov graph
-    project = Project(empty_graph=True,uuid=project_uuid,add_default_type=False)
+        #add namespaces to prov graph
+        for name, namespace in rdf_graph_parse.namespaces():
+            #skip these default namespaces in prov Document
+            if (name != 'prov') and (name != 'xsd') and (name != 'nidm'):
+                project.graph.add_namespace(name, namespace)
 
-    #add namespaces to prov graph
-    for name, namespace in rdf_graph_parse.namespaces():
-        #skip these default namespaces in prov Document
-        if (name != 'prov') and (name != 'xsd') and (name != 'nidm'):
-            project.graph.add_namespace(name, namespace)
-
-    #Cycle through Project metadata adding to prov graph
-    add_metadata_for_subject (rdf_graph_parse,proj_id,project.graph.namespaces,project)
+        #Cycle through Project metadata adding to prov graph
+        add_metadata_for_subject (rdf_graph_parse,proj_id,project.graph.namespaces,project)
 
 
     #Query graph for sessions, instantiate session objects, and add to project._session list
@@ -355,6 +365,16 @@ def add_metadata_for_subject (rdf_graph,subject_uri,namespaces,nidm_obj):
     for predicate, objects in rdf_graph.predicate_objects(subject=subject_uri):
         # if this isn't a qualified association, add triples
         if predicate != URIRef(Constants.PROV['qualifiedAssociation']):
+            # make predicate a qualified name
+            obj_nm, obj_term = split_uri(predicate)
+            found_uri = find_in_namespaces(search_uri=URIRef(obj_nm), namespaces=namespaces)
+            # if obj_nm is not in namespaces then it must just be part of some URI in the triple
+            # so just add it as a prov.Identifier
+            if not found_uri:
+                predicate = pm.QualifiedName(namespace=Namespace(str(predicate)), localpart="")
+            # else add as explicit prov.QualifiedName because it's easier to read
+            else:
+                predicate = pm.QualifiedName(namespace=Namespace(obj_nm),localpart=obj_term)
             if (validators.url(objects)) and (predicate != Constants.PROV['Location']):
                 # try to split the URI to namespace and local parts, if fails just use the entire URI.
                 try:
@@ -790,13 +810,61 @@ def getSubjIDColumn(column_to_terms,df):
         id_field=df.columns[int(selection)-1]
     return id_field
 
-def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_file=None,bids=False,owl_file='nidm',
+def redcap_datadictionary_to_json(redcap_dd_file,assessment_name):
+    '''
+    This function will convert a redcap data dictionary to our json data elements structure
+    :param redcap_dd: RedCap data dictionary
+    :return: json data element defintions
+    '''
+
+    # load redcap data dictionary
+    redcap_dd = pd.read_csv(redcap_dd_file)
+
+    json_map={}
+
+    # cycle through rows and store variable data elements
+    for index,row in redcap_dd.iterrows():
+        current_tuple = str(DD(source=assessment_name, variable=row['Variable / Field Name']))
+        json_map[current_tuple] = {}
+        json_map[current_tuple]['label'] = row['Variable / Field Name']
+        json_map[current_tuple]['source_variable'] = row['Variable / Field Name']
+        json_map[current_tuple]['description'] = row['Field Label']
+        if not pd.isnull(row['Choices OR Calculations']):
+            if row['Field Type'] == 'calc':
+                # this is a calculated field so it typically has a sum([var1],[var2],..,etc) so we'll just store
+                # it has as a single level
+                json_map[current_tuple]['levels'] = []
+                json_map[current_tuple]['levels'].append(str(row['Choices OR Calculations']))
+            else:
+                split_choices = row['Choices OR Calculations'].split("|")
+                if len(split_choices) == 1:
+                    json_map[current_tuple]['levels'] = []
+                    json_map[current_tuple]['valueType'] = URIRef(Constants.XSD["complexType"])
+                    split_choices = row['Choices OR Calculations'].split(",")
+                    for choices in split_choices:
+                        json_map[current_tuple]['levels'].append(choices.strip())
+
+                else:
+                    json_map[current_tuple]['levels'] = {}
+                    json_map[current_tuple]['valueType'] = URIRef(Constants.XSD["complexType"])
+                    for choices in split_choices:
+                        key_value=choices.split(",")
+                        json_map[current_tuple]['levels'][str(key_value[0]).strip()] = str(key_value[1]).strip()
+        else:
+            json_map[current_tuple]['valueType'] = URIRef(Constants.XSD["string"])
+
+    return json_map
+
+
+
+def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_source=None,bids=False,owl_file='nidm',
                            associate_concepts=True):
     '''
 
     :param df: data frame with first row containing variable names
     :param assessment_name: Name for the assessment to use in storing JSON mapping dictionary keys
-    :param json_file: optional json document with variable names as keys and minimal fields "definition","label","url"
+    :param json_source: optional json document either in file or structure
+            with variable names as keys and minimal fields "definition","label","url"
     :param output_file: output filename to save variable-> term mappings
     :param directory: if output_file parameter is set to None then use this directory to store default JSON mapping file
     if doing variable->term mappings
@@ -808,10 +876,17 @@ def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_
     column_to_terms = {}
 
     # check if user supplied a JSON file and we already know a mapping for this column
-    if json_file is not None:
-        # load file
-        with open(json_file,'r+') as f:
-            json_map = json.load(f)
+    if json_source is not None:
+        try:
+            # check if json_source is a file
+            if os.path.isfile(json_source):
+                # load file
+                with open(json_source,'r+') as f:
+                    json_map = json.load(f)
+        except:
+            # if not then it's a json structure already
+            json_map = json_source
+
 
     # if no JSON mapping file was specified then create a default one for variable-term mappings
     # create a json_file filename from the output file filename
@@ -1150,7 +1225,8 @@ def find_concept_interactive(source_variable, current_tuple, source_variable_ann
             go_loop = False
         else:
             # user selected one of the existing concepts to add its URL to the isAbout property
-            source_variable_annotations[current_tuple]['isAbout'] = search_result[search_result[selection]]['preferred_url']
+            # added labels to these isAbout urls for easy querying later
+            source_variable_annotations[current_tuple]['isAbout'] = {search_result[search_result[selection]]['preferred_url'] : search_result[search_result[selection]]['label']}
             print("\nConcept annotation added for source variable: %s" %source_variable)
             go_loop = False
 
@@ -1387,7 +1463,21 @@ def DD_to_nidm(dd_struct):
             elif key == 'isAbout':
                 #dct_ns = Namespace(Constants.DCT)
                 #g.bind(prefix='dct', namespace=dct_ns)
-                g.add((cde_id, Constants.NIDM['isAbout'], URIRef(value)))
+                # added by DBK for multiple isAbout URLs and storing the labels along with URLs
+                # first get a uuid has for the isAbout collection for this we'll use a hash of the isAbout list
+                # as a string
+                crc32hash = base_repr(crc32(str(value).encode()), 32).lower()
+                # now create the collection and for each isAbout create an entity to add to collection with
+                # properties for label and url
+                #g.add((isabout_collection_id, RDF.type, Constants.PROV['Collection']))
+                # for each isAbout entry, create new prov:Entity, store metadata and link it to the collection
+                for isabout_key, isabout_value in value.items():
+                    # add isAbout key which is the url
+                    g.add((cde_id, Constants.NIDM['isAbout'], URIRef(isabout_key)))
+                    # now add another entity to contain the label
+                    g.add((URIRef(isabout_key), RDF.type,Constants.PROV['Entity']))
+                    g.add((URIRef(isabout_key), Constants.RDFS['label'], Literal(isabout_value)))
+
             elif key == 'valueType':
                 g.add((cde_id, Constants.NIDM['valueType'], URIRef(value)))
             elif key == 'minimumValue':

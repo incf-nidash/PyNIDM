@@ -467,8 +467,11 @@ def GetParticipantUUIDsForProjectCached(nidm_file_list:tuple, project_id, filter
     if project_id.find('http') < 0:
         project = Constants.NIIRI[project_id]
 
-
-    participants = []
+    ### added by DBK changed to dictionary to support subject ids along with uuids
+    #participants = []
+    participants = {}
+    participants["uuid"] = []
+    participants["subject id"] = []
 
 
     for file in nidm_file_list:
@@ -486,7 +489,20 @@ def GetParticipantUUIDsForProjectCached(nidm_file_list:tuple, project_id, filter
                                 uuid = (str(participant)).split('/')[-1]  # srip off the http://whatever/whatever/
                                 if (not uuid in participants) and \
                                         ( (not filter) or CheckSubjectMatchesFilter( tuple([file]) , project, participant, filter) ):
-                                    participants.append(uuid)
+                                    ### added by DBK for subject IDs as well ###
+                                    for id in rdf_graph.objects(subject=participant,predicate=URIRef(Constants.NIDM_SUBJECTID.uri)):
+                                        subid = (str(id)).split('/')[-1]  # srip off the http://whatever/whatever/
+
+                                    ### added by DBK for subject IDs as well ###
+                                    #participants.append(uuid)
+                                    try:
+                                        participants['uuid'].append(uuid)
+                                        participants['subject id'].append(subid)
+                                    # just in case there's no subject id in the file...
+                                    except:
+                                        #participants.append(uuid)
+                                        participants['uuid'].append(uuid)
+                                        participants['subject id'].append('')
 
     return participants
 
@@ -494,6 +510,11 @@ def GetParticipantUUIDsForProjectCached(nidm_file_list:tuple, project_id, filter
 # if this isn't already a URI, make it one.
 # calls from the REST api don't include the URI
 def expandUUID(partial_uuid):
+    '''
+    Expands a uuid (which is the local part of a qname) to the proper full URI
+    :param partial_uuid: UUID without the initial URI
+    :return: full URI of UUID
+    '''
     uuid = partial_uuid
     if partial_uuid.find('http') < 0:
         uuid = Constants.NIIRI[partial_uuid]
@@ -520,7 +541,11 @@ def getProjectAcquisitionObjects(nidm_file_list, project_id):
 
 
 def GetProjectDataElements(nidm_file_list, project_id):
-    result = []
+    ### added by DBK...changing to dictionary to support labels along with uuids
+    #result = []
+    result = {}
+    result["uuid"] = []
+    result['label']= []
     isa = URIRef('http://www.w3.org/1999/02/22-rdf-syntax-ns#type')
 
     # if this isn't already a URI, make it one.
@@ -537,7 +562,21 @@ def GetProjectDataElements(nidm_file_list, project_id):
             if (session, Constants.DCT['isPartOf'], project) in rdf_graph:
                 # we know we have the right file, so just grab all the data elements from here
                 for de in rdf_graph.subjects(isa, Constants.NIDM['DataElement']):
-                    result.append(rdf_graph.namespace_manager.compute_qname(str(de))[0])
+                    ### added by DBK to return label as well as UUID
+                    #result.append(rdf_graph.namespace_manager.compute_qname(str(de))[2])
+                    for label in rdf_graph.objects(subject=de, predicate=Constants.RDFS['label']):
+                        #result.append(rdf_graph.namespace_manager.compute_qname(str(de))[2] + "=" + label)
+                        result["uuid"].append(rdf_graph.namespace_manager.compute_qname(str(de))[2])
+                        result["label"].append(label)
+                ### added by DBK...we should also look for data elements that are sub-classes of Constants.NIDM['DataElement']
+                ### to include any freesurfer, fsl, or ants data elements
+                for subclass in rdf_graph.subjects(predicate=Constants.RDFS["subClassOf"],object=Constants.NIDM['DataElement']):
+                    for de in rdf_graph.subjects(isa, subclass):
+                        # and let's return the labels as well to make things more readable.
+                        for label in rdf_graph.objects(subject=de, predicate=Constants.RDFS['label']):
+                            #result.append(rdf_graph.namespace_manager.compute_qname(str(de))[2] + "=" + label)
+                            result["uuid"].append(rdf_graph.namespace_manager.compute_qname(str(de))[2])
+                            result["label"].append(label)
                 return result
     return result
 

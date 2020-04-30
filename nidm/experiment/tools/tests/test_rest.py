@@ -44,7 +44,7 @@ def setup():
         projects = restParser.run(['./cmu_a.nidm.ttl'], '/projects')
         cmu_test_project_uuid = projects[0]
         subjects = restParser.run(['./cmu_a.nidm.ttl'], '/projects/{}/subjects'.format(cmu_test_project_uuid))
-        cmu_test_subject_uuid = subjects[0]
+        cmu_test_subject_uuid = subjects['uuid'][0]
 
     if not Path('./caltech.nidm.ttl').is_file():
         urllib.request.urlretrieve (
@@ -175,9 +175,9 @@ def test_uri_project_id():
     assert 'dctypes:title' in result
     assert 'sio:Identifier' in result
     assert 'subjects' in result
-    assert len(result['subjects']) > 2
+    assert len(result['subjects']['uuid']) > 2
     assert 'data_elements' in result
-    assert len(result['data_elements']) > 2
+    assert len(result['data_elements']['uuid']) > 2
 
 
 
@@ -188,11 +188,11 @@ def test_uri_projects_subjects_1():
     restParser = RestParser()
     result = restParser.run([REST_TEST_FILE], '/projects/{}/subjects'.format(proj_uuid))
 
-    assert type(result) == list
-    assert len(result) == 2
+    assert type(result) == dict
+    assert len(result['uuid']) == 2
 
-    assert test_p2_subject_uuids[0] in result
-    assert test_p2_subject_uuids[1] in result
+    assert test_p2_subject_uuids[0] in result['uuid']
+    assert test_p2_subject_uuids[1] in result['uuid']
 
 def test_uri_subjects():
     global cmu_test_subject_uuid
@@ -219,7 +219,7 @@ def test_uri_projects_subjects_id():
         result = restParser.run(['./cmu_a.nidm.ttl'], '/projects')
         project = result[0]
     result = restParser.run(['./cmu_a.nidm.ttl'], '/projects/{}/subjects'.format(project))
-    subject = result[0]
+    subject = result['uuid'][0]
 
     uri = '/projects/{}/subjects/{}'.format(project,subject)
     result = restParser.run(['./cmu_a.nidm.ttl'], uri)
@@ -265,7 +265,7 @@ def test_brain_vols():
     else:
         project  = (restParser.run(BRAIN_VOL_FILES, '/projects'))[0]
     subjects = restParser.run(BRAIN_VOL_FILES, '/projects/{}/subjects'.format(project))
-    subject = subjects[0]
+    subject = subjects['uuid'][0]
 
     data = Query.GetDerivativesDataForSubject(BRAIN_VOL_FILES, None, subject)
 
@@ -291,7 +291,7 @@ def test_GetParticipantDetails():
     import time
     start = time.time()
     subjects = restParser.run(BRAIN_VOL_FILES, '/projects/{}/subjects'.format(project))
-    subject = subjects[0]
+    subject = subjects['uuid'][0]
 
 
     Query.GetParticipantInstrumentData( BRAIN_VOL_FILES, project, subject )
@@ -319,7 +319,7 @@ def test_CheckSubjectMatchesFilter():
         projects  = restParser.run(BRAIN_VOL_FILES, '/projects')
         project = projects[0]
     subjects = restParser.run(BRAIN_VOL_FILES, '/projects/{}/subjects'.format(project))
-    subject = subjects[0]
+    subject = subjects['uuid'][0]
 
     derivatives = Query.GetDerivativesDataForSubject(BRAIN_VOL_FILES, project, subject)
 
@@ -363,12 +363,12 @@ def test_ExtremeFilters():
         project = projects[0]
 
     details = restParser.run(BRAIN_VOL_FILES, '/projects/{}?filter=AGE_AT_SCAN gt 200'.format(project))
-    assert len(details['subjects']) == 0
-    assert len(details['data_elements']) > 0
+    assert len(details['subjects']['uuid']) == 0
+    assert len(details['data_elements']['uuid']) > 0
 
     details = restParser.run(BRAIN_VOL_FILES, '/projects/{}?filter=instruments.AGE_AT_SCAN gt 0'.format(project))
-    assert len(details['subjects']) > 0
-    assert len(details['data_elements']) > 0
+    assert len(details['subjects']['uuid']) > 0
+    assert len(details['data_elements']['uuid']) > 0
 
 
 
@@ -415,9 +415,16 @@ def assess_one_col_output(txt_output):
     lines = txt_output.strip().splitlines()
     assert re.search('UUID', lines[0])
     assert re.search('^-+$', lines[1])
-    assert is_uuid(lines[2])
-
-    return lines[2]
+    found_uuid = False
+    ###added by DBK to deal with varying line numbers for uuids depending on the rest query type
+    for line in lines:
+        if is_uuid(line.strip('\"')):
+            assert True
+            return line.strip('\"')
+    # if we didn't find a line with a uuid then we simply flag a false assertion and return the first line of output
+    # cause it doesn't really matter at this point the assertion already failed
+    assert False
+    return lines[0]
 
 def is_uuid(uuid):
     return re.search('^[0-9a-z]+-[0-9a-z]+-[0-9a-z]+-[0-9a-z]+-[0-9a-z]+$', uuid) != None
@@ -509,8 +516,11 @@ def test_project_fields_deriv():
     field = 'fs_000003'
     project = rest_parser.run( BRAIN_VOL_FILES, "/projects/{}?fields={}".format(cmu_test_project_uuid, field) )
 
-    assert( 'field_values' in project )
-    fv = project['field_values']
+    # edited by DBK to account for only field values being returned
+    #assert( 'field_values' in project )
+    assert (len(project) > 0)
+    #fv = project['field_values']
+    fv = project
     assert( type( fv ) == list )
     fields_used = set( [ i["field"] for i in fv ]  )
     assert field in fields_used
@@ -522,8 +532,11 @@ def test_project_fields_instruments():
     field = 'AGE_AT_SCAN'
     project = rest_parser.run( BRAIN_VOL_FILES, "/projects/{}?fields={}".format(cmu_test_project_uuid, field) )
 
-    assert( 'field_values' in project )
-    fv = project['field_values']
+    # edited by DBK to account for only field values being returned
+    #assert( 'field_values' in project )
+    assert (len(project) > 0)
+    #fv = project['field_values']
+    fv = project
     assert( type( fv ) == list )
     fields_used = set( [ i["field"] for i in fv ]  )
     assert field in fields_used
@@ -537,8 +550,11 @@ def test_project_fields_not_found():
     field = 'not_real_field'
     project = rest_parser.run( BRAIN_VOL_FILES, "/projects/{}?fields={}".format(cmu_test_project_uuid, field) )
 
-    assert( 'field_values' in project )
-    fv = project['field_values']
+    # edited by DBK to account for only field values being returned
+    # assert( 'field_values' in project )
+    assert (len(project) == 0)
+    # fv = project['field_values']
+    fv = project
     assert( type( fv ) == list )
     assert len(fv) == 0
 

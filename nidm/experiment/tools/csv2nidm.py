@@ -32,7 +32,10 @@
 import os,sys
 from nidm.experiment import Project,Session,AssessmentAcquisition,AssessmentObject
 from nidm.core import Constants
-from nidm.experiment.Utils import read_nidm, map_variables_to_terms, add_attributes_with_cde, addGitAnnexSources
+from nidm.experiment.Utils import read_nidm, map_variables_to_terms, add_attributes_with_cde, addGitAnnexSources, \
+    redcap_datadictionary_to_json
+from nidm.experiment.Query import GetParticipantIDs
+
 from argparse import ArgumentParser
 from os.path import  dirname, join, splitext,basename
 import json
@@ -43,6 +46,7 @@ from shutil import copy2
 from nidm.core.Constants import DD
 import logging
 import csv
+import tempfile
 
 
 #def createDialogBox(search_results):
@@ -80,20 +84,22 @@ def main(argv):
 
     parser.add_argument('-csv', dest='csv_file', required=True, help="Full path to CSV file to convert")
     # parser.add_argument('-ilxkey', dest='key', required=True, help="Interlex/SciCrunch API key to use for query")
-    parser.add_argument('-json_map', dest='json_map',required=False,help="Full path to user-suppled JSON file containing variable-term mappings.")
+    dd_group = parser.add_mutually_exclusive_group()
+    dd_group.add_argument('-json_map', dest='json_map',required=False,help="Full path to user-suppled JSON file containing variable-term mappings.")
+    dd_group.add_argument('-redcap', dest='redcap',required=False, help="Full path to a user-supplied RedCap formatted data dictionary for csv file.")
     parser.add_argument('-nidm', dest='nidm_file', required=False, help="Optional full path of NIDM file to add CSV->NIDM converted graph to")
     parser.add_argument('-no_concepts', action='store_true', required=False, help='If this flag is set then no concept associations will be'
                                 'asked of the user.  This is useful if you already have a -json_map specified without concepts and want to'
                                 'simply run this program to get a NIDM file with user interaction to associate concepts.')
-    # parser.add_argument('-owl', action='store_true', required=False, help='Optionally searches NIDM OWL files...internet connection required')
-    # parser.add_argument('-png', action='store_true', required=False, help='Optional flag, when set a PNG image file of RDF graph will be produced')
-    # parser.add_argument('-jsonld', action='store_true', required=False, help='Optional flag, when set NIDM files are saved as JSON-LD instead of TURTLE')
     parser.add_argument('-log','--log', dest='logfile',required=False, default=None, help="full path to directory to save log file. Log file name is csv2nidm_[arg.csv_file].log")
     parser.add_argument('-out', dest='output_file', required=True, help="Full path with filename to save NIDM file")
     args = parser.parse_args()
 
-
-
+    # if we have a redcap datadictionary then convert it straight away to a json representation
+    if args.redcap:
+        json_map = redcap_datadictionary_to_json(args.redcap, basename(args.csv_file))
+    else:
+        json_map = args.json_map
     #open CSV file and load into
     df = pd.read_csv(args.csv_file)
     #temp = csv.reader(args.csv_file)
@@ -105,12 +111,12 @@ def main(argv):
     #else:
     # if user did not specify -no_concepts then associate concepts interactively with user
     if not args.no_concepts:
-        column_to_terms, cde = map_variables_to_terms(df=df,  assessment_name=basename(args.csv_file),directory=dirname(args.output_file), output_file=args.output_file, json_file=args.json_map)
+        column_to_terms, cde = map_variables_to_terms(df=df,  assessment_name=basename(args.csv_file),directory=dirname(args.output_file), output_file=args.output_file, json_source=json_map)
     # run without concept mappings
     else:
         column_to_terms, cde = map_variables_to_terms(df=df, assessment_name=basename(args.csv_file),
                                                       directory=dirname(args.output_file), output_file=args.output_file,
-                                                      json_file=args.json_map, associate_concepts=False)
+                                                      json_source=json_map, associate_concepts=False)
 
     if args.logfile is not None:
         logging.basicConfig(filename=join(args.logfile,'csv2nidm_' + os.path.splitext(os.path.basename(args.csv_file))[0] + '.log'), level=logging.DEBUG)
@@ -121,6 +127,9 @@ def main(argv):
     #If user has added an existing NIDM file as a command line parameter then add to existing file for subjects who exist in the NIDM file
     if args.nidm_file:
         print("Adding to NIDM file...")
+        # get subjectID list for later
+        qres = GetParticipantIDs([args.nidm_file])
+
         #read in NIDM file
         project = read_nidm(args.nidm_file)
         #get list of session objects
@@ -156,24 +165,27 @@ def main(argv):
 
 
 
-        #use RDFLib here for temporary graph making query easier
-        rdf_graph = Graph()
-        rdf_graph.parse(source=StringIO(project.serializeTurtle()),format='turtle')
+        ###use RDFLib here for temporary graph making query easier
+        #rdf_graph = Graph()
+        #rdf_graph.parse(source=StringIO(project.serializeTurtle()),format='turtle')
 
-        print("Querying for existing participants in NIDM graph....")
-        #find subject ids and sessions in NIDM document
-        query = """SELECT DISTINCT ?session ?nidm_subj_id ?agent
-                    WHERE {
-                        ?activity prov:wasAssociatedWith ?agent ;
-                            dct:isPartOf ?session  .
-                        ?agent rdf:type prov:Agent ;
-                            ndar:src_subject_id ?nidm_subj_id .
-                    }"""
-        #print(query)
-        qres = rdf_graph.query(query)
+        #print("Querying for existing participants in NIDM graph....")
+
+        ###find subject ids and sessions in NIDM document
+        #query = """SELECT DISTINCT ?session ?nidm_subj_id ?agent
+        #            WHERE {
+        #                ?activity prov:wasAssociatedWith ?agent ;
+        #                    dct:isPartOf ?session  .
+        #                ?agent rdf:type prov:Agent ;
+        #                    ndar:src_subject_id ?nidm_subj_id .
+        #            }"""
+        ###print(query)
+        #qres = rdf_graph.query(query)
 
 
-        for row in qres:
+
+
+        for index,row in qres.iterrows():
             logging.info("found existing participant %s \t %s" %(row[0],row[1]))
             #find row in CSV file with subject id matching agent from NIDM file
 

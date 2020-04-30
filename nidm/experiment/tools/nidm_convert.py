@@ -37,7 +37,7 @@ from rdflib.tools import rdf2dot
 from nidm.experiment.Utils import read_nidm
 from nidm.experiment.Query import GetMergedGraph
 from io import StringIO
-from os.path import basename,splitext
+from os.path import basename,splitext,join
 import subprocess
 from graphviz import Source
 import tempfile
@@ -51,10 +51,12 @@ from nidm.experiment.tools.click_base import cli
               help="A comma separated list of NIDM files with full path")
 @click.option("--type", "-t", required=True,type=click.Choice(['turtle', 'jsonld', 'xml-rdf','n3','trig'], case_sensitive=False),
               help="If parameter set then NIDM file will be exported as JSONLD")
+@click.option("--outdir", "-out", required=False,
+              help="Optional directory to save converted NIDM file")
 
 
 
-def convert(nidm_file_list, type):
+def convert(nidm_file_list, type,outdir):
     """
     This function will convert NIDM files to various RDF-supported formats and name then / put them in the same
     place as the input file.
@@ -63,28 +65,36 @@ def convert(nidm_file_list, type):
     for nidm_file in nidm_file_list.split(','):
         # WIP: for now we use pynidm for jsonld exports to make more human readable and rdflib for everything
         # else.
+        if outdir:
+            outfile = join(outdir,splitext(basename(nidm_file))[0])
+        else:
+            outfile = join(splitext(nidm_file)[0])
+
         if type == 'jsonld':
             # read in nidm file
             project = read_nidm(nidm_file)
             #write jsonld file with same name
-            with open(splitext(nidm_file)[0] + ".json", 'w') as f:
+            with open(outfile + ".json", 'w') as f:
                 f.write(project.serializeJSONLD())
         elif type == 'turtle':
-            graph = Graph()
-            graph.parse(nidm_file, format=util.guess_format(nidm_file))
-            graph.serialize(splitext(nidm_file)[0] + ".ttl", format='turtle')
+            #graph = Graph()
+            #graph.parse(nidm_file, format=util.guess_format(nidm_file))
+            #graph.serialize(splitext(nidm_file)[0] + ".ttl", format='turtle')
+            project = read_nidm(nidm_file)
+            with open(outfile + ".ttl", 'w') as f:
+                f.write(project.serializeTurtle())
         elif type == 'xml-rdf':
             graph = Graph()
             graph.parse(nidm_file, format=util.guess_format(nidm_file))
-            graph.serialize(splitext(nidm_file)[0] + ".xml", format='pretty-xml')
+            graph.serialize(outfile + ".xml", format='pretty-xml')
         elif type == 'n3':
             graph = Graph()
             graph.parse(nidm_file, format=util.guess_format(nidm_file))
-            graph.serialize(splitext(nidm_file)[0] + ".n3", format='n3')
+            graph.serialize(outfile + ".n3", format='n3')
         elif type == 'trig':
             # read in nidm file
             project = read_nidm(nidm_file)
-            with open(splitext(nidm_file)[0] + ".trig", 'w') as f:
+            with open(outfile + ".trig", 'w') as f:
                 f.write(project.serializeTrig())
         else:
             print("Error, type is not supported at this time")
