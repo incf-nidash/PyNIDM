@@ -577,7 +577,7 @@ def InitializeInterlexRemote():
 
     return ilx_cli
 
-def AddPDEToInterlex(ilx_obj,label,definition,units, min, max, datatype, categorymappings=None):
+def AddPDEToInterlex(ilx_obj,label,definition,units, min, max, datatype, isabout=None, categorymappings=None):
     '''
     This function will add the PDE (personal data elements) to Interlex using the Interlex ontquery API.  
     
@@ -597,25 +597,47 @@ def AddPDEToInterlex(ilx_obj,label,definition,units, min, max, datatype, categor
     uri_min = 'http://uri.interlex.org/base/' + prefix + '_0382133'
     uri_max = 'http://uri.interlex.org/base/' + prefix + '_0382132'
     uri_category = 'http://uri.interlex.org/base/' + prefix + '_0382129'
+    uri_isabout = 'http://uri.interlex.org/base/' + prefix + '_0381385'
 
 
     # return ilx_obj.add_pde(label=label, definition=definition, comment=comment, type='pde')
     if categorymappings is not None:
-        tmp = ilx_obj.add_pde(label=label, definition=definition, predicates = {
-            uri_datatype : datatype,
-            uri_units : units,
-            uri_min : min,
-            uri_max : max,
-            uri_category : categorymappings
-        })
+        if isabout is not None:
+            tmp = ilx_obj.add_pde(label=label, definition=definition, predicates = {
+                uri_datatype : datatype,
+                uri_units : units,
+                uri_min : min,
+                uri_max : max,
+                uri_isabout : isabout,
+                uri_category : categorymappings
+            })
+        else:
+            tmp = ilx_obj.add_pde(label=label, definition=definition, predicates = {
+                uri_datatype : datatype,
+                uri_units : units,
+                uri_min : min,
+                uri_max : max,
+                uri_category : categorymappings
+            })
     else:
-        tmp = ilx_obj.add_pde(label=label, definition=definition, predicates = {
+        if isabout is not None:
+            tmp = ilx_obj.add_pde(label=label, definition=definition, predicates = {
 
-            uri_datatype : datatype,
-            uri_units : units,
-            uri_min : min,
-            uri_max : max
-        })
+                uri_datatype : datatype,
+                uri_units : units,
+                uri_min : min,
+                uri_max : max,
+                uri_isabout : isabout
+            })
+        else:
+            tmp = ilx_obj.add_pde(label=label, definition=definition, predicates = {
+
+                uri_datatype : datatype,
+                uri_units : units,
+                uri_min : min,
+                uri_max : max
+            })
+
     return tmp
 
 def AddConceptToInterlex(ilx_obj, label, definition):
@@ -961,6 +983,18 @@ def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_
                         column_to_terms[current_tuple]['valueType'] = json_map[json_key[0]]['valueType']
                         print("valueType: %s" % column_to_terms[current_tuple]['valueType'])
 
+                    if 'minimumValue' in json_map[json_key[0]]:
+                        column_to_terms[current_tuple]['minimumValue'] = json_map[json_key[0]]['minimumValue']
+                        print("minimumValue: %s" % column_to_terms[current_tuple]['minimumValue'])
+
+                    if 'maximumValue' in json_map[json_key[0]]:
+                        column_to_terms[current_tuple]['maximumValue'] = json_map[json_key[0]]['maximumValue']
+                        print("maximumValue: %s" % column_to_terms[current_tuple]['maximumValue'])
+
+                    if 'hasUnit' in json_map[json_key[0]]:
+                        column_to_terms[current_tuple]['hasUnit'] = json_map[json_key[0]]['hasUnit']
+                        print("hasUnit: %s" % column_to_terms[current_tuple]['hasUnit'])
+
                     if 'source_variable' in json_map[json_key[0]]:
                         column_to_terms[current_tuple]['source_variable'] = json_map[json_key[0]]['source_variable']
                         print("source variable: %s" % column_to_terms[current_tuple]['source_variable'])
@@ -1029,6 +1063,44 @@ def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_
             find_concept_interactive(column, current_tuple, column_to_terms, ilx_obj, nidm_owl_graph=nidm_owl_graph)
             # write annotations to json file so user can start up again if not doing whole file
             write_json_mapping_file(column_to_terms, output_file, bids)
+
+        # now we should add the data element definition with concept annotation to InterLex
+        # check if this is a categorical variable, if so it will have 'levels' key
+        if 'levels' in column_to_terms[current_tuple]:
+            if 'isAbout' in column_to_terms[current_tuple]:
+                ilx_output = AddPDEToInterlex(ilx_obj=ilx_obj, label=column_to_terms[current_tuple]['label'],
+                                definition=column_to_terms[current_tuple]['definition'], min =
+                                column_to_terms[current_tuple]['minimumValue'], max =
+                                column_to_terms[current_tuple]['maximumValue'], units =
+                                column_to_terms[current_tuple]['hasUnits'], datatype=
+                                column_to_terms[current_tuple]['valueType'], isabout=
+                                column_to_terms[current_tuple]['isAbout'], categorymappings=
+                                json.dumps(column_to_terms[current_tuple]['levels']))
+            else:
+                ilx_output = AddPDEToInterlex(ilx_obj=ilx_obj, label=column_to_terms[current_tuple]['label'],
+                                definition=column_to_terms[current_tuple]['definition'], min =
+                                column_to_terms[current_tuple]['minimumValue'], max =
+                                column_to_terms[current_tuple]['maximumValue'], units =
+                                column_to_terms[current_tuple]['hasUnits'], datatype=
+                                column_to_terms[current_tuple]['valueType'], categorymappings=
+                                json.dumps(column_to_terms[current_tuple]['levels']))
+
+        else:
+            if 'isAbout' in column_to_terms[current_tuple]:
+                ilx_output = AddPDEToInterlex(ilx_obj=ilx_obj, label=column_to_terms[current_tuple]['label'],
+                                definition=column_to_terms[current_tuple]['definition'], min =
+                                column_to_terms[current_tuple]['minimumValue'], max =
+                                column_to_terms[current_tuple]['maximumValue'], units =
+                                column_to_terms[current_tuple]['hasUnits'], datatype=
+                                column_to_terms[current_tuple]['valueType'], isabout =
+                                column_to_terms[current_tuple]['isAbout'])
+            else:
+                ilx_output = AddPDEToInterlex(ilx_obj=ilx_obj, label=column_to_terms[current_tuple]['label'],
+                                definition=column_to_terms[current_tuple]['definition'], min =
+                                column_to_terms[current_tuple]['minimumValue'], max =
+                                column_to_terms[current_tuple]['maximumValue'], units =
+                                column_to_terms[current_tuple]['hasUnits'], datatype=
+                                column_to_terms[current_tuple]['valueType'])
 
 
     # write annotations to json file since data element annotations are complete
