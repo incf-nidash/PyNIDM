@@ -754,35 +754,39 @@ def GetBrainVolumeDataElements(nidm_file_list):
         prefix dct: <http://purl.org/dc/terms/>
         prefix dctypes: <http://purl.org/dc/dcmitype/>
 
-        SELECT DISTINCT ?tool ?softwareLabel ?federatedLabel ?laterality
+        SELECT DISTINCT ?element_id ?tool ?softwareLabel ?federatedLabel ?laterality
         where {
  	        ?tool_act a prov:Activity ;
 		            prov:qualifiedAssociation [prov:agent [nidm:NIDM_0000164 ?tool]] .
 			?tool_entity prov:wasGeneratedBy ?tool_act ;
-				?measure ?volume .
+				?element_id ?volume .
 
-			{?measure a fsl:DataElement ;
+			{?element_id a fsl:DataElement ;
 				    rdfs:label ?softwareLabel;
 				    nidm:measureOf <http://uri.interlex.org/base/ilx_0112559> ;
 				    nidm:datumType <http://uri.interlex.org/base/ilx_0738276> ;
 			}
 			UNION
-			{?measure a freesurfer:DataElement ;
+			{?element_id a freesurfer:DataElement ;
 				    rdfs:label ?softwareLabel;
 				    nidm:measureOf <http://uri.interlex.org/base/ilx_0112559> ;
 				    nidm:datumType <http://uri.interlex.org/base/ilx_0738276> ;
 			}
 			UNION
-			{?measure a ants:DataElement ;
+			{?element_id a ants:DataElement ;
 				    rdfs:label ?softwareLabel;
 				    nidm:measureOf <http://uri.interlex.org/base/ilx_0112559> ;
 				    nidm:datumType <http://uri.interlex.org/base/ilx_0738276> ;
 			}
-			OPTIONAL {?measure nidm:isAbout ?federatedLabel }.
-			OPTIONAL {?measure nidm:hasLaterality ?laterality }.
+			OPTIONAL {?element_id nidm:isAbout ?federatedLabel }.
+			OPTIONAL {?element_id nidm:hasLaterality ?laterality }.
 		}'''
 
     df = sparql_query_nidm(nidm_file_list.split(','), query, output_file=None)
+    # now let's strip off the
+    for index, row in df.iterrows():
+        tmp = row['element_id']
+        row['element_id'] = re.search(r'(.*)/(.*)',tmp).group(2)
     return df
 
 def GetBrainVolumes(nidm_file_list):
