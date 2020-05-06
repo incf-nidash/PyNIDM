@@ -995,6 +995,10 @@ def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_
                         column_to_terms[current_tuple]['hasUnit'] = json_map[json_key[0]]['hasUnit']
                         print("hasUnit: %s" % column_to_terms[current_tuple]['hasUnit'])
 
+                    if 'url' in json_map[json_key[0]]:
+                        column_to_terms[current_tuple]['url'] = json_map[json_key[0]]['url']
+                        print("url: %s" % column_to_terms[current_tuple]['url'])
+
                     if 'source_variable' in json_map[json_key[0]]:
                         column_to_terms[current_tuple]['source_variable'] = json_map[json_key[0]]['source_variable']
                         print("source variable: %s" % column_to_terms[current_tuple]['source_variable'])
@@ -1039,9 +1043,9 @@ def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_
             column_to_terms[subjid_tuple] = {}
             column_to_terms[subjid_tuple]['label'] = search_term
             column_to_terms[subjid_tuple]['description'] = "subject/participant identifier"
-            column_to_terms[subjid_tuple]['sameAs'] = Constants.NIDM_SUBJECTID.uri
             column_to_terms[subjid_tuple]['source_variable'] = str(search_term)
             column_to_terms[subjid_tuple]['valueType'] = URIRef(Constants.XSD["string"])
+            column_to_terms[subjid_tuple]['url'] =  Constants.NIDM_SUBJECTID.uri
             # column_to_terms[subjid_tuple]['variable'] = str(column)
 
             # delete temporary current_tuple key for this variable as it has been statically mapped to NIDM_SUBJECT
@@ -1050,7 +1054,7 @@ def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_
             print("Variable %s automatically mapped to participant/subject idenfier" %search_term)
             print("Label: %s" %column_to_terms[subjid_tuple]['label'])
             print("Description: %s" %column_to_terms[subjid_tuple]['description'])
-            print("SameAs: %s" %column_to_terms[subjid_tuple]['sameAs'])
+            print("Url: %s" %column_to_terms[subjid_tuple]['url'])
             print("Source Variable: %s" % column_to_terms[subjid_tuple]['source_variable'])
             print("---------------------------------------------------------------------------------------")
             continue
@@ -1103,7 +1107,7 @@ def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_
                                 column_to_terms[current_tuple]['valueType'])
 
         # now store the url from Interlex for new personal data element in column_to_terms annotation
-        
+        column_to_terms[current_tuple]['url'] = ilx_output.iri
 
     # write annotations to json file since data element annotations are complete
     write_json_mapping_file(column_to_terms, output_file, bids)
