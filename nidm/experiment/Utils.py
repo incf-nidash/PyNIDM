@@ -1102,6 +1102,8 @@ def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_
                                 column_to_terms[current_tuple]['hasUnits'], datatype=
                                 column_to_terms[current_tuple]['valueType'])
 
+        # now store the url from Interlex for new personal data element in column_to_terms annotation
+        
 
     # write annotations to json file since data element annotations are complete
     write_json_mapping_file(column_to_terms, output_file, bids)
