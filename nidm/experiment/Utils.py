@@ -958,7 +958,17 @@ def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_
 
                 if (json_map is not None) and (len(json_key)>0):
 
-                    column_to_terms[current_tuple]['label'] = json_map[json_key[0]]['label']
+                    # added in case for some reason there isn't a label key, try source_variable and if it's
+                    # a key then add this as the label as well.
+                    if 'label' not in json_map[json_key[0]].keys():
+                        if 'source_variable' in json_map[json_key[0]].keys():
+                            column_to_terms[current_tuple]['label'] = json_map[json_key[0]]['source_variable']
+                        else:
+                            column_to_terms[current_tuple]['label'] = ""
+                            print("No label or source_variable keys found in json mapping file for variable"
+                                  "%s. Consider adding these to the json file as they are important")
+                    else:
+                        column_to_terms[current_tuple]['label'] = json_map[json_key[0]]['label']
                     column_to_terms[current_tuple]['description'] = json_map[json_key[0]]['description']
                     # column_to_terms[current_tuple]['variable'] = json_map[json_key[0]]['variable']
 
