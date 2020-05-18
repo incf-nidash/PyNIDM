@@ -557,7 +557,7 @@ def GetProjectDataElements(nidm_file_list, project_id):
     for file in nidm_file_list:
         rdf_graph = OpenGraph(file)
         #find all the sessions
-        for (session, p, o) in rdf_graph.triples((None, None, Constants.NIDM['Session'])): #rdf_graph.subjects(object=isa, predicate=Constants.NIDM['Session']):
+        for (session, cde_tuple, o) in rdf_graph.triples((None, None, Constants.NIDM['Session'])): #rdf_graph.subjects(object=isa, predicate=Constants.NIDM['Session']):
             #check if it is part of our project
             if (session, Constants.DCT['isPartOf'], project) in rdf_graph:
                 # we know we have the right file, so just grab all the data elements from here
@@ -577,6 +577,20 @@ def GetProjectDataElements(nidm_file_list, project_id):
                             #result.append(rdf_graph.namespace_manager.compute_qname(str(de))[2] + "=" + label)
                             result["uuid"].append(rdf_graph.namespace_manager.compute_qname(str(de))[2])
                             result["label"].append(label)
+
+                # Since common data elements won't have entries in the main graph, try to find them also
+                cde_set = set()
+                for stat_collection in rdf_graph.subjects(isa, Constants.NIDM['FSStatsCollection']):
+                    for predicate in rdf_graph.predicates(subject=stat_collection):
+                        dti = getDataTypeInfo(None, predicate)
+                        if dti:
+                            cde_tuple = (predicate,  dti["label"])
+                            cde_set.add( cde_tuple )
+
+                for cde in cde_set:
+                    result["uuid"].append(cde[0])
+                    result["label"].append(cde[1])
+
                 return result
     return result
 
@@ -621,6 +635,9 @@ def CheckSubjectMatchesFilter(nidm_file_list, project_uuid, subject_uuid, filter
 
     # TODO: I need to fix this here.  When there is a space inside the value the splitter gets more than 3 values
     # ex: 'projects.subjects.instruments.WISC_IV_VOCAB_SCALED eq \'not a match\''
+
+    if filter == None:
+        return True
 
     # filter can have multiple and clauses, break them up and test each one
     tests = filter.split('and')
@@ -1006,12 +1023,19 @@ def getDataTypeInfo(source_graph, datatype):
     with specific predicates necessary to define it's type
 
     :param rdf_graph:
-    :param datatype: URI of the DataElement
+    :param dt: URI of the DataElement
     :return: { 'label': label, 'hasUnit': hasUnit, 'typeURI': typeURI}
     '''
+    isa = URIRef('http://www.w3.org/1999/02/22-rdf-syntax-ns#type')
+
+
+    expanded_datatype = datatype
+    if expanded_datatype.find('http') < 0:
+        expanded_datatype = Constants.NIIRI[expanded_datatype]
+
 
     # check to see if the datatype is in the main graph. If not, look in the CDE graph
-    if (datatype, None, None) in source_graph:
+    if source_graph and  (expanded_datatype, isa, Constants.NIDM['DataElement']) in source_graph:
         rdf_graph = source_graph
     else:
         rdf_graph = getCDEs()
@@ -1019,17 +1043,22 @@ def getDataTypeInfo(source_graph, datatype):
     typeURI = ''
     hasUnit = ''
     label = ''
-    desc = ''
+    description = ''
     measureOf = ''
     isAbout = ''
     structure = ''
 
 
+    found = False
+
 
     # have to scan all tripples because the label can be in any namespace
-    for s, p, o in rdf_graph.triples((datatype, None, None)):
+    for s, p, o in rdf_graph.triples((expanded_datatype, None, None)):
+        found = True
         if (re.search(r'label$', str(p)) != None):
             label = o
+        if (re.search(r'description$', str(p)) != None):
+            description = o
         if (re.search(r'hasUnit$', str(p), flags=re.IGNORECASE) != None):
             hasUnit = o
         if (re.search(r'datumType$', str(p)) != None):
@@ -1039,7 +1068,11 @@ def getDataTypeInfo(source_graph, datatype):
         if (re.search(r'isAbout$', str(p), flags=re.IGNORECASE) != None):
             isAbout = o
 
-    return {'label': label, 'hasUnit': hasUnit, 'datumType': typeURI, 'measureOf': measureOf, 'isAbout': isAbout}
+    if not found:
+        return False
+    else:
+        return {'label': label, 'hasUnit': hasUnit, 'datumType': typeURI, 'measureOf': measureOf, 'isAbout': isAbout,
+                'dataElement': str(URITail(s)), 'description': description}
 
 def getStatsCollectionForNode (rdf_graph, derivatives_node):
 
@@ -1051,7 +1084,8 @@ def getStatsCollectionForNode (rdf_graph, derivatives_node):
             data['StatCollectionType'] = str(value)[28:]
         else:
             dti = getDataTypeInfo(rdf_graph, datatype )
-            data['values'][str(datatype)] = {'datumType': str(dti['datumType']), 'label': str(dti['label']), 'value': str(value), 'units': str(dti['hasUnit'])}
+            if dti:  # if we can't find a datatype then this is non-data info so don't record it
+                data['values'][str(datatype)] = {'datumType': str(dti['datumType']), 'label': str(dti['label']), 'value': str(value), 'units': str(dti['hasUnit'])}
 
     return data
 
