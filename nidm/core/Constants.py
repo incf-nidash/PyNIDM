@@ -61,6 +61,7 @@ OWL = Namespace("http://www.w3.org/2002/07/owl#")
 ONLI = Namespace("http://neurolog.unice.fr/ontoneurolog/v3.0/instrument.owl#")
 PATO = Namespace("http://purl.obolibrary.org/obo/pato#")
 DATALAD = Namespace("http://datasets.datalad.org/")
+INTERLEX = Namespace("http://uri.interlex.org/base/")
 
 namespaces = {
    # "prov": PROV,
@@ -93,7 +94,8 @@ namespaces = {
     "owl" : OWL,
     "onli" : ONLI,
     "pato" : PATO,
-	"datalad" : DATALAD
+	"datalad" : DATALAD,
+	"ilx" : INTERLEX
     }
 
 # Empty graph used to compute qnames
@@ -300,7 +302,10 @@ NIDM_BINOMIAL_DISTRIBUTION = NIDM['NIDM_0000005']
 NIDM_BINARY_MAP = NIDM['NIDM_0000004']
 NIDM_CONTRAST_ESTIMATION = NIDM['NIDM_0000001']
 NIDM_CONTRAST_MAP = NIDM['NIDM_0000002']
+
+
 # NIDM-Experiment##############################################################
+
 NIDM_DATAELEMENT = QualifiedName(provNamespace("nidm", NIDM), 'DataElement')
 NIDM_PROJECT = QualifiedName(provNamespace("nidm", NIDM), 'Project')
 #NIDM_PROJECT_TYPE = QualifiedName(provNamespace("dctypes", DCTYPES),"Dataset")
