@@ -577,7 +577,7 @@ def InitializeInterlexRemote():
 
     return ilx_cli
 
-def AddPDEToInterlex(ilx_obj,label,definition,units, min, max, datatype, categorymappings=None):
+def AddPDEToInterlex(ilx_obj,label,definition,units, min, max, datatype, isabout=None, categorymappings=None):
     '''
     This function will add the PDE (personal data elements) to Interlex using the Interlex ontquery API.  
     
@@ -597,25 +597,47 @@ def AddPDEToInterlex(ilx_obj,label,definition,units, min, max, datatype, categor
     uri_min = 'http://uri.interlex.org/base/' + prefix + '_0382133'
     uri_max = 'http://uri.interlex.org/base/' + prefix + '_0382132'
     uri_category = 'http://uri.interlex.org/base/' + prefix + '_0382129'
+    uri_isabout = 'http://uri.interlex.org/base/' + prefix + '_0381385'
 
 
     # return ilx_obj.add_pde(label=label, definition=definition, comment=comment, type='pde')
     if categorymappings is not None:
-        tmp = ilx_obj.add_pde(label=label, definition=definition, predicates = {
-            uri_datatype : datatype,
-            uri_units : units,
-            uri_min : min,
-            uri_max : max,
-            uri_category : categorymappings
-        })
+        if isabout is not None:
+            tmp = ilx_obj.add_pde(label=label, definition=definition, predicates = {
+                uri_datatype : datatype,
+                uri_units : units,
+                uri_min : min,
+                uri_max : max,
+                uri_isabout : isabout,
+                uri_category : categorymappings
+            })
+        else:
+            tmp = ilx_obj.add_pde(label=label, definition=definition, predicates = {
+                uri_datatype : datatype,
+                uri_units : units,
+                uri_min : min,
+                uri_max : max,
+                uri_category : categorymappings
+            })
     else:
-        tmp = ilx_obj.add_pde(label=label, definition=definition, predicates = {
+        if isabout is not None:
+            tmp = ilx_obj.add_pde(label=label, definition=definition, predicates = {
 
-            uri_datatype : datatype,
-            uri_units : units,
-            uri_min : min,
-            uri_max : max
-        })
+                uri_datatype : datatype,
+                uri_units : units,
+                uri_min : min,
+                uri_max : max,
+                uri_isabout : isabout
+            })
+        else:
+            tmp = ilx_obj.add_pde(label=label, definition=definition, predicates = {
+
+                uri_datatype : datatype,
+                uri_units : units,
+                uri_min : min,
+                uri_max : max
+            })
+
     return tmp
 
 def AddConceptToInterlex(ilx_obj, label, definition):
@@ -928,16 +950,33 @@ def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_
             #try:
                 # check for column in json file
             try:
-                json_key = [key for key in json_map if column == key.split("variable")[1].split("=")[1].split(")")[0].lstrip("'").rstrip("'")]
+                json_key = [key for key in json_map if column.lstrip().rstrip() == key.split("variable")[1].split("=")[1].split(")")[0].lstrip("'").rstrip("'")]
             except Exception as e:
                 if "list index out of range" in str(e):
-                    json_key = [key for key in json_map if column == key]
+                    json_key = [key for key in json_map if column.lstrip().rstrip() == key]
             finally:
 
                 if (json_map is not None) and (len(json_key)>0):
 
-                    column_to_terms[current_tuple]['label'] = json_map[json_key[0]]['label']
-                    column_to_terms[current_tuple]['description'] = json_map[json_key[0]]['description']
+                    # added in case for some reason there isn't a label key, try source_variable and if it's
+                    # a key then add this as the label as well.
+                    if 'label' not in json_map[json_key[0]].keys():
+                        if 'source_variable' in json_map[json_key[0]].keys():
+                            column_to_terms[current_tuple]['label'] = json_map[json_key[0]]['source_variable']
+                        else:
+                            column_to_terms[current_tuple]['label'] = ""
+                            print("No label or source_variable keys found in json mapping file for variable"
+                                  "%s. Consider adding these to the json file as they are important")
+                    else:
+                        column_to_terms[current_tuple]['label'] = json_map[json_key[0]]['label']
+                    # added this bit to account for BIDS json files using "Description" whereas we use "description"
+                    # everywhere else
+                    if 'description' in json_map[json_key[0]].keys():
+                        column_to_terms[current_tuple]['description'] = json_map[json_key[0]]['description']
+                    elif 'Description' in json_map[json_key[0]].keys():
+                        column_to_terms[current_tuple]['description'] = json_map[json_key[0]]['Description']
+                    else:
+                        column_to_terms[current_tuple]['description'] = ""
                     # column_to_terms[current_tuple]['variable'] = json_map[json_key[0]]['variable']
 
                     print("\n*************************************************************************************")
@@ -952,7 +991,9 @@ def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_
                     if 'levels' in json_map[json_key[0]]:
                         column_to_terms[current_tuple]['levels'] = json_map[json_key[0]]['levels']
                         print("levels: %s" %column_to_terms[current_tuple]['levels'])
-
+                    elif 'Levels' in json_map[json_key[0]]:
+                        column_to_terms[current_tuple]['levels'] = json_map[json_key[0]]['Levels']
+                        print("levels: %s" %column_to_terms[current_tuple]['levels'])
                     if 'sameAs' in json_map[json_key[0]]:
                         column_to_terms[current_tuple]['sameAs'] = json_map[json_key[0]]['sameAs']
                         print("sameAs: %s" %column_to_terms[current_tuple]['sameAs'])
@@ -960,6 +1001,27 @@ def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_
                     if 'valueType' in json_map[json_key[0]]:
                         column_to_terms[current_tuple]['valueType'] = json_map[json_key[0]]['valueType']
                         print("valueType: %s" % column_to_terms[current_tuple]['valueType'])
+
+                    if ('minValue' in json_map[json_key[0]]):
+                        column_to_terms[current_tuple]['minValue'] = json_map[json_key[0]]['minValue']
+                        print("minValue: %s" % column_to_terms[current_tuple]['minValue'])
+                    elif ('minimumValue' in json_map[json_key[0]]):
+                        column_to_terms[current_tuple]['minValue'] = json_map[json_key[0]]['minimumValue']
+                        print("minValue: %s" % column_to_terms[current_tuple]['minValue'])
+
+                    if 'maxValue' in json_map[json_key[0]]:
+                        column_to_terms[current_tuple]['maxValue'] = json_map[json_key[0]]['maxValue']
+                        print("maxValue: %s" % column_to_terms[current_tuple]['maxValue'])
+                    elif 'maximumValue' in json_map[json_key[0]]:
+                        column_to_terms[current_tuple]['maxValue'] = json_map[json_key[0]]['maximumValue']
+                        print("maxValue: %s" % column_to_terms[current_tuple]['maxValue'])
+                    if 'hasUnit' in json_map[json_key[0]]:
+                        column_to_terms[current_tuple]['hasUnit'] = json_map[json_key[0]]['hasUnit']
+                        print("hasUnit: %s" % column_to_terms[current_tuple]['hasUnit'])
+
+                    if 'url' in json_map[json_key[0]]:
+                        column_to_terms[current_tuple]['url'] = json_map[json_key[0]]['url']
+                        print("url: %s" % column_to_terms[current_tuple]['url'])
 
                     if 'source_variable' in json_map[json_key[0]]:
                         column_to_terms[current_tuple]['source_variable'] = json_map[json_key[0]]['source_variable']
@@ -979,8 +1041,14 @@ def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_
                             find_concept_interactive(column,current_tuple,column_to_terms,ilx_obj,nidm_owl_graph=nidm_owl_graph)
                             # write annotations to json file so user can start up again if not doing whole file
                             write_json_mapping_file(column_to_terms,output_file,bids)
-
+                    if "associatedWith" in json_map[json_key[0]]:
+                        column_to_terms[current_tuple]['associatedWith'] = json_map[json_key[0]]['associatedWith']
+                        print("associatedWith: %s" % column_to_terms[current_tuple]['associatedWith'])
+                    if "allowableValues" in json_map[json_key[0]]:
+                        column_to_terms[current_tuple]['allowableValues'] = json_map[json_key[0]]['allowableValues']
+                        print("allowableValues: %s" % column_to_terms[current_tuple]['allowableValues'])
                     print("---------------------------------------------------------------------------------------")
+
             if (json_map is not None) and (len(json_key)>0):
                 continue
         except Exception as e:
@@ -1005,9 +1073,9 @@ def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_
             column_to_terms[subjid_tuple] = {}
             column_to_terms[subjid_tuple]['label'] = search_term
             column_to_terms[subjid_tuple]['description'] = "subject/participant identifier"
-            column_to_terms[subjid_tuple]['sameAs'] = Constants.NIDM_SUBJECTID.uri
             column_to_terms[subjid_tuple]['source_variable'] = str(search_term)
             column_to_terms[subjid_tuple]['valueType'] = URIRef(Constants.XSD["string"])
+            column_to_terms[subjid_tuple]['url'] =  Constants.NIDM_SUBJECTID.uri
             # column_to_terms[subjid_tuple]['variable'] = str(column)
 
             # delete temporary current_tuple key for this variable as it has been statically mapped to NIDM_SUBJECT
@@ -1016,7 +1084,7 @@ def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_
             print("Variable %s automatically mapped to participant/subject idenfier" %search_term)
             print("Label: %s" %column_to_terms[subjid_tuple]['label'])
             print("Description: %s" %column_to_terms[subjid_tuple]['description'])
-            print("SameAs: %s" %column_to_terms[subjid_tuple]['sameAs'])
+            print("Url: %s" %column_to_terms[subjid_tuple]['url'])
             print("Source Variable: %s" % column_to_terms[subjid_tuple]['source_variable'])
             print("---------------------------------------------------------------------------------------")
             continue
@@ -1030,6 +1098,46 @@ def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_
             # write annotations to json file so user can start up again if not doing whole file
             write_json_mapping_file(column_to_terms, output_file, bids)
 
+        # now we should add the data element definition with concept annotation to InterLex
+        # check if this is a categorical variable, if so it will have 'levels' key
+        if 'levels' in column_to_terms[current_tuple]:
+            if 'isAbout' in column_to_terms[current_tuple]:
+                ilx_output = AddPDEToInterlex(ilx_obj=ilx_obj, label=column_to_terms[current_tuple]['label'],
+                                definition=column_to_terms[current_tuple]['definition'], min =
+                                column_to_terms[current_tuple]['minimumValue'], max =
+                                column_to_terms[current_tuple]['maximumValue'], units =
+                                column_to_terms[current_tuple]['hasUnits'], datatype=
+                                column_to_terms[current_tuple]['valueType'], isabout=
+                                column_to_terms[current_tuple]['isAbout'], categorymappings=
+                                json.dumps(column_to_terms[current_tuple]['levels']))
+            else:
+                ilx_output = AddPDEToInterlex(ilx_obj=ilx_obj, label=column_to_terms[current_tuple]['label'],
+                                definition=column_to_terms[current_tuple]['definition'], min =
+                                column_to_terms[current_tuple]['minimumValue'], max =
+                                column_to_terms[current_tuple]['maximumValue'], units =
+                                column_to_terms[current_tuple]['hasUnits'], datatype=
+                                column_to_terms[current_tuple]['valueType'], categorymappings=
+                                json.dumps(column_to_terms[current_tuple]['levels']))
+
+        else:
+            if 'isAbout' in column_to_terms[current_tuple]:
+                ilx_output = AddPDEToInterlex(ilx_obj=ilx_obj, label=column_to_terms[current_tuple]['label'],
+                                definition=column_to_terms[current_tuple]['definition'], min =
+                                column_to_terms[current_tuple]['minimumValue'], max =
+                                column_to_terms[current_tuple]['maximumValue'], units =
+                                column_to_terms[current_tuple]['hasUnits'], datatype=
+                                column_to_terms[current_tuple]['valueType'], isabout =
+                                column_to_terms[current_tuple]['isAbout'])
+            else:
+                ilx_output = AddPDEToInterlex(ilx_obj=ilx_obj, label=column_to_terms[current_tuple]['label'],
+                                definition=column_to_terms[current_tuple]['definition'], min =
+                                column_to_terms[current_tuple]['minimumValue'], max =
+                                column_to_terms[current_tuple]['maximumValue'], units =
+                                column_to_terms[current_tuple]['hasUnits'], datatype=
+                                column_to_terms[current_tuple]['valueType'])
+
+        # now store the url from Interlex for new personal data element in column_to_terms annotation
+        column_to_terms[current_tuple]['url'] = ilx_output.iri
 
     # write annotations to json file since data element annotations are complete
     write_json_mapping_file(column_to_terms, output_file, bids)
@@ -1363,6 +1471,7 @@ def annotate_data_element(source_variable, current_tuple, source_variable_annota
     source_variable_annotations[current_tuple]['description'] = term_definition
     source_variable_annotations[current_tuple]['source_variable'] = str(source_variable)
     source_variable_annotations[current_tuple]['valueType'] = term_datatype
+    source_variable_annotations[current_tuple]['associatedWith'] = "NIDM"
 
     if term_datatype == URIRef(Constants.XSD["complexType"]):
         source_variable_annotations[current_tuple]['levels'] = term_category
@@ -1396,6 +1505,7 @@ def DD_to_nidm(dd_struct):
     g=Graph()
     g.bind(prefix='prov',namespace=Constants.PROV)
     g.bind(prefix='dct',namespace=Constants.DCT)
+    g.bind(prefix='bids',namespace=Constants.BIDS)
 
     # key_num = 0
     # for each named tuple key in data dictionary
@@ -1420,6 +1530,8 @@ def DD_to_nidm(dd_struct):
                 g.bind(prefix='nidm', namespace=nidm_ns)
                 niiri_ns = Namespace(Constants.NIIRI)
                 g.bind(prefix='niiri', namespace=niiri_ns)
+                ilx_ns = Namespace(Constants.INTERLEX)
+                g.bind(prefix='ilx', namespace=ilx_ns)
 
                 # cde_id = item_ns[str(key_num).zfill(4)]
 
@@ -1455,7 +1567,7 @@ def DD_to_nidm(dd_struct):
                 g.add((cde_id,Constants.NIDM['url'],URIRef(value)))
             elif key == 'label':
                 g.add((cde_id,Constants.RDFS['label'],Literal(value)))
-            elif key == 'levels':
+            elif (key == 'levels') or (key == 'Levels'):
                 g.add((cde_id,Constants.NIDM['levels'],Literal(value)))
             elif key == 'source_variable':
                 g.add((cde_id, Constants.NIDM['source_variable'], Literal(value)))
@@ -1479,15 +1591,18 @@ def DD_to_nidm(dd_struct):
 
             elif key == 'valueType':
                 g.add((cde_id, Constants.NIDM['valueType'], URIRef(value)))
-            elif key == 'minimumValue':
-                g.add((cde_id, Constants.NIDM['minimumValue'], Literal(value)))
-            elif key == 'maximumValue':
-                g.add((cde_id, Constants.NIDM['maximumValue'], Literal(value)))
+            elif (key == 'minValue') or (key == 'minimumValue'):
+                g.add((cde_id, Constants.NIDM['minValue'], Literal(value)))
+            elif (key == 'maxValue') or (key == 'maximumValue'):
+                g.add((cde_id, Constants.NIDM['maxValue'], Literal(value)))
             elif key == 'hasUnit':
                 g.add((cde_id, Constants.NIDM['hasUnit'], Literal(value)))
             elif key == 'sameAs':
                 g.add((cde_id, Constants.NIDM['sameAs'], URIRef(value)))
-
+            elif key == 'associatedWith':
+                g.add((cde_id, Constants.INTERLEX['ilx_0739289'], Literal(value)))
+            elif key == 'allowableValues':
+                g.add((cde_id, Constants.BIDS['allowableValues'], Literal(value)))
             # testing
             # g.serialize(destination="/Users/dbkeator/Downloads/csv2nidm_cde.ttl", format='turtle')
 
