@@ -141,4 +141,6 @@ def query(nidm_file_list, cde_file_list, query_file, output_file, get_participan
         print('Mean Absolute Error:', metrics.mean_absolute_error(y_test, y_pred))
         print('Mean Squared Error:', metrics.mean_squared_error(y_test, y_pred))
         print('Root Mean Squared Error:', np.sqrt(metrics.mean_squared_error(y_test, y_pred)))
+if __name__ == "__main__":
+    query()
 #python nidm_linreg.py -nl MTdemog_aseg_v2.ttl -gf age,sex,fs_003343
