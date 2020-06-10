@@ -1,0 +1,88 @@
+@prefix birnlex: <http://bioontology.org/projects/ontologies/birnlex/> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix dctypes: <http://purl.org/dc/dcmitype/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix fred: <www.fred.org/> .
+@prefix ncicb: <http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#> .
+@prefix ndar: <https://ndar.nih.gov/api/datadictionary/v2/dataelement/> .
+@prefix nidm: <http://purl.org/nidash/nidm#> .
+@prefix niiri: <http://iri.nidash.org/> .
+@prefix onli: <http://neurolog.unice.fr/ontoneurolog/v3.0/instrument.owl#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix sio: <http://semanticscience.org/ontology/sio.owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+niiri:a50219ca-a507-11ea-9cd2-7cd1c3e4f5d7 a onli:assessment-instrument,
+        nidm:AcquisitionObject,
+        prov:Entity ;
+    nidm:Q1 "Q1 Answer"^^xsd:string ;
+    nidm:Q2 "Q2 Answer"^^xsd:string ;
+    prov:wasGeneratedBy niiri:c5020656-a507-11ea-9cd2-7cd1c3e4f5d7 .
+
+niiri:a50241de-a507-11ea-9cd2-7cd1c3e4f5d7 a onli:assessment-instrument,
+        nidm:AcquisitionObject,
+        prov:Entity ;
+    ncicb:Age "60"^^xsd:int ;
+    nidm:AssessmentUsageType nidm:DemographicsInstrument ;
+    prov:wasGeneratedBy niiri:b5023518-a507-11ea-9cd2-7cd1c3e4f5d7 ;
+    ndar:gender "Male"^^xsd:string .
+
+niiri:f501e09a-a507-11ea-9cd2-7cd1c3e4f5d7 a nidm:AcquisitionObject,
+        prov:Entity ;
+    nidm:hadAcquisitionModality nidm:MagneticResonanceImaging ;
+    prov:wasGeneratedBy niiri:c501d37a-a507-11ea-9cd2-7cd1c3e4f5d7 .
+
+niiri:a5017038-a507-11ea-9cd2-7cd1c3e4f5d7 a nidm:Project,
+        prov:Activity ;
+    dctypes:title "FBIRN_PhaseII"^^xsd:string ;
+    dct:description "Test investigation"^^xsd:string ;
+    nidm:float "2.34"^^xsd:float ;
+    nidm:isFun "ForMe"^^xsd:string ;
+    sio:Identifier "9610"^^xsd:int ;
+    prov:qualifiedAssociation [ a prov:Association ;
+            prov:agent niiri:d501a166-a507-11ea-9cd2-7cd1c3e4f5d7 ;
+            prov:hadRole birnlex:birnlex_2152 ] ;
+    fred:notFound "in namespaces"^^xsd:string .
+
+niiri:b5023518-a507-11ea-9cd2-7cd1c3e4f5d7 a onli:instrument-based-assessment,
+        nidm:Acquisition,
+        prov:Activity ;
+    dct:isPartOf niiri:b501c6d2-a507-11ea-9cd2-7cd1c3e4f5d7 ;
+    prov:qualifiedAssociation [ a prov:Association ;
+            prov:agent niiri:c502532c-a507-11ea-9cd2-7cd1c3e4f5d7 ;
+            prov:hadRole sio:Subject ] .
+
+niiri:c501d37a-a507-11ea-9cd2-7cd1c3e4f5d7 a nidm:Acquisition,
+        prov:Activity ;
+    dct:isPartOf niiri:b501c6d2-a507-11ea-9cd2-7cd1c3e4f5d7 ;
+    prov:qualifiedAssociation [ a prov:Association ;
+            prov:agent niiri:e501f094-a507-11ea-9cd2-7cd1c3e4f5d7 ;
+            prov:hadRole sio:Subject ] .
+
+niiri:c5020656-a507-11ea-9cd2-7cd1c3e4f5d7 a onli:instrument-based-assessment,
+        nidm:Acquisition,
+        prov:Activity ;
+    dct:isPartOf niiri:b501c6d2-a507-11ea-9cd2-7cd1c3e4f5d7 ;
+    prov:qualifiedAssociation [ a prov:Association ;
+            prov:agent niiri:e501f094-a507-11ea-9cd2-7cd1c3e4f5d7 ;
+            prov:hadRole sio:Subject ] .
+
+niiri:c502532c-a507-11ea-9cd2-7cd1c3e4f5d7 a prov:Agent,
+        prov:Person ;
+    foaf:familyName "Doe"^^xsd:string ;
+    foaf:givenName "John"^^xsd:string .
+
+niiri:d501a166-a507-11ea-9cd2-7cd1c3e4f5d7 a prov:Agent,
+        prov:Person ;
+    foaf:familyName "Keator"^^xsd:string ;
+    foaf:givenName "David"^^xsd:string .
+
+niiri:e501f094-a507-11ea-9cd2-7cd1c3e4f5d7 a prov:Agent,
+        prov:Person ;
+    foaf:givenName "George"^^xsd:string .
+
+niiri:b501c6d2-a507-11ea-9cd2-7cd1c3e4f5d7 a nidm:Session,
+        prov:Activity ;
+    dct:isPartOf niiri:a5017038-a507-11ea-9cd2-7cd1c3e4f5d7 ;
+    nidm: "test"^^xsd:string .
+

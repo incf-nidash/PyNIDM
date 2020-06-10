@@ -1,0 +1,71 @@
+subject                               field      datumType    label                               value    units
+------------------------------------  ---------  -----------  ----------------------------------  -------  -------
+e819ffb4-88d2-11ea-91bc-c82a141f5fe7  fs_003343  ilx_0738276  Left-Hippocampus Volume_mm3 (mm^3)  4255.6   mm^3
+e819ffb4-88d2-11ea-91bc-c82a141f5fe7  age                                                         10
+e819ffb4-88d2-11ea-91bc-c82a141f5fe7  sex                                                         F
+d8100b1c-88d2-11ea-91bc-c82a141f5fe7  fs_003343  ilx_0738276  Left-Hippocampus Volume_mm3 (mm^3)  4098.1   mm^3
+d8100b1c-88d2-11ea-91bc-c82a141f5fe7  age                                                         11
+d8100b1c-88d2-11ea-91bc-c82a141f5fe7  sex                                                         M
+f7ef007a-88d2-11ea-91bc-c82a141f5fe7  fs_003343  ilx_0738276  Left-Hippocampus Volume_mm3 (mm^3)  3689.8   mm^3
+f7ef007a-88d2-11ea-91bc-c82a141f5fe7  age                                                         8
+f7ef007a-88d2-11ea-91bc-c82a141f5fe7  sex                                                         F
+d7e1e2c8-88d2-11ea-91bc-c82a141f5fe7  fs_003343  ilx_0738276  Left-Hippocampus Volume_mm3 (mm^3)  4329.1   mm^3
+d7e1e2c8-88d2-11ea-91bc-c82a141f5fe7  sex                                                         F
+d7e1e2c8-88d2-11ea-91bc-c82a141f5fe7  age                                                         12
+f7d7eca0-88d2-11ea-91bc-c82a141f5fe7  fs_003343  ilx_0738276  Left-Hippocampus Volume_mm3 (mm^3)  4057.5   mm^3
+f7d7eca0-88d2-11ea-91bc-c82a141f5fe7  age                                                         9
+f7d7eca0-88d2-11ea-91bc-c82a141f5fe7  sex                                                         M
+c81d4e26-88d2-11ea-91bc-c82a141f5fe7  fs_003343  ilx_0738276  Left-Hippocampus Volume_mm3 (mm^3)  4556.8   mm^3
+c81d4e26-88d2-11ea-91bc-c82a141f5fe7  sex                                                         M
+c81d4e26-88d2-11ea-91bc-c82a141f5fe7  age                                                         12
+d7e882a4-88d2-11ea-91bc-c82a141f5fe7  fs_003343  ilx_0738276  Left-Hippocampus Volume_mm3 (mm^3)  3978.2   mm^3
+d7e882a4-88d2-11ea-91bc-c82a141f5fe7  sex                                                         F
+d7e882a4-88d2-11ea-91bc-c82a141f5fe7  age                                                         11
+d7f90796-88d2-11ea-91bc-c82a141f5fe7  fs_003343  ilx_0738276  Left-Hippocampus Volume_mm3 (mm^3)  4717.3   mm^3
+d7f90796-88d2-11ea-91bc-c82a141f5fe7  age                                                         10
+d7f90796-88d2-11ea-91bc-c82a141f5fe7  sex                                                         F
+b7fc4636-88d2-11ea-91bc-c82a141f5fe7  fs_003343  ilx_0738276  Left-Hippocampus Volume_mm3 (mm^3)  3770.7   mm^3
+b7fc4636-88d2-11ea-91bc-c82a141f5fe7  age                                                         12
+b7fc4636-88d2-11ea-91bc-c82a141f5fe7  sex                                                         M
+a802f210-88d2-11ea-91bc-c82a141f5fe7  fs_003343  ilx_0738276  Left-Hippocampus Volume_mm3 (mm^3)  4119.5   mm^3
+a802f210-88d2-11ea-91bc-c82a141f5fe7  age                                                         9
+a802f210-88d2-11ea-91bc-c82a141f5fe7  sex                                                         F
+d8209086-88d2-11ea-91bc-c82a141f5fe7  fs_003343  ilx_0738276  Left-Hippocampus Volume_mm3 (mm^3)  4685.2   mm^3
+d8209086-88d2-11ea-91bc-c82a141f5fe7  age                                                         8
+d8209086-88d2-11ea-91bc-c82a141f5fe7  sex                                                         M
+a816b6f6-88d2-11ea-91bc-c82a141f5fe7  fs_003343  ilx_0738276  Left-Hippocampus Volume_mm3 (mm^3)  4492.8   mm^3
+a816b6f6-88d2-11ea-91bc-c82a141f5fe7  sex                                                         M
+a816b6f6-88d2-11ea-91bc-c82a141f5fe7  age                                                         9
+f7ebc16c-88d2-11ea-91bc-c82a141f5fe7  fs_003343  ilx_0738276  Left-Hippocampus Volume_mm3 (mm^3)  4126.9   mm^3
+f7ebc16c-88d2-11ea-91bc-c82a141f5fe7  age                                                         9
+f7ebc16c-88d2-11ea-91bc-c82a141f5fe7  sex                                                         F
+c80978ba-88d2-11ea-91bc-c82a141f5fe7  fs_003343  ilx_0738276  Left-Hippocampus Volume_mm3 (mm^3)  3884.8   mm^3
+c80978ba-88d2-11ea-91bc-c82a141f5fe7  age                                                         9
+c80978ba-88d2-11ea-91bc-c82a141f5fe7  sex                                                         F
+e7e52d84-88d2-11ea-91bc-c82a141f5fe7  fs_003343  ilx_0738276  Left-Hippocampus Volume_mm3 (mm^3)  4461.9   mm^3
+e7e52d84-88d2-11ea-91bc-c82a141f5fe7  sex                                                         M
+e7e52d84-88d2-11ea-91bc-c82a141f5fe7  age                                                         10
+b7f5c720-88d2-11ea-91bc-c82a141f5fe7  fs_003343  ilx_0738276  Left-Hippocampus Volume_mm3 (mm^3)  3995.9   mm^3
+b7f5c720-88d2-11ea-91bc-c82a141f5fe7  age                                                         8
+b7f5c720-88d2-11ea-91bc-c82a141f5fe7  sex                                                         M
+e7ffa3f8-88d2-11ea-91bc-c82a141f5fe7  fs_003343  ilx_0738276  Left-Hippocampus Volume_mm3 (mm^3)  3924.1   mm^3
+e7ffa3f8-88d2-11ea-91bc-c82a141f5fe7  age                                                         9
+e7ffa3f8-88d2-11ea-91bc-c82a141f5fe7  sex                                                         F
+f7f276c4-88d2-11ea-91bc-c82a141f5fe7  fs_003343  ilx_0738276  Left-Hippocampus Volume_mm3 (mm^3)  3912.3   mm^3
+f7f276c4-88d2-11ea-91bc-c82a141f5fe7  age                                                         8
+f7f276c4-88d2-11ea-91bc-c82a141f5fe7  sex                                                         F
+b8137b76-88d2-11ea-91bc-c82a141f5fe7  fs_003343  ilx_0738276  Left-Hippocampus Volume_mm3 (mm^3)  3723.8   mm^3
+b8137b76-88d2-11ea-91bc-c82a141f5fe7  age                                                         11
+b8137b76-88d2-11ea-91bc-c82a141f5fe7  sex                                                         M
+f80cbb7e-88d2-11ea-91bc-c82a141f5fe7  fs_003343  ilx_0738276  Left-Hippocampus Volume_mm3 (mm^3)  4609.6   mm^3
+f80cbb7e-88d2-11ea-91bc-c82a141f5fe7  sex                                                         F
+f80cbb7e-88d2-11ea-91bc-c82a141f5fe7  age                                                         11
+e8063862-88d2-11ea-91bc-c82a141f5fe7  fs_003343  ilx_0738276  Left-Hippocampus Volume_mm3 (mm^3)  4275.2   mm^3
+e8063862-88d2-11ea-91bc-c82a141f5fe7  sex                                                         F
+e8063862-88d2-11ea-91bc-c82a141f5fe7  age                                                         12
+d7dea41e-88d2-11ea-91bc-c82a141f5fe7  fs_003343  ilx_0738276  Left-Hippocampus Volume_mm3 (mm^3)  4110.7   mm^3
+d7dea41e-88d2-11ea-91bc-c82a141f5fe7  age                                                         8
+d7dea41e-88d2-11ea-91bc-c82a141f5fe7  sex                                                         M
+b7db4ba2-88d2-11ea-91bc-c82a141f5fe7  fs_003343  ilx_0738276  Left-Hippocampus Volume_mm3 (mm^3)  4119.7   mm^3
+b7db4ba2-88d2-11ea-91bc-c82a141f5fe7  age                                                         9
+b7db4ba2-88d2-11ea-91bc-c82a141f5fe7  sex                                                         M
