@@ -1357,23 +1357,25 @@ def define_new_concept(source_variable, ilx_obj):
 
 def annotate_data_element(source_variable, current_tuple, source_variable_annotations):
     '''
-
-
+    :source_variable: variable name for which we're annotating
+    :current_tuple: this is the tuple key of the :source_variable: in the
+    dictionary :source_variable_annotations:.  These are compound keys
+    :source_variable_annotations: dictionary of variable annotations.
     '''
 
     # user instructions
-    print("\nYou will now be asked a series of questions to annotate your source variable: %s" % source_variable)
+    print("\nYou will now be asked a series of questions to annotate your term: %s" % source_variable)
 
     # collect term information from user
-    term_label = input("Please enter a full name to associate with the variable [%s]:\t" % source_variable)
+    term_label = input("Please enter a full name to associate with the term [%s]:\t" % source_variable)
     if term_label == '':
         term_label = source_variable
 
-    term_definition = input("Please enter a definition for this variable:\t")
+    term_definition = input("Please enter a definition for this term:\t")
 
     # get datatype
     while True:
-        print("Please enter the value type for this variable from the following list:")
+        print("Please enter the value type for this term from the following list:")
         print("\t 1: string - The string datatype represents character strings")
         print("\t 2: categorical - A variable that can take on one of a limited number of possible values, assigning each to a nominal category on the basis of some qualitative property.")
         print("\t 3: boolean - Binary-valued logic:{true,false}")
