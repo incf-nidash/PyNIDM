@@ -54,12 +54,13 @@ from sklearn import metrics
               help="A comma separated list of NIDM files with full path")
 @click.option("--cde_file_list", "-nc", required=False,
               help="A comma separated list of NIDM CDE files with full path. Can also be set in the CDE_DIR environment variable")
-@click.option("-ind_vars",
-              help="This parameter will return data for only the field names in the comma separated list (e.g. -ind_vars age,fs_00003) from all nidm files supplied")
-@click.option("-dep_var",
+@click.option("-dep_var", required=True,
               help="This parameter will return data for only the field names in the comma separated list (e.g. -dep_var age,fs_00003) from all nidm files supplied")
 
+
 @optgroup.group('Query Type',help='Pick among the following query type selections',cls=RequiredMutuallyExclusiveOptionGroup)
+@optgroup.option("-ind_vars",
+              help="This parameter will return data for only the field names in the comma separated list (e.g. -ind_vars age,fs_00003) from all nidm files supplied")
 @optgroup.option("--query_file", "-q", type=click.File('r'),
               help="Text file containing a SPARQL query to execute")
 @optgroup.option("--get_participants", "-p", is_flag=True,
@@ -74,10 +75,6 @@ from sklearn import metrics
               help="Parameter, if set, will return all brain volume DataElements in NIDM file along with details")
 @optgroup.option("--get_brainvols", "-bv", is_flag=True,
               help="Parameter, if set, will return all brain volume data elements and values along with participant IDs in NIDM file")
-@optgroup.option("-ind_vars", required=True,
-              help="This parameter will return data for only the field names in the comma separated list (e.g. -ind_vars age,fs_00003) from all nidm files supplied")
-@optgroup.option("-dep_var", required=True,
-              help="This parameter will return data for only the field names in the comma separated list (e.g. -dep_var age,fs_00003) from all nidm files supplied")
 @optgroup.option("--uri", "-u",
               help="A REST API URI query")
 @click.option("--output_file", "-o", required=False,
