@@ -1480,7 +1480,7 @@ def annotate_data_element(source_variable, current_tuple, source_variable_annota
 
     # print mappings
     print("\n*************************************************************************************")
-    print("Stored mapping Column: %s ->  " % source_variable)
+    print("Stored mapping: %s ->  " % source_variable)
     print("label: %s" % source_variable_annotations[current_tuple]['label'])
     print("source variable: %s" % source_variable_annotations[current_tuple]['source_variable'])
     print("description: %s" % source_variable_annotations[current_tuple]['description'])
