@@ -803,7 +803,7 @@ def authenticate_github(authed=None,credentials=None):
         logging.critical("GitHub authentication failed.  Check your username / password / token and try again")
         return None
     else:
-        return authed
+        return authed,g
 
 def getSubjIDColumn(column_to_terms,df):
     '''
