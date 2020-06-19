@@ -171,27 +171,27 @@ def linreg(nidm_file_list, cde_file_list, query_file, output_file, get_participa
             else:
                 df_list.append(pd.DataFrame(restParser.run([nidm_file], uri)))
                 df = pd.concat(df_list)
-                x = df.to_csv()
-                df.shape()  # says number of rows and columns in form of tuple
-                df.describe()  # says dataset statistics
-                if df.isnull().any():  # if there are empty spaces in dataset
-                    df = df.fillna(method='ffill')
-                data = list(csv.reader(x))
-                variables = []
-                independentvariables = ind_vars.split()
-                for i in range(len(independentvariables)+1):
-                    try:
-                        float(data[i][4])
+                x = df.to_csv() #changes the dataframe to a csv to make it easy to parse
+                x.shape()  # says number of rows and columns in form of tuple
+                x.describe()  # says dataset statistics
+                if x.isnull().any():  # if there are empty spaces in dataset
+                    x = x.fillna(method='ffill') #fills them
+                data = list(csv.reader(x)) #makes the csv a 2D list to make it easier to call the contents of certain cells
+                variables = [] #stores the names of the categorical variables
+                independentvariables = ind_vars.split() #makes a list of the independent variables
+                for i in range(len(independentvariables)+1): #goes through each variable
+                    try: #if the value of the field can be turned into a float (is numerical)
+                        float(data[i][4]) #prints no error then
                         print("No error")
-                    except TypeError:
-                        if not data[i][1] in list:
+                    except TypeError: #if it can't be (is a string)
+                        if not data[i][1] in list: #adds the variable name to the list if it isn't there already
                             variables.append(data[i][1])
-                for j in range (len(variables)):
-                    ohe = OneHotEncoder(sparse=False)
+                for j in range (len(variables)): #for all the categorical variables
+                    ohe = OneHotEncoder(sparse=False) #encodes them into a numerical format
                     ohe.fit_transform(df[[variables[x]]])
                     ohe.categories_()
-                X = x[[independentvariables]].values
-                y = x[dep_var].values
+                X = x[[independentvariables]].values #gets the modified values of the independent variables
+                y = x[dep_var].values #gets the modified values of the dependent variable
                 # below code puts 80% of data into training set and 20% to the test set
                 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
 
