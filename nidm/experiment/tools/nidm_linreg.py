@@ -47,6 +47,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import cross_val_score
+from sklearn.preprocessing import OneHotEncoder
 from sklearn import metrics
 
 @cli.command()
@@ -161,15 +163,64 @@ def linreg(nidm_file_list, cde_file_list, query_file, output_file, get_participa
         for nidm_file in nidm_file_list.split(","):
             # get project UUID
             project = GetProjectsUUID([nidm_file])
-            uri = "/projects/" + project[0].toPython().split("/")[-1] + "?fields=" + ind_vars + dep_var
+            uri = "/projects/" + project[0].toPython().split("/")[-1] + "?fields=" + ind_vars + "," + dep_var
             # get fields output from each file and concatenate
             if (output_file is None):
                 # just print results
                 print(restParser.run([nidm_file], uri))
             else:
                 df_list.append(pd.DataFrame(restParser.run([nidm_file], uri)))
+                df = pd.concat(df_list)
+                x = df.to_csv()
+                df.shape()  # says number of rows and columns in form of tuple
+                df.describe()  # says dataset statistics
+                if df.isnull().any():  # if there are empty spaces in dataset
+                    df = df.fillna(method='ffill')
+                data = list(csv.reader(x))
+                variables = []
+                independentvariables = ind_vars.split()
+                for i in range(len(independentvariables)+1):
+                    try:
+                        float(data[i][4])
+                        print("No error")
+                    except TypeError:
+                        if not data[i][1] in list:
+                            variables.append(data[i][1])
+                for j in range (len(variables)):
+                    ohe = OneHotEncoder(sparse=False)
+                    ohe.fit_transform(df[[variables[x]]])
+                    ohe.categories_()
+                X = x[[independentvariables]].values
+                y = x[dep_var].values
+                # below code puts 80% of data into training set and 20% to the test set
+                X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
 
-        if (output_file is not None):
+                # training
+                regressor = LinearRegression()
+                regressor.fit(X_train, y_train)
+
+                # to see coefficients
+                coeff_df = pd.DataFrame(regressor.coef_, X.columns, columns=['Coefficient'])
+                coeff_df
+
+                # prediction
+                y_pred = regressor.predict(X_test)
+
+                # to check the accuracy
+                df = pd.DataFrame({'Actual': y_test, 'Predicted': y_pred})
+                df1 = df.head(25)
+                # Plotting actual versus predicted
+                df1.plot(kind='bar', figsize=(10, 8))
+                plt.grid(which='major', linestyle='-', linewidth='0.5', color='green')
+                plt.grid(which='minor', linestyle=':', linewidth='0.5', color='black')
+                plt.show()
+
+                # evaluating performance of the algorithm using MAE, RMSE, RMSE
+                print('Mean Absolute Error:', metrics.mean_absolute_error(y_test, y_pred))
+                print('Mean Squared Error:', metrics.mean_squared_error(y_test, y_pred))
+                print('Root Mean Squared Error:', np.sqrt(metrics.mean_squared_error(y_test, y_pred)))
+
+    if (output_file is not None):
             # concatenate data frames
             df = pd.concat(df_list)
             # output to csv file
