@@ -5,6 +5,7 @@ from rdflib import Namespace,URIRef
 import prov.model as pm
 from os import remove, path
 import tempfile
+import pytest
 
 from prov.model import ProvDocument, QualifiedName
 from prov.model import Namespace as provNamespace
@@ -343,6 +344,7 @@ def test_download_cde_files():
         fcount += 1
     assert fcount > 0
 
+@pytest.mark.skip(reason="We don't have an easily accessible file for this test so skipping it until better test samples are available.")
 def test_custom_data_types():
     SPECIAL_TEST_FILES = ['/opt/project/ttl/MTdemog_aseg.ttl']
 
