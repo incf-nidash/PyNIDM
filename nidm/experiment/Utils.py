@@ -1098,47 +1098,50 @@ def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_
             # write annotations to json file so user can start up again if not doing whole file
             write_json_mapping_file(column_to_terms, output_file, bids)
 
-        # now we should add the data element definition with concept annotation to InterLex
-        # check if this is a categorical variable, if so it will have 'levels' key
-        if 'levels' in column_to_terms[current_tuple]:
-            if 'isAbout' in column_to_terms[current_tuple]:
-                ilx_output = AddPDEToInterlex(ilx_obj=ilx_obj, label=column_to_terms[current_tuple]['label'],
-                                definition=column_to_terms[current_tuple]['definition'], min =
-                                column_to_terms[current_tuple]['minimumValue'], max =
-                                column_to_terms[current_tuple]['maximumValue'], units =
-                                column_to_terms[current_tuple]['hasUnits'], datatype=
+
+        try:
+            # now we should add the data element definition with concept annotation to InterLex
+            # check if this is a categorical variable, if so it will have 'levels' key
+            if 'levels' in column_to_terms[current_tuple]:
+                if 'isAbout' in column_to_terms[current_tuple]:
+                    ilx_output = AddPDEToInterlex(ilx_obj=ilx_obj, label=column_to_terms[current_tuple]['label'],
+                                definition=column_to_terms[current_tuple]['description'], min =
+                                column_to_terms[current_tuple]['minValue'], max =
+                                column_to_terms[current_tuple]['maxValue'], units =
+                                column_to_terms[current_tuple]['hasUnit'], datatype=
                                 column_to_terms[current_tuple]['valueType'], isabout=
                                 column_to_terms[current_tuple]['isAbout'], categorymappings=
                                 json.dumps(column_to_terms[current_tuple]['levels']))
-            else:
-                ilx_output = AddPDEToInterlex(ilx_obj=ilx_obj, label=column_to_terms[current_tuple]['label'],
-                                definition=column_to_terms[current_tuple]['definition'], min =
-                                column_to_terms[current_tuple]['minimumValue'], max =
-                                column_to_terms[current_tuple]['maximumValue'], units =
-                                column_to_terms[current_tuple]['hasUnits'], datatype=
+                else:
+                    ilx_output = AddPDEToInterlex(ilx_obj=ilx_obj, label=column_to_terms[current_tuple]['label'],
+                                definition=column_to_terms[current_tuple]['description'], min =
+                                column_to_terms[current_tuple]['minValue'], max =
+                                column_to_terms[current_tuple]['maxValue'], units =
+                                column_to_terms[current_tuple]['hasUnit'], datatype=
                                 column_to_terms[current_tuple]['valueType'], categorymappings=
                                 json.dumps(column_to_terms[current_tuple]['levels']))
 
-        else:
-            if 'isAbout' in column_to_terms[current_tuple]:
-                ilx_output = AddPDEToInterlex(ilx_obj=ilx_obj, label=column_to_terms[current_tuple]['label'],
-                                definition=column_to_terms[current_tuple]['definition'], min =
-                                column_to_terms[current_tuple]['minimumValue'], max =
-                                column_to_terms[current_tuple]['maximumValue'], units =
-                                column_to_terms[current_tuple]['hasUnits'], datatype=
+            else:
+                if 'isAbout' in column_to_terms[current_tuple]:
+                    ilx_output = AddPDEToInterlex(ilx_obj=ilx_obj, label=column_to_terms[current_tuple]['label'],
+                                definition=column_to_terms[current_tuple]['description'], min =
+                                column_to_terms[current_tuple]['minValue'], max =
+                                column_to_terms[current_tuple]['maxValue'], units =
+                                column_to_terms[current_tuple]['hasUnit'], datatype=
                                 column_to_terms[current_tuple]['valueType'], isabout =
                                 column_to_terms[current_tuple]['isAbout'])
-            else:
-                ilx_output = AddPDEToInterlex(ilx_obj=ilx_obj, label=column_to_terms[current_tuple]['label'],
-                                definition=column_to_terms[current_tuple]['definition'], min =
-                                column_to_terms[current_tuple]['minimumValue'], max =
-                                column_to_terms[current_tuple]['maximumValue'], units =
-                                column_to_terms[current_tuple]['hasUnits'], datatype=
+                else:
+                    ilx_output = AddPDEToInterlex(ilx_obj=ilx_obj, label=column_to_terms[current_tuple]['label'],
+                                definition=column_to_terms[current_tuple]['description'], min =
+                                column_to_terms[current_tuple]['minValue'], max =
+                                column_to_terms[current_tuple]['maxValue'], units =
+                                column_to_terms[current_tuple]['hasUnit'], datatype=
                                 column_to_terms[current_tuple]['valueType'])
 
-        # now store the url from Interlex for new personal data element in column_to_terms annotation
-        column_to_terms[current_tuple]['url'] = ilx_output.iri
-
+            # now store the url from Interlex for new personal data element in column_to_terms annotation
+            column_to_terms[current_tuple]['url'] = ilx_output.iri
+        except:
+            print("WARNING: WIP: Data element not submitted to InterLex.  ")
     # write annotations to json file since data element annotations are complete
     write_json_mapping_file(column_to_terms, output_file, bids)
 
@@ -1432,11 +1435,13 @@ def annotate_data_element(source_variable, current_tuple, source_variable_annota
         if (cat_value in ['Y', 'y', 'YES', 'yes', 'Yes']) or (cat_value == ""):
             # if yes then store this as a dictionary cat_label: cat_value
             term_category = {}
+
             for category in range(1, int(num_categories) + 1):
                 # term category dictionary has labels as keys and value associated with label as value
                 cat_label = input("Please enter the text string label for the category %d:\t" % category)
                 cat_value = input("Please enter the value associated with label \"%s\":\t" % cat_label)
                 term_category[cat_label] = cat_value
+
         else:
             # if we only have text-based categories then store as a list
             term_category = []
@@ -1452,18 +1457,21 @@ def annotate_data_element(source_variable, current_tuple, source_variable_annota
         term_max = input("Please enter the maximum value [NA]:\t")
         term_units = input("Please enter the units [NA]:\t")
         # if user set any of these then store else ignore
-        if term_units != "":
-            source_variable_annotations[current_tuple]['hasUnit'] = term_units
-        if term_min != "":
-            source_variable_annotations[current_tuple]['minimumValue'] = term_min
-        if term_max != "":
-            source_variable_annotations[current_tuple]['maximumValue'] = term_max
+
+        source_variable_annotations[current_tuple]['hasUnit'] = term_units
+        source_variable_annotations[current_tuple]['minValue'] = term_min
+        source_variable_annotations[current_tuple]['maxValue'] = term_max
 
     # if the categorical data has numeric values then we can infer a min/max
     elif cat_value in ['Y', 'y', 'YES', 'yes', 'Yes']:
-        term_min = min(term_category.values())
-        term_max = max(term_category.values())
-        term_units = "categorical"
+        source_variable_annotations[current_tuple]['minValue'] = min(term_category.values())
+        source_variable_annotations[current_tuple]['maxValue'] = max(term_category.values())
+        source_variable_annotations[current_tuple]['hasUnit'] = 'NA'
+    # categorical with no min/max values
+    else:
+        source_variable_annotations[current_tuple]['minValue'] = 'NA'
+        source_variable_annotations[current_tuple]['maxValue'] = 'NA'
+        source_variable_annotations[current_tuple]['hasUnit'] = 'NA'
 
     # set term variable name as column from CSV file we're currently interrogating
     term_variable_name = source_variable
@@ -1487,10 +1495,10 @@ def annotate_data_element(source_variable, current_tuple, source_variable_annota
     print("valueType: %s" % source_variable_annotations[current_tuple]['valueType'])
     if 'hasUnit' in source_variable_annotations[current_tuple]:
         print("hasUnit: %s" % source_variable_annotations[current_tuple]['hasUnit'])
-    if 'mininumValue' in source_variable_annotations[current_tuple]:
-        print("minimumValue: %s" % source_variable_annotations[current_tuple]['minimumValue'])
-    if 'maximumValue' in source_variable_annotations[current_tuple]:
-        print("maximumValue: %s" % source_variable_annotations[current_tuple]['maximumValue'])
+    if 'minValue' in source_variable_annotations[current_tuple]:
+        print("minimumValue: %s" % source_variable_annotations[current_tuple]['minValue'])
+    if 'maxValue' in source_variable_annotations[current_tuple]:
+        print("maximumValue: %s" % source_variable_annotations[current_tuple]['maxValue'])
     if term_datatype == 'cat':
         print("levels: %s" % source_variable_annotations[current_tuple]['levels'])
     print("---------------------------------------------------------------------------------------")
