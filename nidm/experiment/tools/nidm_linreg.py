@@ -1,35 +1,35 @@
-#!/usr/bin/env python
+# !/usr/bin/env python
 
-#**************************************************************************************
-#**************************************************************************************
+# **************************************************************************************
+# **************************************************************************************
 #  nidm_linreg.py
 #  License: GPL
-#**************************************************************************************
-#**************************************************************************************
+# **************************************************************************************
+# **************************************************************************************
 # Date: 6-15-20                 Coded by: Ashmita Kumar (ashmita.kumar@gmail.com)
 # Filename: nidm_linreg.py
 #
 # Program description:  This program provides a tool to complete a linear regression on nidm files
 #
 #
-#**************************************************************************************
+# **************************************************************************************
 # Development environment: Python - PyCharm IDE
 #
-#**************************************************************************************
+# **************************************************************************************
 # System requirements:  Python 3.X
 # Libraries: os, sys, rdflib, pandas, argparse, logging, csv, sklearn, numpy, matplotlib
-#**************************************************************************************
+# **************************************************************************************
 # Start date: 6-15-20
 # Update history:
 # DATE            MODIFICATION				Who
 #
 #
-#**************************************************************************************
+# **************************************************************************************
 # Programmer comments:
 #
 #
-#**************************************************************************************
-#**************************************************************************************
+# **************************************************************************************
+# **************************************************************************************
 
 import os, sys
 from rdflib import Graph, util
@@ -37,7 +37,8 @@ import pandas as pd
 from argparse import ArgumentParser
 import logging
 import csv
-from nidm.experiment.Query import sparql_query_nidm, GetParticipantIDs,GetProjectInstruments,GetProjectsUUID,GetInstrumentVariables,GetDataElements,GetBrainVolumes,GetBrainVolumeDataElements,getCDEs
+from nidm.experiment.Query import sparql_query_nidm, GetParticipantIDs, GetProjectInstruments, GetProjectsUUID, \
+    GetInstrumentVariables, GetDataElements, GetBrainVolumes, GetBrainVolumeDataElements, getCDEs
 import click
 from click_option_group import optgroup, RequiredMutuallyExclusiveOptionGroup
 from nidm.experiment.tools.click_base import cli
@@ -51,6 +52,7 @@ from sklearn.model_selection import cross_val_score
 from sklearn.preprocessing import OneHotEncoder
 from sklearn import metrics
 
+
 @cli.command()
 @click.option("--nidm_file_list", "-nl", required=True,
               help="A comma separated list of NIDM files with full path")
@@ -58,34 +60,34 @@ from sklearn import metrics
               help="A comma separated list of NIDM CDE files with full path. Can also be set in the CDE_DIR environment variable")
 @click.option("-dep_var", required=True,
               help="This parameter will return data for only the field names in the comma separated list (e.g. -dep_var age,fs_00003) from all nidm files supplied")
-
-
-@optgroup.group('Query Type',help='Pick among the following query type selections',cls=RequiredMutuallyExclusiveOptionGroup)
+@optgroup.group('Query Type', help='Pick among the following query type selections',
+                cls=RequiredMutuallyExclusiveOptionGroup)
 @optgroup.option("-ind_vars",
-              help="This parameter will return data for only the field names in the comma separated list (e.g. -ind_vars age,fs_00003) from all nidm files supplied")
+                 help="This parameter will return data for only the field names in the comma separated list (e.g. -ind_vars age,fs_00003) from all nidm files supplied")
 @optgroup.option("--query_file", "-q", type=click.File('r'),
-              help="Text file containing a SPARQL query to execute")
+                 help="Text file containing a SPARQL query to execute")
 @optgroup.option("--get_participants", "-p", is_flag=True,
-              help="Parameter, if set, query will return participant IDs and prov:agent entity IDs")
+                 help="Parameter, if set, query will return participant IDs and prov:agent entity IDs")
 @optgroup.option("--get_instruments", "-i", is_flag=True,
-              help="Parameter, if set, query will return list of onli:assessment-instrument:")
+                 help="Parameter, if set, query will return list of onli:assessment-instrument:")
 @optgroup.option("--get_instrument_vars", "-iv", is_flag=True,
-              help="Parameter, if set, query will return list of onli:assessment-instrument: variables")
+                 help="Parameter, if set, query will return list of onli:assessment-instrument: variables")
 @optgroup.option("--get_dataelements", "-de", is_flag=True,
-              help="Parameter, if set, will return all DataElements in NIDM file")
+                 help="Parameter, if set, will return all DataElements in NIDM file")
 @optgroup.option("--get_dataelements_brainvols", "-debv", is_flag=True,
-              help="Parameter, if set, will return all brain volume DataElements in NIDM file along with details")
+                 help="Parameter, if set, will return all brain volume DataElements in NIDM file along with details")
 @optgroup.option("--get_brainvols", "-bv", is_flag=True,
-              help="Parameter, if set, will return all brain volume data elements and values along with participant IDs in NIDM file")
+                 help="Parameter, if set, will return all brain volume data elements and values along with participant IDs in NIDM file")
 @optgroup.option("--uri", "-u",
-              help="A REST API URI query")
+                 help="A REST API URI query")
 @click.option("--output_file", "-o", required=False,
               help="Optional output file (CSV) to store results of query")
 @click.option("-j/-no_j", required=False, default=False,
               help="Return result of a uri query as JSON")
 @click.option('-v', '--verbosity', required=False, help="Verbosity level 0-5, 0 is default", default="0")
-
-def linreg(nidm_file_list, cde_file_list, query_file, output_file, get_participants, get_instruments, get_instrument_vars, get_dataelements, get_brainvols,get_dataelements_brainvols, ind_vars, dep_var, uri, j, verbosity):
+def linreg(nidm_file_list, cde_file_list, query_file, output_file, get_participants, get_instruments,
+           get_instrument_vars, get_dataelements, get_brainvols, get_dataelements_brainvols, ind_vars, dep_var, uri, j,
+           verbosity):
     """
         This function provides query support for NIDM graphs.
         """
@@ -154,77 +156,70 @@ def linreg(nidm_file_list, cde_file_list, query_file, output_file, get_participa
     elif ind_vars and dep_var:
         # fields only query.  We'll do it with the rest api
         restParser = RestParser(verbosity_level=int(verbosity))
-        if (output_file is not None):
-            restParser.setOutputFormat(RestParser.OBJECT_FORMAT)
-            df_list = []
-        else:
-            restParser.setOutputFormat(RestParser.CLI_FORMAT)
+        restParser.setOutputFormat(RestParser.OBJECT_FORMAT)
+        df_list = []
         # set up uri to do fields query for each nidm file
         for nidm_file in nidm_file_list.split(","):
             # get project UUID
             project = GetProjectsUUID([nidm_file])
             uri = "/projects/" + project[0].toPython().split("/")[-1] + "?fields=" + ind_vars + "," + dep_var
             # get fields output from each file and concatenate
-            if (output_file is None):
-                # just print results
-                print(restParser.run([nidm_file], uri))
-            else:
-                df_list.append(pd.DataFrame(restParser.run([nidm_file], uri)))
-                df = pd.concat(df_list)
-                x = df.to_csv() #changes the dataframe to a csv to make it easy to parse
-                x.shape()  # says number of rows and columns in form of tuple
-                x.describe()  # says dataset statistics
-                if x.isnull().any():  # if there are empty spaces in dataset
-                    x = x.fillna(method='ffill') #fills them
-                data = list(csv.reader(x)) #makes the csv a 2D list to make it easier to call the contents of certain cells
-                variables = [] #stores the names of the categorical variables
-                independentvariables = ind_vars.split() #makes a list of the independent variables
-                for i in range(len(independentvariables)+1): #goes through each variable
-                    try: #if the value of the field can be turned into a float (is numerical)
-                        float(data[i][4]) #prints no error then
-                        print("No error")
-                    except TypeError: #if it can't be (is a string)
-                        if not data[i][1] in list: #adds the variable name to the list if it isn't there already
-                            variables.append(data[i][1])
-                for j in range (len(variables)): #for all the categorical variables
-                    ohe = OneHotEncoder(sparse=False) #encodes them into a numerical format
-                    ohe.fit_transform(df[[variables[x]]])
-                    ohe.categories_()
-                X = x[[independentvariables]].values #gets the modified values of the independent variables
-                y = x[dep_var].values #gets the modified values of the dependent variable
-                # below code puts 80% of data into training set and 20% to the test set
-                X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
+            df_list.append(pd.DataFrame(restParser.run([nidm_file], uri)))
+            df = pd.concat(df_list)
+            df.to_csv('data.csv')
+            x = pd.read_csv('data.csv')  # changes the dataframe to a csv to make it easy to parse
+            x.shape  # says number of rows and columns in form of tuple
+            x.describe()  # says dataset statistics
+            #if x.isnull().any():  # if there are empty spaces in dataset
+                #x = x.fillna(method='ffill')  # fills them
+            data = list(csv.reader(open('data.csv')))  # makes the csv a 2D list to make it easier to call the contents of certain cells
+            variables = []  # stores the names of the categorical variables
+            independentvariables = ind_vars.split()  # makes a list of the independent variables
+            for i in range(1,len(data)):  # goes through each variable
+                try:  # if the value of the field can be turned into a float (is numerical)
+                    float(data[i][5])  # prints no error then
+                except ValueError:  # if it can't be (is a string)
+                    if data[i][5] not in variables:  # adds the variable name to the list if it isn't there already
+                        variables.append(data[i][5])
+            for j in range(1,len(data)):  # for all the categorical variables
+                if data[j][5] in variables:
+                    data[j][5] = variables.index(data[j][5])
+            X = x[[independentvariables]].values  # gets the modified values of the independent variables
+            y = x[dep_var].values  # gets the modified values of the dependent variable
+            # below code puts 80% of data into training set and 20% to the test set
+            X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
 
-                # training
-                regressor = LinearRegression()
-                regressor.fit(X_train, y_train)
+            # training
+            regressor = LinearRegression()
+            regressor.fit(X_train, y_train)
 
-                # to see coefficients
-                coeff_df = pd.DataFrame(regressor.coef_, X.columns, columns=['Coefficient'])
-                coeff_df
+            # to see coefficients
+            coeff_df = pd.DataFrame(regressor.coef_, X.columns, columns=['Coefficient'])
+            coeff_df
 
-                # prediction
-                y_pred = regressor.predict(X_test)
+            # prediction
+            y_pred = regressor.predict(X_test)
 
-                # to check the accuracy
-                df = pd.DataFrame({'Actual': y_test, 'Predicted': y_pred})
-                df1 = df.head(25)
-                # Plotting actual versus predicted
-                df1.plot(kind='bar', figsize=(10, 8))
-                plt.grid(which='major', linestyle='-', linewidth='0.5', color='green')
-                plt.grid(which='minor', linestyle=':', linewidth='0.5', color='black')
-                plt.show()
+            # to check the accuracy
+            df = pd.DataFrame({'Actual': y_test, 'Predicted': y_pred})
+            df1 = df.head(25)
+            # Plotting actual versus predicted
+            df1.plot(kind='bar', figsize=(10, 8))
+            plt.grid(which='major', linestyle='-', linewidth='0.5', color='green')
+            plt.grid(which='minor', linestyle=':', linewidth='0.5', color='black')
+            plt.show()
 
-                # evaluating performance of the algorithm using MAE, RMSE, RMSE
-                print('Mean Absolute Error:', metrics.mean_absolute_error(y_test, y_pred))
-                print('Mean Squared Error:', metrics.mean_squared_error(y_test, y_pred))
-                print('Root Mean Squared Error:', np.sqrt(metrics.mean_squared_error(y_test, y_pred)))
+            # evaluating performance of the algorithm using MAE, RMSE, RMSE
+            print('Mean Absolute Error:', metrics.mean_absolute_error(y_test, y_pred))
+            print('Mean Squared Error:', metrics.mean_squared_error(y_test, y_pred))
+            print('Root Mean Squared Error:', np.sqrt(metrics.mean_squared_error(y_test, y_pred)))
 
-    if (output_file is not None):
+        if (output_file is not None):
             # concatenate data frames
             df = pd.concat(df_list)
             # output to csv file
             df.to_csv(output_file)
+
 
     elif uri:
         restParser = RestParser(verbosity_level=int(verbosity))
