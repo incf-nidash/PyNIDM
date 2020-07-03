@@ -48,6 +48,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
+from sklearn import preprocessing
+from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import cross_val_score
 from sklearn.preprocessing import OneHotEncoder
 from sklearn import metrics
@@ -166,42 +168,55 @@ def linreg(nidm_file_list, cde_file_list, query_file, output_file, get_participa
             # get fields output from each file and concatenate
             df_list.append(pd.DataFrame(restParser.run([nidm_file], uri)))
             df = pd.concat(df_list)
-            df.to_csv('data.csv') #turns the dataframe to a parseable csv
+            df.to_csv('data.csv') #turns the dataframe into a csv
             data = list(csv.reader(open('data.csv')))  # makes the csv a 2D list to make it easier to call the contents of certain cells
-            independentvariables = ind_vars.split()  # makes a list of the independent variables
+            independentvariables = ind_vars.split(",")  # makes a list of the independent variables
+            numcols = (len(data) - 1) // (len(independentvariables) + 1) #Finds the number of columns in the original dataframe
             condensed_data = [[0]*(len(independentvariables)+1)] #makes an array 1 row by the number of necessary columns
+            for i in range(numcols): #makes the 2D array big enough to store all of the necessary values in the edited dataset
+                condensed_data.append([0] * (len(independentvariables) + 1))
             for i in range(len(independentvariables)): #stores the independent variable names in the first row
                 condensed_data[0][i] = independentvariables[i]
             condensed_data[0][-1] = str(dep_var) #stores the dependent variable name in the first row
-            row = 1 #begins at the first row to add data
+            numrows = 1 #begins at the first row to add data
             for i in range(len(condensed_data[0])): #starts iterating through the dataset, looking for the name in that
                 for j in range(1,len(data)): #column, so it can append the values under the proper variables
-                    condensed_data.append([0]*(len(independentvariables)+1))
                     if data[j][2] == condensed_data[0][i]:#in the dataframe, the name is in column 3
-                        condensed_data[row][i] = data[j][5]#in the dataframe, the value is in column 6
-                        row = row+1 #moves on to the next row to add the proper values
+                        condensed_data[numrows][i] = data[j][5]#in the dataframe, the value is in column 6
+                        numrows = numrows+1 #moves on to the next row to add the proper values
+                numrows = 1 #resets to the first row for the next variable
             with open("condensed.csv", "w", newline="") as f: #turns the edited data into a csv
                 writer = csv.writer(f)
                 writer.writerows(condensed_data)
-            x = pd.read_csv('condensed.csv')  # changes the dataframe to a csv to make it easy to parse
+            x = pd.read_csv('condensed.csv')  # changes the dataframe to a csv to make it easier to work with
+            x.head() #prints what the csv looks like
+            x.dtypes #checks data format
+            obj_df = x.select_dtypes #puts all the variables in a dataset
             x.shape  # says number of rows and columns in form of tuple
             x.describe()  # says dataset statistics
-            if x.isnull().any():  # if there are empty spaces in dataset
-                x = x.fillna(method='ffill')  # fills them
-            variables = []  # stores the names of the categorical variables
-
-            for r in range(1,len(condensed_data)):  # goes through each variable
-                for c in range(len(independentvariables)+1):
-                    try:  # if the value of the field can be turned into a float (is numerical)
-                        float(data[r][c])  # prints no error then
+            obj_df = x.select_dtypes(include=['object']).copy() #takes everything that is an object (not float or int) and puts it in a new dataset
+            obj_df.head() #prints the new dataset
+            int_df = x.select_dtypes(include=['int64']).copy() #takes everything that is an int and puts it in a new dataset
+            float_df = x.select_dtypes(include=['float64']).copy() #takes everything that is a float and puts it in a new dataset
+            df_int_float = pd.concat([float_df, int_df], axis=1)
+            variables = [] #starts a list that will store all variables that are not numbers
+            for i in range(1,len(condensed_data)):  #goes through each variable
+                for j in range(len(condensed_data[0])): #in the 2D array
+                    try:  #if the value of the field can be turned into a float (is numerical)
+                        float(condensed_data[i][j])  #this means it's a number
                     except ValueError:  # if it can't be (is a string)
-                        if data[0][c] not in variables:  # adds the variable name to the list if it isn't there already
-                            variables.append(data[0][c])
-            ohe = OneHotEncoder(sparse=False)  #Creates the encoder
-            ohe.fit_transform(x[variables]) #Turns categorical variables into numbers
-            #ohe.categories_ #supposed to show the categories that got changed
-            X = x[[independentvariables]].values  # gets the modified values of the independent variables
-            y = x[dep_var].values  # gets the modified values of the dependent variable
+                        if condensed_data[0][j] not in variables:  # adds the variable name to the list if it isn't there already
+                            print(condensed_data[0][j])
+                            variables.append(condensed_data[0][j])
+            le = preprocessing.LabelEncoder() #anything involving le shows the encoding of categorical variables
+            for i in range(len(variables)):
+                le.fit(obj_df[variables[i]].astype(str))
+            obj_df_trf = obj_df.astype(str).apply(le.fit_transform) #transforms the categorical variables into numbers.
+            df_final = pd.concat([df_int_float, obj_df_trf], axis=1) #join_axes=[df_int_float.index])
+            df_final.head() #shows the final dataset with all the encoding
+            print(df_final) #prints the final dataset
+            X = df_final[independentvariables]  # gets the modified values of the independent variables
+            y = df_final[dep_var] # gets the modified values of the dependent variable
             # below code puts 80% of data into training set and 20% to the test set
             X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
 
