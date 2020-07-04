@@ -179,10 +179,17 @@ def linreg(nidm_file_list, cde_file_list, query_file, output_file, get_participa
                 condensed_data[0][i] = independentvariables[i]
             condensed_data[0][-1] = str(dep_var) #stores the dependent variable name in the first row
             numrows = 1 #begins at the first row to add data
+            fieldcolumn = 0 #the column the variable name is in in the original dataset
+            valuecolumn = 0 #the column the value is in in the original dataset
+            for i in range(len(data[0])):
+                if data[0][i] == 'field':
+                    fieldcolumn = i #finds the column where the variable names are
+                elif data[0][i] == 'value':
+                    valuecolumn = i #finds the column where the values are
             for i in range(len(condensed_data[0])): #starts iterating through the dataset, looking for the name in that
                 for j in range(1,len(data)): #column, so it can append the values under the proper variables
-                    if data[j][2] == condensed_data[0][i]:#in the dataframe, the name is in column 3
-                        condensed_data[numrows][i] = data[j][5]#in the dataframe, the value is in column 6
+                    if data[j][fieldcolumn] == condensed_data[0][i]:#in the dataframe, the name is in column 3
+                        condensed_data[numrows][i] = data[j][valuecolumn]#in the dataframe, the value is in column 6
                         numrows = numrows+1 #moves on to the next row to add the proper values
                 numrows = 1 #resets to the first row for the next variable
             with open("condensed.csv", "w", newline="") as f: #turns the edited data into a csv
@@ -206,7 +213,6 @@ def linreg(nidm_file_list, cde_file_list, query_file, output_file, get_participa
                         float(condensed_data[i][j])  #this means it's a number
                     except ValueError:  # if it can't be (is a string)
                         if condensed_data[0][j] not in variables:  # adds the variable name to the list if it isn't there already
-                            print(condensed_data[0][j])
                             variables.append(condensed_data[0][j])
             le = preprocessing.LabelEncoder() #anything involving le shows the encoding of categorical variables
             for i in range(len(variables)):
