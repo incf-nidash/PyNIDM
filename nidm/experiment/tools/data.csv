@@ -1,0 +1,70 @@
+,subject,field,datumType,label,value,units
+0,b7fc4636-88d2-11ea-91bc-c82a141f5fe7,fs_003343,ilx_0738276,Left-Hippocampus Volume_mm3 (mm^3),3770.7,mm^3
+1,b7fc4636-88d2-11ea-91bc-c82a141f5fe7,sex,,,M,
+2,b7fc4636-88d2-11ea-91bc-c82a141f5fe7,age,,,12,
+3,d7f90796-88d2-11ea-91bc-c82a141f5fe7,fs_003343,ilx_0738276,Left-Hippocampus Volume_mm3 (mm^3),4717.3,mm^3
+4,d7f90796-88d2-11ea-91bc-c82a141f5fe7,sex,,,F,
+5,d7f90796-88d2-11ea-91bc-c82a141f5fe7,age,,,10,
+6,d7dea41e-88d2-11ea-91bc-c82a141f5fe7,fs_003343,ilx_0738276,Left-Hippocampus Volume_mm3 (mm^3),4110.7,mm^3
+7,d7dea41e-88d2-11ea-91bc-c82a141f5fe7,age,,,8,
+8,d7dea41e-88d2-11ea-91bc-c82a141f5fe7,sex,,,M,
+9,c80978ba-88d2-11ea-91bc-c82a141f5fe7,fs_003343,ilx_0738276,Left-Hippocampus Volume_mm3 (mm^3),3884.8,mm^3
+10,c80978ba-88d2-11ea-91bc-c82a141f5fe7,age,,,9,
+11,c80978ba-88d2-11ea-91bc-c82a141f5fe7,sex,,,F,
+12,f7d7eca0-88d2-11ea-91bc-c82a141f5fe7,fs_003343,ilx_0738276,Left-Hippocampus Volume_mm3 (mm^3),4057.5,mm^3
+13,f7d7eca0-88d2-11ea-91bc-c82a141f5fe7,sex,,,M,
+14,f7d7eca0-88d2-11ea-91bc-c82a141f5fe7,age,,,9,
+15,f7ebc16c-88d2-11ea-91bc-c82a141f5fe7,fs_003343,ilx_0738276,Left-Hippocampus Volume_mm3 (mm^3),4126.9,mm^3
+16,f7ebc16c-88d2-11ea-91bc-c82a141f5fe7,sex,,,F,
+17,f7ebc16c-88d2-11ea-91bc-c82a141f5fe7,age,,,9,
+18,d8100b1c-88d2-11ea-91bc-c82a141f5fe7,fs_003343,ilx_0738276,Left-Hippocampus Volume_mm3 (mm^3),4098.1,mm^3
+19,d8100b1c-88d2-11ea-91bc-c82a141f5fe7,sex,,,M,
+20,d8100b1c-88d2-11ea-91bc-c82a141f5fe7,age,,,11,
+21,e8063862-88d2-11ea-91bc-c82a141f5fe7,fs_003343,ilx_0738276,Left-Hippocampus Volume_mm3 (mm^3),4275.2,mm^3
+22,e8063862-88d2-11ea-91bc-c82a141f5fe7,age,,,12,
+23,e8063862-88d2-11ea-91bc-c82a141f5fe7,sex,,,F,
+24,d8209086-88d2-11ea-91bc-c82a141f5fe7,fs_003343,ilx_0738276,Left-Hippocampus Volume_mm3 (mm^3),4685.2,mm^3
+25,d8209086-88d2-11ea-91bc-c82a141f5fe7,age,,,8,
+26,d8209086-88d2-11ea-91bc-c82a141f5fe7,sex,,,M,
+27,c81d4e26-88d2-11ea-91bc-c82a141f5fe7,fs_003343,ilx_0738276,Left-Hippocampus Volume_mm3 (mm^3),4556.8,mm^3
+28,c81d4e26-88d2-11ea-91bc-c82a141f5fe7,age,,,12,
+29,c81d4e26-88d2-11ea-91bc-c82a141f5fe7,sex,,,M,
+30,e7ffa3f8-88d2-11ea-91bc-c82a141f5fe7,fs_003343,ilx_0738276,Left-Hippocampus Volume_mm3 (mm^3),3924.1,mm^3
+31,e7ffa3f8-88d2-11ea-91bc-c82a141f5fe7,age,,,9,
+32,e7ffa3f8-88d2-11ea-91bc-c82a141f5fe7,sex,,,F,
+33,d7e1e2c8-88d2-11ea-91bc-c82a141f5fe7,fs_003343,ilx_0738276,Left-Hippocampus Volume_mm3 (mm^3),4329.1,mm^3
+34,d7e1e2c8-88d2-11ea-91bc-c82a141f5fe7,sex,,,F,
+35,d7e1e2c8-88d2-11ea-91bc-c82a141f5fe7,age,,,12,
+36,a816b6f6-88d2-11ea-91bc-c82a141f5fe7,fs_003343,ilx_0738276,Left-Hippocampus Volume_mm3 (mm^3),4492.8,mm^3
+37,a816b6f6-88d2-11ea-91bc-c82a141f5fe7,sex,,,M,
+38,a816b6f6-88d2-11ea-91bc-c82a141f5fe7,age,,,9,
+39,a802f210-88d2-11ea-91bc-c82a141f5fe7,fs_003343,ilx_0738276,Left-Hippocampus Volume_mm3 (mm^3),4119.5,mm^3
+40,a802f210-88d2-11ea-91bc-c82a141f5fe7,sex,,,F,
+41,a802f210-88d2-11ea-91bc-c82a141f5fe7,age,,,9,
+42,f7ef007a-88d2-11ea-91bc-c82a141f5fe7,fs_003343,ilx_0738276,Left-Hippocampus Volume_mm3 (mm^3),3689.8,mm^3
+43,f7ef007a-88d2-11ea-91bc-c82a141f5fe7,age,,,8,
+44,f7ef007a-88d2-11ea-91bc-c82a141f5fe7,sex,,,F,
+45,b8137b76-88d2-11ea-91bc-c82a141f5fe7,fs_003343,ilx_0738276,Left-Hippocampus Volume_mm3 (mm^3),3723.8,mm^3
+46,b8137b76-88d2-11ea-91bc-c82a141f5fe7,age,,,11,
+47,b8137b76-88d2-11ea-91bc-c82a141f5fe7,sex,,,M,
+48,d7e882a4-88d2-11ea-91bc-c82a141f5fe7,fs_003343,ilx_0738276,Left-Hippocampus Volume_mm3 (mm^3),3978.2,mm^3
+49,d7e882a4-88d2-11ea-91bc-c82a141f5fe7,age,,,11,
+50,d7e882a4-88d2-11ea-91bc-c82a141f5fe7,sex,,,F,
+51,f7f276c4-88d2-11ea-91bc-c82a141f5fe7,fs_003343,ilx_0738276,Left-Hippocampus Volume_mm3 (mm^3),3912.3,mm^3
+52,f7f276c4-88d2-11ea-91bc-c82a141f5fe7,sex,,,F,
+53,f7f276c4-88d2-11ea-91bc-c82a141f5fe7,age,,,8,
+54,b7f5c720-88d2-11ea-91bc-c82a141f5fe7,fs_003343,ilx_0738276,Left-Hippocampus Volume_mm3 (mm^3),3995.9,mm^3
+55,b7f5c720-88d2-11ea-91bc-c82a141f5fe7,age,,,8,
+56,b7f5c720-88d2-11ea-91bc-c82a141f5fe7,sex,,,M,
+57,b7db4ba2-88d2-11ea-91bc-c82a141f5fe7,fs_003343,ilx_0738276,Left-Hippocampus Volume_mm3 (mm^3),4119.7,mm^3
+58,b7db4ba2-88d2-11ea-91bc-c82a141f5fe7,age,,,9,
+59,b7db4ba2-88d2-11ea-91bc-c82a141f5fe7,sex,,,M,
+60,f80cbb7e-88d2-11ea-91bc-c82a141f5fe7,fs_003343,ilx_0738276,Left-Hippocampus Volume_mm3 (mm^3),4609.6,mm^3
+61,f80cbb7e-88d2-11ea-91bc-c82a141f5fe7,age,,,11,
+62,f80cbb7e-88d2-11ea-91bc-c82a141f5fe7,sex,,,F,
+63,e7e52d84-88d2-11ea-91bc-c82a141f5fe7,fs_003343,ilx_0738276,Left-Hippocampus Volume_mm3 (mm^3),4461.9,mm^3
+64,e7e52d84-88d2-11ea-91bc-c82a141f5fe7,age,,,10,
+65,e7e52d84-88d2-11ea-91bc-c82a141f5fe7,sex,,,M,
+66,e819ffb4-88d2-11ea-91bc-c82a141f5fe7,fs_003343,ilx_0738276,Left-Hippocampus Volume_mm3 (mm^3),4255.6,mm^3
+67,e819ffb4-88d2-11ea-91bc-c82a141f5fe7,age,,,10,
+68,e819ffb4-88d2-11ea-91bc-c82a141f5fe7,sex,,,F,

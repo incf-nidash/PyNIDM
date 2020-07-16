@@ -273,8 +273,11 @@ def addimagingsessions(bids_layout,subject_id,session,participant, directory,img
                 except OSError:
                     logging.warning("Cannot find T1w.json file...looking for session-specific one")
                     try:
-                        with open(os.path.join(directory,'ses-' + img_session + '_T1w.json')) as data_file:
-                            dataset = json.load(data_file)
+                        if img_session is not None:
+                            with open(os.path.join(directory,'ses-' + img_session + '_T1w.json')) as data_file:
+                                dataset = json.load(data_file)
+                        else:
+                            dataset={}
                     except OSError:
                         logging.warning("Cannot find session-specific T1w.json file which is required in the BIDS spec..continuing anyway")
                         dataset={}
@@ -323,7 +326,7 @@ def addimagingsessions(bids_layout,subject_id,session,participant, directory,img
             if isfile(join(directory,file_tpl.dirname,file_tpl.filename)):
                 acq_obj.add_attributes({Constants.CRYPTO_SHA512:getsha512(join(directory,file_tpl.dirname,file_tpl.filename))})
             else:
-                logging.info("WARNINGL file %s doesn't exist! No SHA512 sum stored in NIDM files..." %join(directory,file_tpl.dirname,file_tpl.filename))
+                logging.info("WARNING file %s doesn't exist! No SHA512 sum stored in NIDM files..." %join(directory,file_tpl.dirname,file_tpl.filename))
 
             if 'run' in file_tpl.entities:
                 acq_obj.add_attributes({BIDS_Constants.json_keys["run"]:file_tpl.entities['run']})
@@ -371,8 +374,11 @@ def addimagingsessions(bids_layout,subject_id,session,participant, directory,img
                 except OSError:
                     logging.warning("Cannot find task-rest_bold.json file looking for session-specific one")
                     try:
-                        with open(os.path.join(directory,'ses-' + img_session +'_task-rest_bold.json')) as data_file:
-                            dataset = json.load(data_file)
+                        if img_session is not None:
+                            with open(os.path.join(directory,'ses-' + img_session +'_task-rest_bold.json')) as data_file:
+                                dataset = json.load(data_file)
+                        else:
+                            dataset={}
                     except OSError:
                         logging.warning("Cannot find session-specific task-rest_bold.json file which is required in the BIDS spec..continuing anyway")
                         dataset={}
@@ -712,6 +718,47 @@ def bidsmri2project(directory, args):
             # the associated JSON data dictionary file
             with open(tsv_file) as phenofile:
                 pheno_data = csv.DictReader(phenofile, delimiter='\t')
+                mapping_list=[]
+                column_to_terms={}
+                for field in pheno_data.fieldnames:
+                    # column is not in BIDS_Constants
+                    if not (field in BIDS_Constants.participants):
+                        # add column to list for column_to_terms mapping
+                        mapping_list.append(field)
+
+
+                #if user didn't supply a json mapping file but we're doing some variable-term mapping create an empty one for column_to_terms to use
+            if args.json_map == False:
+                #defaults to participants.json because here we're mapping the participants.tsv file variables to terms
+                # if participants.json file doesn't exist then run without json mapping file
+                if not os.path.isfile(os.path.splitext(tsv_file)[0] + ".json"):
+                    #maps variables in CSV file to terms
+                    temp=DataFrame(columns=mapping_list)
+                    if args.no_concepts:
+                        column_to_terms,cde = map_variables_to_terms(directory=directory,assessment_name=tsv_file,
+                            df=temp,output_file=os.path.splitext(tsv_file)[0] + ".json",bids=True,associate_concepts=False)
+                    else:
+                        column_to_terms,cde = map_variables_to_terms(directory=directory,assessment_name=tsv_file,
+                            df=temp,output_file=os.path.splitext(tsv_file)[0] + ".json",bids=True)
+                else:
+                    #maps variables in CSV file to terms
+                    temp=DataFrame(columns=mapping_list)
+                    if args.no_concepts:
+                        column_to_terms,cde = map_variables_to_terms(directory=directory, assessment_name=tsv_file, df=temp,
+                            output_file=os.path.splitext(tsv_file)[0] + ".json",json_source=os.path.splitext(tsv_file)[0] + ".json",bids=True,associate_concepts=False)
+                    else:
+                        column_to_terms,cde = map_variables_to_terms(directory=directory, assessment_name=tsv_file, df=temp,
+                            output_file=os.path.splitext(tsv_file)[0] + ".json",json_source=os.path.splitext(tsv_file)[0] + ".json",bids=True)
+            else:
+                #maps variables in CSV file to terms
+                temp=DataFrame(columns=mapping_list)
+                if args.no_concepts:
+                    column_to_terms, cde = map_variables_to_terms(directory=directory, assessment_name=tsv_file, df=temp,
+                        output_file=os.path.splitext(tsv_file)[0] + ".json",json_source=args.json_map,bids=True,associate_concepts=False)
+                else:
+                    column_to_terms, cde = map_variables_to_terms(directory=directory, assessment_name=tsv_file, df=temp,
+                        output_file=os.path.splitext(tsv_file)[0] + ".json",json_source=args.json_map,bids=True)
+
                 for row in pheno_data:
                     subjid = row['participant_id'].split("-")
                     if not subjid[1] == subject_id:
@@ -734,7 +781,8 @@ def bidsmri2project(directory, args):
                             if ((not key == "participant_id") and (key != "")):
                                 # for now we're using a placeholder namespace for BIDS and simply the variable names as the concept IDs..
                                 acq_entity.add_attributes({Constants.BIDS[key]:value})
-
+                            else:
+                                add_attributes_with_cde(prov_object=acq_entity,cde=cde,row_variable=key,value=value)
                         # link TSV file
                         acq_entity.add_attributes({Constants.NIDM_FILENAME:getRelPathToBIDS(tsv_file,directory)})
                         #acq_entity.add_attributes({Constants.NIDM_FILENAME:tsv_file})
