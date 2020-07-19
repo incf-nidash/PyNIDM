@@ -57,6 +57,12 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import cross_val_score
 from sklearn.preprocessing import OneHotEncoder
 from sklearn import metrics
+from patsy.contrasts import Treatment
+from patsy.contrasts import ContrastMatrix
+from patsy.contrasts import Sum
+from patsy.contrasts import Diff
+from patsy.contrasts import Helmert
+
 
 
 @cli.command()
@@ -64,13 +70,13 @@ from sklearn import metrics
               help="A comma separated list of NIDM files with full path")
 @click.option("-dep_var", required=True,
               help="This parameter will return data for only the field names in the comma separated list (e.g. -dep_var age,fs_00003) from all nidm files supplied")
-@click.option("-group", required=False,
+@click.option("-contrast", required=False,
               help="This parameter will show differences in relationship by group (e.g. -group age+sex, fs_003343).")
 @click.option("-ind_vars",
                  help="This parameter will return data for only the field names in the comma separated list (e.g. -ind_vars age,fs_00003) from all nidm files supplied")
 @click.option("--output_file", "-o", required=False,
               help="Optional output file (CSV) to store results of query")
-def linreg(nidm_file_list, output_file, ind_vars, dep_var, group):
+def linreg(nidm_file_list, output_file, ind_vars, dep_var, contrast):
     """
         This function provides query support for NIDM graphs.
         """
@@ -145,18 +151,85 @@ def linreg(nidm_file_list, output_file, ind_vars, dep_var, group):
             df_final.head() #shows the final dataset with all the encoding
             print(df_final) #prints the final dataset
 
+            index = 0
+            levels = []
+            for i in range(len(condensed_data[0])):
+                if contrast == condensed_data[0][i]:
+                    index = i
+            for i in range(1,len(condensed_data)):
+                if condensed_data[i][index] not in levels:
+                    levels.append(condensed_data[i][index])
+            for i in range(len(levels)):
+                levels[i] = i
+
+            #Beginning of the linear regression
             X = df_final[independentvariables]  # gets the modified values of the independent variables
             y = df_final[dep_var] # gets the modified values of the dependent variable
             #The linear regression
             regressor = LinearRegression()
             regressor.fit(X, y)
-            #Data about the linear regression
+            #Data about the linear regression, starting without contrast
             X2 = sm.add_constant(X)
             statistics = sm.OLS(y, X2)
             finalstats = statistics.fit()
+            print("Without contrast")
             print(finalstats.summary())
 
-            
+            #With contrast (treatment coding)
+            ctrst = Treatment(reference=0).code_without_intercept(levels)
+            mod = ols(dep_var + " ~ C(" + contrast + ", Treatment)", data = df_final)
+            res = mod.fit()
+            print("With contrast (treatment coding)")
+            print(res.summary())
+
+            #Defining the Simple class
+            def _name_levels(prefix, levels):
+                return ["[%s%s]" % (prefix, level) for level in levels]
+            class Simple(object):
+                def _simple_contrast(self, levels):
+                    nlevels = len(levels)
+                    contr = -1. / nlevels * np.ones((nlevels, nlevels - 1))
+                    contr[1:][np.diag_indices(nlevels - 1)] = (nlevels - 1.) / nlevels
+                    return contr
+
+                def code_with_intercept(self, levels):
+                    contrast = np.column_stack((np.ones(len(levels)),
+                                                self._simple_contrast(levels)))
+                    return ContrastMatrix(contrast, _name_levels("Simp.", levels))
+
+                def code_without_intercept(self, levels):
+                    contrast = self._simple_contrast(levels)
+                    return ContrastMatrix(contrast, _name_levels("Simp.", levels[:-1]))
+            #Beginning of the contrast
+            ctrst = Simple().code_without_intercept(levels)
+            mod = ols(dep_var + " ~ C(" + contrast + ", Simple)", data = df_final)
+            res = mod.fit()
+            print("With contrast (simple coding)")
+            print(res.summary())
+
+            #With contrast (sum/deviation coding)
+            ctrst = Sum().code_without_intercept(levels)
+            mod = ols(dep_var + " ~ C(" + contrast + ", Sum)", data=df_final)
+            res = mod.fit()
+            print("With contrast (sum/deviation coding)")
+            print(res.summary())
+
+            #With contrast (backward difference coding)
+            ctrst = Diff().code_without_intercept(levels)
+            mod = ols(dep_var + " ~ C(" + contrast + ", Diff)", data=df_final)
+            res = mod.fit()
+            print("With contrast (backward difference coding)")
+            print(res.summary())
+
+            #With contrast (Helmert coding)
+            ctrst = Helmert().code_without_intercept(levels)
+            mod = ols(dep_var + " ~ C(" + contrast + ", Helmert)", data=df_final)
+            res = mod.fit()
+            print("With contrast (Helmert coding)")
+            print(res.summary())
+
+
+
 
         if (output_file is not None):
             # concatenate data frames
