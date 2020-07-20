@@ -4,15 +4,17 @@ RUN apt-get update &&  \
     apt-get install -y git python3 graphviz python3-pip ssh mercurial python-setuptools
 
 RUN python3 -m pip install --upgrade pip && \
-    pip3 install rdflib requests fuzzywuzzy pygithub pybids duecredit setuptools \
+    pip3 install rdflib requests rapidfuzz fuzzywuzzy pygithub pybids duecredit setuptools \
                  python-Levenshtein pytest graphviz prov pydot validators ontquery \
                  click rdflib-jsonld pyld pytest-cov tabulate joblib
 
 
 
 WORKDIR /opt
-RUN hg clone https://bitbucket.org/jibalamy/owlready2 && \
-    cd owlready2 && \
+
+RUN wget https://files.pythonhosted.org/packages/af/1c/7e4c25d5539ac8979d633afe03d16ddb01716c6cde97ebea33a6659ea9c6/Owlready2-0.24.tar.gz&& \
+    tar -xzf Owlready2-0.24.tar.gz && \
+    cd Owlready2-0.24 && \
     python setup.py build && \
     python setup.py install
 

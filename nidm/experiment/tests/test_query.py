@@ -5,6 +5,7 @@ from rdflib import Namespace,URIRef
 import prov.model as pm
 from os import remove, path
 import tempfile
+import pytest
 
 from prov.model import ProvDocument, QualifiedName
 from prov.model import Namespace as provNamespace
@@ -318,7 +319,7 @@ def test_GetProjectAttributes():
             "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/master/datasets.datalad.org/abide/RawDataBIDS/CMU_a/nidm.ttl",
             "cmu_a.nidm.ttl"
         )
-    files = ['cmu_a.nidm.ttl']
+    files = tuple(['cmu_a.nidm.ttl'])
 
     project_list = Query.GetProjectsUUID(files)
     print (project_list)
@@ -342,3 +343,20 @@ def test_download_cde_files():
         assert path.isfile("{}/{}".format(cde_dir, fname) )
         fcount += 1
     assert fcount > 0
+
+@pytest.mark.skip(reason="We don't have an easily accessible file for this test so skipping it until better test samples are available.")
+def test_custom_data_types():
+    SPECIAL_TEST_FILES = ['/opt/project/ttl/MTdemog_aseg.ttl']
+
+    valuetype1 = Query.getDataTypeInfo(Query.OpenGraph(SPECIAL_TEST_FILES[0]), 'no-real-value')
+    assert (valuetype1 == False)
+
+    valuetype2 = Query.getDataTypeInfo(Query.OpenGraph(SPECIAL_TEST_FILES[0]), Constants.NIIRI['age_e3hrcc'])
+    assert (str(valuetype2['label']) == 'age')
+    assert (str(valuetype2['description']) == "Age of participant at scan")
+    assert (str(valuetype2['isAbout']) == str(Constants.NIIRI['24d78sq']))
+
+    valuetype3 = Query.getDataTypeInfo(Query.OpenGraph(SPECIAL_TEST_FILES[0]), 'age_e3hrcc')
+    assert (str(valuetype3['label']) == 'age')
+    assert (str(valuetype3['description']) == "Age of participant at scan")
+    assert (str(valuetype3['isAbout']) == str(Constants.NIIRI['24d78sq']))
