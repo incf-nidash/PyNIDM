@@ -386,6 +386,26 @@ def test_ExtremeFilters():
     assert len(details['data_elements']['uuid']) > 0
 
 
+def test_Filter_Flexibility():
+    restParser = RestParser(output_format=RestParser.OBJECT_FORMAT)
+    if cmu_test_project_uuid:
+        project = cmu_test_project_uuid
+    else:
+        projects  = restParser.run(BRAIN_VOL_FILES, '/projects')
+        project = projects[0]
+
+    synonyms = Query.GetDatatypeSynonyms(tuple(BRAIN_VOL_FILES),project, 'ADOS_MODULE')
+    real_synonyms = [x for x in synonyms if len(x) > 1]
+
+    assert len(real_synonyms) > 1
+
+    for syn in real_synonyms:
+        if ' ' in syn:
+            continue
+        details = restParser.run(BRAIN_VOL_FILES, '/projects/{}?filter=instruments.{} gt 2'.format(project, syn))
+        assert len(details['subjects']['uuid']) > 0
+        assert len(details['data_elements']['uuid']) > 0
+
 
 def test_OpenGraph():
 

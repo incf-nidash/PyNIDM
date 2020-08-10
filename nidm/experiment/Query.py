@@ -47,7 +47,9 @@ from joblib import Memory
 memory = Memory(tempfile.gettempdir(), verbose=0 )
 
 
-QUERY_CACHE_SIZE = 64
+QUERY_CACHE_SIZE=64
+BIG_CACHE_SIZE=256
+LARGEST_CACHE_SIZE=4096
 ACQUISITION_MODALITY = 'AcquisitionModality'
 IMAGE_CONTRAST_TYPE = 'ImageContrastType'
 IMAGE_USAGE_TYPE = 'ImageUsageType'
@@ -559,6 +561,23 @@ def getProjectAcquisitionObjects(nidm_file_list, project_id):
                                 acq_objects.append(acq_obj)
     return acq_objects
 
+@functools.lru_cache(maxsize=LARGEST_CACHE_SIZE)
+def GetDatatypeSynonyms(nidm_file_list, project_id, datatype):
+    '''
+    Try to match a datatype string with any of the known info about a data element
+    Returns all the possible synonyms for that datatype
+    For example, if AGE_AT_SCAN is a data element prefix, return the label, datumType, measureOf URI, prefix, etc.
+
+    :param nidm_file_list:
+    :param project_id:
+    :param datatype:
+    :return:
+    '''
+    project_data_elements = GetProjectDataElements(nidm_file_list, project_id)
+    for dti in project_data_elements['data_type_info']:
+        if str(datatype) in [ str(x) for x in [dti['label'], dti['datumType'], dti['measureOf'], URITail(dti['measureOf']), dti['isAbout'], URITail(dti['isAbout']), dti['dataElement'], dti['dataElementURI'], dti['prefix']] ]:
+            return [str(dti['label']), str(dti['datumType']), str(dti['measureOf']), URITail(dti['measureOf']), str(dti['isAbout']), str(dti['dataElement']), str(dti['dataElementURI']), str(dti['prefix'])]
+    return [datatype]
 
 def GetProjectDataElements(nidm_file_list, project_id):
     ### added by DBK...changing to dictionary to support labels along with uuids
@@ -566,6 +585,7 @@ def GetProjectDataElements(nidm_file_list, project_id):
     result = {}
     result["uuid"] = []
     result['label']= []
+    result['data_type_info'] = []
     isa = URIRef('http://www.w3.org/1999/02/22-rdf-syntax-ns#type')
 
     # if this isn't already a URI, make it one.
@@ -588,6 +608,7 @@ def GetProjectDataElements(nidm_file_list, project_id):
                         #result.append(rdf_graph.namespace_manager.compute_qname(str(de))[2] + "=" + label)
                         result["uuid"].append(rdf_graph.namespace_manager.compute_qname(str(de))[2])
                         result["label"].append(label)
+                        result["data_type_info"].append(getDataTypeInfo(rdf_graph, de))
                 ### added by DBK...we should also look for data elements that are sub-classes of Constants.NIDM['DataElement']
                 ### to include any freesurfer, fsl, or ants data elements
                 for subclass in rdf_graph.subjects(predicate=Constants.RDFS["subClassOf"],object=Constants.NIDM['DataElement']):
@@ -597,6 +618,7 @@ def GetProjectDataElements(nidm_file_list, project_id):
                             #result.append(rdf_graph.namespace_manager.compute_qname(str(de))[2] + "=" + label)
                             result["uuid"].append(rdf_graph.namespace_manager.compute_qname(str(de))[2])
                             result["label"].append(label)
+                            result["data_type_info"].append(getDataTypeInfo(rdf_graph, de))
 
                 # Since common data elements won't have entries in the main graph, try to find them also
                 cde_set = set()
@@ -610,6 +632,7 @@ def GetProjectDataElements(nidm_file_list, project_id):
                 for cde in cde_set:
                     result["uuid"].append(cde[0])
                     result["label"].append(cde[1])
+                    result["data_type_info"].append(getDataTypeInfo(rdf_graph, cde[0]))
 
                 return result
     return result
@@ -644,7 +667,7 @@ def trimWellKnownURIPrefix(uri):
 def CheckSubjectMatchesFilter(nidm_file_list, project_uuid, subject_uuid, filter):
     '''
     filter should look something like:
-       projects.subjects.instruments.AGE gt 12 and projects.subjects.instruments.SITE_ID eq CMU
+       instruments.AGE gt 12 and instruments.SITE_ID eq CMU
 
     :param nidm_file_list:
     :param project_uuid:
@@ -680,11 +703,12 @@ def CheckSubjectMatchesFilter(nidm_file_list, project_uuid, subject_uuid, filter
         sub_pieces = splitSubject(compound_sub)
         if len(sub_pieces) == 2 and sub_pieces[0] == 'instruments':
             term = sub_pieces[1] # 'AGE_AT_SCAN' for example
+            synonyms = GetDatatypeSynonyms(tuple(nidm_file_list), project_uuid, term)
             instrument_details = GetParticipantInstrumentData(nidm_file_list, project_uuid, subject_uuid)
             for instrument_uuid in instrument_details:
                 for instrument_term in instrument_details[instrument_uuid]:
-                    if instrument_term == term:
-                        found_match = filterCompare(instrument_details[instrument_uuid][term], op, value)
+                    if instrument_term in synonyms:
+                        found_match = filterCompare(instrument_details[instrument_uuid][instrument_term], op, value)
                     if found_match:
                         break
 
@@ -1037,6 +1061,7 @@ def getDerivativesNodesForSubject (rdf_graph, subject):
 
     return derivatives_uris
 
+@functools.lru_cache(maxsize=LARGEST_CACHE_SIZE)
 def getDataTypeInfo(source_graph, datatype):
     '''
     Scans all the triples with subject of datatype (isa DataElement in the graph) and looks for entries
@@ -1067,7 +1092,7 @@ def getDataTypeInfo(source_graph, datatype):
     measureOf = ''
     isAbout = ''
     structure = ''
-
+    prefix = ''
 
     found = False
 
@@ -1088,11 +1113,16 @@ def getDataTypeInfo(source_graph, datatype):
         if (re.search(r'isAbout$', str(p), flags=re.IGNORECASE) != None):
             isAbout = o
 
+    possible_prefix = [x for x in rdf_graph.namespaces() if expanded_datatype.startswith(x[1])]
+    if (len(possible_prefix) > 0):
+        prefix = possible_prefix[0][0]
+
+
     if not found:
         return False
     else:
         return {'label': label, 'hasUnit': hasUnit, 'datumType': typeURI, 'measureOf': measureOf, 'isAbout': isAbout,
-                'dataElement': str(URITail(s)), 'description': description}
+                'dataElement': str(URITail(s)), 'dataElementURI': str(s), 'description': description, 'prefix': prefix }
 
 def getStatsCollectionForNode (rdf_graph, derivatives_node):
 
