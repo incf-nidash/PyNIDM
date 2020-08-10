@@ -28,19 +28,18 @@
 #
 #**************************************************************************************
 #**************************************************************************************
-import os,sys
+import sys
 import rdflib
 from rdflib import Graph, URIRef, util
 import pandas as pd
 import logging
 from nidm.core import Constants
+import nidm.experiment.CDE
 import re
 import tempfile
 from os import path
 import functools
 import hashlib
-from urllib.request import urlretrieve
-
 import pickle
 
 from joblib import Memory
@@ -581,8 +580,10 @@ def GetDatatypeSynonyms(nidm_file_list, project_id, datatype):
         datatype = datatype[12:]
     project_data_elements = GetProjectDataElements(nidm_file_list, project_id)
     for dti in project_data_elements['data_type_info']:
-        if str(datatype) in [ str(x) for x in [dti['label'], dti['datumType'], dti['measureOf'], URITail(dti['measureOf']), dti['isAbout'], URITail(dti['isAbout']), dti['dataElement'], dti['dataElementURI']] ]:
-            return [str(dti['label']), str(dti['datumType']), str(dti['measureOf']), URITail(dti['measureOf']), str(dti['isAbout']), str(dti['dataElement']), str(dti['dataElementURI'])]
+        if str(datatype) in [ str(x) for x in [dti['source_variable'], dti['label'], dti['datumType'], dti['measureOf'], URITail(dti['measureOf']), dti['isAbout'], URITail(dti['isAbout']), dti['dataElement'], dti['dataElementURI'], dti['prefix']] ]:
+            all_synonyms = set([str(dti['source_variable']), str(dti['label']), str(dti['datumType']), str(dti['measureOf']), URITail(dti['measureOf']), str(dti['isAbout']), str(dti['dataElement']), str(dti['dataElementURI'])] )
+            all_synonyms.remove("")  # remove the empty string in case that is in there
+            return list(all_synonyms)
     return [datatype]
 
 def GetProjectDataElements(nidm_file_list, project_id):
@@ -780,6 +781,17 @@ def GetProjectsMetadata(nidm_file_list):
 
     return {'projects': compressForJSONResponse(projects)}
 
+
+# def GetProjectsComputedMetadata(nidm_file_list):
+#     '''
+#      :param nidm_file_list: List of one or more NIDM files to query across for list of Projects
+#     :return: dataframe with two columns: "project_uuid" and "project_dentifier"
+#     '''
+#
+#     meta_data = GetProjectsMetadata(nidm_file_list)
+#     ExtractProjectSummary(meta_data, nidm_file_list)
+#
+#     return compressForJSONResponse(meta_data)
 
 def GetDataElements(nidm_file_list):
 
@@ -1010,7 +1022,7 @@ def getDataTypeInfo(source_graph, datatype):
     if source_graph and  (expanded_datatype, isa, Constants.NIDM['DataElement']) in source_graph:
         rdf_graph = source_graph
     else:
-        rdf_graph = getCDEs()
+        rdf_graph = nidm.experiment.CDE.getCDEs()
 
     typeURI = ''
     hasUnit = ''
@@ -1020,6 +1032,7 @@ def getDataTypeInfo(source_graph, datatype):
     isAbout = ''
     structure = ''
     prefix = ''
+    source_variable = ''
 
     found = False
 
@@ -1029,6 +1042,8 @@ def getDataTypeInfo(source_graph, datatype):
         found = True
         if (re.search(r'label$', str(p)) != None):
             label = o
+        if (re.search(r'source_variable$', str(p)) != None):
+            source_variable = o
         if (re.search(r'description$', str(p)) != None):
             description = o
         if (re.search(r'hasUnit$', str(p), flags=re.IGNORECASE) != None):
@@ -1049,7 +1064,8 @@ def getDataTypeInfo(source_graph, datatype):
         return False
     else:
         return {'label': label, 'hasUnit': hasUnit, 'datumType': typeURI, 'measureOf': measureOf, 'isAbout': isAbout,
-                'dataElement': str(URITail(s)), 'dataElementURI': str(s), 'description': description, 'prefix': prefix }
+                'dataElement': str(URITail(s)), 'dataElementURI': s, 'description': description, 'prefix': prefix,
+                'source_variable': source_variable}
 
 def getStatsCollectionForNode (rdf_graph, derivatives_node):
 
@@ -1152,13 +1168,12 @@ def getSoftwareAgents(rdf_graph):
     return agents
 
 def download_cde_files():
-    cde_dir = tempfile.gettempdir()
+        cde_dir = tempfile.gettempdir()
 
-    for url in Constants.CDE_FILE_LOCATIONS:
-        urlretrieve( url, "{}/{}".format(cde_dir, url.split('/')[-1] ) )
+        for url in Constants.CDE_FILE_LOCATIONS:
+            urlretrieve(url, "{}/{}".format(cde_dir, url.split('/')[-1]))
 
-    return cde_dir
-
+        return cde_dir
 
 def getCDEs(file_list=None):
 

@@ -5,20 +5,17 @@ import pytest
 import rdflib
 
 from nidm.experiment import Project, Session, AssessmentAcquisition, AssessmentObject, Acquisition, AcquisitionObject, Query
+from nidm.experiment.CDE import getCDEs
 from nidm.core import Constants
 from nidm.experiment.tools.rest import RestParser
 import os
 from pathlib import Path
 from rdflib import Graph, util, URIRef
-import json
-
-
-from prov.model import ProvAgent
-
 
 REST_TEST_FILE = './agent.ttl'
 BRAIN_VOL_FILES = ['./cmu_a.nidm.ttl', './caltech.nidm.ttl']
 OPENNEURO_FILES = ['ds000168.nidm.ttl']
+ALL_FILES = ['./cmu_a.nidm.ttl', './caltech.nidm.ttl', 'ds000168.nidm.ttl']
 OPENNEURO_PROJECT_URI = None
 OPENNEURO_SUB_URI = None
 
@@ -147,6 +144,36 @@ def makeTestFile(filename, params):
 
     with open("./agent.ttl", "w") as f:
         f.write(x)
+
+def test_uri_subject_list():
+    restParser = RestParser(output_format=RestParser.OBJECT_FORMAT)
+    result = restParser.run(ALL_FILES, '/subjects')
+
+    assert type(result) == dict
+    assert type(result['uuid']) == list
+    assert len(result['uuid']) > 10
+
+def test_uri_subject_list_with_fields():
+    restParser = RestParser(output_format=RestParser.OBJECT_FORMAT)
+    result = restParser.run(ALL_FILES, '/subjects?fields=ilx_0100400,MagneticFieldStrength') # ilx_0100400 "is about" age
+    assert type(result) == dict
+
+    assert type(result['uuid']) == list
+    assert len(result['uuid']) > 10
+
+    assert type(result['fields']) == dict
+    all_fields = []
+    for uuid in result['fields']:
+        assert type(result['fields']) == dict
+        for sub in result['fields']:
+            assert type(result['fields'][sub]) == dict
+            for activity in result['fields'][sub]:
+                all_fields.append(result['fields'][sub][activity].label)
+                if result['fields'][sub][activity].value != 'n/a':
+                    assert float(result['fields'][sub][activity].value) > 0
+                    assert float(result['fields'][sub][activity].value) < 125
+    assert 'age' in all_fields
+    assert 'MagneticFieldStrength' in all_fields
 
 def test_uri_project_list():
 
@@ -422,7 +449,7 @@ def test_CDEs():
         dir_parts.append("cde_dir")
         dir = "/".join(dir_parts)
 
-        graph = Query.getCDEs([
+        graph = getCDEs([
             "{}/ants_cde.ttl".format(dir),
             "{}/fs_cde.ttl".format(dir)
         ])
@@ -436,7 +463,7 @@ def test_CDEs():
         assert count == 1
 
     testrun()
-    Query.getCDEs.cache = None # clear the memory cache and try again
+    getCDEs.cache = None # clear the memory cache and try again
     testrun() # run a second time to test disk caching.
 
 def assess_one_col_output(txt_output):
