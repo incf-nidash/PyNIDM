@@ -14,6 +14,8 @@ from  nidm.experiment import Navigate
 
 
 from numpy import std, mean, median
+import functools
+import operator
 
 from joblib import Memory
 memory = Memory(gettempdir(), verbose=0)
@@ -176,7 +178,7 @@ class RestParser:
                 tabulate(result["subjects"], headers="keys"),
                 #tabulate({"data_elements": result["data_elements"]}, headers="keys"),
                 tabulate([],headers = ["Data Elements"]),
-                tabulate(result["data_elements"], headers="keys"),
+                tabulate({'uuid': result["data_elements"]['uuid'], 'label': result["data_elements"]['label']}, headers="keys"),
                 field_table
             )
         else:
@@ -382,48 +384,18 @@ class RestParser:
         if 'fields' in self.query and len(self.query['fields']) > 0:
             self.restLog("Using fields {}".format(self.query['fields']), 2)
             result['field_values'] = []
+            # get all the synonyms for all the fields
+            field_synonyms = functools.reduce( operator.iconcat, [ Query.GetDatatypeSynonyms(self.nidm_files, id, x) for x in self.query['fields'] ], [])
             for sub in result['subjects']['uuid']:
 
                 for activity in Navigate.getActivities(self.nidm_files, sub):
                     activity = Navigate.getActivityData(self.nidm_files, activity)
                     for data_element in activity.data:
-                        if data_element.dataElement in self.query['fields'] or data_element.isAbout in self.query['fields'] or data_element.label in self.query['fields']:
+                        if data_element.dataElement in field_synonyms:
                             result['field_values'].append(data_element._replace(subject=sub))
 
             if len(result['field_values']) == 0:
                 raise ValueError("Supplied field not found. (" + ", ".join(self.query['fields']) + ")")
-
-                # for study_type in ['derivatives']:
-                #     if study_type in sub_data:
-                #         for key, deriv in sub_data[study_type].items():
-                #             for element_uri, data_row in deriv['values'].items():
-                #                 field = self.getTailOfURI(element_uri)
-                #                 if field in self.query['fields']:
-                #                     result['field_values'].append({
-                #                         'subject': sub,
-                #                         'field': field,
-                #                         'datumType': data_row['datumType'],
-                #                         'label': data_row['label'],
-                #                         'value': data_row['value'],
-                #                         'units': data_row['units']
-                #                     })
-                #
-                # for study_type in ['instruments']:
-                #     if study_type in sub_data:
-                #         for instrument_uri, instrument_dict in sub_data[study_type].items():
-                #             print(sub_data[study_type])
-                #
-                #             for instrument_field, instument_value in instrument_dict.items():
-                #                 if instrument_field in self.query['fields']:
-                #                     result['field_values'].append({
-                #                         'subject': sub,
-                #                         'field': instrument_field,
-                #                         'datumType': '',
-                #                         'label': '',
-                #                         'value': instument_value,
-                #                         'units': ''
-                #                     })
-
 
         return self.projectSummaryFormat(result)
 
