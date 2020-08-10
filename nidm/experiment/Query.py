@@ -575,8 +575,8 @@ def GetDatatypeSynonyms(nidm_file_list, project_id, datatype):
     '''
     project_data_elements = GetProjectDataElements(nidm_file_list, project_id)
     for dti in project_data_elements['data_type_info']:
-        if str(datatype) in [ str(x) for x in [dti['label'], dti['datumType'], dti['measureOf'], URITail(dti['measureOf']), dti['isAbout'], URITail(dti['isAbout']), dti['dataElement'], dti['dataElementURI'], dti['prefix']] ]:
-            return [str(dti['label']), str(dti['datumType']), str(dti['measureOf']), URITail(dti['measureOf']), str(dti['isAbout']), str(dti['dataElement']), str(dti['dataElementURI']), str(dti['prefix'])]
+        if str(datatype) in [ str(x) for x in [dti['source_variable'], dti['label'], dti['datumType'], dti['measureOf'], URITail(dti['measureOf']), dti['isAbout'], URITail(dti['isAbout']), dti['dataElement'], dti['dataElementURI'], dti['prefix']] ]:
+            return [dti['source_variable'], str(dti['label']), str(dti['datumType']), str(dti['measureOf']), URITail(dti['measureOf']), str(dti['isAbout']), str(dti['dataElement']), str(dti['dataElementURI']), str(dti['prefix'])]
     return [datatype]
 
 def GetProjectDataElements(nidm_file_list, project_id):
@@ -1093,6 +1093,7 @@ def getDataTypeInfo(source_graph, datatype):
     isAbout = ''
     structure = ''
     prefix = ''
+    source_variable = ''
 
     found = False
 
@@ -1102,6 +1103,8 @@ def getDataTypeInfo(source_graph, datatype):
         found = True
         if (re.search(r'label$', str(p)) != None):
             label = o
+        if (re.search(r'source_variable$', str(p)) != None):
+            source_variable = o
         if (re.search(r'description$', str(p)) != None):
             description = o
         if (re.search(r'hasUnit$', str(p), flags=re.IGNORECASE) != None):
@@ -1122,7 +1125,8 @@ def getDataTypeInfo(source_graph, datatype):
         return False
     else:
         return {'label': label, 'hasUnit': hasUnit, 'datumType': typeURI, 'measureOf': measureOf, 'isAbout': isAbout,
-                'dataElement': str(URITail(s)), 'dataElementURI': str(s), 'description': description, 'prefix': prefix }
+                'dataElement': str(URITail(s)), 'dataElementURI': str(s), 'description': description, 'prefix': prefix,
+                'source_variable': source_variable}
 
 def getStatsCollectionForNode (rdf_graph, derivatives_node):
 
