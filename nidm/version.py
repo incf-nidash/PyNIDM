@@ -4,7 +4,7 @@ import os.path
 # Format expected by setup.py and doc/source/conf.py: string of form "X.Y.Z"
 _version_major = 3
 _version_minor = 5 
-_version_micro = '9'  # use '' for first of series, number for 1 and above
+_version_micro = '10'  # use '' for first of series, number for 1 and above
 _version_extra = ''
 # _version_extra = ''  # Uncomment this for full releases
 
@@ -57,5 +57,5 @@ MICRO = _version_micro
 VERSION = __version__
 INSTALL_REQUIRES = ["prov", "graphviz", "pydotplus", "pydot", "validators", "requests", "rapidfuzz", "pygithub",
                     "pandas", "pybids", "duecredit", "pytest", "graphviz", "click", "rdflib-jsonld",
-                    "pyld", "rdflib", "datalad", "ontquery>=0.2.2", "orthauth>=0.0.8","tabulate", "joblib", "cognitiveatlas", "numpy", "etelemetry","click-option-group"]
+                    "pyld", "rdflib", "datalad", "ontquery>=0.2.3", "orthauth>=0.0.12","tabulate", "joblib", "cognitiveatlas", "numpy", "etelemetry","click-option-group"]
 SCRIPTS = ["bin/nidm_query", "bin/bidsmri2nidm", "bin/csv2nidm","bin/nidm_utils"]

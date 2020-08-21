@@ -64,7 +64,7 @@ INTERLEX_MODE = 'test'
 if INTERLEX_MODE == 'test':
     INTERLEX_PREFIX = 'tmp_'
     #INTERLEX_ENDPOINT = "https://beta.scicrunch.org/api/1/"
-    INTERLEX_ENDPOINT = "https://scicrunch.org/api/1/"
+    INTERLEX_ENDPOINT = "https://test3.scicrunch.org/api/1/"
 elif INTERLEX_MODE == 'production':
     INTERLEX_PREFIX = 'ilx_'
     INTERLEX_ENDPOINT = "https://scicrunch.org/api/1/"
