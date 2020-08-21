@@ -46,50 +46,37 @@ from nidm.experiment.tools.rest import RestParser
 from json import dumps, loads
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split
+from sklearn import datasets, linear_model
 from sklearn.linear_model import LinearRegression
+import statsmodels.api as sm
+from statsmodels.formula.api import ols
+from scipy import stats
+from sklearn.model_selection import train_test_split
 from sklearn import preprocessing
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import cross_val_score
 from sklearn.preprocessing import OneHotEncoder
 from sklearn import metrics
+from patsy.contrasts import Treatment
+from patsy.contrasts import ContrastMatrix
+from patsy.contrasts import Sum
+from patsy.contrasts import Diff
+from patsy.contrasts import Helmert
+
 
 
 @cli.command()
 @click.option("--nidm_file_list", "-nl", required=True,
               help="A comma separated list of NIDM files with full path")
-@click.option("--cde_file_list", "-nc", required=False,
-              help="A comma separated list of NIDM CDE files with full path. Can also be set in the CDE_DIR environment variable")
 @click.option("-dep_var", required=True,
               help="This parameter will return data for only the field names in the comma separated list (e.g. -dep_var age,fs_00003) from all nidm files supplied")
-@optgroup.group('Query Type', help='Pick among the following query type selections',
-                cls=RequiredMutuallyExclusiveOptionGroup)
-@optgroup.option("-ind_vars",
+@click.option("-contrast", required=False,
+              help="This parameter will show differences in relationship by group (e.g. -group age+sex, fs_003343).")
+@click.option("-ind_vars",
                  help="This parameter will return data for only the field names in the comma separated list (e.g. -ind_vars age,fs_00003) from all nidm files supplied")
-@optgroup.option("--query_file", "-q", type=click.File('r'),
-                 help="Text file containing a SPARQL query to execute")
-@optgroup.option("--get_participants", "-p", is_flag=True,
-                 help="Parameter, if set, query will return participant IDs and prov:agent entity IDs")
-@optgroup.option("--get_instruments", "-i", is_flag=True,
-                 help="Parameter, if set, query will return list of onli:assessment-instrument:")
-@optgroup.option("--get_instrument_vars", "-iv", is_flag=True,
-                 help="Parameter, if set, query will return list of onli:assessment-instrument: variables")
-@optgroup.option("--get_dataelements", "-de", is_flag=True,
-                 help="Parameter, if set, will return all DataElements in NIDM file")
-@optgroup.option("--get_dataelements_brainvols", "-debv", is_flag=True,
-                 help="Parameter, if set, will return all brain volume DataElements in NIDM file along with details")
-@optgroup.option("--get_brainvols", "-bv", is_flag=True,
-                 help="Parameter, if set, will return all brain volume data elements and values along with participant IDs in NIDM file")
-@optgroup.option("--uri", "-u",
-                 help="A REST API URI query")
 @click.option("--output_file", "-o", required=False,
               help="Optional output file (CSV) to store results of query")
-@click.option("-j/-no_j", required=False, default=False,
-              help="Return result of a uri query as JSON")
-@click.option('-v', '--verbosity', required=False, help="Verbosity level 0-5, 0 is default", default="0")
-def linreg(nidm_file_list, cde_file_list, query_file, output_file, get_participants, get_instruments,
-           get_instrument_vars, get_dataelements, get_brainvols, get_dataelements_brainvols, ind_vars, dep_var, uri, j,
-           verbosity):
+def linreg(nidm_file_list, output_file, ind_vars, dep_var, contrast):
     """
         This function provides query support for NIDM graphs.
         """
@@ -97,66 +84,8 @@ def linreg(nidm_file_list, cde_file_list, query_file, output_file, get_participa
     results = []
 
     # if there is a CDE file list, seed the CDE cache
-    if cde_file_list:
-        getCDEs(cde_file_list.split(","))
-
-    if get_participants:
-        df = GetParticipantIDs(nidm_file_list.split(','), output_file=output_file)
-        if ((output_file) is None):
-            print(df.to_string())
-
-        return df
-    elif get_instruments:
-        # first get all project UUIDs then iterate and get instruments adding to output dataframe
-        project_list = GetProjectsUUID(nidm_file_list.split(','))
-        count = 1
-        for project in project_list:
-            if count == 1:
-                df = GetProjectInstruments(nidm_file_list.split(','), project_id=project)
-                count += 1
-            else:
-                df = df.append(GetProjectInstruments(nidm_file_list.split(','), project_id=project))
-
-        # write dataframe
-        # if output file parameter specified
-        if (output_file is not None):
-
-            df.to_csv(output_file)
-            # with open(output_file,'w') as myfile:
-            #    wr=csv.writer(myfile,quoting=csv.QUOTE_ALL)
-            #    wr.writerow(df)
-
-            # pd.DataFrame.from_records(df,columns=["Instruments"]).to_csv(output_file)
-        else:
-            print(df.to_string())
-    elif get_instrument_vars:
-        # first get all project UUIDs then iterate and get instruments adding to output dataframe
-        project_list = GetProjectsUUID(nidm_file_list.split(','))
-        count = 1
-        for project in project_list:
-            if count == 1:
-                df = GetInstrumentVariables(nidm_file_list.split(','), project_id=project)
-                count += 1
-            else:
-                df = df.append(GetInstrumentVariables(nidm_file_list.split(','), project_id=project))
-
-        # write dataframe
-        # if output file parameter specified
-        if (output_file is not None):
-
-            df.to_csv(output_file)
-        else:
-            print(df.to_string())
-    elif get_dataelements:
-        datael = GetDataElements(nidm_file_list=nidm_file_list)
-        # if output file parameter specified
-        if (output_file is not None):
-
-            datael.to_csv(output_file)
-        else:
-            print(datael.to_string())
-    elif ind_vars and dep_var:
-        # fields only query.  We'll do it with the rest api
+    if ind_vars and dep_var:
+        verbosity=0
         restParser = RestParser(verbosity_level=int(verbosity))
         restParser.setOutputFormat(RestParser.OBJECT_FORMAT)
         df_list = []
@@ -221,35 +150,97 @@ def linreg(nidm_file_list, cde_file_list, query_file, output_file, get_participa
             df_final = pd.concat([df_int_float, obj_df_trf], axis=1) #join_axes=[df_int_float.index])
             df_final.head() #shows the final dataset with all the encoding
             print(df_final) #prints the final dataset
+            print("Model Results: ")
+            model = dep_var + " ~ "
+            for i in range(len(independentvariables)):
+                model = model + independentvariables[i] + " + "
+            model = model - " + "
+            print(model)
+            index = 0
+            levels = []
+            for i in range(len(condensed_data[0])):
+                if contrast == condensed_data[0][i]:
+                    index = i
+            for i in range(1,len(condensed_data)):
+                if condensed_data[i][index] not in levels:
+                    levels.append(condensed_data[i][index])
+            for i in range(len(levels)):
+                levels[i] = i
+
+            #Beginning of the linear regression
             X = df_final[independentvariables]  # gets the modified values of the independent variables
             y = df_final[dep_var] # gets the modified values of the dependent variable
-            # below code puts 80% of data into training set and 20% to the test set
-            X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
-
-            # training
+            #The linear regression
             regressor = LinearRegression()
-            regressor.fit(X_train, y_train)
+            regressor.fit(X, y)
+            #Data about the linear regression, starting without contrast
+            X2 = sm.add_constant(X)
+            statistics = sm.OLS(y, X2)
+            finalstats = statistics.fit()
+            print("Without contrast")
+            print(finalstats.summary())
 
-            # to see coefficients
-            coeff_df = pd.DataFrame(regressor.coef_, X.columns, columns=['Coefficient'])
-            coeff_df
+            #With contrast (treatment coding)
+            print("Contrast:")
+            print("Treatment (Dummy) Coding: Dummy coding compares each level of the categorical variable to a base reference level. The base reference level is the value of the intercept.")
+            ctrst = Treatment(reference=0).code_without_intercept(levels)
+            mod = ols(dep_var + " ~ C(" + contrast + ", Treatment)", data = df_final)
+            res = mod.fit()
+            print("With contrast (treatment coding)")
+            print(res.summary())
 
-            # prediction
-            y_pred = regressor.predict(X_test)
+            #Defining the Simple class
+            def _name_levels(prefix, levels):
+                return ["[%s%s]" % (prefix, level) for level in levels]
+            class Simple(object):
+                def _simple_contrast(self, levels):
+                    nlevels = len(levels)
+                    contr = -1. / nlevels * np.ones((nlevels, nlevels - 1))
+                    contr[1:][np.diag_indices(nlevels - 1)] = (nlevels - 1.) / nlevels
+                    return contr
 
-            # to check the accuracy
-            df = pd.DataFrame({'Actual': y_test, 'Predicted': y_pred})
-            df1 = df.head(25)
-            # Plotting actual versus predicted
-            df1.plot(kind='bar', figsize=(10, 8))
-            plt.grid(which='major', linestyle='-', linewidth='0.5', color='green')
-            plt.grid(which='minor', linestyle=':', linewidth='0.5', color='black')
-            plt.show()
+                def code_with_intercept(self, levels):
+                    contrast = np.column_stack((np.ones(len(levels)),
+                                                self._simple_contrast(levels)))
+                    return ContrastMatrix(contrast, _name_levels("Simp.", levels))
 
-            # evaluating performance of the algorithm using MAE, RMSE, RMSE
-            print('Mean Absolute Error:', metrics.mean_absolute_error(y_test, y_pred))
-            print('Mean Squared Error:', metrics.mean_squared_error(y_test, y_pred))
-            print('Root Mean Squared Error:', np.sqrt(metrics.mean_squared_error(y_test, y_pred)))
+                def code_without_intercept(self, levels):
+                    contrast = self._simple_contrast(levels)
+                    return ContrastMatrix(contrast, _name_levels("Simp.", levels[:-1]))
+            #Beginning of the contrast
+            ctrst = Simple().code_without_intercept(levels)
+            mod = ols(dep_var + " ~ C(" + contrast + ", Simple)", data = df_final)
+            res = mod.fit()
+            print("Contrast:")
+            print("Simple Coding: Like Treatment Coding, Simple Coding compares each level to a fixed reference level. However, with simple coding, the intercept is the grand mean of all the levels of the factors.")
+            print(res.summary())
+
+            #With contrast (sum/deviation coding)
+            ctrst = Sum().code_without_intercept(levels)
+            mod = ols(dep_var + " ~ C(" + contrast + ", Sum)", data=df_final)
+            res = mod.fit()
+            print("Contrast:")
+            print("Sum (Deviation) Coding: Sum coding compares the mean of the dependent variable for a given level to the overall mean of the dependent variable over all the levels.")
+            print(res.summary())
+
+            #With contrast (backward difference coding)
+            ctrst = Diff().code_without_intercept(levels)
+            mod = ols(dep_var + " ~ C(" + contrast + ", Diff)", data=df_final)
+            res = mod.fit()
+            print("Contrast:")
+            print("Backward Difference Coding: In backward difference coding, the mean of the dependent variable for a level is compared with the mean of the dependent variable for the prior level.")
+            print(res.summary())
+
+            #With contrast (Helmert coding)
+            ctrst = Helmert().code_without_intercept(levels)
+            mod = ols(dep_var + " ~ C(" + contrast + ", Helmert)", data=df_final)
+            res = mod.fit()
+            print("Contrast:")
+            print("Helmert Coding: Our version of Helmert coding is sometimes referred to as Reverse Helmert Coding. The mean of the dependent variable for a level is compared to the mean of the dependent variable over all previous levels. Hence, the name ‘reverse’ being sometimes applied to differentiate from forward Helmert coding.")
+            print(res.summary())
+
+
+
 
         if (output_file is not None):
             # concatenate data frames
@@ -257,50 +248,6 @@ def linreg(nidm_file_list, cde_file_list, query_file, output_file, get_participa
             # output to csv file
             df.to_csv(output_file)
 
-
-    elif uri:
-        restParser = RestParser(verbosity_level=int(verbosity))
-        if j:
-            restParser.setOutputFormat(RestParser.JSON_FORMAT)
-        elif (output_file is not None):
-            restParser.setOutputFormat(RestParser.OBJECT_FORMAT)
-        else:
-            restParser.setOutputFormat(RestParser.CLI_FORMAT)
-        df = restParser.run(nidm_file_list.split(','), uri)
-        if (output_file is not None):
-            if j:
-                with open(output_file, "w+") as f:
-                    f.write(dumps(df))
-            else:
-                # convert object df to dataframe and output
-                pd.DataFrame(df).to_csv(output_file)
-        else:
-            print(df)
-
-    elif get_dataelements_brainvols:
-        brainvol = GetBrainVolumeDataElements(nidm_file_list=nidm_file_list)
-        # if output file parameter specified
-        if (output_file is not None):
-
-            brainvol.to_csv(output_file)
-        else:
-            print(brainvol.to_string())
-    elif get_brainvols:
-        brainvol = GetBrainVolumes(nidm_file_list=nidm_file_list)
-        # if output file parameter specified
-        if (output_file is not None):
-
-            brainvol.to_csv(output_file)
-        else:
-            print(brainvol.to_string())
-    elif query_file:
-
-        df = sparql_query_nidm(nidm_file_list.split(','), query_file, output_file)
-
-        if ((output_file) is None):
-            print(df.to_string())
-
-        return df
     else:
         print("ERROR: No query parameter provided.  See help:")
         print()

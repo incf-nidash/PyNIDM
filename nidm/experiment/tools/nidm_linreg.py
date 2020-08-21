@@ -1,3 +1,4 @@
+# coding=utf-8
 # !/usr/bin/env python
 
 # **************************************************************************************
@@ -6,7 +7,7 @@
 #  License: GPL
 # **************************************************************************************
 # **************************************************************************************
-# Date: 6-15-20                 Coded by: Ashmita Kumar (ashmita.kumar@gmail.com)
+# Date: 8-20-20                 Coded by: Ashmita Kumar (ashmita.kumar@gmail.com)
 # Filename: nidm_linreg.py
 #
 # Program description:  This program provides a tool to complete a linear regression on nidm files
@@ -30,7 +31,6 @@
 #
 # **************************************************************************************
 # **************************************************************************************
-
 import os, sys
 from rdflib import Graph, util
 import pandas as pd
@@ -68,15 +68,13 @@ from patsy.contrasts import Helmert
 @cli.command()
 @click.option("--nidm_file_list", "-nl", required=True,
               help="A comma separated list of NIDM files with full path")
-@click.option("-dep_var", required=True,
-              help="This parameter will return data for only the field names in the comma separated list (e.g. -dep_var age,fs_00003) from all nidm files supplied")
 @click.option("-contrast", required=False,
               help="This parameter will show differences in relationship by group (e.g. -group age+sex, fs_003343).")
-@click.option("-ind_vars",
-                 help="This parameter will return data for only the field names in the comma separated list (e.g. -ind_vars age,fs_00003) from all nidm files supplied")
+@click.option("-model",
+                 help="This parameter will return the results of the linear regression from all nidm files supplied")
 @click.option("--output_file", "-o", required=False,
               help="Optional output file (CSV) to store results of query")
-def linreg(nidm_file_list, output_file, ind_vars, dep_var, contrast):
+def linreg(nidm_file_list, output_file, model, contrast):
     """
         This function provides query support for NIDM graphs.
         """
@@ -84,7 +82,7 @@ def linreg(nidm_file_list, output_file, ind_vars, dep_var, contrast):
     results = []
 
     # if there is a CDE file list, seed the CDE cache
-    if ind_vars and dep_var:
+    if model: #ex: fs_00343 ~ age + sex + group
         verbosity=0
         restParser = RestParser(verbosity_level=int(verbosity))
         restParser.setOutputFormat(RestParser.OBJECT_FORMAT)
@@ -93,6 +91,19 @@ def linreg(nidm_file_list, output_file, ind_vars, dep_var, contrast):
         for nidm_file in nidm_file_list.split(","):
             # get project UUID
             project = GetProjectsUUID([nidm_file])
+            # split the model into its constituent variables
+            model_list = model.split(" ")
+            for i in reversed(model_list):
+                if i == "+" or i == "~":
+                    model_list.remove(i)
+            print(model_list)
+            # set the dependent variable to the one dependent variable in the model
+            dep_var = model_list[0]
+            # join the independent variables into a comma-separated list to make it easier to call from the uri
+            ind_vars = ""
+            for i in range(1, len(model_list)):
+                ind_vars = ind_vars + model_list[i] + ","
+            ind_vars = ind_vars[0:len(ind_vars)-1]
             uri = "/projects/" + project[0].toPython().split("/")[-1] + "?fields=" + ind_vars + "," + dep_var
             # get fields output from each file and concatenate
             df_list.append(pd.DataFrame(restParser.run([nidm_file], uri)))
@@ -150,7 +161,9 @@ def linreg(nidm_file_list, output_file, ind_vars, dep_var, contrast):
             df_final = pd.concat([df_int_float, obj_df_trf], axis=1) #join_axes=[df_int_float.index])
             df_final.head() #shows the final dataset with all the encoding
             print(df_final) #prints the final dataset
+            print("Model Results: ")
 
+            print(model)
             index = 0
             levels = []
             for i in range(len(condensed_data[0])):
@@ -175,58 +188,65 @@ def linreg(nidm_file_list, output_file, ind_vars, dep_var, contrast):
             print("Without contrast")
             print(finalstats.summary())
 
-            #With contrast (treatment coding)
-            ctrst = Treatment(reference=0).code_without_intercept(levels)
-            mod = ols(dep_var + " ~ C(" + contrast + ", Treatment)", data = df_final)
-            res = mod.fit()
-            print("With contrast (treatment coding)")
-            print(res.summary())
+            if contrast:
+                #With contrast (treatment coding)
+                print("Contrast:")
+                print("Treatment (Dummy) Coding: Dummy coding compares each level of the categorical variable to a base reference level. The base reference level is the value of the intercept.")
+                ctrst = Treatment(reference=0).code_without_intercept(levels)
+                mod = ols(dep_var + " ~ C(" + contrast + ", Treatment)", data = df_final)
+                res = mod.fit()
+                print("With contrast (treatment coding)")
+                print(res.summary())
 
-            #Defining the Simple class
-            def _name_levels(prefix, levels):
-                return ["[%s%s]" % (prefix, level) for level in levels]
-            class Simple(object):
-                def _simple_contrast(self, levels):
-                    nlevels = len(levels)
-                    contr = -1. / nlevels * np.ones((nlevels, nlevels - 1))
-                    contr[1:][np.diag_indices(nlevels - 1)] = (nlevels - 1.) / nlevels
-                    return contr
+                #Defining the Simple class
+                def _name_levels(prefix, levels):
+                    return ["[%s%s]" % (prefix, level) for level in levels]
+                class Simple(object):
+                    def _simple_contrast(self, levels):
+                        nlevels = len(levels)
+                        contr = -1. / nlevels * np.ones((nlevels, nlevels - 1))
+                        contr[1:][np.diag_indices(nlevels - 1)] = (nlevels - 1.) / nlevels
+                        return contr
 
-                def code_with_intercept(self, levels):
-                    contrast = np.column_stack((np.ones(len(levels)),
+                    def code_with_intercept(self, levels):
+                        contrast = np.column_stack((np.ones(len(levels)),
                                                 self._simple_contrast(levels)))
-                    return ContrastMatrix(contrast, _name_levels("Simp.", levels))
+                        return ContrastMatrix(contrast, _name_levels("Simp.", levels))
 
-                def code_without_intercept(self, levels):
-                    contrast = self._simple_contrast(levels)
-                    return ContrastMatrix(contrast, _name_levels("Simp.", levels[:-1]))
-            #Beginning of the contrast
-            ctrst = Simple().code_without_intercept(levels)
-            mod = ols(dep_var + " ~ C(" + contrast + ", Simple)", data = df_final)
-            res = mod.fit()
-            print("With contrast (simple coding)")
-            print(res.summary())
+                    def code_without_intercept(self, levels):
+                        contrast = self._simple_contrast(levels)
+                        return ContrastMatrix(contrast, _name_levels("Simp.", levels[:-1]))
+                #Beginning of the contrast
+                ctrst = Simple().code_without_intercept(levels)
+                mod = ols(dep_var + " ~ C(" + contrast + ", Simple)", data = df_final)
+                res = mod.fit()
+                print("Contrast:")
+                print("Simple Coding: Like Treatment Coding, Simple Coding compares each level to a fixed reference level. However, with simple coding, the intercept is the grand mean of all the levels of the factors.")
+                print(res.summary())
 
-            #With contrast (sum/deviation coding)
-            ctrst = Sum().code_without_intercept(levels)
-            mod = ols(dep_var + " ~ C(" + contrast + ", Sum)", data=df_final)
-            res = mod.fit()
-            print("With contrast (sum/deviation coding)")
-            print(res.summary())
+                #With contrast (sum/deviation coding)
+                ctrst = Sum().code_without_intercept(levels)
+                mod = ols(dep_var + " ~ C(" + contrast + ", Sum)", data=df_final)
+                res = mod.fit()
+                print("Contrast:")
+                print("Sum (Deviation) Coding: Sum coding compares the mean of the dependent variable for a given level to the overall mean of the dependent variable over all the levels.")
+                print(res.summary())
 
-            #With contrast (backward difference coding)
-            ctrst = Diff().code_without_intercept(levels)
-            mod = ols(dep_var + " ~ C(" + contrast + ", Diff)", data=df_final)
-            res = mod.fit()
-            print("With contrast (backward difference coding)")
-            print(res.summary())
+                #With contrast (backward difference coding)
+                ctrst = Diff().code_without_intercept(levels)
+                mod = ols(dep_var + " ~ C(" + contrast + ", Diff)", data=df_final)
+                res = mod.fit()
+                print("Contrast:")
+                print("Backward Difference Coding: In backward difference coding, the mean of the dependent variable for a level is compared with the mean of the dependent variable for the prior level.")
+                print(res.summary())
 
-            #With contrast (Helmert coding)
-            ctrst = Helmert().code_without_intercept(levels)
-            mod = ols(dep_var + " ~ C(" + contrast + ", Helmert)", data=df_final)
-            res = mod.fit()
-            print("With contrast (Helmert coding)")
-            print(res.summary())
+                #With contrast (Helmert coding)
+                ctrst = Helmert().code_without_intercept(levels)
+                mod = ols(dep_var + " ~ C(" + contrast + ", Helmert)", data=df_final)
+                res = mod.fit()
+                print("Contrast:")
+                print("Helmert Coding: Our version of Helmert coding is sometimes referred to as Reverse Helmert Coding. The mean of the dependent variable for a level is compared to the mean of the dependent variable over all previous levels. Hence, the name ‘reverse’ being sometimes applied to differentiate from forward Helmert coding.")
+                print(res.summary())
 
 
 

@@ -16,8 +16,8 @@ rdflib-jsonld
 pyld
 rdflib
 datalad
-ontquery>=0.2.2
-orthauth>=0.0.8
+ontquery>=0.2.3
+orthauth>=0.0.12
 tabulate
 joblib
 cognitiveatlas

@@ -55,13 +55,13 @@ nidm/experiment/tools/csv2nidm.py
 nidm/experiment/tools/nidm2bids.py
 nidm/experiment/tools/nidm_concat.py
 nidm/experiment/tools/nidm_convert.py
-nidm/experiment/tools/nidm_k-means_clustering.py
 nidm/experiment/tools/nidm_linreg.py
 nidm/experiment/tools/nidm_merge.py
 nidm/experiment/tools/nidm_query.py
 nidm/experiment/tools/nidm_stats.py
 nidm/experiment/tools/nidm_utils.py
 nidm/experiment/tools/nidm_visualize.py
+nidm/experiment/tools/old_nidm_linreg.py
 nidm/experiment/tools/repronim_simple2_brainvolumes.py
 nidm/experiment/tools/rest.py
 nidm/experiment/tools/tests/__init__.py
