@@ -1601,11 +1601,14 @@ def DD_to_nidm(dd_struct):
                 #g.add((isabout_collection_id, RDF.type, Constants.PROV['Collection']))
                 # for each isAbout entry, create new prov:Entity, store metadata and link it to the collection
                 for isabout_key, isabout_value in value.items():
-                    # add isAbout key which is the url
-                    g.add((cde_id, Constants.NIDM['isAbout'], URIRef(isabout_key)))
-                    # now add another entity to contain the label
-                    g.add((URIRef(isabout_key), RDF.type,Constants.PROV['Entity']))
-                    g.add((URIRef(isabout_key), Constants.RDFS['label'], Literal(isabout_value)))
+                    if isabout_key == '@id':
+                        last_id = isabout_value
+                        # add isAbout key which is the url
+                        g.add((cde_id, Constants.NIDM['isAbout'], URIRef(isabout_value)))
+                    elif isabout_key == 'label':
+                        # now add another entity to contain the label
+                        g.add((URIRef(last_id), RDF.type,Constants.PROV['Entity']))
+                        g.add((URIRef(last_id), Constants.RDFS['label'], Literal(isabout_value)))
 
             elif key == 'valueType':
                 g.add((cde_id, Constants.NIDM['valueType'], URIRef(value)))
