@@ -58,8 +58,8 @@ from cognitiveatlas.api import get_concept, get_disorder
 
 
 # set if we're running in production or testing mode
-INTERLEX_MODE = 'test'
-#INTERLEX_MODE = 'production'
+#INTERLEX_MODE = 'test'
+INTERLEX_MODE = 'production'
 if INTERLEX_MODE == 'test':
     INTERLEX_PREFIX = 'tmp_'
     #INTERLEX_ENDPOINT = "https://beta.scicrunch.org/api/1/"
@@ -907,6 +907,11 @@ def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_
         except:
             # if not then it's a json structure already
             json_map = json_source
+            # added check to make sure json_map is valid dictionary
+            if not isinstance(json_map,dict):
+                print("ERROR: Invalid JSON file supplied.  Please check your JSON file with a validator first!")
+                print("exiting!")
+                exit()
 
 
     # if no JSON mapping file was specified then create a default one for variable-term mappings
@@ -954,6 +959,9 @@ def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_
             except Exception as e:
                 if "list index out of range" in str(e):
                     json_key = [key for key in json_map if column.lstrip().rstrip() == key]
+                    #for key in json_map:
+                    #    print("%s == %s?" %(key,column.lstrip().rstrip()))
+
             finally:
 
                 if (json_map is not None) and (len(json_key)>0):
@@ -1140,7 +1148,7 @@ def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_
 
             # now store the url from Interlex for new personal data element in column_to_terms annotation
             column_to_terms[current_tuple]['url'] = ilx_output.iri
-        except:
+        except Exception as e:
             print("WARNING: WIP: Data element not submitted to InterLex.  ")
     # write annotations to json file since data element annotations are complete
     write_json_mapping_file(column_to_terms, output_file, bids)
