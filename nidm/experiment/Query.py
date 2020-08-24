@@ -212,6 +212,26 @@ def GetProjectSessionsMetadata(nidm_file_list, project_uuid):
 
     return json.dumps(output_json)
 
+def GetDataElementProperties(nidm_file_list):
+    """
+    This function will return a dictionary of data element properties for data_element_uuid
+    :param nidm_file_list:
+    :param data_element_uuid:
+    :return:
+    """
+
+    query='''
+
+        select distinct ?uuid ?DataElements ?property ?value
+            where {
+
+                ?uuid a/rdfs:subClassOf* nidm:DataElement ;
+                    ?property ?value .
+
+            }'''
+
+    df = sparql_query_nidm(nidm_file_list.split(','), query, output_file=None)
+    return df
 
 def GetProjectInstruments(nidm_file_list, project_id):
     """
