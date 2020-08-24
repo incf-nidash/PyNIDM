@@ -14,9 +14,12 @@ from  nidm.experiment import Navigate
 
 
 from numpy import std, mean, median
+import functools
+import operator
 
 from joblib import Memory
 memory = Memory(gettempdir(), verbose=0)
+USE_JOBLIB_CACHE = False
 
 import simplejson
 
@@ -158,8 +161,8 @@ class RestParser:
                     toptable.append([ key, simplejson.dumps(result[key]) ])
 
             if 'field_values' in result and len(result['field_values']) > 0 :
-                fh_header = result['field_values'][0].keys()
-                fh_rows = [x.values() for x in result['field_values']]
+                fh_header = ['subject', 'label', 'value', 'unit'] #result['field_values'][0].keys()
+                fh_rows = [ [x.subject, x.label, x.value, x.hasUnit] for x in result['field_values']]
                 field_table = tabulate(fh_rows, fh_header)
                 #added by DBK, if they asked for fields then just give them the fields
                 return "{}".format(field_table)
@@ -175,7 +178,7 @@ class RestParser:
                 tabulate(result["subjects"], headers="keys"),
                 #tabulate({"data_elements": result["data_elements"]}, headers="keys"),
                 tabulate([],headers = ["Data Elements"]),
-                tabulate(result["data_elements"], headers="keys"),
+                tabulate({'uuid': result["data_elements"]['uuid'], 'label': result["data_elements"]['label']}, headers="keys"),
                 field_table
             )
         else:
@@ -365,10 +368,7 @@ class RestParser:
             med = avg = st = mn = mx = None
         result[field] = {"max": mx, "min": mn, "median": med, "mean": avg, "standard_deviation": st}
 
-
     def projectSummary(self):
-
-        GetParticipantDetails_Cached = memory.cache(Query.GetParticipantDetails)
 
         match = re.match(r"^/?projects/([^/]+)$", self.command)
         id = parse.unquote(str(match.group(1)))
@@ -384,38 +384,18 @@ class RestParser:
         if 'fields' in self.query and len(self.query['fields']) > 0:
             self.restLog("Using fields {}".format(self.query['fields']), 2)
             result['field_values'] = []
+            # get all the synonyms for all the fields
+            field_synonyms = functools.reduce( operator.iconcat, [ Query.GetDatatypeSynonyms(self.nidm_files, id, x) for x in self.query['fields'] ], [])
             for sub in result['subjects']['uuid']:
-                sub_data = GetParticipantDetails_Cached(self.nidm_files, id, sub)
 
-                for study_type in ['derivatives']:
-                    if study_type in sub_data:
-                        for key, deriv in sub_data[study_type].items():
-                            for element_uri, data_row in deriv['values'].items():
-                                field = self.getTailOfURI(element_uri)
-                                if field in self.query['fields']:
-                                    result['field_values'].append({
-                                        'subject': sub,
-                                        'field': field,
-                                        'datumType': data_row['datumType'],
-                                        'label': data_row['label'],
-                                        'value': data_row['value'],
-                                        'units': data_row['units']
-                                    })
+                for activity in Navigate.getActivities(self.nidm_files, sub):
+                    activity = Navigate.getActivityData(self.nidm_files, activity)
+                    for data_element in activity.data:
+                        if data_element.dataElement in field_synonyms:
+                            result['field_values'].append(data_element._replace(subject=sub))
 
-                for study_type in ['instruments']:
-                    if study_type in sub_data:
-                        for instrument_uri, instrument_dict in sub_data[study_type].items():
-                            for instrument_field, instument_value in instrument_dict.items():
-                                if instrument_field in self.query['fields']:
-                                    result['field_values'].append({
-                                        'subject': sub,
-                                        'field': instrument_field,
-                                        'datumType': '',
-                                        'label': '',
-                                        'value': instument_value,
-                                        'units': ''
-                                    })
-
+            if len(result['field_values']) == 0:
+                raise ValueError("Supplied field not found. (" + ", ".join(self.query['fields']) + ")")
 
         return self.projectSummaryFormat(result)
 
@@ -424,7 +404,17 @@ class RestParser:
         match = re.match(r"^/?projects/([^/]+)/subjects/?$", self.command)
         project = match.group((1))
         self.restLog("Returning all agents matching filter '{}' for project {}".format(self.query['filter'], project), 2)
-        result = Query.GetParticipantUUIDsForProject(self.nidm_files, project, self.query['filter'], None)
+        # result = Query.GetParticipantUUIDsForProject(self.nidm_files, project, self.query['filter'], None)
+        all_subjects = Navigate.getSubjects(self.nidm_files, project)
+        result = {}
+        result['uuid'] = []
+        result['subject id'] = []
+        for sub_uuid in all_subjects:
+            if Query.CheckSubjectMatchesFilter(self.nidm_files,project, sub_uuid, self.query['filter']):
+                uuid_string = (str(sub_uuid)).split('/')[-1]  # srip off the http://whatever/whatever/
+                result['uuid'].append(uuid_string)
+                sid = Navigate.getSubjectIDfromUUID(self.nidm_files, sub_uuid)
+                result['subject id'].append(str(sid))
         return self.format(result)
 
     def projectSubjectSummary(self):
@@ -485,27 +475,31 @@ class RestParser:
         return self.formatDerivatives(single_derivative)
 
     def run(self, nidm_files, command):
-        self.restLog("parsing command " + command, 1)
-        self.restLog("Files to read:" + str(nidm_files), 1)
-        self.restLog("Using {} as the graph cache directory".format(gettempdir()), 1)
+        try:
+            self.restLog("parsing command " + command, 1)
+            self.restLog("Files to read:" + str(nidm_files), 1)
+            self.restLog("Using {} as the graph cache directory".format(gettempdir()), 1)
 
-        self.nidm_files = nidm_files
-        u = urlparse(command)
-        self.command = u.path
-        self.query = parse_qs(u.query)
+            self.nidm_files = tuple(nidm_files)
+            u = urlparse(command)
+            self.command = u.path
+            self.query = parse_qs(u.query)
 
-        if 'filter' in self.query:
-            self.query['filter'] = self.query['filter'][0]
-        else:
-            self.query['filter'] = None
+            if 'filter' in self.query:
+                self.query['filter'] = self.query['filter'][0]
+            else:
+                self.query['filter'] = None
 
-        # normalize query dict for our particular situation
-        if 'fields' in self.query:
-            self.query['fields'] = str.split(self.query['fields'][0], ',')
-        else:
-            self.query['fields'] = []
+            # normalize query dict for our particular situation
+            if 'fields' in self.query:
+                self.query['fields'] = str.split(self.query['fields'][0], ',')
+            else:
+                self.query['fields'] = []
 
-        return self.route()
+            return self.route()
+        except ValueError:
+            return (self.format({"error": "One of the supplied field terms was not found."}))
+
 
 
     def route(self):
