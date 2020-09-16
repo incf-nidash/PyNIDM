@@ -1511,6 +1511,39 @@ def annotate_data_element(source_variable, current_tuple, source_variable_annota
         print("levels: %s" % source_variable_annotations[current_tuple]['levels'])
     print("---------------------------------------------------------------------------------------")
 
+def DD_UUID (element,dd_struct):
+    '''
+    This function will produce a hash of the data dictionary (personal data element) properties defined
+    by the user for use as a UUID.  The data dictionary key is a tuple identifying the file and variable
+    name within that file to be encoded with a UUID.  The idea is that if the data dictionaries for a
+    personal data element precisely match then the same UUID will be generated.
+    :param element: element in dd_struct to create UUID for within the dd_struct
+    :param dd_struct: data dictionary json structure
+    :return: hash of
+    '''
+
+    # evaluate the compound data dictionary key and loop over the properties
+    key_tuple = eval(element)
+
+    property_string=""
+    for key, value in dd_struct[str(key_tuple)].items():
+        if key == 'label':
+            property_string = property_string + str(value)
+        if (key == 'levels') or (key == 'Levels'):
+            property_string = property_string + str(value)
+        if key == 'valueType':
+            property_string = property_string + str(value)
+        if key == 'hasUnit':
+            property_string = property_string + str(value)
+        if key == 'source_variable':
+            variable_name = value
+
+
+    crc32hash = base_repr(crc32(str(property_string).encode()), 32).lower()
+    niiri_ns = Namespace(Constants.NIIRI)
+    cde_id = URIRef(niiri_ns + safe_string(variable_name) + "_" + str(crc32hash))
+    return cde_id
+
 def DD_to_nidm(dd_struct):
     '''
 
@@ -1554,23 +1587,12 @@ def DD_to_nidm(dd_struct):
                 # cde_id = item_ns[str(key_num).zfill(4)]
 
                 # hash the key_tuple (e.g. DD(source=[FILENAME],variable=[VARNAME]))
-                crc32hash = base_repr(crc32(str(key).encode()),32).lower()
+                #crc32hash = base_repr(crc32(str(key).encode()),32).lower()
                 # md5hash = hashlib.md5(str(key).encode()).hexdigest()
 
-                # added to address some weird bug in rdflib where if the uuid starts with a number, everything up until the first
-                # alpha character becomes a prefix...
 
-                #if not (re.match("^[a-fA-F]+.*", md5hash)):
-
-                # if first digit is not a character than replace it with a randomly selected hex character (a-f).
-                #    uid_temp = md5hash
-                #    randint = random.randint(0,5)
-                #    md5hash = string.ascii_lowercase[randint] + uid_temp[1:]
-
-
-                #cde_id = item_ns[md5hash
-                #cde_id = URIRef(niiri_ns + safe_string(item) + "_" + str(md5hash))
-                cde_id = URIRef(niiri_ns + safe_string(item) + "_" + str(crc32hash))
+                cde_id = DD_UUID(key,dd_struct)
+                #cde_id = URIRef(niiri_ns + safe_string(item) + "_" + str(crc32hash))
                 g.add((cde_id,RDF.type, Constants.NIDM['DataElement']))
                 g.add((cde_id,RDF.type, Constants.PROV['Entity']))
 
@@ -1595,7 +1617,7 @@ def DD_to_nidm(dd_struct):
                 # added by DBK for multiple isAbout URLs and storing the labels along with URLs
                 # first get a uuid has for the isAbout collection for this we'll use a hash of the isAbout list
                 # as a string
-                crc32hash = base_repr(crc32(str(value).encode()), 32).lower()
+                #crc32hash = base_repr(crc32(str(value).encode()), 32).lower()
                 # now create the collection and for each isAbout create an entity to add to collection with
                 # properties for label and url
                 #g.add((isabout_collection_id, RDF.type, Constants.PROV['Collection']))
