@@ -132,6 +132,10 @@ def main(argv):
 
         #read in NIDM file
         project = read_nidm(args.nidm_file)
+        #with open("/Users/dbkeator/Downloads/test.ttl","w") as f:
+        #    f.write(project.serializeTurtle())
+
+
         #get list of session objects
         session_objs=project.get_sessions()
 
@@ -186,7 +190,7 @@ def main(argv):
 
 
         for index,row in qres.iterrows():
-            logging.info("found existing participant %s \t %s" %(row[0],row[1]))
+            logging.info("participant in NIDM file %s \t %s" %(row[0],row[1]))
             #find row in CSV file with subject id matching agent from NIDM file
 
             #csv_row = df.loc[df[id_field]==type(df[id_field][0])(row[1])]
@@ -200,22 +204,28 @@ def main(argv):
             #then add this CSV assessment data to NIDM file, else skip it....
             if (not (len(csv_row.index)==0)):
 
+                logging.info("found participant in CSV file" )
+
+                # create a new session for this assessment
+                new_session=Session(project=project)
+
                 #NIDM document sesssion uuid
-                session_uuid = row[0]
+                #session_uuid = row[0]
 
                 #temporary list of string-based URIs of session objects from API
-                temp = [o.identifier._uri for o in session_objs]
+                #temp = [o.identifier._uri for o in session_objs]
                 #get session object from existing NIDM file that is associated with a specific subject id
                 #nidm_session = (i for i,x in enumerate([o.identifier._uri for o in session_objs]) if x == str(session_uuid))
-                nidm_session = session_objs[temp.index(str(session_uuid))]
+                #nidm_session = session_objs[temp.index(str(session_uuid))]
                 #for nidm_session in session_objs:
                 #    if nidm_session.identifier._uri == str(session_uuid):
                 #add an assessment acquisition for the phenotype data to session and associate with agent
-                acq=AssessmentAcquisition(session=nidm_session)
+                #acq=AssessmentAcquisition(session=nidm_session)
+                acq=AssessmentAcquisition(session=new_session)
                 #add acquisition entity for assessment
                 acq_entity = AssessmentObject(acquisition=acq)
                 #add qualified association with existing agent
-                acq.add_qualified_association(person=row[2],role=Constants.NIDM_PARTICIPANT)
+                acq.add_qualified_association(person=row[0],role=Constants.NIDM_PARTICIPANT)
 
                 # add git-annex info if exists
                 num_sources = addGitAnnexSources(obj=acq_entity,filepath=args.csv_file,bids_root=dirname(args.csv_file))
