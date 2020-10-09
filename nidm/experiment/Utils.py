@@ -113,7 +113,7 @@ def read_nidm(nidmDoc):
             # add namespaces to prov graph
             for name, namespace in rdf_graph_parse.namespaces():
                 # skip these default namespaces in prov Document
-                if (name != 'prov') and (name != 'xsd') and (name != 'nidm'):
+                if (name != 'prov') and (name != 'xsd') and (name != 'nidm') and (name != 'niiri'):
                     project.graph.add_namespace(name, namespace)
 
         else:
@@ -128,7 +128,7 @@ def read_nidm(nidmDoc):
         #add namespaces to prov graph
         for name, namespace in rdf_graph_parse.namespaces():
             #skip these default namespaces in prov Document
-            if (name != 'prov') and (name != 'xsd'): #and (name != 'nidm'):
+            if (name != 'prov') and (name != 'xsd') and (name != 'nidm') and (name != 'niiri'):
                 project.graph.add_namespace(name, namespace)
 
         #Cycle through Project metadata adding to prov graph
@@ -388,7 +388,7 @@ def add_metadata_for_subject (rdf_graph,subject_uri,namespaces,nidm_obj):
                     # automatically by provDocument so they aren't accessible via the namespaces list
                     # so we check explicitly here
                     if ((obj_nm == str(Constants.PROV))):
-                        nidm_obj.add_attributes({predicate: pm.QualifiedName(namespace=obj_nm,localpart=obj_term)})
+                        nidm_obj.add_attributes({predicate: Constants.PROV[obj_term]})
                     else:
                         found_uri = find_in_namespaces(search_uri=URIRef(obj_nm),namespaces=namespaces)
                         # if obj_nm is not in namespaces then it must just be part of some URI in the triple
@@ -909,6 +909,9 @@ def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_
                 # load file
                 with open(json_source,'r+') as f:
                     json_map = json.load(f)
+            else:
+                print("ERROR: Can't open json mapping file: %s" %(json_source))
+                exit()
         except:
             # if not then it's a json structure already
             json_map = json_source
@@ -1045,8 +1048,10 @@ def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_
                         print("Added source variable (%s) to annotations" %column)
 
                     if "isAbout" in json_map[json_key[0]]:
-                        column_to_terms[current_tuple]['isAbout'] = json_map[json_key[0]]['isAbout']
-                        print("isAbout: %s" % column_to_terms[current_tuple]['isAbout'])
+                        column_to_terms[current_tuple]['isAbout'] = {}
+                        for isabout_key,isabout_value in json_map[json_key[0]]['isAbout'].items():
+                            column_to_terms[current_tuple]['isAbout'][isabout_key] = json_map[json_key[0]]['isAbout'][isabout_key]
+                            print("isAbout: %s = %s" %(isabout_key, column_to_terms[current_tuple]['isAbout'][isabout_key]))
                     else:
                         # if user ran in mode where they want to associate concepts
                         if associate_concepts:
@@ -1088,7 +1093,9 @@ def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_
             column_to_terms[subjid_tuple]['description'] = "subject/participant identifier"
             column_to_terms[subjid_tuple]['source_variable'] = str(search_term)
             column_to_terms[subjid_tuple]['valueType'] = URIRef(Constants.XSD["string"])
-            column_to_terms[subjid_tuple]['url'] =  Constants.NIDM_SUBJECTID.uri
+            column_to_terms[subjid_tuple]['isAbout'] = {}
+            column_to_terms[subjid_tuple]['isAbout']['url'] = Constants.NIDM_SUBJECTID.uri
+            column_to_terms[subjid_tuple]['isAbout']['label'] = Constants.NIDM_SUBJECTID.localpart
             # column_to_terms[subjid_tuple]['variable'] = str(column)
 
             # delete temporary current_tuple key for this variable as it has been statically mapped to NIDM_SUBJECT
@@ -1097,7 +1104,7 @@ def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_
             print("Variable %s automatically mapped to participant/subject idenfier" %search_term)
             print("Label: %s" %column_to_terms[subjid_tuple]['label'])
             print("Description: %s" %column_to_terms[subjid_tuple]['description'])
-            print("Url: %s" %column_to_terms[subjid_tuple]['url'])
+            #print("Url: %s" %column_to_terms[subjid_tuple]['url'])
             print("Source Variable: %s" % column_to_terms[subjid_tuple]['source_variable'])
             print("---------------------------------------------------------------------------------------")
             continue
@@ -1349,7 +1356,9 @@ def find_concept_interactive(source_variable, current_tuple, source_variable_ann
         else:
             # user selected one of the existing concepts to add its URL to the isAbout property
             # added labels to these isAbout urls for easy querying later
-            source_variable_annotations[current_tuple]['isAbout'] = {search_result[search_result[selection]]['preferred_url'] : search_result[search_result[selection]]['label']}
+            source_variable_annotations[current_tuple]['isAbout'] = {}
+            source_variable_annotations[current_tuple]['isAbout']['url'] = search_result[search_result[selection]]['preferred_url']
+            source_variable_annotations[current_tuple]['isAbout']['label'] = search_result[search_result[selection]]['label']
             print("\nConcept annotation added for source variable: %s" %source_variable)
             go_loop = False
 
@@ -1628,7 +1637,7 @@ def DD_to_nidm(dd_struct):
                 #g.add((isabout_collection_id, RDF.type, Constants.PROV['Collection']))
                 # for each isAbout entry, create new prov:Entity, store metadata and link it to the collection
                 for isabout_key, isabout_value in value.items():
-                    if isabout_key == '@id':
+                    if (isabout_key == '@id') or (isabout_key == 'url'):
                         last_id = isabout_value
                         # add isAbout key which is the url
                         g.add((cde_id, Constants.NIDM['isAbout'], URIRef(isabout_value)))
