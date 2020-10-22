@@ -389,6 +389,8 @@ def add_metadata_for_subject (rdf_graph,subject_uri,namespaces,nidm_obj):
                     # so we check explicitly here
                     if ((obj_nm == str(Constants.PROV))):
                         nidm_obj.add_attributes({predicate: Constants.PROV[obj_term]})
+                    elif ((obj_nm == str(Constants.NIDM))):
+                        nidm_obj.add_attributes({predicate: pm.QualifiedName(Constants.NIDM,obj_term)})
                     else:
                         found_uri = find_in_namespaces(search_uri=URIRef(obj_nm),namespaces=namespaces)
                         # if obj_nm is not in namespaces then it must just be part of some URI in the triple
