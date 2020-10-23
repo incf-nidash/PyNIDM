@@ -902,34 +902,39 @@ def ExtractProjectSummary(meta_data, nidm_file_list):
     '''
     query = '''
     prefix ncicb: <http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#>
-    prefix ndar: <https://ndar.nih.gov/api/datadictionary/v2/dataelement/>
-    prefix obo: <http://purl.obolibrary.org/obo/>
-    prefix dct: <http://purl.org/dc/terms/>
-    prefix prov: <http://www.w3.org/ns/prov#>
-    prefix nidm: <http://purl.org/nidash/nidm#>
+prefix ndar: <https://ndar.nih.gov/api/datadictionary/v2/dataelement/>
+prefix obo: <http://purl.obolibrary.org/obo/>
+prefix dct: <http://purl.org/dc/terms/>
+prefix prov: <http://www.w3.org/ns/prov#>
+prefix nidm: <http://purl.org/nidash/nidm#>
+prefix onli: <http://neurolog.unice.fr/ontoneurolog/v3.0/instrument.owl#>
 
-    SELECT DISTINCT ?id ?person ?age ?gender ?hand ?assessment ?acq ?session ?project
-    WHERE {
-      # Added by DBK to support new data element format
-      {?age_measure a nidm:DataElement ;
-					nidm:isAbout <http://uri.interlex.org/base/ilx_0100400> .}
-	  {?gender_measure a nidm:DataElement ;
-					nidm:isAbout <http://uri.interlex.org/base/ilx_0101292> .}
-	  {?handedness_measure a nidm:DataElement ;
-					nidm:isAbout <http://purl.obolibrary.org/obo/PATO_0002201> .}
-      OPTIONAL { ?assessment ?age_measure ?age } .
-      OPTIONAL { ?assessment ?gender_measure ?gender } .
-      OPTIONAL { ?assessment ?handedness_measure ?hand } .
-      ?person ndar:src_subject_id ?id .
-      ?acq prov:qualifiedAssociation _:blank .
-      _:blank prov:hadRole sio:Subject .
-      _:blank prov:agent ?person .
-      ?assessment prov:wasGeneratedBy ?acq .
-      ?acq dct:isPartOf ?session .
-      ?session dct:isPartOf ?project .
-      ?project a nidm:Project
-    }
-    ORDER BY ?id
+SELECT DISTINCT ?id ?person ?age ?gender ?hand ?assessment ?acq ?session ?project
+WHERE {
+  # Added by DBK to support new data element format
+  {?age_measure a nidm:DataElement ;
+				nidm:isAbout <http://uri.interlex.org/base/ilx_0100400> .}
+  {?gender_measure a nidm:DataElement ;
+				nidm:isAbout <http://uri.interlex.org/base/ilx_0101292> .}
+  {?handedness_measure a nidm:DataElement ;
+				nidm:isAbout <http://purl.obolibrary.org/obo/PATO_0002201> .}
+  
+  ?assessment prov:wasGeneratedBy ?acq ;
+	a onli:assessment-instrument ;
+	  ?age_measure ?age ;
+  	  ?gender_measure ?gender ;
+	  ?handedness_measure ?hand .
+	  
+  ?person ndar:src_subject_id ?id .
+  ?acq prov:qualifiedAssociation _:blank .
+  _:blank prov:hadRole sio:Subject .
+  _:blank prov:agent ?person .
+  ?acq dct:isPartOf ?session .
+  ?session dct:isPartOf ?project .
+  ?project a nidm:Project
+}
+ORDER BY ?id
+	
       '''
 
     df = sparql_query_nidm(nidm_file_list, query, output_file=None)
