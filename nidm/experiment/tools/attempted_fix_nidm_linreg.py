@@ -61,19 +61,21 @@ from patsy.contrasts import Helmert
 @click.option("--output_file", "-o", required=False,
               help="Optional output file (CSV) to store results of query")
 def full_regression(nidm_file_list, output_file, model, contrast):
-    global c
-    c = contrast
-    global m
-    m = model
-    global o
+    #NOTE: Every time I make a global variable, it is because I need it in at least one other method.
+    global c #used in linreg(), contrasting()
+    c = contrast #Storing all important parameters in global variables so they can be accessed in other methods
+    global m #Needed to do this because the code only used the parameters in the first method, meaning I had to move it all to method 1.
+    m = model #used in data_aggregation, linreg()
+    global o #used in dataparsing()
     o = output_file
-    global n
+    global n #used in data_aggregation()
     n = nidm_file_list
-    data_aggregation()
-    dataparsing()
-    linreg()
-    contrasting()
-def data_aggregation():
+    data_aggregation() #collects data
+    dataparsing() #converts it to proper format
+    linreg() #performs linear regression
+    contrasting() #performs contrast
+
+def data_aggregation(): #all data from all the files is collected
     """
             This function provides query support for NIDM graphs.
             """
@@ -85,7 +87,7 @@ def data_aggregation():
         verbosity = 0
         restParser = RestParser(verbosity_level=int(verbosity))
         restParser.setOutputFormat(RestParser.OBJECT_FORMAT)
-        global df_list
+        global df_list #used in dataparsing()
         df_list = []
         # set up uri to do fields query for each nidm file
         for nidm_file in n.split(","):
@@ -97,10 +99,10 @@ def data_aggregation():
                 if i == "+" or i == "~" or i == "=":
                     model_list.remove(i)
             # set the dependent variable to the one dependent variable in the model
-            global dep_var
+            global dep_var #used in dataparsing(), linreg(), and contrasting()
             dep_var = model_list[0]
             # join the independent variables into a comma-separated list to make it easier to call from the uri
-            global ind_vars
+            global ind_vars #used in dataparsing()
             ind_vars = ""
             for i in range(1, len(model_list)):
                 ind_vars = ind_vars + model_list[i] + ","
@@ -108,24 +110,22 @@ def data_aggregation():
             uri = "/projects/" + project[0].toPython().split("/")[-1] + "?fields=" + ind_vars + "," + dep_var
             # get fields output from each file and concatenate
             df_list.append(pd.DataFrame(restParser.run([nidm_file], uri)))
-
     else:
         print("ERROR: No query parameter provided.  See help:")
         print()
         os.system("pynidm query --help")
         exit(1)
 
-def dataparsing():
-    global df
+def dataparsing(): #The data is changed to a format that is usable by the linear regression method
     df = pd.concat(df_list)
-    with tempfile.NamedTemporaryFile(delete=False) as temp: # turns the dataframe into a csv
+    with tempfile.NamedTemporaryFile(delete=False) as temp: # turns the dataframe into a temporary csv
         df.to_csv(temp.name + '.csv')
         temp.close()
     data = list(csv.reader(open('data.csv')))  # makes the csv a 2D list to make it easier to call the contents of certain cells
-    global independentvariables
+    global independentvariables #used in linreg
     independentvariables = ind_vars.split(",")  # makes a list of the independent variables
     numcols = (len(data) - 1) // (len(independentvariables) + 1)  # Finds the number of columns in the original dataframe
-    global condensed_data
+    global condensed_data #also used in linreg()
     condensed_data = [[0] * (len(independentvariables) + 1)]  # makes an array 1 row by the number of necessary columns
     for i in range(numcols):  # makes the 2D array big enough to store all of the necessary values in the edited dataset
         condensed_data.append([0] * (len(independentvariables) + 1))
@@ -152,7 +152,6 @@ def dataparsing():
             elif data[j][datacolumn] == condensed_data[0][i]:  # in the dataframe, the name is in column 9
                 condensed_data[numrows][i] = data[j][valuecolumn]  # in the dataframe, the value is in column 2
                 numrows = numrows + 1  # moves on to the next row to add the proper values
-
         numrows = 1  # resets to the first row for the next variable
     x = pd.read_csv(opencsv(condensed_data))  # changes the dataframe to a csv to make it easier to work with
     x.head()  # prints what the csv looks like
@@ -162,10 +161,8 @@ def dataparsing():
     x.describe()  # says dataset statistics
     obj_df = x.select_dtypes(include=['object']).copy()  # takes everything that is an object (not float or int) and puts it in a new dataset
     obj_df.head()  # prints the new dataset
-    int_df = x.select_dtypes(
-        include=['int64']).copy()  # takes everything that is an int and puts it in a new dataset
-    float_df = x.select_dtypes(
-        include=['float64']).copy()  # takes everything that is a float and puts it in a new dataset
+    int_df = x.select_dtypes(include=['int64']).copy()  # takes everything that is an int and puts it in a new dataset
+    float_df = x.select_dtypes(include=['float64']).copy()  # takes everything that is a float and puts it in a new dataset
     df_int_float = pd.concat([float_df, int_df], axis=1)
     variables = []  # starts a list that will store all variables that are not numbers
     for i in range(1, len(condensed_data)):  # goes through each variable
@@ -179,7 +176,7 @@ def dataparsing():
     for i in range(len(variables)):
         le.fit(obj_df[variables[i]].astype(str))
     obj_df_trf = obj_df.astype(str).apply(le.fit_transform)  # transforms the categorical variables into numbers.
-    global df_final
+    global df_final #also used in linreg()
     df_final = pd.concat([df_int_float, obj_df_trf], axis=1)  # join_axes=[df_int_float.index])
     df_final.head()  # shows the final dataset with all the encoding
     print(df_final)  # prints the final dataset
@@ -190,11 +187,12 @@ def dataparsing():
         # output to csv file
         df.to_csv(o)
 
-def linreg():
+def linreg(): #actual linear regression
     print("Model Results: ")
-    print(m)
+    print(m) #prints model
+    print(m) #prints model
     index = 0
-    global levels
+    global levels #also used in contrasting()
     levels = []
     for i in range(len(condensed_data[0])):
         if c == condensed_data[0][i]:
@@ -330,8 +328,7 @@ def opencsv(data):
     import os
     import csv
     handle, fn = tempfile.mkstemp(suffix='.csv')
-    with os.fdopen(handle,"w", encoding='utf8',errors='surrogateescape',\
-                  newline='') as f:
+    with os.fdopen(handle,"w", encoding='utf8',errors='surrogateescape',newline='') as f:
         writer = csv.writer(f)
         writer.writerows(data)
     return fn
