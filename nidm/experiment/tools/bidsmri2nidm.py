@@ -29,7 +29,7 @@
 import sys, getopt, os
 
 from nidm.experiment import Project,Session,MRAcquisition,AcquisitionObject,DemographicsObject, AssessmentAcquisition, \
-    AssessmentObject,MRObject
+    AssessmentObject,MRObject,Acquisition
 from nidm.core import BIDS_Constants,Constants
 
 from prov.model import PROV_LABEL,PROV_TYPE, ProvInfluence
@@ -610,7 +610,7 @@ def bidsmri2project(directory, args):
 
                  # if there's a JSON sidecar file then create an entity and associate it with all the assessment entities
                 if os.path.isfile(os.path.join(directory,'participants.json')):
-                    json_sidecar = AssessmentObject(acquisition=acq)
+                    json_sidecar = AcquisitionObject(acquisition=acq)
                     json_sidecar.add_attributes({PROV_TYPE:QualifiedName(Namespace("bids",Constants.BIDS),"sidecar_file"), Constants.NIDM_FILENAME:
                         getRelPathToBIDS(os.path.join(directory,'participants.json'),directory)})
 
@@ -799,7 +799,7 @@ def bidsmri2project(directory, args):
                         if os.path.isfile(data_dict):
                             # if file exists, create a new entity and associate it with the appropriate activity  and a used relationship
                             # with the TSV-related entity
-                            json_entity = AssessmentObject(acquisition=acq)
+                            json_entity = AcquisitionObject(acquisition=acq)
                             json_entity.add_attributes({PROV_TYPE:Constants.BIDS["sidecar_file"], Constants.NIDM_FILENAME:
                                 getRelPathToBIDS(data_dict,directory)})
 

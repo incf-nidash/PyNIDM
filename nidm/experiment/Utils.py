@@ -389,6 +389,8 @@ def add_metadata_for_subject (rdf_graph,subject_uri,namespaces,nidm_obj):
                     # so we check explicitly here
                     if ((obj_nm == str(Constants.PROV))):
                         nidm_obj.add_attributes({predicate: Constants.PROV[obj_term]})
+                    elif ((obj_nm == str(Constants.NIDM))):
+                        nidm_obj.add_attributes({predicate: pm.QualifiedName(Constants.NIDM,obj_term)})
                     else:
                         found_uri = find_in_namespaces(search_uri=URIRef(obj_nm),namespaces=namespaces)
                         # if obj_nm is not in namespaces then it must just be part of some URI in the triple
@@ -977,12 +979,14 @@ def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_
                     # added in case for some reason there isn't a label key, try source_variable and if it's
                     # a key then add this as the label as well.
                     if 'label' not in json_map[json_key[0]].keys():
-                        if 'source_variable' in json_map[json_key[0]].keys():
+                        if ('source_variable' in json_map[json_key[0]].keys()):
                             column_to_terms[current_tuple]['label'] = json_map[json_key[0]]['source_variable']
+                        elif ('sourceVariable' in json_map[json_key[0]].keys()):
+                            column_to_terms[current_tuple]['label'] = json_map[json_key[0]]['sourceVariable']
                         else:
                             column_to_terms[current_tuple]['label'] = ""
-                            print("No label or source_variable keys found in json mapping file for variable"
-                                  "%s. Consider adding these to the json file as they are important")
+                            print("No label or source_variable or sourceVariable keys found in json mapping file for variable "
+                                  "%s. Consider adding these to the json file as they are important" %json_key[0])
                     else:
                         column_to_terms[current_tuple]['label'] = json_map[json_key[0]]['label']
                     # added this bit to account for BIDS json files using "Description" whereas we use "description"
@@ -1042,16 +1046,28 @@ def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_
                     if 'source_variable' in json_map[json_key[0]]:
                         column_to_terms[current_tuple]['source_variable'] = json_map[json_key[0]]['source_variable']
                         print("source variable: %s" % column_to_terms[current_tuple]['source_variable'])
+                    elif 'sourceVariable' in json_map[json_key[0]]:
+                        column_to_terms[current_tuple]['source_variable'] = json_map[json_key[0]]['sourceVariable']
+                        print("source variable: %s" % column_to_terms[current_tuple]['source_variable'])
                     else:
                         # add source variable if not there...
                         column_to_terms[current_tuple]['source_variable'] = str(column)
                         print("Added source variable (%s) to annotations" %column)
 
                     if "isAbout" in json_map[json_key[0]]:
-                        column_to_terms[current_tuple]['isAbout'] = {}
-                        for isabout_key,isabout_value in json_map[json_key[0]]['isAbout'].items():
-                            column_to_terms[current_tuple]['isAbout'][isabout_key] = json_map[json_key[0]]['isAbout'][isabout_key]
-                            print("isAbout: %s = %s" %(isabout_key, column_to_terms[current_tuple]['isAbout'][isabout_key]))
+                        #check if we have a single isAbout or multiple...
+                        if isinstance(json_map[json_key[0]]['isAbout'],list):
+                            column_to_terms[current_tuple]['isAbout'] = []
+                            for subdict in json_map[json_key[0]]['isAbout']:
+                                for isabout_key,isabout_value in subdict.items():
+                                    column_to_terms[current_tuple]['isAbout'].append({isabout_key:isabout_value})
+                                    print("isAbout: %s = %s" %(isabout_key, isabout_value))
+                        # if isAbout is a dictionary then we only have 1 isAbout...
+                        else:
+                            column_to_terms[current_tuple]['isAbout'] = {}
+                            for isabout_key,isabout_value in json_map[json_key[0]]['isAbout'].items():
+                                column_to_terms[current_tuple]['isAbout'][isabout_key] = json_map[json_key[0]]['isAbout'][isabout_key]
+                                print("isAbout: %s = %s" %(isabout_key, column_to_terms[current_tuple]['isAbout'][isabout_key]))
                     else:
                         # if user ran in mode where they want to associate concepts
                         if associate_concepts:
@@ -1636,15 +1652,31 @@ def DD_to_nidm(dd_struct):
                 # properties for label and url
                 #g.add((isabout_collection_id, RDF.type, Constants.PROV['Collection']))
                 # for each isAbout entry, create new prov:Entity, store metadata and link it to the collection
-                for isabout_key, isabout_value in value.items():
-                    if (isabout_key == '@id') or (isabout_key == 'url'):
-                        last_id = isabout_value
-                        # add isAbout key which is the url
-                        g.add((cde_id, Constants.NIDM['isAbout'], URIRef(isabout_value)))
-                    elif isabout_key == 'label':
-                        # now add another entity to contain the label
-                        g.add((URIRef(last_id), RDF.type,Constants.PROV['Entity']))
-                        g.add((URIRef(last_id), Constants.RDFS['label'], Literal(isabout_value)))
+
+                #if we have multiple isAbouts then it will be stored as a list of dicts
+                if isinstance(value, list):
+                    for subdict in value:
+                        for isabout_key, isabout_value in subdict.items():
+                            if (isabout_key == '@id') or (isabout_key == 'url'):
+                                last_id = isabout_value
+                                # add isAbout key which is the url
+                                g.add((cde_id, Constants.NIDM['isAbout'], URIRef(isabout_value)))
+                            elif isabout_key == 'label':
+                                # now add another entity to contain the label
+                                g.add((URIRef(last_id), RDF.type,Constants.PROV['Entity']))
+                                g.add((URIRef(last_id), Constants.RDFS['label'], Literal(isabout_value)))
+                # else we only have 1 isabout which is a dict
+                else:
+
+                    for isabout_key, isabout_value in value.items():
+                        if (isabout_key == '@id') or (isabout_key == 'url'):
+                            last_id = isabout_value
+                            # add isAbout key which is the url
+                            g.add((cde_id, Constants.NIDM['isAbout'], URIRef(isabout_value)))
+                        elif isabout_key == 'label':
+                            # now add another entity to contain the label
+                            g.add((URIRef(last_id), RDF.type,Constants.PROV['Entity']))
+                            g.add((URIRef(last_id), Constants.RDFS['label'], Literal(isabout_value)))
 
             elif key == 'valueType':
                 g.add((cde_id, Constants.NIDM['valueType'], URIRef(value)))

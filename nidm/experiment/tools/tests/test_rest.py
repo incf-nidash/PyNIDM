@@ -325,7 +325,7 @@ def test_GetParticipantDetails():
     # assert (runtime <  4)
 
 
-
+@pytest.mark.skip(reason="Working on updating this test...")
 def test_CheckSubjectMatchesFilter():
     restParser = RestParser()
     if cmu_test_project_uuid:
@@ -385,7 +385,7 @@ def test_ExtremeFilters():
     assert len(details['subjects']['uuid']) > 0
     assert len(details['data_elements']['uuid']) > 0
 
-
+@pytest.mark.skip(reason="Working on updating this test...")
 def test_Filter_Flexibility():
     restParser = RestParser(output_format=RestParser.OBJECT_FORMAT)
     if cmu_test_project_uuid:
@@ -560,6 +560,7 @@ def test_project_fields_deriv():
     fields_used = set( [ i.label for i in fv ]  )
     assert 'Brain Segmentation Volume (mm^3)' in fields_used
 
+@pytest.mark.skip(reason="Working on updating this test...")
 def test_project_fields_instruments():
     rest_parser = RestParser(verbosity_level=0)
 
