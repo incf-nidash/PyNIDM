@@ -575,10 +575,14 @@ def GetDatatypeSynonyms(nidm_file_list, project_id, datatype):
     :param datatype:
     :return:
     '''
+    if datatype.startswith("instruments."):
+        datatype = datatype[12:]
+    if datatype.startswith("derivatives."):
+        datatype = datatype[12:]
     project_data_elements = GetProjectDataElements(nidm_file_list, project_id)
     for dti in project_data_elements['data_type_info']:
-        if str(datatype) in [ str(x) for x in [dti['label'], dti['datumType'], dti['measureOf'], URITail(dti['measureOf']), dti['isAbout'], URITail(dti['isAbout']), dti['dataElement'], dti['dataElementURI'], dti['prefix']] ]:
-            return [str(dti['label']), str(dti['datumType']), str(dti['measureOf']), URITail(dti['measureOf']), str(dti['isAbout']), str(dti['dataElement']), str(dti['dataElementURI']), str(dti['prefix'])]
+        if str(datatype) in [ str(x) for x in [dti['label'], dti['datumType'], dti['measureOf'], URITail(dti['measureOf']), dti['isAbout'], URITail(dti['isAbout']), dti['dataElement'], dti['dataElementURI']] ]:
+            return [str(dti['label']), str(dti['datumType']), str(dti['measureOf']), URITail(dti['measureOf']), str(dti['isAbout']), str(dti['dataElement']), str(dti['dataElementURI'])]
     return [datatype]
 
 def GetProjectDataElements(nidm_file_list, project_id):
