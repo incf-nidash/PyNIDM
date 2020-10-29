@@ -283,6 +283,48 @@ class RestParser:
             result.append(str(uuid).replace(Constants.NIIRI, ""))
         return self.format(result)
 
+    def ExpandProjectMetaData(self, meta_data):
+        """
+        Takes in the meta_data from GetProjectsMetadata() and adds
+        the following statistics about each project to the existing
+        meta_data structure:
+         age_max (float)
+         age_min (float)
+         handedness of subjects (list)
+         genders of subjects (list)
+         number of subjects (int)
+
+        :param meta_data:
+        :return:
+        """
+        for project_id in meta_data['projects']:
+
+            project_uuid = str(project_id)[6:] if (str(project_id).startswith("niiri:")) else project_id
+            project = meta_data['projects'][project_id]
+
+            ages = set()
+            hands = set()
+            genders = set()
+
+
+            for session in Navigate.getSessions(self.nidm_files, project_uuid):
+                for acq in Navigate.getAcquisitions(self.nidm_files, session):
+                    act_data = Navigate.getActivityData(self.nidm_files, acq)
+                    for de in act_data.data:
+                        if de.isAbout == "http://uri.interlex.org/base/ilx_0100400":
+                            ages.add(float(de.value))
+                        elif de.isAbout == "http://uri.interlex.org/base/ilx_0101292":
+                            genders.add(de.value)
+                        elif de.isAbout == "http://purl.obolibrary.org/obo/PATO_0002201":
+                            hands.add(de.value)
+
+            print(Query.GetParticipantUUIDsForProject(self.nidm_files, project_uuid))
+
+            project['age_max'] = max(ages)
+            project['age_min'] = min(ages)
+            project[Query.matchPrefix(str(Constants.NIDM_NUMBER_OF_SUBJECTS))] = len((Query.GetParticipantUUIDsForProject(self.nidm_files, project_uuid))['uuid'])
+            project[str(Constants.NIDM_GENDER)] = list(genders)
+            project[str(Constants.NIDM_HANDEDNESS)] = list(hands)
 
     def projectStats(self):
         result = dict()
@@ -292,7 +334,11 @@ class RestParser:
         match = re.match(r"^/?statistics/projects/([^/]+)\??$", path)
         id = parse.unquote(str(match.group(1)))
         self.restLog("Returing project {} stats metadata".format(id), 2)
-        projects = Query.GetProjectsComputedMetadata(self.nidm_files)
+
+        meta_data = Query.GetProjectsMetadata(self.nidm_files)
+        self.ExpandProjectMetaData(meta_data)
+        projects = Query.compressForJSONResponse(meta_data)
+
         for pid in projects['projects'].keys():
             self.restLog("comparng " + str(pid) + " with " + str(id), 5)
             self.restLog("comparng " + str(pid) + " with " + Constants.NIIRI + id, 5)

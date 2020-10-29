@@ -598,4 +598,22 @@ def test_project_fields_not_found():
     assert "error" in keys
 
 
+def test_GetProjectsComputedMetadata():
+
+    files = []
+
+    rest = RestParser()
+    rest.nidm_files = tuple(BRAIN_VOL_FILES)
+    meta_data = Query.GetProjectsMetadata(BRAIN_VOL_FILES)
+    rest.ExpandProjectMetaData(meta_data)
+    parsed = Query.compressForJSONResponse(meta_data)
+
+    for project_id in parsed['projects']:
+        if parsed['projects'][project_id][str(Constants.NIDM_PROJECT_NAME)] == "ABIDE CMU_a Site":
+            p3 = project_id
+    assert parsed['projects'][p3][str(Constants.NIDM_PROJECT_NAME)] == "ABIDE CMU_a Site"
+    assert parsed['projects'][p3][Query.matchPrefix(str(Constants.NIDM_NUMBER_OF_SUBJECTS))] == 14
+    assert parsed['projects'][p3]["age_min"] == 21.0
+    assert parsed['projects'][p3]["age_max"] == 33.0
+    assert set(parsed['projects'][p3][str(Constants.NIDM_GENDER)]) == set(['1', '2'])
 
