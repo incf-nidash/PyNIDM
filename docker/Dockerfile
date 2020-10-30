@@ -32,7 +32,7 @@ RUN cd / && \
 
 RUN git config --global user.name "docker user" && git config --global user.email "docker@example.com"
 
-ENV TMPDIR=/opt/project
+ENV TMPDIR=/opt/project/cache
 
 COPY . .
 

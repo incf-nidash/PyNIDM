@@ -325,7 +325,6 @@ def test_GetParticipantDetails():
     # assert (runtime <  4)
 
 
-@pytest.mark.skip(reason="Working on updating this test...")
 def test_CheckSubjectMatchesFilter():
     restParser = RestParser()
     if cmu_test_project_uuid:
@@ -364,10 +363,6 @@ def test_CheckSubjectMatchesFilter():
     assert Query.CheckSubjectMatchesFilter( BRAIN_VOL_FILES, project, subject, "instruments.AGE_AT_SCAN lt {}".format( older ) )
     assert (Query.CheckSubjectMatchesFilter( BRAIN_VOL_FILES, project, subject, "instruments.AGE_AT_SCAN gt {}".format( older) ) == False)
 
-    eq__format = "instruments.{} eq '{}'".format('WISC_IV_VOCAB_SCALED', 'nan')
-    assert Query.CheckSubjectMatchesFilter(BRAIN_VOL_FILES, project, subject, eq__format)
-    eq__format = "instruments.{} eq '{}'".format('WISC_IV_VOCAB_SCALED', 'not a match')
-    assert (Query.CheckSubjectMatchesFilter( BRAIN_VOL_FILES, project, subject, eq__format ) == False)
 
 def test_ExtremeFilters():
     restParser = RestParser(output_format=RestParser.OBJECT_FORMAT)
@@ -385,7 +380,6 @@ def test_ExtremeFilters():
     assert len(details['subjects']['uuid']) > 0
     assert len(details['data_elements']['uuid']) > 0
 
-@pytest.mark.skip(reason="Working on updating this test...")
 def test_Filter_Flexibility():
     restParser = RestParser(output_format=RestParser.OBJECT_FORMAT)
     if cmu_test_project_uuid:
@@ -560,7 +554,7 @@ def test_project_fields_deriv():
     fields_used = set( [ i.label for i in fv ]  )
     assert 'Brain Segmentation Volume (mm^3)' in fields_used
 
-@pytest.mark.skip(reason="Working on updating this test...")
+
 def test_project_fields_instruments():
     rest_parser = RestParser(verbosity_level=0)
 
@@ -570,8 +564,9 @@ def test_project_fields_instruments():
     rest_parser.setOutputFormat(RestParser.OBJECT_FORMAT)
 
 
-    field = 'ncidb:Age'
-    project = rest_parser.run( BRAIN_VOL_FILES, "/projects/{}?fields={}".format(proj_uuid, field) )
+    field = 'age at scan'
+    uri = "/projects/{}?fields={}".format(proj_uuid,field)
+    project = rest_parser.run( BRAIN_VOL_FILES, uri)
 
     # edited by DBK to account for only field values being returned
     #assert( 'field_values' in project )
@@ -598,4 +593,22 @@ def test_project_fields_not_found():
     assert "error" in keys
 
 
+def test_GetProjectsComputedMetadata():
+
+    files = []
+
+    rest = RestParser()
+    rest.nidm_files = tuple(BRAIN_VOL_FILES)
+    meta_data = Query.GetProjectsMetadata(BRAIN_VOL_FILES)
+    rest.ExpandProjectMetaData(meta_data)
+    parsed = Query.compressForJSONResponse(meta_data)
+
+    for project_id in parsed['projects']:
+        if parsed['projects'][project_id][str(Constants.NIDM_PROJECT_NAME)] == "ABIDE CMU_a Site":
+            p3 = project_id
+    assert parsed['projects'][p3][str(Constants.NIDM_PROJECT_NAME)] == "ABIDE CMU_a Site"
+    assert parsed['projects'][p3][Query.matchPrefix(str(Constants.NIDM_NUMBER_OF_SUBJECTS))] == 14
+    assert parsed['projects'][p3]["age_min"] == 21.0
+    assert parsed['projects'][p3]["age_max"] == 33.0
+    assert set(parsed['projects'][p3][str(Constants.NIDM_GENDER)]) == set(['1', '2'])
 

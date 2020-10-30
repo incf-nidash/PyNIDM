@@ -470,11 +470,11 @@ def GetParticipantInstrumentDataCached(nidm_file_list: tuple ,project_id, partic
 
     return result
 
-def GetParticipantUUIDsForProject(nidm_file_list: tuple, project_id, filter, output_file=None):
-    return GetParticipantUUIDsForProjectCached(tuple(nidm_file_list), project_id, filter, output_file=None)
+def GetParticipantUUIDsForProject(nidm_file_list: tuple, project_id, filter=None, output_file=None):
+    return GetParticipantUUIDsForProjectCached(tuple(nidm_file_list), project_id, filter, output_file)
 
 @functools.lru_cache(maxsize=QUERY_CACHE_SIZE)
-def GetParticipantUUIDsForProjectCached(nidm_file_list:tuple, project_id, filter, output_file=None):
+def GetParticipantUUIDsForProjectCached(nidm_file_list:tuple, project_id, filter=None, output_file=None):
     '''
     This query will return a list of all prov:agent entity UUIDs within a single project
     that prov:hadRole sio:Subject or Constants.NIDM_PARTICIPANT
@@ -492,8 +492,8 @@ def GetParticipantUUIDsForProjectCached(nidm_file_list:tuple, project_id, filter
     ### added by DBK changed to dictionary to support subject ids along with uuids
     #participants = []
     participants = {}
-    participants["uuid"] = []
-    participants["subject id"] = []
+    participants["uuid"] = set()
+    participants["subject id"] = set()
 
 
     for file in nidm_file_list:
@@ -518,14 +518,16 @@ def GetParticipantUUIDsForProjectCached(nidm_file_list:tuple, project_id, filter
                                     ### added by DBK for subject IDs as well ###
                                     #participants.append(uuid)
                                     try:
-                                        participants['uuid'].append(uuid)
-                                        participants['subject id'].append(subid)
+                                        participants['uuid'].add(uuid)
+                                        participants['subject id'].add(subid)
                                     # just in case there's no subject id in the file...
                                     except:
                                         #participants.append(uuid)
-                                        participants['uuid'].append(uuid)
-                                        participants['subject id'].append('')
+                                        participants['uuid'].add(uuid)
+                                        participants['subject id'].add('')
 
+    participants['uuid'] = list(participants['uuid'])
+    participants['subject id'] = list(participants['subject id'])
     return participants
 
 
@@ -573,10 +575,14 @@ def GetDatatypeSynonyms(nidm_file_list, project_id, datatype):
     :param datatype:
     :return:
     '''
+    if datatype.startswith("instruments."):
+        datatype = datatype[12:]
+    if datatype.startswith("derivatives."):
+        datatype = datatype[12:]
     project_data_elements = GetProjectDataElements(nidm_file_list, project_id)
     for dti in project_data_elements['data_type_info']:
-        if str(datatype) in [ str(x) for x in [dti['label'], dti['datumType'], dti['measureOf'], URITail(dti['measureOf']), dti['isAbout'], URITail(dti['isAbout']), dti['dataElement'], dti['dataElementURI'], dti['prefix']] ]:
-            return [str(dti['label']), str(dti['datumType']), str(dti['measureOf']), URITail(dti['measureOf']), str(dti['isAbout']), str(dti['dataElement']), str(dti['dataElementURI']), str(dti['prefix'])]
+        if str(datatype) in [ str(x) for x in [dti['label'], dti['datumType'], dti['measureOf'], URITail(dti['measureOf']), dti['isAbout'], URITail(dti['isAbout']), dti['dataElement'], dti['dataElementURI']] ]:
+            return [str(dti['label']), str(dti['datumType']), str(dti['measureOf']), URITail(dti['measureOf']), str(dti['isAbout']), str(dti['dataElement']), str(dti['dataElementURI'])]
     return [datatype]
 
 def GetProjectDataElements(nidm_file_list, project_id):
@@ -775,17 +781,6 @@ def GetProjectsMetadata(nidm_file_list):
     return {'projects': compressForJSONResponse(projects)}
 
 
-def GetProjectsComputedMetadata(nidm_file_list):
-    '''
-     :param nidm_file_list: List of one or more NIDM files to query across for list of Projects
-    :return: dataframe with two columns: "project_uuid" and "project_dentifier"
-    '''
-
-    meta_data = GetProjectsMetadata(nidm_file_list)
-    ExtractProjectSummary(meta_data, nidm_file_list)
-
-    return compressForJSONResponse(meta_data)
-
 def GetDataElements(nidm_file_list):
 
     query='''
@@ -891,80 +886,6 @@ def GetBrainVolumes(nidm_file_list):
     df = sparql_query_nidm(nidm_file_list.split(','), query, output_file=None)
     return df
 
-
-
-def ExtractProjectSummary(meta_data, nidm_file_list):
-    '''
-
-    :param meta_data: a dictionary of projects containing their meta data as pulled from the nidm_file_list
-    :param nidm_file_list: List of NIDM files
-    :return:
-    '''
-    query = '''
-    prefix ncicb: <http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#>
-prefix ndar: <https://ndar.nih.gov/api/datadictionary/v2/dataelement/>
-prefix obo: <http://purl.obolibrary.org/obo/>
-prefix dct: <http://purl.org/dc/terms/>
-prefix prov: <http://www.w3.org/ns/prov#>
-prefix nidm: <http://purl.org/nidash/nidm#>
-prefix onli: <http://neurolog.unice.fr/ontoneurolog/v3.0/instrument.owl#>
-
-SELECT DISTINCT ?id ?person ?age ?gender ?hand ?assessment ?acq ?session ?project
-WHERE {
-  # Added by DBK to support new data element format
-  {?age_measure a nidm:DataElement ;
-				nidm:isAbout <http://uri.interlex.org/base/ilx_0100400> .}
-  {?gender_measure a nidm:DataElement ;
-				nidm:isAbout <http://uri.interlex.org/base/ilx_0101292> .}
-  {?handedness_measure a nidm:DataElement ;
-				nidm:isAbout <http://purl.obolibrary.org/obo/PATO_0002201> .}
-  
-  ?assessment prov:wasGeneratedBy ?acq ;
-	a onli:assessment-instrument ;
-	  ?age_measure ?age ;
-  	  ?gender_measure ?gender ;
-	  ?handedness_measure ?hand .
-	  
-  ?person ndar:src_subject_id ?id .
-  ?acq prov:qualifiedAssociation _:blank .
-  _:blank prov:hadRole sio:Subject .
-  _:blank prov:agent ?person .
-  ?acq dct:isPartOf ?session .
-  ?session dct:isPartOf ?project .
-  ?project a nidm:Project
-}
-ORDER BY ?id
-	
-      '''
-
-    df = sparql_query_nidm(nidm_file_list, query, output_file=None)
-    projects = meta_data['projects']
-
-    arr = df.values
-    key = str(Constants.NIDM_NUMBER_OF_SUBJECTS)
-    for project_id, project in projects.items():
-        project[key] = 0
-        project['age_max'] = 0
-        project['age_min'] = sys.maxsize
-        project[str(Constants.NIDM_GENDER)] = []
-        project[str(Constants.NIDM_HANDEDNESS)] = []
-
-    for row in arr:
-        project_id = matchPrefix( str(row[8]) ) # 9th column is the project UUID
-        projects[project_id][str(Constants.NIDM_NUMBER_OF_SUBJECTS)] += 1
-
-        if row[2] != None:
-            age = float(row[2])
-            projects[project_id]['age_min'] = min(age, projects[project_id]['age_min'])
-            projects[project_id]['age_max'] = max(age, projects[project_id]['age_max'])
-
-        gender = str(row[3])
-        if gender not in projects[project_id][str(Constants.NIDM_GENDER)]:
-            projects[project_id][str(Constants.NIDM_GENDER)].append(gender)
-
-        hand = str(row[4])
-        if hand not in projects[project_id][str(Constants.NIDM_HANDEDNESS)]:
-            projects[project_id][str(Constants.NIDM_HANDEDNESS)].append(hand)
 
 
 def expandNIDMAbbreviation(shortKey) -> str:
@@ -1269,6 +1190,7 @@ def getCDEs(file_list=None):
         if (not cde_dir):
             cde_dir = download_cde_files()
 
+        # TODO: the list of file names should be it's own constant or derived from CDE_FILE_LOCATIONS
         file_list = [ ]
         for f in ['ants_cde.ttl', 'fs_cde.ttl', 'fsl_cde.ttl']:
             fname = '{}/{}'.format(cde_dir, f)

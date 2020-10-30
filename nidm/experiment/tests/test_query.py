@@ -258,33 +258,34 @@ def test_GetProjectsMetadata():
         assert parsed['projects'][p3][str(Constants.NIDM_PROJECT_NAME)] == "ABIDE CMU_a Site"
 
 
-
-
-def test_GetProjectsComputedMetadata():
-
-    p1 = makeProjectTestFile("testfile.ttl")
-    p2 = makeProjectTestFile2("testfile2.ttl")
-    files = ["testfile.ttl", "testfile2.ttl"]
-
-    if USE_GITHUB_DATA:
-        if not Path('./cmu_a.nidm.ttl').is_file():
-            urllib.request.urlretrieve (
-                "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/master/datasets.datalad.org/abide/RawDataBIDS/CMU_a/nidm.ttl",
-                "cmu_a.nidm.ttl"
-            )
-        files.append("cmu_a.nidm.ttl")
-
-    parsed = Query.GetProjectsComputedMetadata(files)
-
-    if USE_GITHUB_DATA:
-        for project_id in parsed['projects']:
-            if project_id != p1 and project_id != p2:
-                p3 = project_id
-        assert parsed['projects'][p3][str(Constants.NIDM_PROJECT_NAME)] == "ABIDE CMU_a Site"
-        assert parsed['projects'][p3][Query.matchPrefix(str(Constants.NIDM_NUMBER_OF_SUBJECTS))] == 14
-        assert parsed['projects'][p3]["age_min"] == 21.0
-        assert parsed['projects'][p3]["age_max"] == 33.0
-        assert parsed['projects'][p3][str(Constants.NIDM_GENDER)] == ['1', '2']
+#
+# moved to test_rest.py
+#
+# def test_GetProjectsComputedMetadata():
+#
+#     p1 = makeProjectTestFile("testfile.ttl")
+#     p2 = makeProjectTestFile2("testfile2.ttl")
+#     files = ["testfile.ttl", "testfile2.ttl"]
+#
+#     if USE_GITHUB_DATA:
+#         if not Path('./cmu_a.nidm.ttl').is_file():
+#             urllib.request.urlretrieve (
+#                 "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/master/datasets.datalad.org/abide/RawDataBIDS/CMU_a/nidm.ttl",
+#                 "cmu_a.nidm.ttl"
+#             )
+#         files.append("cmu_a.nidm.ttl")
+#
+#     parsed = Query.GetProjectsComputedMetadata(files)
+#
+#     if USE_GITHUB_DATA:
+#         for project_id in parsed['projects']:
+#             if project_id != p1 and project_id != p2:
+#                 p3 = project_id
+#         assert parsed['projects'][p3][str(Constants.NIDM_PROJECT_NAME)] == "ABIDE CMU_a Site"
+#         assert parsed['projects'][p3][Query.matchPrefix(str(Constants.NIDM_NUMBER_OF_SUBJECTS))] == 14
+#         assert parsed['projects'][p3]["age_min"] == 21.0
+#         assert parsed['projects'][p3]["age_max"] == 33.0
+#         assert parsed['projects'][p3][str(Constants.NIDM_GENDER)] == ['1', '2']
 
 
 def test_prefix_helpers():
