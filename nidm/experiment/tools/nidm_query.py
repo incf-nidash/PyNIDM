@@ -37,7 +37,8 @@ import pandas as pd
 from argparse import ArgumentParser
 import logging
 import csv
-from nidm.experiment.Query import sparql_query_nidm, GetParticipantIDs,GetProjectInstruments,GetProjectsUUID,GetInstrumentVariables,GetDataElements,GetBrainVolumes,GetBrainVolumeDataElements,getCDEs
+from nidm.experiment.Query import sparql_query_nidm, GetParticipantIDs,GetProjectInstruments,GetProjectsUUID,GetInstrumentVariables,GetDataElements,GetBrainVolumes,GetBrainVolumeDataElements
+from nidm.experiment.CDE import getCDEs
 import click
 from click_option_group import optgroup, RequiredMutuallyExclusiveOptionGroup
 from nidm.experiment.tools.click_base import cli

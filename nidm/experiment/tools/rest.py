@@ -1,5 +1,6 @@
 import nidm.experiment.Navigate
 from nidm.experiment import Query
+import nidm.experiment.tools.rest_statistics
 from nidm.core import Constants
 import json
 import re
@@ -104,7 +105,12 @@ class RestParser:
 
                 # format anything else
                 else:
-                    table.append([ json.dumps(key), json.dumps(result[key])])
+                    col1 = json.dumps(key)
+                    if type(result[key]) == set:
+                        col2 = json.dumps(list(result[key]))
+                    else:
+                        col2 = json.dumps(result[key])
+                    table.append([col1, col2])
 
             return tabulate(table, headers) + "\n\n" + "\n\n".join(appendicies)
         else:
@@ -205,6 +211,54 @@ class RestParser:
         else:
             return self.format(derivative)
 
+    def dataElementsFormat(self, de_data):
+        if self.output_format == self.CLI_FORMAT:
+
+            table = []
+            headers = ['label', 'source_variable', 'hasUnit', 'description', 'dataElement']
+
+            # for each data element, create a row with each value from the header
+            for de in de_data['data_elements']['data_type_info']:
+                row = []
+                for h in headers:
+                    row.append(de[h])
+                table.append(row)
+
+            # print (de_data['data_elements']['data_type_info'][0])
+
+            # Sort by the first column, which is label
+            sorted_table = sorted(table, key=lambda x: x[0])
+
+            text = tabulate(sorted_table, headers)
+            return text
+        else:
+            return self.format(de_data)
+
+    def dataElementDetailsFormat(self, de_data):
+            return self.format(de_data)
+
+
+    def subjectFormat(self, subject_data):
+        if self.output_format == self.CLI_FORMAT:
+
+            subjects = []
+            for sub in subject_data['uuid']:
+                subjects.append([sub])
+            text = tabulate(subjects, headers=["Subject UUID"])
+
+            if 'fields' in subject_data:
+                field_data = []
+                text += "\n\n"
+                for sub in subject_data['fields']:
+                    for act in subject_data['fields'][sub]:
+                        de = subject_data['fields'][sub][act]
+                        field_data.append([sub, act, de.label, de.value])
+                text += tabulate(field_data, headers=["Subject", "Activity", "Field", "Value"])
+
+            return text
+        else:
+            return self.format(subject_data)
+
     def subjectSummaryFormat(self,result):
         if self.output_format == self.CLI_FORMAT:
             special_keys = ['instruments', 'derivatives', "activity"]
@@ -274,6 +328,19 @@ class RestParser:
     #####################
     # Route Functions
     #####################
+
+    def dataelements(self):
+        result = Navigate.GetDataelements(self.nidm_files)
+        return self.dataElementsFormat(result)
+
+    def dataelementsSummary(self):
+        path = (urlparse(self.command)).path
+        match = re.match(r"^/?dataelements/([^/\?]+)", path)
+        dataelement = parse.unquote(str(match.group(1)))
+
+        result = Navigate.GetDataelementDetails(self.nidm_files, dataelement)
+        return self.dataElementDetailsFormat(result)
+
 
     def projects(self):
         result = []
@@ -373,7 +440,8 @@ class RestParser:
         return self.STAT_TYPE_OTHER
 
 
-    def getTailOfURI(self, uri):
+    @staticmethod
+    def getTailOfURI(uri):
         if '#' in uri:
             return uri[uri.rfind('#') + 1:]
         else:
@@ -468,6 +536,52 @@ class RestParser:
         self.restLog("Returning info about subject {}".format(match.group(2)), 2)
         return self.subjectSummaryFormat(Query.GetParticipantDetails(self.nidm_files, match.group(1), match.group(2)))
 
+    def getFieldInfoForSubject(self, project, subject):
+        '''
+        Returns a dictionary of activities where the subject has matching field data
+        The result[activity] is the full data_element so to get the value you would use result[activity].value
+        Note that a subject could match the same field in multiple activities.
+
+        :param project:
+        :param subject:
+        :return:
+        '''
+        result = {}
+        # if we got fields, drill into each subject and pull out the field data
+        # subject details -> derivitives / instrument -> values -> element
+        if 'fields' in self.query and len(self.query['fields']) > 0:
+            # get all the synonyms for all the fields - we can seach for them all at once
+            field_synonyms = functools.reduce( operator.iconcat, [ Query.GetDatatypeSynonyms(self.nidm_files, project, x) for x in self.query['fields'] ], [])
+
+            # print (field_synonyms)
+
+            for activity in Navigate.getActivities(self.nidm_files, subject):
+                activity_data = Navigate.getActivityData(self.nidm_files, activity)
+                # print ([ x.label for x in activity.data])
+                for data_element in activity_data.data:
+                    if not set([data_element.dataElement, data_element.label, data_element.isAbout]).isdisjoint(set(field_synonyms)):
+                        result[Query.URITail(activity)] = data_element
+        return result
+
+
+    def subjects(self):
+        self.restLog("Returning info about subjects",2)
+        projects = Navigate.getProjects(self.nidm_files)
+        result = {'uuid': []}
+        if 'fields' in self.query and len(self.query['fields']) > 0:
+            result['fields'] = {}
+
+        for proj in projects:
+            subs = Navigate.getSubjects(self.nidm_files, proj)
+            for s in subs:
+                result['uuid'].append(Query.URITail(s))
+
+                # print ("getting info for " + str(s))
+                x = self.getFieldInfoForSubject(proj, s)
+                if x != {}:
+                    result['fields'][Query.URITail(s)] = x
+        return self.subjectFormat(result)
+
     def subjectSummary(self):
         match = re.match(r"^/?subjects/([^/]+)/?$", self.command)
         self.restLog("Returning info about subject {}".format(match.group(1)), 2)
@@ -550,11 +664,17 @@ class RestParser:
 
     def route(self):
 
+        if re.match(r"^/?dataelements/?$", self.command): return self.dataelements()
+
+        if re.match(r"^/?dataelements/[^/]+/?$", self.command): return self.dataelementsSummary()
+
         if re.match(r"^/?projects/?$", self.command): return self.projects()
 
         if re.match(r"^/?statistics/projects/[^/]+$", self.command): return self.projectStats()
 
         if re.match(r"^/?projects/[^/]+$", self.command): return self.projectSummary()
+
+        if re.match(r"^/?subjects/?$", self.command): return self.subjects()
 
         if re.match(r"^/?subjects/[^/]+$", self.command): return self.subjectSummary()
 

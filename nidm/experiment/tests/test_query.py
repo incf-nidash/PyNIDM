@@ -6,6 +6,9 @@ import prov.model as pm
 from os import remove, path
 import tempfile
 import pytest
+from nidm.experiment.CDE import download_cde_files
+from nidm.experiment.tools.rest_statistics import GetProjectsComputedMetadata
+
 
 from prov.model import ProvDocument, QualifiedName
 from prov.model import Namespace as provNamespace
@@ -336,7 +339,7 @@ def test_GetProjectAttributes():
 
 
 def test_download_cde_files():
-    cde_dir = Query.download_cde_files()
+    cde_dir = download_cde_files()
     assert cde_dir == tempfile.gettempdir()
     fcount = 0
     for url in Constants.CDE_FILE_LOCATIONS:

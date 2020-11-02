@@ -4,6 +4,7 @@ from nidm.experiment.Query import OpenGraph, URITail, trimWellKnownURIPrefix, ge
 from rdflib import Graph, RDF, URIRef, util, term
 import functools
 import collections
+import nidm.experiment.CDE
 
 
 isa = URIRef('http://www.w3.org/1999/02/22-rdf-syntax-ns#type')
@@ -277,5 +278,111 @@ def GetProjectAttributes(nidm_files_tuple, project_id):
     result[IMAGE_CONTRAST_TYPE] = list(result[IMAGE_CONTRAST_TYPE])
     result[IMAGE_USAGE_TYPE] = list(result[IMAGE_USAGE_TYPE])
     result[TASK] = list(result[TASK])
+
+    return result
+
+@functools.lru_cache(maxsize=BIG_CACHE_SIZE)
+def GetAllPredicates(nidm_files_tuple):
+    pred_set = set()
+    for file in nidm_files_tuple:
+        rdf_graph = OpenGraph(file)
+        predicates = rdf_graph.predicates()
+        for p in predicates:
+            pred_set.add(p)
+    return pred_set
+
+
+@functools.lru_cache(maxsize=QUERY_CACHE_SIZE)
+def GetDataelements(nidm_files_tuple):
+    result = {"data_elements": {"uuid": [], "label": [], "data_type_info": []}}
+    found_uris = set()
+
+    for file in nidm_files_tuple:
+        rdf_graph = OpenGraph(file)
+        #find all the datatypes
+        for de_uri in rdf_graph.subjects(predicate=isa, object=Constants.NIDM['DataElement']):
+            if de_uri not in found_uris:  # don't add duplicates
+                dti = getDataTypeInfo(rdf_graph, de_uri)
+                result['data_elements']['uuid'].append(str(dti['dataElementURI']))
+                result['data_elements']['label'].append(str(dti['label']))
+                result['data_elements']['data_type_info'].append( dti )
+                found_uris.add(de_uri)
+
+    # now look for any of the CDEs
+    all_predicates = GetAllPredicates(nidm_files_tuple)
+    cde_graph = nidm.experiment.CDE.getCDEs()
+    cde_types = cde_graph.subjects(predicate=Constants.RDFS['subClassOf'], object=Constants.NIDM['DataElement'])
+    cde_type_set = set() # i.e. fs:DataElement
+    known_cde_types = set() # i.e. fs_003579
+    for t in cde_types:
+        cde_type_set.add(t)
+        for s in cde_graph.subjects(predicate=isa, object=t):
+            known_cde_types.add(s)
+
+
+    for predicate in all_predicates:
+        if predicate in known_cde_types:
+            dti = getDataTypeInfo(cde_graph, predicate)
+            result['data_elements']['uuid'].append(str(dti['dataElementURI']))
+            result['data_elements']['label'].append(str(dti['label']))
+            result['data_elements']['data_type_info'].append(dti)
+
+    return result
+
+
+def GetDataelementDetails(nidm_files_tuple, dataelement):
+    result = {}
+
+    for file in nidm_files_tuple:
+        rdf_graph = OpenGraph(file)
+        for de_uri in rdf_graph.subjects(predicate=isa, object=Constants.NIDM['DataElement']):
+            dti = getDataTypeInfo(rdf_graph, de_uri)
+
+            # check if this is the correct one
+            if not (dataelement in [ str(dti['label']), str(dti['dataElement']), str(dti['dataElementURI']) ] ):
+                continue
+
+            for key in dti.keys():
+                result[key] = dti[key]
+            result['inProjects'] = set()
+
+            # figure out what project the dataelement was used in
+            uri = dti["dataElementURI"]
+
+            a_list = rdf_graph.subjects(predicate=uri)
+            for a in a_list: # a is an assessment / AcquisitionObject
+                b_list = rdf_graph.objects(subject=a, predicate=Constants.PROV['wasGeneratedBy'])
+                for b in b_list: # b is an Acquisition / Activity
+                    c_list = rdf_graph.objects(subject=b, predicate=Constants.DCT['isPartOf'])
+                    for c in c_list: # c is a session
+                        d_list = rdf_graph.objects(subject=c, predicate=Constants.DCT['isPartOf'])
+                        for d in d_list: # d is most likely a project
+                            if d in rdf_graph.subjects(predicate=isa, object=Constants.NIDM['Project']):
+                                result['inProjects'].add("{} ({})".format(str(d), file))
+
+            return result # found it, we are done
+
+
+    if result == {}:  # didn't find it yet, check the CDEs
+        cde_graph = nidm.experiment.CDE.getCDEs()
+        for de_uri in cde_graph.subjects(predicate=isa):
+            dti = getDataTypeInfo(cde_graph, de_uri)
+
+            # check if this is the correct one
+            if not (dataelement in [str(dti['label']), str(dti['dataElement']), str(dti['dataElementURI'])]):
+                continue
+
+            for key in dti.keys():
+                result[key] = dti[key]
+            result['inProjects'] = set()
+            result['inProjects'].add("Common Data Element")
+
+            for file in nidm_files_tuple:
+                rdf_graph = OpenGraph(file)
+                if result['dataElementURI'] in rdf_graph.predicates():
+                    result['inProjects'].add(file)
+
+
+            return result # found it, we are done
 
     return result
