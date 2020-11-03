@@ -147,6 +147,34 @@ def GetProjectsUUID(nidm_file_list,output_file=None):
 
     return df['uuid'].tolist()
 
+def GetProjectLocation(nidm_file_list, project_uuid, output_file=None):
+    '''
+    This query will return the prov:Location value for project_uuid
+
+    :param nidm_file_list: List of one or more NIDM files to query across for list of Projects
+    :param output_file: Optional output file
+    :return: list of Project prov:Locations
+    '''
+
+    # SPARQL query to get project UUIDs
+    query = '''
+            PREFIX nidm:<http://purl.org/nidash/nidm#>
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            prefix prov: <http://www.w3.org/ns/prov#>
+
+            SELECT distinct ?location
+            Where {
+                {
+                    ?uuid rdf:type nidm:Project ;
+                        prov:Location ?location .
+                }
+
+            }
+        '''
+    df = sparql_query_nidm(nidm_file_list, query, output_file=output_file)
+
+    return df['location'].tolist()
+
 def testprojectmeta(nidm_file_list):
 
     import json
@@ -334,6 +362,43 @@ def GetParticipantIDs(nidm_file_list,output_file=None):
     ''' %(Constants.NIDM_PARTICIPANT,Constants.NIDM_SUBJECTID)
 
     df = sparql_query_nidm(nidm_file_list,query, output_file=output_file)
+
+    return df
+
+def GetParticipantIDFromAcquisition(nidm_file_list,acquisition, output_file=None):
+    '''
+    This function will return the participant ID of the participant with a qualified association of
+    prov:hadRole sio:Subject.
+
+    :param nidm_file_list: list of nidm files
+    :param acquisition: nidm acquisition UUID to search for qualified association
+    :param output_file: optional output filename
+    :return: a dataframe subject ID and prov:Agent UUID of participant with qualified association
+    '''
+
+    query = '''
+
+            PREFIX prov:<http://www.w3.org/ns/prov#>
+            PREFIX sio: <http://semanticscience.org/ontology/sio.owl#>
+            PREFIX ndar: <https://ndar.nih.gov/api/datadictionary/v2/dataelement/>
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX prov:<http://www.w3.org/ns/prov#>
+
+            SELECT DISTINCT ?uuid ?ID
+            WHERE {
+
+                <%s> rdf:type prov:Activity ;
+    		        prov:qualifiedAssociation _:blanknode .
+
+    	        _:blanknode prov:hadRole %s ;
+                     prov:agent ?uuid  .
+
+    	        ?uuid %s ?ID .
+
+            }
+        ''' % (acquisition, Constants.NIDM_PARTICIPANT, Constants.NIDM_SUBJECTID)
+
+    df = sparql_query_nidm(nidm_file_list, query, output_file=output_file)
 
     return df
 
