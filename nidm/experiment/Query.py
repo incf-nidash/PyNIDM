@@ -491,8 +491,8 @@ def GetParticipantUUIDsForProjectCached(nidm_file_list:tuple, project_id, filter
     ### added by DBK changed to dictionary to support subject ids along with uuids
     #participants = []
     participants = {}
-    participants["uuid"] = set()
-    participants["subject id"] = set()
+    participants["uuid"] = []
+    participants["subject id"] = []
 
 
     for file in nidm_file_list:
@@ -516,17 +516,16 @@ def GetParticipantUUIDsForProjectCached(nidm_file_list:tuple, project_id, filter
 
                                     ### added by DBK for subject IDs as well ###
                                     #participants.append(uuid)
-                                    try:
-                                        participants['uuid'].add(uuid)
-                                        participants['subject id'].add(subid)
-                                    # just in case there's no subject id in the file...
-                                    except:
-                                        #participants.append(uuid)
-                                        participants['uuid'].add(uuid)
-                                        participants['subject id'].add('')
+                                    if ( not uuid in participants['uuid'] ):
+                                        try:
+                                            participants['uuid'].append(uuid)
+                                            participants['subject id'].append(subid)
+                                        # just in case there's no subject id in the file...
+                                        except:
+                                            #participants.append(uuid)
+                                            participants['uuid'].append(uuid)
+                                            participants['subject id'].apend('')
 
-    participants['uuid'] = list(participants['uuid'])
-    participants['subject id'] = list(participants['subject id'])
     return participants
 
 

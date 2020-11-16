@@ -12,7 +12,7 @@ from tabulate import tabulate
 from copy import copy, deepcopy
 from urllib.parse import urlparse, parse_qs
 from  nidm.experiment import Navigate
-
+from nidm.experiment.Utils import validate_uuid
 
 from numpy import std, mean, median
 import functools
@@ -242,9 +242,9 @@ class RestParser:
         if self.output_format == self.CLI_FORMAT:
 
             subjects = []
-            for sub in subject_data['uuid']:
-                subjects.append([sub])
-            text = tabulate(subjects, headers=["Subject UUID"])
+            for subject in subject_data['subject']:
+                subjects.append(subject)
+            text = tabulate(subjects, headers=["Subject UUID", "Source Subject ID"])
 
             if 'fields' in subject_data:
                 field_data = []
@@ -299,7 +299,7 @@ class RestParser:
                 if key in result:
                     if type(result[key]) == dict:
                         toptable.append( [ key, ",".join(result[key].keys()) ] )
-                    if type(result[key]) == list and type(result[key][0]) == Navigate.ActivityData:
+                    if type(result[key]) == list and len(result[key]) > 0 and  type(result[key][0]) == Navigate.ActivityData:
                         toptable.append( [ key, ",".join( [x.uuid for x in result[key] ]   ) ])
                     elif type(result[key]) == list:
                         toptable.append([key, ",".join])
@@ -489,7 +489,7 @@ class RestParser:
         self.restLog("Returing project {} summary".format(id), 2)
 
         result = nidm.experiment.Navigate.GetProjectAttributes(self.nidm_files, project_id=id)
-        result['subjects']  = Query.GetParticipantUUIDsForProject(self.nidm_files, project_id=id, filter=self.query['filter'])
+        result['subjects'] = Query.GetParticipantUUIDsForProject(self.nidm_files, project_id=id, filter=self.query['filter'])
         result['data_elements'] = Query.GetProjectDataElements(self.nidm_files, project_id=id)
 
 
@@ -533,8 +533,11 @@ class RestParser:
 
     def projectSubjectSummary(self):
         match = re.match(r"^/?projects/([^/]+)/subjects/([^/]+)/?$", self.command)
+        subject = match.group(2)
+        if len(Navigate.getSubjectUUIDsfromID(self.nidm_files, match.group(2))) > 0:
+            subject = Navigate.getSubjectUUIDsfromID(self.nidm_files, match.group(2))[0]
         self.restLog("Returning info about subject {}".format(match.group(2)), 2)
-        return self.subjectSummaryFormat(Query.GetParticipantDetails(self.nidm_files, match.group(1), match.group(2)))
+        return self.subjectSummaryFormat(Query.GetParticipantDetails(self.nidm_files, match.group(1), subject))
 
     def getFieldInfoForSubject(self, project, subject):
         '''
@@ -567,14 +570,14 @@ class RestParser:
     def subjects(self):
         self.restLog("Returning info about subjects",2)
         projects = Navigate.getProjects(self.nidm_files)
-        result = {'uuid': []}
+        result = {'subject': []}
         if 'fields' in self.query and len(self.query['fields']) > 0:
             result['fields'] = {}
 
         for proj in projects:
             subs = Navigate.getSubjects(self.nidm_files, proj)
             for s in subs:
-                result['uuid'].append(Query.URITail(s))
+                result['subject'].append( [Query.URITail(s), Navigate.getSubjectIDfromUUID(self.nidm_files, s) ])
 
                 # print ("getting info for " + str(s))
                 x = self.getFieldInfoForSubject(proj, s)
@@ -585,13 +588,23 @@ class RestParser:
     def subjectSummary(self):
         match = re.match(r"^/?subjects/([^/]+)/?$", self.command)
         self.restLog("Returning info about subject {}".format(match.group(1)), 2)
-        activities = Navigate.getActivities(self.nidm_files, match.group(1))
+        id = match.group(1)
+
+        # if we were passed in a sub_id rather than a UUID, lookup the associated UUID. (we might get multiple!)
+        if validate_uuid(id):
+            sub_ids = id
+        else:
+            sub_ids = Navigate.getSubjectUUIDsfromID(self.nidm_files, id)
+            if len(sub_ids) == 1:
+                sub_ids = sub_ids[0]
+
+        activities = Navigate.getActivities(self.nidm_files, id)
         activityData = []
         for a in activities:
             data = Navigate.getActivityData(self.nidm_files, a)
             activityData.append(data)
 
-        return self.subjectSummaryFormat_v2( {'uuid': match.group(1),
+        return self.subjectSummaryFormat_v2( {'uuid': sub_ids,
                 'instruments' : list(filter(lambda x: x.category == 'instrument', activityData)),
                 'derivatives' : list(filter(lambda x: x.category == 'derivative', activityData))
                 })

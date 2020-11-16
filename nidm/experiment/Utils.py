@@ -19,6 +19,7 @@ import getpass
 from numpy import base_repr
 from binascii import crc32
 import pandas as pd
+from uuid import UUID
 
 #NIDM imports
 from ..core import Constants
@@ -1779,3 +1780,26 @@ def tupleKeysToSimpleKeys(dict):
 
 
     return new_dict
+
+
+
+def validate_uuid(uuid_string):
+
+    """
+    Validate that a UUID string is in
+    fact a valid uuid4.
+    Happily, the uuid module does the actual
+    checking for us.
+    It is vital that the 'version' kwarg be passed
+    to the UUID() call, otherwise any 32-character
+    hex string is considered valid.
+    """
+
+    try:
+        val = UUID(uuid_string)
+    except ValueError:
+        # If it's a value error, then the string
+        # is not a valid hex code for a UUID.
+        return False
+
+    return True
