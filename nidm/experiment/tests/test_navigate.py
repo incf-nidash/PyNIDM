@@ -5,6 +5,7 @@ import urllib
 import re
 from  nidm.experiment import Navigate
 from nidm.core import Constants
+from uuid import UUID
 
 
 USE_GITHUB_DATA = True
@@ -120,3 +121,8 @@ def test_navigate_get_acquisition_data_by_subject():
     assert 'InversionTime' in set_of_keys_returned
     assert 'hadAcquisitionModality' in set_of_keys_returned
 
+
+def test_navigate_get_sub_uuid_from_id():
+    uuids = Navigate.getSubjectUUIDsfromID(nidm_file_tuples=BRAIN_VOL_FILES, sub_id='50653')
+    assert len(uuids) == 1
+    assert re.match("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}", uuids[0])  # check that it's a UUID

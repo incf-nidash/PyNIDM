@@ -150,16 +150,16 @@ def test_uri_subject_list():
     result = restParser.run(ALL_FILES, '/subjects')
 
     assert type(result) == dict
-    assert type(result['uuid']) == list
-    assert len(result['uuid']) > 10
+    assert type(result['subject']) == list
+    assert len(result['subject']) > 10
 
 def test_uri_subject_list_with_fields():
     restParser = RestParser(output_format=RestParser.OBJECT_FORMAT)
     result = restParser.run(ALL_FILES, '/subjects?fields=ilx_0100400,MagneticFieldStrength') # ilx_0100400 "is about" age
     assert type(result) == dict
 
-    assert type(result['uuid']) == list
-    assert len(result['uuid']) > 10
+    assert type(result['subject']) == list
+    assert len(result['subject']) > 10
 
     assert type(result['fields']) == dict
     all_fields = []
