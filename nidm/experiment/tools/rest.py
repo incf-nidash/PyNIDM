@@ -322,6 +322,9 @@ class RestParser:
         This function will sort list 1 using list 2 values, returning sorted list 1, sorted list 2
         '''
 
+        if len(list1) == 0 or len(list2) == 0:
+            return list1, list2
+
         list1 = list(zip(*sorted(zip(list2,list1))))[1]
         return list1,sorted(list2)
 

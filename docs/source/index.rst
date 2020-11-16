@@ -46,7 +46,7 @@ Creating a conda environment and installing the library (tested with OSX)
 =========================================================================
 
 macOS
------  
+-----
 .. code-block:: bash
 
 	$ conda create -n pynidm_py3 python=3
@@ -76,10 +76,10 @@ This program will convert a BIDS MRI dataset to a NIDM-Experiment RDF document. 
 
    This program will represent a BIDS MRI dataset as a NIDM RDF document and provide user with opportunity to annotate
    the dataset (i.e. create sidecar files) and associate selected variables with broader concepts to make datasets more
-   FAIR. 
+   FAIR.
 
    Note, you must obtain an API key to Interlex by signing up for an account at scicrunch.org then going to My Account
-   and API Keys.  Then set the environment variable INTERLEX_API_KEY with your key. 
+   and API Keys.  Then set the environment variable INTERLEX_API_KEY with your key.
 
    optional arguments:
      -h, --help            show this help message and exit
@@ -184,7 +184,7 @@ If you want to merge NIDM files on subject ID see pynidm merge
     -o, --out_file TEXT         File to write concatenated NIDM files
                               [required]
     --help                      Show this message and exit.
-  
+
 visualize
 ---------
 This command will produce a visualization(pdf) of the supplied NIDM files
@@ -198,7 +198,7 @@ named the same as the input files and stored in the same directories.
     -nl, --nidm_file_list TEXT  A comma separated list of NIDM files with full
                               path  [required]
     --help                      Show this message and exit.
-  
+
 merge
 -----
 This function will merge NIDM files.  See command line parameters for
@@ -302,22 +302,29 @@ directory of the Github repository.
 URI formats
 ===========
 
-You can find details on the REST API at the `SwaggerHub API Documentation <https://app.swaggerhub.com/apis-docs/albertcrowley/PyNIDM>`_.
-The OpenAPI specification file is part of the Github repository in 'docs/REST_API_definition.openapi.yaml'
+..
+  Next two lines commented out because the Swagger definition is out of date
+  You can find details on the REST API at the `SwaggerHub API Documentation <https://app.swaggerhub.com/apis-docs/albertcrowley/PyNIDM>`_.
+  The OpenAPI specification file is part of the Github repository in 'docs/REST_API_definition.openapi.yaml'
 
-Here is a list of the current operations. See the SwaggerHub page for more details and return formats.
+Here is a list of the current operations.
 
 ::
 
 - /projects
 - /projects/{project_id}
 - /projects/{project_id}/subjects
-- /projects/{project_id}/subjects?filter=[filter expression]
+- /projects/{project_id}/subjects
 - /projects/{project_id}/subjects/{subject_id}
+- /projects/{project_id}/subjects/{subject_id}/instruments
 - /projects/{project_id}/subjects/{subject_id}/instruments/{instrument_id}
+- /projects/{project_id}/subjects/{subject_id}/derivatives/
 - /projects/{project_id}/subjects/{subject_id}/derivatives/{derivative_id}
+- /subjects
 - /subjects/{subject_id}
 - /statistics/projects/{project_id}
+- /dataelements
+- /dataelements/{dataelement_id}
 
 You can append the following query parameters to many of the operations:
 
@@ -332,38 +339,97 @@ Operations
 **/projects**
  | Get a list of all project IDs available.
  | Supported query parameters: none
+ |
+ |
 
 **/projects/{project_id}**
- | See some details for a project. This will include the list of subject IDs and data elements used in the project
- | Supported query parameters: fitler, fields
+ | See some details for a project. This will include project summary information (acquisition modality, contrast type, image usage, etc) as well as a list of subject IDs and data elements used in the project.
+ | When a fields parameters are provided, all instrument/derivative data in the project matching the field list will be returned as a table.
+ | When a filter parameter is provided, the list of subjects returned will only include subjects that have data passing the filter
+ |
+ | Supported optional query parameters: fitler, fields
+ |
+ |
 
 **/projects/{project_id}/subjects**
  | Get the list of subjects in a project
- | Supported query parameters: filter
+ | When a filter parameter is provided only subjects matching the filter will be returned.
+ |
+ | Supported optional query parameters: filter
+ |
+ |
 
 **/projects/{project_id}/subjects/{subject_id}**
- | Get the details for a particular subject. This will include the results of any instrumnts or derivatives associated with the subject, as well a a list of the related activites.
+ | Get the details for a particular subject. This will include the results of any instrumnts or derivatives associated with the subject, as well a list of the related activites.
+ |
  | Supported query parameters: none
+ |
+ |
+
+**/projects/{project_id}/subjects/{subject_id}/instruments**
+ | Get a list of all instruments associated with that subject.
+ |
+ | Supported query parameters: none
+ |
+ |
 
 **/projects/{project_id}/subjects/{subject_id}/instruments/{instrument_id}**
  | Get the values for a particular instrument
+ |
  | Supported query parameters: none
+ |
+ |
+
+**/projects/{project_id}/subjects/{subject_id}/derivatives**
+ | Get a list of all instruments associated with that subject.
+ |
+ | Supported query parameters: none
+ |
+ |
 
 **/projects/{project_id}/subjects/{subject_id}/derivatives/{derivative_id}**
  | Get the values for a particular derivative
+ |
  | Supported query parameters: none
+ |
+ |
+
+**/subjects**
+ | Returns the UUID and Source Subject ID for all subjects available.
+ | If the fields parameter is provided, the result will also include a table of subjects along with the values for the supplied fields in any instrument or derivative
+ |
+ | Supported query parameters: fields
+ |
+ |
 
 **/subjects/{subject_id}**
  | Get the details for a particular subject. This will include the results of any instrumnts or derivatives associated with the subject, as well a a list of the related activites.
+ |
  | Supported query parameters: none
+ |
+ |
 
 **/statistics/projects/{project_id}**
  | See project statistics. You can also use this operation to get statsitcs on a particular instrument or derivative entry by use a *field* query option.
+ |
  | Supported query parameters: filter, field
+ |
+ |
 
 **/statistics/projects/{project_id}/subjects/{subject_id}**
  | See some details for a project. This will include the list of subject IDs and data elements used in the project
+ |
  | Supported query parameters: none
+ |
+ |
+
+**/dataelements/{identifier}**
+ | Returns a table of details on the dataelement that has any synonym matching the provided identifier. The system will attempt to match the data element label, isAbout URI, or data element URI. The return result will also provide a list of projects where the data element is in use.
+ |
+ | Supported query parameters: none
+ |
+ |
+
 
 Query Parameters
 -----------------
@@ -371,7 +437,8 @@ Query Parameters
 **filter**
  | The filter query parameter is ues when you want to receive data only on subjects that match some criteria.  The format for the fitler value should be of the form:
  |    *identifier op value [ and identifier op value and ... ]*
- | Identifers should be formatted as "instrument.ID" or "derivatives.ID"  You can use any value for the instrument ID that is shown for an instrument or in the data_elements section of the project details. For the derivative ID, you can use the last component of a derivative field URI (ex. for the URI http://purl.org/nidash/fsl#fsl_000007, the ID would be "fsl_000007") or the exact label shown when viewing derivative data (ex. "Left-Caudate (mm^3)")
+ | Identifers should be formatted as either a simple field, such as "age", or if you want to restrict the match to just instruments or derivatives format it ia "derivatives.ID" or "derivatives.Subcortical gray matter volume (mm^3)"
+ |You can use any value for identifier that is shown in the data_elements section of the project details. For a derivative ID, you can use the last component of a derivative field URI (ex. for the URI http://purl.org/nidash/fsl#fsl_000007, the ID would be "fsl_000007") or the exact label shown when viewing derivative data (ex. "Left-Caudate (mm^3)").
  | The *op* can be one of "eq", "gt", "lt"
 
  | **Example filters:**
@@ -379,12 +446,13 @@ Query Parameters
  |    *?filter=instrument.AGE_AT_SCAN eq 21 and derivative.fsl_000007 lt 3500*
 
 **fields**
- | The fields query parameter is used to specify what fields should be detailed in a statistics operation. For each field specified the result will show minimum, maximum, average, median, and standard deviation for the values of that field across all subjects matching the operation and filter. Multiple fields can be specified by separating each field with a comma.
- | Fields should be formatted in the same way as identifiers are specified in the filter parameter.
+ | The fields query parameter is used to specify what fields should be detailed. The matching rules are similar to the filter parameter.
 
  | **Example field query:**
- |    *http://localhost:5000/statistics/projects/abc123?field=instruments.AGE_AT_SCAN,derivatives.fsl_000020*
+ |    *http://localhost:5000/statistics/projects/abc123?field=AGE_AT_SCAN,derivatives.fsl_000020*
 
+
+For identifiers in both the fields and filters, when PyNIDM is trying to match your provided value with data in the file a list of synonyms will be created to facilitate the match. This allows you to use the exact identifier, URI, data element label, or an "is about" concept URI if avalable.
 
 Return Formatting
 ==================
