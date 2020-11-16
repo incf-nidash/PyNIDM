@@ -1,10 +1,11 @@
 from nidm.core import Constants
 from nidm.experiment.Query import OpenGraph, URITail, trimWellKnownURIPrefix, getDataTypeInfo, ACQUISITION_MODALITY, \
     IMAGE_CONTRAST_TYPE, IMAGE_USAGE_TYPE, TASK, expandUUID, matchPrefix
-from rdflib import Graph, RDF, URIRef, util, term
+from rdflib import Graph, RDF, URIRef, util, term, Literal
 import functools
 import collections
 import nidm.experiment.CDE
+from nidm.experiment.Utils import validate_uuid
 
 
 isa = URIRef('http://www.w3.org/1999/02/22-rdf-syntax-ns#type')
@@ -148,6 +149,19 @@ def getSubjects(nidm_file_tuples, project_id):
     return subjects
 
 @functools.lru_cache(maxsize=QUERY_CACHE_SIZE)
+def getSubjectUUIDsfromID(nidm_file_tuples, sub_id):
+    uuids = []
+    for file in nidm_file_tuples:
+        rdf_graph = OpenGraph(file)
+
+        result = rdf_graph.triples((None, Constants.NDAR['src_subject_id'], None))
+        for (s,p,o) in result:
+            if str(o) == str(sub_id):
+                uuids.append( URITail(s) )
+
+    return uuids
+
+@functools.lru_cache(maxsize=QUERY_CACHE_SIZE)
 def getSubjectIDfromUUID(nidm_file_tuples, subject_uuid):
     for file in nidm_file_tuples:
         rdf_graph = OpenGraph(file)
@@ -157,16 +171,29 @@ def getSubjectIDfromUUID(nidm_file_tuples, subject_uuid):
     return None
 
 @functools.lru_cache(maxsize=QUERY_CACHE_SIZE)
+def normalizeSingleSubjectToUUID(nidm_file_tuples, id):
+    if len(getSubjectUUIDsfromID(nidm_file_tuples, id)) > 0:
+        return getSubjectUUIDsfromID(nidm_file_tuples, id)[0]
+    return id
+
+@functools.lru_cache(maxsize=QUERY_CACHE_SIZE)
 def getActivities(nidm_file_tuples, subject_id):
     activities = set([])
-    subject_uri = expandID(subject_id, Constants.NIIRI)
+
+    # if we were passed in a sub_id rather than a UUID, lookup the associated UUID. (we might get multiple!)
+    if validate_uuid(URITail(subject_id)):
+        sub_uris = [subject_id]
+    else:
+        sub_uris = getSubjectUUIDsfromID(nidm_file_tuples, subject_id)
 
     for file in nidm_file_tuples:
         rdf_graph = OpenGraph(file)
-        for blank_node in rdf_graph.subjects( predicate=Constants.PROV['agent'], object=subject_uri):
-            for activity in rdf_graph.subjects(predicate=Constants.PROV['qualifiedAssociation'], object=blank_node):
-                if (activity, isa, Constants.PROV['Activity']) in rdf_graph:
-                    activities.add(activity)
+        for subject_uri in sub_uris:
+            subject_uri = expandID(subject_uri, Constants.NIIRI)
+            for blank_node in rdf_graph.subjects(predicate=Constants.PROV['agent'], object=subject_uri):
+                for activity in rdf_graph.subjects(predicate=Constants.PROV['qualifiedAssociation'], object=blank_node):
+                    if (activity, isa, Constants.PROV['Activity']) in rdf_graph:
+                        activities.add(activity)
     return activities
 
 @functools.lru_cache(maxsize=QUERY_CACHE_SIZE)

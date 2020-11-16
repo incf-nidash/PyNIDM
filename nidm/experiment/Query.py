@@ -491,8 +491,8 @@ def GetParticipantUUIDsForProjectCached(nidm_file_list:tuple, project_id, filter
     ### added by DBK changed to dictionary to support subject ids along with uuids
     #participants = []
     participants = {}
-    participants["uuid"] = set()
-    participants["subject id"] = set()
+    participants["uuid"] = []
+    participants["subject id"] = []
 
 
     for file in nidm_file_list:
@@ -516,17 +516,16 @@ def GetParticipantUUIDsForProjectCached(nidm_file_list:tuple, project_id, filter
 
                                     ### added by DBK for subject IDs as well ###
                                     #participants.append(uuid)
-                                    try:
-                                        participants['uuid'].add(uuid)
-                                        participants['subject id'].add(subid)
-                                    # just in case there's no subject id in the file...
-                                    except:
-                                        #participants.append(uuid)
-                                        participants['uuid'].add(uuid)
-                                        participants['subject id'].add('')
+                                    if ( not uuid in participants['uuid'] ):
+                                        try:
+                                            participants['uuid'].append(uuid)
+                                            participants['subject id'].append(subid)
+                                        # just in case there's no subject id in the file...
+                                        except:
+                                            #participants.append(uuid)
+                                            participants['uuid'].append(uuid)
+                                            participants['subject id'].apend('')
 
-    participants['uuid'] = list(participants['uuid'])
-    participants['subject id'] = list(participants['subject id'])
     return participants
 
 
@@ -706,10 +705,17 @@ def CheckSubjectMatchesFilter(nidm_file_list, project_uuid, subject_uuid, filter
             if value[0] == quote and value[-1] == quote:
                 value = value[1:-1]
 
-
         sub_pieces = splitSubject(compound_sub)
-        if len(sub_pieces) == 2 and sub_pieces[0] == 'instruments':
-            term = sub_pieces[1] # 'AGE_AT_SCAN' for example
+
+        # figure out what we are filtering on
+        term = None
+        if len(sub_pieces) == 1:
+            # no instruments or derivatives prefix was entered, so test in both
+            term = sub_pieces[0]
+
+        if (len(sub_pieces) == 2 and sub_pieces[0] == 'instruments') or len(sub_pieces) == 1:
+            if len(sub_pieces) == 2:
+                term = sub_pieces[1] # 'AGE_AT_SCAN' for example
             synonyms = GetDatatypeSynonyms(tuple(nidm_file_list), project_uuid, term)
             instrument_details = GetParticipantInstrumentData(nidm_file_list, project_uuid, subject_uuid)
             for instrument_uuid in instrument_details:
@@ -719,20 +725,18 @@ def CheckSubjectMatchesFilter(nidm_file_list, project_uuid, subject_uuid, filter
                     if found_match:
                         break
 
-        elif len(sub_pieces) == 2 and sub_pieces[0] == 'derivatives':
-            type = sub_pieces[1] # 'ilx:0102597' for example
+        if (len(sub_pieces) == 2 and sub_pieces[0] == 'derivatives') or len(sub_pieces) == 1:
+            if len(sub_pieces) == 2:
+                term = sub_pieces[1] # 'ilx:0102597' for example
             derivatives_details = GetDerivativesDataForSubject(nidm_file_list, project_uuid, subject_uuid)
             for key in derivatives_details:
                 derivatives = derivatives_details[key]['values']
                 for vkey in derivatives:  # values will be in the form { http://example.com/a/b/c#fs_00001 : { datumType: '', label: '', value: '', units:'' }, ... }
                     short_key = URITail(vkey)
-                    if short_key == type:
+                    if short_key == term:
                         found_match = filterCompare(derivatives[vkey]['value'], op, value)
                     if found_match:
                         break
-
-
-
 
         # check after each test if we got false because the tests are joined with 'and'
         if not found_match:
