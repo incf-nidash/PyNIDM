@@ -171,6 +171,12 @@ def getSubjectIDfromUUID(nidm_file_tuples, subject_uuid):
     return None
 
 @functools.lru_cache(maxsize=QUERY_CACHE_SIZE)
+def normalizeSingleSubjectToUUID(nidm_file_tuples, id):
+    if len(getSubjectUUIDsfromID(nidm_file_tuples, id)) > 0:
+        return getSubjectUUIDsfromID(nidm_file_tuples, id)[0]
+    return id
+
+@functools.lru_cache(maxsize=QUERY_CACHE_SIZE)
 def getActivities(nidm_file_tuples, subject_id):
     activities = set([])
 

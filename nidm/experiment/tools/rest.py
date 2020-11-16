@@ -533,9 +533,7 @@ class RestParser:
 
     def projectSubjectSummary(self):
         match = re.match(r"^/?projects/([^/]+)/subjects/([^/]+)/?$", self.command)
-        subject = match.group(2)
-        if len(Navigate.getSubjectUUIDsfromID(self.nidm_files, match.group(2))) > 0:
-            subject = Navigate.getSubjectUUIDsfromID(self.nidm_files, match.group(2))[0]
+        subject = Navigate.normalizeSingleSubjectToUUID(self.nidm_files, match.group(2))
         self.restLog("Returning info about subject {}".format(match.group(2)), 2)
         return self.subjectSummaryFormat(Query.GetParticipantDetails(self.nidm_files, match.group(1), subject))
 
@@ -612,9 +610,10 @@ class RestParser:
 
     def instrumentsList(self):
         result = []
-        match = re.match(r"^/?projects/([^/]+)/subjects/([^/]+)$", self.command)
+        match = re.match(r"^/?projects/([^/]+)/subjects/([^/]+)/instruments/?$", self.command)
         self.restLog("Returning instruments in subject {}".format(match.group(2)), 2)
-        instruments = Query.GetParticipantInstrumentData(self.nidm_files, match.group(1), match.group(2))
+        subject = Navigate.normalizeSingleSubjectToUUID(self.nidm_files, match.group(2))
+        instruments = Query.GetParticipantInstrumentData(self.nidm_files, match.group(1), subject)
         for i in instruments:
             result.append(i)
         return self.format(result)
@@ -622,23 +621,26 @@ class RestParser:
     def instrumentSummary(self):
         match = re.match(r"^/?projects/([^/]+)/subjects/([^/]+)/instruments/([^/]+)$", self.command)
         self.restLog("Returning instrument {} in subject {}".format(match.group(3), match.group(2)), 2)
-        instruments = Query.GetParticipantInstrumentData(self.nidm_files, match.group(1), match.group(2))
+        subject = Navigate.normalizeSingleSubjectToUUID(self.nidm_files, match.group(2))
+        instruments = Query.GetParticipantInstrumentData(self.nidm_files, match.group(1), subject)
         return self.format(instruments[match.group(3)], headers=["Category", "Value"])
 
     def derivativesList(self):
         result = []
         match = re.match(r"^/?projects/([^/]+)/subjects/([^/]+)", self.command)
         self.restLog("Returning derivatives in subject {}".format(match.group(2)), 2)
-        derivatives = Query.GetDerivativesDataForSubject(self.nidm_files, match.group(1), match.group(2))
+        subject = Navigate.normalizeSingleSubjectToUUID(self.nidm_files, match.group(2))
+        derivatives = Query.GetDerivativesDataForSubject(self.nidm_files, match.group(1), subject)
         for s in derivatives:
             result.append(s)
         return self.format(result)
 
     def derivativeSummary(self):
         match = re.match(r"^/?projects/([^/]+)/subjects/([^/]+)/derivatives/([^/]+)", self.command)
+        subject = Navigate.normalizeSingleSubjectToUUID(self.nidm_files, match.group(2))
         uri = match.group(3)
         self.restLog("Returning stat {} in subject {}".format(uri, match.group(2)), 2)
-        derivatives = Query.GetDerivativesDataForSubject(self.nidm_files, match.group(1), match.group(2))
+        derivatives = Query.GetDerivativesDataForSubject(self.nidm_files, match.group(1), subject)
 
         single_derivative = { uri: derivatives[uri] }
 
