@@ -121,7 +121,7 @@ def dataparsing(): #The data is changed to a format that is usable by the linear
     with tempfile.NamedTemporaryFile(delete=False) as temp: # turns the dataframe into a temporary csv
         df.to_csv(temp.name + '.csv')
         temp.close()
-    data = list(csv.reader(open('data.csv')))  # makes the csv a 2D list to make it easier to call the contents of certain cells
+    data = list(csv.reader(open(temp.name + '.csv')))  # makes the csv a 2D list to make it easier to call the contents of certain cells
     global independentvariables #used in linreg
     independentvariables = ind_vars.split(",")  # makes a list of the independent variables
     numcols = (len(data) - 1) // (len(independentvariables) + 1)  # Finds the number of columns in the original dataframe
@@ -241,50 +241,15 @@ def contrasting():
                 return contr
 
             def code_with_intercept(self, levels):
-                contrast = np.column_stack((np.ones(len(levels)), self._simple_contrast(levels)))
+                c = np.column_stack((np.ones(len(levels)), self._simple_contrast(levels)))
                 return ContrastMatrix(c, _name_levels("Simp.", levels))
 
             def code_without_intercept(self, levels):
-                contrast = self._simple_contrast(levels)
+                c = self._simple_contrast(levels)
                 return ContrastMatrix(c, _name_levels("Simp.", levels[:-1]))
 
         # Beginning of the contrast (NOT WORKING: Returning the following:)
-        """Traceback (most recent call last):
-  File "attempted_fix_nidm_linreg.py", line 303, in <module>
-    full_regression()
-  File "/Users/Ashu/opt/anaconda3/envs/python_ashmita/lib/python3.8/site-packages/click/core.py", line 829, in __call__
-    return self.main(*args, **kwargs)
-  File "/Users/Ashu/opt/anaconda3/envs/python_ashmita/lib/python3.8/site-packages/click/core.py", line 782, in main
-    rv = self.invoke(ctx)
-  File "/Users/Ashu/opt/anaconda3/envs/python_ashmita/lib/python3.8/site-packages/click/core.py", line 1066, in invoke
-    return ctx.invoke(self.callback, **ctx.params)
-  File "/Users/Ashu/opt/anaconda3/envs/python_ashmita/lib/python3.8/site-packages/click/core.py", line 610, in invoke
-    return callback(*args, **kwargs)
-  File "attempted_fix_nidm_linreg.py", line 75, in full_regression
-    contrasting()
-  File "attempted_fix_nidm_linreg.py", line 254, in contrasting
-    mod = ols(dep_var + " ~ C(" + c + ", Simple)", data = df_final)
-  File "/Users/Ashu/opt/anaconda3/envs/python_ashmita/lib/python3.8/site-packages/statsmodels/base/model.py", line 169, in from_formula
-    tmp = handle_formula_data(data, None, formula, depth=eval_env,
-  File "/Users/Ashu/opt/anaconda3/envs/python_ashmita/lib/python3.8/site-packages/statsmodels/formula/formulatools.py", line 63, in handle_formula_data
-    result = dmatrices(formula, Y, depth, return_type='dataframe',
-  File "/Users/Ashu/opt/anaconda3/envs/python_ashmita/lib/python3.8/site-packages/patsy/highlevel.py", line 309, in dmatrices
-    (lhs, rhs) = _do_highlevel_design(formula_like, data, eval_env,
-  File "/Users/Ashu/opt/anaconda3/envs/python_ashmita/lib/python3.8/site-packages/patsy/highlevel.py", line 164, in _do_highlevel_design
-    design_infos = _try_incr_builders(formula_like, data_iter_maker, eval_env,
-  File "/Users/Ashu/opt/anaconda3/envs/python_ashmita/lib/python3.8/site-packages/patsy/highlevel.py", line 66, in _try_incr_builders
-    return design_matrix_builders([formula_like.lhs_termlist,
-  File "/Users/Ashu/opt/anaconda3/envs/python_ashmita/lib/python3.8/site-packages/patsy/build.py", line 719, in design_matrix_builders
-    term_to_subterm_infos = _make_subterm_infos(termlist,
-  File "/Users/Ashu/opt/anaconda3/envs/python_ashmita/lib/python3.8/site-packages/patsy/build.py", line 626, in _make_subterm_infos
-    coded = code_contrast_matrix(factor_coding[factor],
-  File "/Users/Ashu/opt/anaconda3/envs/python_ashmita/lib/python3.8/site-packages/patsy/contrasts.py", line 602, in code_contrast_matrix
-    return contrast.code_without_intercept(levels)
-  File "attempted_fix_nidm_linreg.py", line 251, in code_without_intercept
-    return ContrastMatrix(c, _name_levels("Simp.", levels[:-1]))
-  File "/Users/Ashu/opt/anaconda3/envs/python_ashmita/lib/python3.8/site-packages/patsy/contrasts.py", line 43, in __init__
-    if self.matrix.shape[1] != len(column_suffixes):
-IndexError: tuple index out of range"""
+
         ctrst = Simple().code_without_intercept(levels)
         mod = ols(dep_var + " ~ C(" + c + ", Simple)", data=df_final)
         res = mod.fit()
