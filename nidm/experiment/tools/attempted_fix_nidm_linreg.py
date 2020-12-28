@@ -137,7 +137,6 @@ def dataparsing(): #The data is changed to a format that is usable by the linear
     valuecolumn = 0  # the column the value is in in the original dataset
     datacolumn = 0  # if it is identified by the dataElement name instead of the field's name
     for i in range(len(data[0])):
-        print(data[0][i])
         if data[0][i] == 'label':
             fieldcolumn = i  # finds the column where the variable names are
         elif data[0][i] == 'value':
@@ -190,7 +189,6 @@ def dataparsing(): #The data is changed to a format that is usable by the linear
 def linreg(): #actual linear regression
     print("Model Results: ")
     print(m) #prints model
-    print(m) #prints model
     index = 0
     global levels #also used in contrasting()
     levels = []
@@ -202,8 +200,6 @@ def linreg(): #actual linear regression
             levels.append(condensed_data[i][index])
     for i in range(len(levels)):
         levels[i] = i
-
-    print(levels)
 
     #Beginning of the linear regression
     X = df_final[independentvariables]  # gets the modified values of the independent variables
@@ -281,11 +277,6 @@ def contrasting():
         print("Contrast:")
         print("Helmert Coding: Our version of Helmert coding is sometimes referred to as Reverse Helmert Coding. The mean of the dependent variable for a level is compared to the mean of the dependent variable over all previous levels. Hence, the name ‘reverse’ being sometimes applied to differentiate from forward Helmert coding.")
         print(res.summary())
-    else:
-        print("ERROR: No query parameter provided.  See help:")
-        print()
-        os.system("pynidm query --help")
-        exit(1)
 
 def opencsv(data):
     """saves a list of lists as a csv and opens"""
