@@ -13,8 +13,8 @@ isPartOf = Constants.DCT['isPartOf']
 ValueType = collections.namedtuple('ValueType',
                                    ['value', 'label', 'datumType', 'hasUnit', 'isAbout', 'measureOf', 'hasLaterality', 'dataElement', 'description', 'subject', 'project'])
 ActivityData = collections.namedtuple('ActivityData', ['category', 'uuid', 'data'])
-QUERY_CACHE_SIZE=64
-BIG_CACHE_SIZE=256
+QUERY_CACHE_SIZE=0
+BIG_CACHE_SIZE=0
 
 def makeValueType(value=None, label=None, datumType=None, hasUnit=None, isAbout=None, measureOf=None, hasLaterality=None, dataElement=None, description=None, subject=None, project=None):
     return ValueType(str(value), str(label), str(datumType), str(hasUnit), str(isAbout), str(measureOf), str(hasLaterality), str(dataElement), str(description), str(subject), str(project))
