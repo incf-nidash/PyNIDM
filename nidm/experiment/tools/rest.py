@@ -5,6 +5,7 @@ from nidm.core import Constants
 import json
 import re
 from urllib import parse
+import logging
 import pprint
 import os
 from tempfile import gettempdir
@@ -351,7 +352,7 @@ class RestParser:
         projects = Query.GetProjectsUUID(self.nidm_files)
         for uuid in projects:
             result.append(str(uuid).replace(Constants.NIIRI, ""))
-        return self.format(result)
+        return self.format(result, ["UUID"])
 
     def ExpandProjectMetaData(self, meta_data):
         """
@@ -390,8 +391,8 @@ class RestParser:
 
             print(Query.GetParticipantUUIDsForProject(self.nidm_files, project_uuid))
 
-            project['age_max'] = max(ages)
-            project['age_min'] = min(ages)
+            project['age_max'] = max(ages) if len(ages) > 0 else 0
+            project['age_min'] = min(ages) if len(ages) > 0 else 0
             project[Query.matchPrefix(str(Constants.NIDM_NUMBER_OF_SUBJECTS))] = len((Query.GetParticipantUUIDsForProject(self.nidm_files, project_uuid))['uuid'])
             project[str(Constants.NIDM_GENDER)] = list(genders)
             project[str(Constants.NIDM_HANDEDNESS)] = list(hands)
@@ -675,7 +676,8 @@ class RestParser:
                 self.query['fields'] = []
 
             return self.route()
-        except ValueError:
+        except ValueError as ve:
+            logging.error("Exception: {}".format(ve))
             return (self.format({"error": "One of the supplied field terms was not found."}))
 
 

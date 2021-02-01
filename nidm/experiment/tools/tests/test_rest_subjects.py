@@ -42,7 +42,12 @@ def setup():
 
     restParser = RestParser(output_format=RestParser.OBJECT_FORMAT)
     projects = restParser.run(BRAIN_VOL_FILES, '/projects')
-    cmu_test_project_uuid = projects[0]
+    for p in projects:
+        proj_info = restParser.run(BRAIN_VOL_FILES, '/projects/{}'.format(p))
+        if 'dctypes:title' in proj_info.keys() and proj_info['dctypes:title'] == 'ABIDE CMU_a Site':
+            cmu_test_project_uuid = p
+            break
+
     subjects = restParser.run(BRAIN_VOL_FILES, '/projects/{}/subjects'.format(cmu_test_project_uuid))
     cmu_test_subject_uuid = subjects['uuid'][0]
 
@@ -53,9 +58,12 @@ def setup():
             "ds000168.nidm.ttl"
         )
 
-    projects2 = restParser.run(BRAIN_VOL_FILES, '/projects')
-    OPENNEURO_PROJECT_URI = projects2[0]
-    subjects = restParser.run(BRAIN_VOL_FILES, '/projects/{}/subjects'.format(OPENNEURO_PROJECT_URI))
+    projects2 = restParser.run(OPENNEURO_FILES, '/projects')
+    for p in projects2:
+        proj_info = restParser.run(OPENNEURO_FILES, '/projects/{}'.format(p))
+        if 'dctypes:title' in proj_info.keys() and proj_info['dctypes:title'] == 'Offline Processing in Associative Learning':
+            OPENNEURO_PROJECT_URI = p
+    subjects = restParser.run(OPENNEURO_FILES, '/projects/{}/subjects'.format(OPENNEURO_PROJECT_URI))
     OPENNEURO_SUB_URI = subjects['uuid'][0]
 
 

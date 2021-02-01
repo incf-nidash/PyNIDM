@@ -22,9 +22,13 @@ test_person_uuid = ""
 test_p2_subject_uuids = []
 stat_test_project_uuid = None
 restParser = RestParser(verbosity_level=0, output_format=RestParser.OBJECT_FORMAT)
+cmu_test_project_uuid = None
+cmu_test_subject_uuid = None
 
 @pytest.fixture(scope="module", autouse="True")
 def setup():
+    global cmu_test_project_uuid
+    global cmu_test_subject_uuid
 
     for f in ['./cmu_a.nidm.ttl', 'caltech.nidm.ttl']:
         if Path(f).is_file():
@@ -42,18 +46,24 @@ def setup():
             "caltech.nidm.ttl"
         )
 
-def getSampleProjectUUID():
-    global stat_test_project_uuid
-    if stat_test_project_uuid == None:
-        projects = restParser.run(['./cmu_a.nidm.ttl'], '/projects')
-        cmu_test_project_uuid = projects[0]
-    return cmu_test_project_uuid
+    restParser = RestParser(output_format=RestParser.OBJECT_FORMAT)
+    projects = restParser.run(BRAIN_VOL_FILES, '/projects')
+    for p in projects:
+        proj_info = restParser.run(BRAIN_VOL_FILES, '/projects/{}'.format(p))
+        if type(proj_info) == dict and 'dctypes:title' in proj_info.keys() and proj_info['dctypes:title'] == 'ABIDE CMU_a Site':
+            cmu_test_project_uuid = p
+            break
+    subjects = restParser.run(BRAIN_VOL_FILES, '/projects/{}/subjects'.format(cmu_test_project_uuid))
+    cmu_test_subject_uuid = subjects['uuid'][0]
+
 
 
 def test_project_statistics():
+    global cmu_test_project_uuid
     AGE_CUTOFF = 30
 
-    project = getSampleProjectUUID()
+
+    project = cmu_test_project_uuid
 
     # basics stats
     basic_project_stats = restParser.run(BRAIN_VOL_FILES, "/statistics/projects/{}".format(project))
@@ -94,8 +104,9 @@ def test_project_statistics():
             assert x in derivative_stats[field]
 
 def test_project_statistics_fields():
+    global cmu_test_project_uuid
 
-    project = getSampleProjectUUID()
+    project = cmu_test_project_uuid
 
     # ask for a field based on URI tail
     derivative_stats = restParser.run(BRAIN_VOL_FILES, "/statistics/projects/{}?fields=derivatives.fsl_000020".format(project))

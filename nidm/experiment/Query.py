@@ -37,10 +37,13 @@ from nidm.core import Constants
 import nidm.experiment.CDE
 import re
 import tempfile
-from os import path
+from os import path, environ
 import functools
 import hashlib
 import pickle
+import requests
+import json
+
 
 from joblib import Memory
 memory = Memory(tempfile.gettempdir(), verbose=0 )
@@ -63,6 +66,28 @@ def sparql_query_nidm(nidm_file_list,query, output_file=None, return_graph=False
     :param return_graph: WIP - not working right now but for some queries we prefer to return a graph instead of a dataframe
     :return: dataframe | graph depending on return_graph parameter
     '''
+
+
+
+    if 'BLAZEGRAPH_URL' in environ.keys():
+        try:
+            # first make sure all files are loaded into blazegraph
+            for nidm_file in nidm_file_list:
+                OpenGraph(nidm_file)
+            logging.debug("Sending sparql to blazegraph: %s", query )
+            r2 = requests.post(url=environ['BLAZEGRAPH_URL'], params={'query': query}, headers={'Accept': 'application/sparql-results+json'})
+            content = json.loads( r2.content )
+            columns = {}
+            for key in content["head"]['vars']:
+                columns[key] = [x[key]['value'] for x in content['results']['bindings']]
+            df = pd.DataFrame(data=columns)
+            if (output_file is not None):
+                df.to_csv(output_file)
+            return df
+
+        except Exception as e:
+            print("Exception while communicating with blazegraph at {}: {}".format(environ['BLAZEGRAPH_URL'],e))
+
 
     #query result list
     results = []
@@ -143,9 +168,9 @@ def GetProjectsUUID(nidm_file_list,output_file=None):
 
         }
     '''
-    df = sparql_query_nidm(nidm_file_list,query, output_file=output_file)
+    df = sparql_query_nidm(nidm_file_list, query, output_file=output_file)
 
-    return df['uuid'].tolist()
+    return df['uuid'] if type(df['uuid']) == list else df['uuid'].tolist()
 
 def GetProjectLocation(nidm_file_list, project_uuid, output_file=None):
     '''
@@ -345,7 +370,6 @@ def GetParticipantIDs(nidm_file_list,output_file=None):
         PREFIX sio: <http://semanticscience.org/ontology/sio.owl#>
         PREFIX ndar: <https://ndar.nih.gov/api/datadictionary/v2/dataelement/>
         PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-        PREFIX prov:<http://www.w3.org/ns/prov#>
 
         SELECT DISTINCT ?uuid ?ID
         WHERE {
@@ -1162,9 +1186,22 @@ def OpenGraph(file):
     :param file: filename
     :return: Graph
     '''
+
     # if someone passed me a RDF graph rather than a file, just send it back
     if isinstance(file, rdflib.graph.Graph):
         return file
+
+
+    # If we have a Blazegraph instance, load the data then do the rest
+    if 'BLAZEGRAPH_URL' in environ.keys():
+        try:
+            f = open(file)
+            data = f.read()
+            logging.debug("Sending {} to blazegraph".format(file))
+            r = requests.post(url=environ['BLAZEGRAPH_URL'], data=data, headers={'Content-type': 'application/x-turtle'})
+        except Exception as e:
+            logging.error("Exception {} loading {} into Blazegraph.".format(e, file))
+
 
     BLOCKSIZE = 65536
     hasher = hashlib.md5()
