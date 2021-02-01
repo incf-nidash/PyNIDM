@@ -74,9 +74,11 @@ from json import dumps, loads
               help="Optional output file (CSV) to store results of query")
 @click.option("-j/-no_j", required=False, default=False,
               help="Return result of a uri query as JSON")
+@click.option("--blaze", "-bg", required=False,
+              help="Base URL for Blazegraph. Ex: http://172.19.0.2:9999/blazegraph/sparql")
 @click.option('-v', '--verbosity', required=False, help="Verbosity level 0-5, 0 is default", default="0")
 
-def query(nidm_file_list, cde_file_list, query_file, output_file, get_participants, get_instruments, get_instrument_vars, get_dataelements, get_brainvols,get_dataelements_brainvols, get_fields, uri, j, verbosity):
+def query(nidm_file_list, cde_file_list, query_file, output_file, get_participants, get_instruments, get_instrument_vars, get_dataelements, get_brainvols,get_dataelements_brainvols, get_fields, uri, blaze, j, verbosity):
     """
     This function provides query support for NIDM graphs.
     """
@@ -86,6 +88,10 @@ def query(nidm_file_list, cde_file_list, query_file, output_file, get_participan
     # if there is a CDE file list, seed the CDE cache
     if cde_file_list:
         getCDEs(cde_file_list.split(","))
+
+    if blaze:
+        os.environ["BLAZEGRAPH_URL"] = blaze
+        print("setting BLAZEGRAPH_URL to {}".format(blaze))
 
     if get_participants:
         df = GetParticipantIDs(nidm_file_list.split(','),output_file=output_file)

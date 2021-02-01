@@ -1,9 +1,10 @@
 import nidm.experiment.Navigate
-from nidm.experiment import Project, Session, AssessmentAcquisition, AssessmentObject, Acquisition, AcquisitionObject, Query
+from nidm.experiment import Project, Session, AssessmentAcquisition, AssessmentObject, Acquisition, AcquisitionObject, \
+    Query
 from nidm.core import Constants
-from rdflib import Namespace,URIRef
+from rdflib import Namespace, URIRef
 import prov.model as pm
-from os import remove, path
+from os import remove, path, environ
 import tempfile
 import pytest
 from nidm.experiment.CDE import download_cde_files
@@ -16,6 +17,12 @@ import json
 import urllib.request
 from pathlib import Path
 
+ABIDE_FILES = ('cmu_a.nidm.ttl',)
+
+cmu_test_project_uuid = None
+cmu_test_subject_uuid = None
+
+
 # when set to true, this will test example NIDM files downloaded from
 # the GitHub dbkeator/simple2_NIDM_examples repo
 #
@@ -25,6 +32,20 @@ from pathlib import Path
 # For example:  kwargs={Constants.NIDM_PROJECT_NAME:"FBIRN_PhaseIII",Constants.NIDM_PROJECT_IDENTIFIER:1200,Constants.NIDM_PROJECT_DESCRIPTION:"Test investigation2"}
 #               project = Project(uuid="_654321",attributes=kwargs)
 USE_GITHUB_DATA = True
+
+@pytest.fixture(scope="module", autouse="True")
+def setup():
+    global cmu_test_project_uuid, cmu_test_subject_uuid
+
+    projects = Query.GetProjectsUUID(ABIDE_FILES)
+    for p in projects:
+        proj_info = nidm.experiment.Navigate.GetProjectAttributes(ABIDE_FILES, p)
+        if 'dctypes:title' in proj_info.keys() and proj_info['dctypes:title'] == 'ABIDE CMU_a Site':
+            cmu_test_project_uuid = p
+            break
+    subjects = Query.GetParticipantIDs(ABIDE_FILES)
+    cmu_test_subject_uuid = subjects['uuid'][0]
+
 
 def test_GetProjectMetadata():
 
@@ -73,7 +94,7 @@ def test_GetProjects():
     project_list = Query.GetProjectsUUID(["test_gp.ttl"])
 
     remove("test_gp.ttl")
-    assert URIRef(Constants.NIIRI + "_123456") in project_list
+    assert Constants.NIIRI + "_123456" in [ str(x) for x in project_list]
 
 def test_GetParticipantIDs():
 
@@ -100,9 +121,10 @@ def test_GetParticipantIDs():
     assert (participant_list['ID'].str.contains('8888').any())
 
 def test_GetProjectInstruments():
-
-    kwargs={Constants.NIDM_PROJECT_NAME:"FBIRN_PhaseII",Constants.NIDM_PROJECT_IDENTIFIER:9610,Constants.NIDM_PROJECT_DESCRIPTION:"Test investigation"}
-    project = Project(uuid="_123456",attributes=kwargs)
+    kwargs = {Constants.NIDM_PROJECT_NAME: "FBIRN_PhaseII", Constants.NIDM_PROJECT_IDENTIFIER: 9610,
+              Constants.NIDM_PROJECT_DESCRIPTION: "Test investigation"}
+    proj_uuid = "_123456gpi"
+    project = Project(uuid=proj_uuid, attributes=kwargs)
 
     session = Session(project)
     acq = AssessmentAcquisition(session)
@@ -119,13 +141,12 @@ def test_GetProjectInstruments():
     with open("test_gpi.ttl",'w') as f:
         f.write(project.serializeTurtle())
 
-
-    assessment_list = Query.GetProjectInstruments(["test_gpi.ttl"],"_123456")
+    assessment_list = Query.GetProjectInstruments(["test_gpi.ttl"], proj_uuid)
 
     remove("test_gpi.ttl")
 
-    assert URIRef(Constants.NIDM + "NorthAmericanAdultReadingTest") in assessment_list['assessment_type'].to_list()
-    assert URIRef(Constants.NIDM + "PositiveAndNegativeSyndromeScale") in assessment_list['assessment_type'].to_list()
+    assert Constants.NIDM + "NorthAmericanAdultReadingTest" in [str(x) for x in assessment_list['assessment_type'].to_list()]
+    assert Constants.NIDM + "PositiveAndNegativeSyndromeScale" in [str(x) for x in assessment_list['assessment_type'].to_list()]
 
 
 '''
@@ -228,14 +249,12 @@ def makeProjectTestFile2(filename):
 
 
 def test_GetProjectsMetadata():
-
     p1 = makeProjectTestFile("testfile.ttl")
     p2 = makeProjectTestFile2("testfile2.ttl")
     files = ["testfile.ttl", "testfile2.ttl"]
 
-
     if USE_GITHUB_DATA and not Path('./cmu_a.nidm.ttl').is_file():
-        urllib.request.urlretrieve (
+        urllib.request.urlretrieve(
             "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/master/datasets.datalad.org/abide/RawDataBIDS/CMU_a/nidm.ttl",
             "cmu_a.nidm.ttl"
         )
@@ -245,20 +264,21 @@ def test_GetProjectsMetadata():
 
     parsed = Query.GetProjectsMetadata(files)
 
-
     # assert parsed['projects'][p1][str(Constants.NIDM_PROJECT_DESCRIPTION)] == "Test investigation"
     # assert parsed['projects'][p2][str(Constants.NIDM_PROJECT_DESCRIPTION)] == "More Scans"
 
     # we shouldn't have the computed metadata in this result
     # assert parsed['projects'][p1].get (Query.matchPrefix(str(Constants.NIDM_NUMBER_OF_SUBJECTS)), -1) == -1
 
-
     if USE_GITHUB_DATA:
         # find the project ID from the CMU file
+        p3 = None
         for project_id in parsed['projects']:
             if project_id != p1 and project_id != p2:
-                p3 = project_id
-        assert parsed['projects'][p3][str(Constants.NIDM_PROJECT_NAME)] == "ABIDE CMU_a Site"
+                if parsed['projects'][project_id][str(Constants.NIDM_PROJECT_NAME)] == "ABIDE CMU_a Site":
+                    p3 = project_id
+                    break
+        assert p3 != None
 
 
 #
@@ -310,7 +330,6 @@ def test_getProjectAcquisitionObjects():
     files = ['cmu_a.nidm.ttl']
 
     project_list = Query.GetProjectsUUID(files)
-    print (project_list)
     project_uuid = str(project_list[0])
     objects = Query.getProjectAcquisitionObjects(files,project_uuid)
 
@@ -318,16 +337,15 @@ def test_getProjectAcquisitionObjects():
 
 
 def test_GetProjectAttributes():
+    global cmu_test_project_uuid
     if not Path('./cmu_a.nidm.ttl').is_file():
         urllib.request.urlretrieve (
             "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/master/datasets.datalad.org/abide/RawDataBIDS/CMU_a/nidm.ttl",
             "cmu_a.nidm.ttl"
         )
-    files = tuple(['cmu_a.nidm.ttl'])
+    files = ABIDE_FILES
 
-    project_list = Query.GetProjectsUUID(files)
-    print (project_list)
-    project_uuid = str(project_list[0])
+    project_uuid = cmu_test_project_uuid
     project_attributes = nidm.experiment.Navigate.GetProjectAttributes(files, project_uuid)
     assert ('prov:Location' in project_attributes) or ('Location' in project_attributes)
     assert ('dctypes:title' in project_attributes) or ('title' in project_attributes)

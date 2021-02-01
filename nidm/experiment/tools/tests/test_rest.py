@@ -12,6 +12,7 @@ import os
 from pathlib import Path
 from rdflib import Graph, util, URIRef
 
+
 REST_TEST_FILE = './agent.ttl'
 BRAIN_VOL_FILES = ['./cmu_a.nidm.ttl', './caltech.nidm.ttl']
 OPENNEURO_FILES = ['ds000168.nidm.ttl']
@@ -50,7 +51,11 @@ def setup():
 
     restParser = RestParser(output_format=RestParser.OBJECT_FORMAT)
     projects = restParser.run(BRAIN_VOL_FILES, '/projects')
-    cmu_test_project_uuid = projects[0]
+    for p in projects:
+        proj_info = restParser.run(BRAIN_VOL_FILES, '/projects/{}'.format(p))
+        if 'dctypes:title' in proj_info.keys() and proj_info['dctypes:title'] == 'ABIDE CMU_a Site':
+            cmu_test_project_uuid = p
+            break
     subjects = restParser.run(BRAIN_VOL_FILES, '/projects/{}/subjects'.format(cmu_test_project_uuid))
     cmu_test_subject_uuid = subjects['uuid'][0]
 
@@ -61,9 +66,12 @@ def setup():
             "ds000168.nidm.ttl"
         )
 
-    projects2 = restParser.run(BRAIN_VOL_FILES, '/projects')
-    OPENNEURO_PROJECT_URI = projects2[0]
-    subjects = restParser.run(BRAIN_VOL_FILES, '/projects/{}/subjects'.format(OPENNEURO_PROJECT_URI))
+    projects2 = restParser.run(OPENNEURO_FILES, '/projects')
+    for p in projects2:
+        proj_info = restParser.run(OPENNEURO_FILES, '/projects/{}'.format(p))
+        if 'dctypes:title' in proj_info.keys() and proj_info['dctypes:title'] == 'Offline Processing in Associative Learning':
+            OPENNEURO_PROJECT_URI = p
+    subjects = restParser.run(OPENNEURO_FILES, '/projects/{}/subjects'.format(OPENNEURO_PROJECT_URI))
     OPENNEURO_SUB_URI = subjects['uuid'][0]
 
 
@@ -177,14 +185,18 @@ def test_uri_subject_list_with_fields():
 
 def test_uri_project_list():
 
+    import uuid
+
     kwargs={Constants.NIDM_PROJECT_NAME:"FBIRN_PhaseII",Constants.NIDM_PROJECT_IDENTIFIER:9610,Constants.NIDM_PROJECT_DESCRIPTION:"Test investigation"}
-    project = Project(uuid="_123456",attributes=kwargs)
+    proj1_uuid = str(uuid.uuid1())
+    proj2_uuid = str(uuid.uuid1())
+    project = Project(uuid=proj1_uuid,attributes=kwargs)
     #save a turtle file
     with open("uritest.ttl",'w') as f:
         f.write(project.serializeTurtle())
 
     kwargs={Constants.NIDM_PROJECT_NAME:"FBIRN_PhaseIII",Constants.NIDM_PROJECT_IDENTIFIER:1200,Constants.NIDM_PROJECT_DESCRIPTION:"Test investigation2"}
-    project = Project(uuid="_654321",attributes=kwargs)
+    project = Project(uuid=proj2_uuid,attributes=kwargs)
     #save a turtle file
     with open("uritest2.ttl",'w') as f:
         f.write(project.serializeTurtle())
@@ -199,9 +211,9 @@ def test_uri_project_list():
         project_uuids.append(uuid)
 
     assert type(result) == list
-    assert len(project_uuids) == 2
-    assert "_123456" in project_uuids
-    assert "_654321" in project_uuids
+    assert len(project_uuids) >= 2
+    assert proj1_uuid in project_uuids
+    assert proj2_uuid in project_uuids
 
     os.remove("uritest.ttl")
     os.remove("uritest2.ttl")
@@ -211,8 +223,8 @@ def test_uri_project_id():
 
     # try with the real brain volume files
     restParser = RestParser()
-    result = restParser.run(OPENNEURO_FILES, '/projects')
-    project = result[0]
+    # result = restParser.run(OPENNEURO_FILES, '/projects')
+    project = OPENNEURO_PROJECT_URI
     result = restParser.run(OPENNEURO_FILES, '/projects/{}'.format(project))
 
 
@@ -257,8 +269,8 @@ def test_uri_projects_subjects_id():
     global test_person_uuid
 
     restParser = RestParser()
-    result = restParser.run(OPENNEURO_FILES, '/projects')
-    project = result[0]
+    # result = restParser.run(OPENNEURO_FILES, '/projects')
+    project = OPENNEURO_PROJECT_URI
     result = restParser.run(OPENNEURO_FILES, '/projects/{}/subjects'.format(project))
     subject = result['uuid'][0]
 
@@ -469,8 +481,12 @@ def test_CDEs():
 def assess_one_col_output(txt_output):
     # print (txt_output)
     lines = txt_output.strip().splitlines()
-    assert re.search('UUID', lines[0])
-    assert re.search('^-+$', lines[1])
+    while not re.search('[a-zA-Z]', lines[0]):  # sometimes we get a blank main table, that is ok, just remove it and look at the next table
+        lines = lines[1:]
+    if not (re.search('UUID', lines[0]) or re.search('uuid', lines[0])):
+        print (lines)
+    assert re.search('UUID', lines[0]) or re.search('uuid', lines[0])
+    # assert re.search('^-+$', lines[1])
     found_uuid = False
     ###added by DBK to deal with varying line numbers for uuids depending on the rest query type
     for line in lines:
@@ -493,7 +509,8 @@ def test_cli_rest_routes():
     # / projects
     #
 
-    project_uuid = assess_one_col_output( rest_parser.run(BRAIN_VOL_FILES, "/projects") )
+    text = rest_parser.run(BRAIN_VOL_FILES, "/projects")
+    project_uuid = assess_one_col_output( text )
 
 
     #
@@ -523,7 +540,8 @@ def test_cli_rest_routes():
     # /projects/{}/subjects
     #
 
-    subject_uuid = assess_one_col_output( rest_parser.run(BRAIN_VOL_FILES, '/projects/{}/subjects'.format(project_uuid))  )
+    sub_text = rest_parser.run(BRAIN_VOL_FILES, '/projects/{}/subjects'.format(project_uuid))
+    subject_uuid = assess_one_col_output( sub_text  )
 
     #
     # /projects/{}/subjects/{}/instruments
@@ -585,8 +603,9 @@ def test_project_fields_deriv():
 def test_project_fields_instruments():
     rest_parser = RestParser(verbosity_level=0)
 
-    projects = rest_parser.run(BRAIN_VOL_FILES, '/projects')
-    proj_uuid = projects[0]
+    # projects = rest_parser.run(BRAIN_VOL_FILES, '/projects')
+    # proj_uuid = projects[0]
+    proj_uuid = cmu_test_project_uuid
 
     rest_parser.setOutputFormat(RestParser.OBJECT_FORMAT)
 
@@ -633,6 +652,7 @@ def test_GetProjectsComputedMetadata():
     for project_id in parsed['projects']:
         if parsed['projects'][project_id][str(Constants.NIDM_PROJECT_NAME)] == "ABIDE CMU_a Site":
             p3 = project_id
+            break
     assert parsed['projects'][p3][str(Constants.NIDM_PROJECT_NAME)] == "ABIDE CMU_a Site"
     assert parsed['projects'][p3][Query.matchPrefix(str(Constants.NIDM_NUMBER_OF_SUBJECTS))] == 14
     assert parsed['projects'][p3]["age_min"] == 21.0

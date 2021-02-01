@@ -57,5 +57,5 @@ MICRO = _version_micro
 VERSION = __version__
 INSTALL_REQUIRES = ["prov", "graphviz", "pydotplus", "pydot", "validators", "requests", "rapidfuzz", "pygithub",
                     "pandas", "pybids>=0.12.0", "duecredit", "pytest", "graphviz", "click", "rdflib-jsonld",
-                    "pyld", "rdflib", "datalad", "ontquery>=0.2.3", "orthauth>=0.0.12","tabulate", "joblib", "cognitiveatlas", "numpy", "etelemetry","click-option-group"]
+                    "pyld", "rdflib", "datalad", "ontquery>=0.2.3", "orthauth>=0.0.12","tabulate", "joblib", "cognitiveatlas", "numpy>=1.16.5", "etelemetry","click-option-group"]
 SCRIPTS = ["bin/nidm_query", "bin/bidsmri2nidm", "bin/csv2nidm","bin/nidm_utils"]
