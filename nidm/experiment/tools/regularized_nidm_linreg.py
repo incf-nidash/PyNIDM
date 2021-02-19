@@ -7,8 +7,8 @@
 #  License: GPL
 # *******************************************************************************************************
 # *******************************************************************************************************
-# Date: 12-24-20                 Coded by: Ashmita Kumar (ashmita.kumar@gmail.com)
-# Filename: nidm_linreg.py
+# Date: 2-13-21                 Coded by: Ashmita Kumar (ashmita.kumar@gmail.com)
+# Filename: regularized_nidm_linreg.py
 #
 # Program description:  This program provides a tool to complete a linear regression on nidm files
 #
@@ -65,7 +65,7 @@ from patsy.contrasts import Helmert
 @click.option("--output_file", "-o", required=False,
               help="Optional output file (CSV) to store results of query")
 @click.option("--regularization", "-r", required=False,
-              help="Optional output file (CSV) to store results of query")
+              help="This parameter will regularize the data")
 def full_regression(nidm_file_list, output_file, model, contrast, regularization):
     #NOTE: Every time I make a global variable, it is because I need it in at least one other method.
     global c #used in linreg(), contrasting()
@@ -229,7 +229,6 @@ def linreg(): #actual linear regression
 def contrasting():
     if c:
         #With contrast (treatment coding)
-        print("Contrast:")
         print("Treatment (Dummy) Coding: Dummy coding compares each level of the categorical variable to a base reference level. The base reference level is the value of the intercept.")
         ctrst = Treatment(reference=0).code_without_intercept(levels)
         mod = ols(dep_var + " ~ C(" + c + ", Treatment)", data = df_final)

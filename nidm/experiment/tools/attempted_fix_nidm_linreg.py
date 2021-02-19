@@ -7,7 +7,7 @@
 #  License: GPL
 # *******************************************************************************************************
 # *******************************************************************************************************
-# Date: 10-24-20                 Coded by: Ashmita Kumar (ashmita.kumar@gmail.com)
+# Date: 12-24-20                 Coded by: Ashmita Kumar (ashmita.kumar@gmail.com)
 # Filename: nidm_linreg.py
 #
 # Program description:  This program provides a tool to complete a linear regression on nidm files
