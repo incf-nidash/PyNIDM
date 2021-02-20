@@ -48,10 +48,13 @@ nidm/experiment/tests/test_query.py
 nidm/experiment/tools/BIDSMRI2NIDM.py
 nidm/experiment/tools/CSV2NIDM.py
 nidm/experiment/tools/__init__.py
+nidm/experiment/tools/attempted_fix_nidm_linreg.py
 nidm/experiment/tools/bidsmri2nidm.py
 nidm/experiment/tools/click_base.py
 nidm/experiment/tools/click_main.py
 nidm/experiment/tools/csv2nidm.py
+nidm/experiment/tools/gmm.py
+nidm/experiment/tools/kmeans.py
 nidm/experiment/tools/nidm2bids.py
 nidm/experiment/tools/nidm_concat.py
 nidm/experiment/tools/nidm_convert.py
@@ -62,6 +65,7 @@ nidm/experiment/tools/nidm_stats.py
 nidm/experiment/tools/nidm_utils.py
 nidm/experiment/tools/nidm_visualize.py
 nidm/experiment/tools/old_nidm_linreg.py
+nidm/experiment/tools/regularized_nidm_linreg.py
 nidm/experiment/tools/repronim_simple2_brainvolumes.py
 nidm/experiment/tools/rest.py
 nidm/experiment/tools/tests/__init__.py

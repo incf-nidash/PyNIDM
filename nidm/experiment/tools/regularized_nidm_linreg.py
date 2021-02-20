@@ -7,7 +7,7 @@
 #  License: GPL
 # *******************************************************************************************************
 # *******************************************************************************************************
-# Date: 2-13-21                 Coded by: Ashmita Kumar (ashmita.kumar@gmail.com)
+# Date: 2-19-21                 Coded by: Ashmita Kumar (ashmita.kumar@gmail.com)
 # Filename: regularized_nidm_linreg.py
 #
 # Program description:  This program provides a tool to complete a linear regression on nidm files
@@ -65,7 +65,7 @@ from patsy.contrasts import Helmert
 @click.option("--output_file", "-o", required=False,
               help="Optional output file (CSV) to store results of query")
 @click.option("--regularization", "-r", required=False,
-              help="This parameter will regularize the data")
+              help="This parameter will return the results of the linear regression with L1 or L2 regularization depending on the type specified")
 def full_regression(nidm_file_list, output_file, model, contrast, regularization):
     #NOTE: Every time I make a global variable, it is because I need it in at least one other method.
     global c #used in linreg(), contrasting()
