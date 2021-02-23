@@ -31,7 +31,7 @@
 #
 # *******************************************************************************************************
 # *******************************************************************************************************
-import os, sys
+import os
 import tempfile
 import pandas as pd
 import csv
@@ -47,15 +47,14 @@ from statsmodels.formula.api import ols
 from sklearn import preprocessing
 from sklearn.linear_model import Ridge
 from sklearn.linear_model import Lasso
-from sklearn.model_selection import train_test_split, cross_val_score
-from statistics import mean, stdev
-import patsy
+from sklearn.model_selection import cross_val_score
+from statistics import mean
 from patsy.contrasts import Treatment
 from patsy.contrasts import ContrastMatrix
 from patsy.contrasts import Sum
 from patsy.contrasts import Diff
 from patsy.contrasts import Helmert
-MAX_ALPHA = 700
+MAX_ALPHA = 3
 #Defining the parameters of the commands.
 @cli.command()
 @click.option("--nidm_file_list", "-nl", required=True,
@@ -117,8 +116,8 @@ def data_aggregation(): #all data from all the files is collected
             # join the independent variables into a comma-separated list to make it easier to call from the uri
             global ind_vars #used in dataparsing()
             ind_vars = ""
-            for i in range(1, len(model_list)):
-                full_model_variable_list.append(model_list[i])
+            for i in range(len(model_list)-1, 0, -1):
+                full_model_variable_list.append(model_list[i]) #will be used in the regularization, but we need the full list
                 if "*" in model_list[i]: #removing the star term from the columns we're about to pull from data
                     model_list.pop(i)
                 else:
@@ -235,39 +234,42 @@ def linreg(): #actual linear regression
                 model_string[i] = ":"
                 print("Done") #makes sure the model is in the right format.
         string = ''.join(model_string)
+        print(string)
+        print(df_final)
         y, X = dmatrices(string, df_final)
     else:
         X = df_final[independentvariables]  # gets the modified values of the independent variables
         y = df_final[dep_var] # gets the modified values of the dependent variable
-    #The linear regression
-    regressor = LinearRegression()
-    regressor.fit(X, y)
-    regression = regressor.fit(X, y)
-    #Data about the linear regression, starting without contrast
-    X2 = sm.add_constant(X)
-    statistics = sm.OLS(y, X2)
-    finalstats = statistics.fit()
-    print("Regression without any contrast")
-    print(finalstats.summary())
-    print()
-    print("***********************************************************************************************************")
-    print()
-    """This won't print something like C(group, Sum)[S.0] because there is no contrast 
-    It's basically the regression done with the IV and DV and a constant, and as such, it doesn't really have any
-    C(group, Sum)[S.0] statement like the others."""
+    if not c:
+        #The linear regression
+        regressor = LinearRegression()
+        regressor.fit(X, y)
+        regression = regressor.fit(X, y)
+        #Data about the linear regression, starting without contrast
+        X2 = sm.add_constant(X)
+        statistics = sm.OLS(y, X2)
+        finalstats = statistics.fit()
+        print(finalstats.summary())
 
 def contrasting():
     if c:
-        #With contrast (treatment coding)
-        print("Treatment (Dummy) Coding: Dummy coding compares each level of the categorical variable to a base reference level. The base reference level is the value of the intercept.")
+        ind_vars_no_contrast_var = ''
+        index = 1
+        for var in full_model_variable_list:
+            if var != c:
+                if index == 1:
+                    ind_vars_no_contrast_var = var
+                    index += 1
+                else:
+                    ind_vars_no_contrast_var = ind_vars_no_contrast_var + " + " + var
+
+        # With contrast (treatment coding)
+        print("\n\nTreatment (Dummy) Coding: Dummy coding compares each level of the categorical variable to a base reference level. The base reference level is the value of the intercept.")
         ctrst = Treatment(reference=0).code_without_intercept(levels)
-        mod = ols(dep_var + " ~ C(" + c + ", Treatment)", data = df_final)
+        mod = ols(dep_var + " ~ " + ind_vars_no_contrast_var + " + C(" + c + ", Treatment)", data=df_final)
         res = mod.fit()
         print("With contrast (treatment coding)")
         print(res.summary())
-        print()
-        print("***********************************************************************************************************")
-        print()
 
         # Defining the Simple class
         def _name_levels(prefix, levels):
@@ -288,46 +290,32 @@ def contrasting():
                 c = self._simple_contrast(levels)
                 return ContrastMatrix(c, _name_levels("Simp.", levels[:-1]))
 
-        # Beginning of the contrast (NOT WORKING: Returning the following:)
-
         ctrst = Simple().code_without_intercept(levels)
-        mod = ols(dep_var + " ~ C(" + c + ", Simple)", data=df_final)
+        mod = ols(dep_var + " ~ " + ind_vars_no_contrast_var + " + C(" + c + ", Simple)", data=df_final)
         res = mod.fit()
-        print("Simple Coding: Like Treatment Coding, Simple Coding compares each level to a fixed reference level. However, with simple coding, the intercept is the grand mean of all the levels of the factors.")
+        print("\n\nSimple Coding: Like Treatment Coding, Simple Coding compares each level to a fixed reference level. However, with simple coding, the intercept is the grand mean of all the levels of the factors.")
         print(res.summary())
-        print()
-        print("***********************************************************************************************************")
-        print()
 
         #With contrast (sum/deviation coding)
         ctrst = Sum().code_without_intercept(levels)
-        mod = ols(dep_var + " ~ C(" + c + ", Sum)", data=df_final)
+        mod = ols(dep_var + " ~ " + ind_vars_no_contrast_var + " + C(" + c + ", Sum)", data=df_final)
         res = mod.fit()
-        print("Sum (Deviation) Coding: Sum coding compares the mean of the dependent variable for a given level to the overall mean of the dependent variable over all the levels.")
+        print("\n\nSum (Deviation) Coding: Sum coding compares the mean of the dependent variable for a given level to the overall mean of the dependent variable over all the levels.")
         print(res.summary())
-        print()
-        print("***********************************************************************************************************")
-        print()
 
         #With contrast (backward difference coding)
         ctrst = Diff().code_without_intercept(levels)
-        mod = ols(dep_var + " ~ C(" + c + ", Diff)", data=df_final)
+        mod = ols(dep_var + " ~ " + ind_vars_no_contrast_var + " + C(" + c + ", Diff)", data=df_final)
         res = mod.fit()
-        print("Backward Difference Coding: In backward difference coding, the mean of the dependent variable for a level is compared with the mean of the dependent variable for the prior level.")
+        print("\n\nBackward Difference Coding: In backward difference coding, the mean of the dependent variable for a level is compared with the mean of the dependent variable for the prior level.")
         print(res.summary())
-        print()
-        print("***********************************************************************************************************")
-        print()
 
         #With contrast (Helmert coding)
         ctrst = Helmert().code_without_intercept(levels)
-        mod = ols(dep_var + " ~ C(" + c + ", Helmert)", data=df_final)
+        mod = ols(dep_var + " ~ " + ind_vars_no_contrast_var + " + C(" + c + ", Helmert)", data=df_final)
         res = mod.fit()
-        print("Helmert Coding: Our version of Helmert coding is sometimes referred to as Reverse Helmert Coding. The mean of the dependent variable for a level is compared to the mean of the dependent variable over all previous levels. Hence, the name ‘reverse’ being sometimes applied to differentiate from forward Helmert coding.")
+        print("\n\nHelmert Coding: Our version of Helmert coding is sometimes referred to as Reverse Helmert Coding. The mean of the dependent variable for a level is compared to the mean of the dependent variable over all previous levels. Hence, the name ‘reverse’ being sometimes applied to differentiate from forward Helmert coding.")
         print(res.summary())
-        print()
-        print("***********************************************************************************************************")
-        print()
 
 def regularizing():
     if r== ("L1" or "Lasso" or "l1" or "lasso"):
