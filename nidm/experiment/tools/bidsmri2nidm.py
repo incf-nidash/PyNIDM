@@ -29,7 +29,7 @@
 import sys, getopt, os
 
 from nidm.experiment import Project,Session,MRAcquisition,AcquisitionObject,DemographicsObject, AssessmentAcquisition, \
-    AssessmentObject,MRObject
+    AssessmentObject,MRObject,Acquisition
 from nidm.core import BIDS_Constants,Constants
 
 from prov.model import PROV_LABEL,PROV_TYPE, ProvInfluence
@@ -200,7 +200,7 @@ def addimagingsessions(bids_layout,subject_id,session,participant, directory,img
     :param img_session:
     :return:
     '''
-    for file_tpl in bids_layout.get(subject=subject_id, session=img_session, extensions=['.nii', '.nii.gz']):
+    for file_tpl in bids_layout.get(subject=subject_id, session=img_session, extension=['.nii', '.nii.gz']):
         # create an acquisition activity
         acq=MRAcquisition(session)
 
@@ -343,9 +343,9 @@ def addimagingsessions(bids_layout,subject_id,session,participant, directory,img
                             acq_obj.add_attributes({BIDS_Constants.json_keys[key.replace(" ", "_")]:json_data.info[key]})
             # get associated events TSV file
             if 'run' in file_tpl.entities:
-                events_file = bids_layout.get(subject=subject_id, extensions=['.tsv'],modality=file_tpl.entities['datatype'],task=file_tpl.entities['task'],run=file_tpl.entities['run'])
+                events_file = bids_layout.get(subject=subject_id, extension=['.tsv'],modality=file_tpl.entities['datatype'],task=file_tpl.entities['task'],run=file_tpl.entities['run'])
             else:
-                events_file = bids_layout.get(subject=subject_id, extensions=['.tsv'],modality=file_tpl.entities['datatype'],task=file_tpl.entities['task'])
+                events_file = bids_layout.get(subject=subject_id, extension=['.tsv'],modality=file_tpl.entities['datatype'],task=file_tpl.entities['task'])
             # if there is an events file then this is task-based so create an acquisition object for the task file and link
             if events_file:
                 #for now create acquisition object and link it to the associated scan
@@ -610,7 +610,7 @@ def bidsmri2project(directory, args):
 
                  # if there's a JSON sidecar file then create an entity and associate it with all the assessment entities
                 if os.path.isfile(os.path.join(directory,'participants.json')):
-                    json_sidecar = AssessmentObject(acquisition=acq)
+                    json_sidecar = AcquisitionObject(acquisition=acq)
                     json_sidecar.add_attributes({PROV_TYPE:QualifiedName(Namespace("bids",Constants.BIDS),"sidecar_file"), Constants.NIDM_FILENAME:
                         getRelPathToBIDS(os.path.join(directory,'participants.json'),directory)})
 
@@ -799,7 +799,7 @@ def bidsmri2project(directory, args):
                         if os.path.isfile(data_dict):
                             # if file exists, create a new entity and associate it with the appropriate activity  and a used relationship
                             # with the TSV-related entity
-                            json_entity = AssessmentObject(acquisition=acq)
+                            json_entity = AcquisitionObject(acquisition=acq)
                             json_entity.add_attributes({PROV_TYPE:Constants.BIDS["sidecar_file"], Constants.NIDM_FILENAME:
                                 getRelPathToBIDS(data_dict,directory)})
 

@@ -1,9 +1,11 @@
 from nidm.core import Constants
 from nidm.experiment.Query import OpenGraph, URITail, trimWellKnownURIPrefix, getDataTypeInfo, ACQUISITION_MODALITY, \
     IMAGE_CONTRAST_TYPE, IMAGE_USAGE_TYPE, TASK, expandUUID, matchPrefix
-from rdflib import Graph, RDF, URIRef, util, term
+from rdflib import Graph, RDF, URIRef, util, term, Literal
 import functools
 import collections
+import nidm.experiment.CDE
+from nidm.experiment.Utils import validate_uuid
 
 
 isa = URIRef('http://www.w3.org/1999/02/22-rdf-syntax-ns#type')
@@ -11,8 +13,8 @@ isPartOf = Constants.DCT['isPartOf']
 ValueType = collections.namedtuple('ValueType',
                                    ['value', 'label', 'datumType', 'hasUnit', 'isAbout', 'measureOf', 'hasLaterality', 'dataElement', 'description', 'subject', 'project'])
 ActivityData = collections.namedtuple('ActivityData', ['category', 'uuid', 'data'])
-QUERY_CACHE_SIZE=64
-BIG_CACHE_SIZE=256
+QUERY_CACHE_SIZE=0
+BIG_CACHE_SIZE=0
 
 def makeValueType(value=None, label=None, datumType=None, hasUnit=None, isAbout=None, measureOf=None, hasLaterality=None, dataElement=None, description=None, subject=None, project=None):
     return ValueType(str(value), str(label), str(datumType), str(hasUnit), str(isAbout), str(measureOf), str(hasLaterality), str(dataElement), str(description), str(subject), str(project))
@@ -147,6 +149,19 @@ def getSubjects(nidm_file_tuples, project_id):
     return subjects
 
 @functools.lru_cache(maxsize=QUERY_CACHE_SIZE)
+def getSubjectUUIDsfromID(nidm_file_tuples, sub_id):
+    uuids = []
+    for file in nidm_file_tuples:
+        rdf_graph = OpenGraph(file)
+
+        result = rdf_graph.triples((None, Constants.NDAR['src_subject_id'], None))
+        for (s,p,o) in result:
+            if str(o) == str(sub_id):
+                uuids.append( URITail(s) )
+
+    return uuids
+
+@functools.lru_cache(maxsize=QUERY_CACHE_SIZE)
 def getSubjectIDfromUUID(nidm_file_tuples, subject_uuid):
     for file in nidm_file_tuples:
         rdf_graph = OpenGraph(file)
@@ -156,16 +171,29 @@ def getSubjectIDfromUUID(nidm_file_tuples, subject_uuid):
     return None
 
 @functools.lru_cache(maxsize=QUERY_CACHE_SIZE)
+def normalizeSingleSubjectToUUID(nidm_file_tuples, id):
+    if len(getSubjectUUIDsfromID(nidm_file_tuples, id)) > 0:
+        return getSubjectUUIDsfromID(nidm_file_tuples, id)[0]
+    return id
+
+@functools.lru_cache(maxsize=QUERY_CACHE_SIZE)
 def getActivities(nidm_file_tuples, subject_id):
     activities = set([])
-    subject_uri = expandID(subject_id, Constants.NIIRI)
+
+    # if we were passed in a sub_id rather than a UUID, lookup the associated UUID. (we might get multiple!)
+    if validate_uuid(URITail(subject_id)):
+        sub_uris = [subject_id]
+    else:
+        sub_uris = getSubjectUUIDsfromID(nidm_file_tuples, subject_id)
 
     for file in nidm_file_tuples:
         rdf_graph = OpenGraph(file)
-        for blank_node in rdf_graph.subjects( predicate=Constants.PROV['agent'], object=subject_uri):
-            for activity in rdf_graph.subjects(predicate=Constants.PROV['qualifiedAssociation'], object=blank_node):
-                if (activity, isa, Constants.PROV['Activity']) in rdf_graph:
-                    activities.add(activity)
+        for subject_uri in sub_uris:
+            subject_uri = expandID(subject_uri, Constants.NIIRI)
+            for blank_node in rdf_graph.subjects(predicate=Constants.PROV['agent'], object=subject_uri):
+                for activity in rdf_graph.subjects(predicate=Constants.PROV['qualifiedAssociation'], object=blank_node):
+                    if (activity, isa, Constants.PROV['Activity']) in rdf_graph:
+                        activities.add(activity)
     return activities
 
 @functools.lru_cache(maxsize=QUERY_CACHE_SIZE)
@@ -277,5 +305,111 @@ def GetProjectAttributes(nidm_files_tuple, project_id):
     result[IMAGE_CONTRAST_TYPE] = list(result[IMAGE_CONTRAST_TYPE])
     result[IMAGE_USAGE_TYPE] = list(result[IMAGE_USAGE_TYPE])
     result[TASK] = list(result[TASK])
+
+    return result
+
+@functools.lru_cache(maxsize=BIG_CACHE_SIZE)
+def GetAllPredicates(nidm_files_tuple):
+    pred_set = set()
+    for file in nidm_files_tuple:
+        rdf_graph = OpenGraph(file)
+        predicates = rdf_graph.predicates()
+        for p in predicates:
+            pred_set.add(p)
+    return pred_set
+
+
+@functools.lru_cache(maxsize=QUERY_CACHE_SIZE)
+def GetDataelements(nidm_files_tuple):
+    result = {"data_elements": {"uuid": [], "label": [], "data_type_info": []}}
+    found_uris = set()
+
+    for file in nidm_files_tuple:
+        rdf_graph = OpenGraph(file)
+        #find all the datatypes
+        for de_uri in rdf_graph.subjects(predicate=isa, object=Constants.NIDM['DataElement']):
+            if de_uri not in found_uris:  # don't add duplicates
+                dti = getDataTypeInfo(rdf_graph, de_uri)
+                result['data_elements']['uuid'].append(str(dti['dataElementURI']))
+                result['data_elements']['label'].append(str(dti['label']))
+                result['data_elements']['data_type_info'].append( dti )
+                found_uris.add(de_uri)
+
+    # now look for any of the CDEs
+    all_predicates = GetAllPredicates(nidm_files_tuple)
+    cde_graph = nidm.experiment.CDE.getCDEs()
+    cde_types = cde_graph.subjects(predicate=Constants.RDFS['subClassOf'], object=Constants.NIDM['DataElement'])
+    cde_type_set = set() # i.e. fs:DataElement
+    known_cde_types = set() # i.e. fs_003579
+    for t in cde_types:
+        cde_type_set.add(t)
+        for s in cde_graph.subjects(predicate=isa, object=t):
+            known_cde_types.add(s)
+
+
+    for predicate in all_predicates:
+        if predicate in known_cde_types:
+            dti = getDataTypeInfo(cde_graph, predicate)
+            result['data_elements']['uuid'].append(str(dti['dataElementURI']))
+            result['data_elements']['label'].append(str(dti['label']))
+            result['data_elements']['data_type_info'].append(dti)
+
+    return result
+
+
+def GetDataelementDetails(nidm_files_tuple, dataelement):
+    result = {}
+
+    for file in nidm_files_tuple:
+        rdf_graph = OpenGraph(file)
+        for de_uri in rdf_graph.subjects(predicate=isa, object=Constants.NIDM['DataElement']):
+            dti = getDataTypeInfo(rdf_graph, de_uri)
+
+            # check if this is the correct one
+            if not (dataelement in [ str(dti['label']), str(dti['dataElement']), str(dti['dataElementURI']) ] ):
+                continue
+
+            for key in dti.keys():
+                result[key] = dti[key]
+            result['inProjects'] = set()
+
+            # figure out what project the dataelement was used in
+            uri = dti["dataElementURI"]
+
+            a_list = rdf_graph.subjects(predicate=uri)
+            for a in a_list: # a is an assessment / AcquisitionObject
+                b_list = rdf_graph.objects(subject=a, predicate=Constants.PROV['wasGeneratedBy'])
+                for b in b_list: # b is an Acquisition / Activity
+                    c_list = rdf_graph.objects(subject=b, predicate=Constants.DCT['isPartOf'])
+                    for c in c_list: # c is a session
+                        d_list = rdf_graph.objects(subject=c, predicate=Constants.DCT['isPartOf'])
+                        for d in d_list: # d is most likely a project
+                            if d in rdf_graph.subjects(predicate=isa, object=Constants.NIDM['Project']):
+                                result['inProjects'].add("{} ({})".format(str(d), file))
+
+            return result # found it, we are done
+
+
+    if result == {}:  # didn't find it yet, check the CDEs
+        cde_graph = nidm.experiment.CDE.getCDEs()
+        for de_uri in cde_graph.subjects(predicate=isa):
+            dti = getDataTypeInfo(cde_graph, de_uri)
+
+            # check if this is the correct one
+            if not (dataelement in [str(dti['label']), str(dti['dataElement']), str(dti['dataElementURI'])]):
+                continue
+
+            for key in dti.keys():
+                result[key] = dti[key]
+            result['inProjects'] = set()
+            result['inProjects'].add("Common Data Element")
+
+            for file in nidm_files_tuple:
+                rdf_graph = OpenGraph(file)
+                if result['dataElementURI'] in rdf_graph.predicates():
+                    result['inProjects'].add(file)
+
+
+            return result # found it, we are done
 
     return result

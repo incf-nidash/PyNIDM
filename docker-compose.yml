@@ -1,0 +1,8 @@
+version: "3.6"
+services:
+  blazegraph:
+    build:
+      context: .
+      dockerfile: Dockerfile-blazegraph
+    ports:
+      - "192.168.56.101:9999:9999"

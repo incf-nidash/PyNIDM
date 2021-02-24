@@ -28,20 +28,22 @@
 #
 #**************************************************************************************
 #**************************************************************************************
-import os,sys
+import sys
 import rdflib
 from rdflib import Graph, URIRef, util
 import pandas as pd
 import logging
 from nidm.core import Constants
+import nidm.experiment.CDE
 import re
 import tempfile
-from os import path
+from os import path, environ
 import functools
 import hashlib
-from urllib.request import urlretrieve
-
 import pickle
+import requests
+import json
+
 
 from joblib import Memory
 memory = Memory(tempfile.gettempdir(), verbose=0 )
@@ -64,6 +66,28 @@ def sparql_query_nidm(nidm_file_list,query, output_file=None, return_graph=False
     :param return_graph: WIP - not working right now but for some queries we prefer to return a graph instead of a dataframe
     :return: dataframe | graph depending on return_graph parameter
     '''
+
+
+
+    if 'BLAZEGRAPH_URL' in environ.keys():
+        try:
+            # first make sure all files are loaded into blazegraph
+            for nidm_file in nidm_file_list:
+                OpenGraph(nidm_file)
+            logging.debug("Sending sparql to blazegraph: %s", query )
+            r2 = requests.post(url=environ['BLAZEGRAPH_URL'], params={'query': query}, headers={'Accept': 'application/sparql-results+json'})
+            content = json.loads( r2.content )
+            columns = {}
+            for key in content["head"]['vars']:
+                columns[key] = [x[key]['value'] for x in content['results']['bindings']]
+            df = pd.DataFrame(data=columns)
+            if (output_file is not None):
+                df.to_csv(output_file)
+            return df
+
+        except Exception as e:
+            print("Exception while communicating with blazegraph at {}: {}".format(environ['BLAZEGRAPH_URL'],e))
+
 
     #query result list
     results = []
@@ -144,9 +168,9 @@ def GetProjectsUUID(nidm_file_list,output_file=None):
 
         }
     '''
-    df = sparql_query_nidm(nidm_file_list,query, output_file=output_file)
+    df = sparql_query_nidm(nidm_file_list, query, output_file=output_file)
 
-    return df['uuid'].tolist()
+    return df['uuid'] if type(df['uuid']) == list else df['uuid'].tolist()
 
 def testprojectmeta(nidm_file_list):
 
@@ -212,6 +236,26 @@ def GetProjectSessionsMetadata(nidm_file_list, project_uuid):
 
     return json.dumps(output_json)
 
+def GetDataElementProperties(nidm_file_list):
+    """
+    This function will return a dictionary of data element properties for data_element_uuid
+    :param nidm_file_list:
+    :param data_element_uuid:
+    :return:
+    """
+
+    query='''
+
+        select distinct ?uuid ?DataElements ?property ?value
+            where {
+
+                ?uuid a/rdfs:subClassOf* nidm:DataElement ;
+                    ?property ?value .
+
+            }'''
+
+    df = sparql_query_nidm(nidm_file_list.split(','), query, output_file=None)
+    return df
 
 def GetProjectInstruments(nidm_file_list, project_id):
     """
@@ -298,7 +342,6 @@ def GetParticipantIDs(nidm_file_list,output_file=None):
         PREFIX sio: <http://semanticscience.org/ontology/sio.owl#>
         PREFIX ndar: <https://ndar.nih.gov/api/datadictionary/v2/dataelement/>
         PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-        PREFIX prov:<http://www.w3.org/ns/prov#>
 
         SELECT DISTINCT ?uuid ?ID
         WHERE {
@@ -450,11 +493,11 @@ def GetParticipantInstrumentDataCached(nidm_file_list: tuple ,project_id, partic
 
     return result
 
-def GetParticipantUUIDsForProject(nidm_file_list: tuple, project_id, filter, output_file=None):
-    return GetParticipantUUIDsForProjectCached(tuple(nidm_file_list), project_id, filter, output_file=None)
+def GetParticipantUUIDsForProject(nidm_file_list: tuple, project_id, filter=None, output_file=None):
+    return GetParticipantUUIDsForProjectCached(tuple(nidm_file_list), project_id, filter, output_file)
 
 @functools.lru_cache(maxsize=QUERY_CACHE_SIZE)
-def GetParticipantUUIDsForProjectCached(nidm_file_list:tuple, project_id, filter, output_file=None):
+def GetParticipantUUIDsForProjectCached(nidm_file_list:tuple, project_id, filter=None, output_file=None):
     '''
     This query will return a list of all prov:agent entity UUIDs within a single project
     that prov:hadRole sio:Subject or Constants.NIDM_PARTICIPANT
@@ -497,14 +540,15 @@ def GetParticipantUUIDsForProjectCached(nidm_file_list:tuple, project_id, filter
 
                                     ### added by DBK for subject IDs as well ###
                                     #participants.append(uuid)
-                                    try:
-                                        participants['uuid'].append(uuid)
-                                        participants['subject id'].append(subid)
-                                    # just in case there's no subject id in the file...
-                                    except:
-                                        #participants.append(uuid)
-                                        participants['uuid'].append(uuid)
-                                        participants['subject id'].append('')
+                                    if ( not uuid in participants['uuid'] ):
+                                        try:
+                                            participants['uuid'].append(uuid)
+                                            participants['subject id'].append(subid)
+                                        # just in case there's no subject id in the file...
+                                        except:
+                                            #participants.append(uuid)
+                                            participants['uuid'].append(uuid)
+                                            participants['subject id'].apend('')
 
     return participants
 
@@ -553,10 +597,16 @@ def GetDatatypeSynonyms(nidm_file_list, project_id, datatype):
     :param datatype:
     :return:
     '''
+    if datatype.startswith("instruments."):
+        datatype = datatype[12:]
+    if datatype.startswith("derivatives."):
+        datatype = datatype[12:]
     project_data_elements = GetProjectDataElements(nidm_file_list, project_id)
     for dti in project_data_elements['data_type_info']:
-        if str(datatype) in [ str(x) for x in [dti['label'], dti['datumType'], dti['measureOf'], URITail(dti['measureOf']), dti['isAbout'], URITail(dti['isAbout']), dti['dataElement'], dti['dataElementURI'], dti['prefix']] ]:
-            return [str(dti['label']), str(dti['datumType']), str(dti['measureOf']), URITail(dti['measureOf']), str(dti['isAbout']), str(dti['dataElement']), str(dti['dataElementURI']), str(dti['prefix'])]
+        if str(datatype) in [ str(x) for x in [dti['source_variable'], dti['label'], dti['datumType'], dti['measureOf'], URITail(dti['measureOf']), dti['isAbout'], URITail(dti['isAbout']), dti['dataElement'], dti['dataElementURI'], dti['prefix']] ]:
+            all_synonyms = set([str(dti['source_variable']), str(dti['label']), str(dti['datumType']), str(dti['measureOf']), URITail(dti['measureOf']), str(dti['isAbout']), str(dti['dataElement']), str(dti['dataElementURI'])] )
+            all_synonyms.remove("")  # remove the empty string in case that is in there
+            return list(all_synonyms)
     return [datatype]
 
 def GetProjectDataElements(nidm_file_list, project_id):
@@ -679,10 +729,17 @@ def CheckSubjectMatchesFilter(nidm_file_list, project_uuid, subject_uuid, filter
             if value[0] == quote and value[-1] == quote:
                 value = value[1:-1]
 
-
         sub_pieces = splitSubject(compound_sub)
-        if len(sub_pieces) == 2 and sub_pieces[0] == 'instruments':
-            term = sub_pieces[1] # 'AGE_AT_SCAN' for example
+
+        # figure out what we are filtering on
+        term = None
+        if len(sub_pieces) == 1:
+            # no instruments or derivatives prefix was entered, so test in both
+            term = sub_pieces[0]
+
+        if (len(sub_pieces) == 2 and sub_pieces[0] == 'instruments') or len(sub_pieces) == 1:
+            if len(sub_pieces) == 2:
+                term = sub_pieces[1] # 'AGE_AT_SCAN' for example
             synonyms = GetDatatypeSynonyms(tuple(nidm_file_list), project_uuid, term)
             instrument_details = GetParticipantInstrumentData(nidm_file_list, project_uuid, subject_uuid)
             for instrument_uuid in instrument_details:
@@ -692,20 +749,18 @@ def CheckSubjectMatchesFilter(nidm_file_list, project_uuid, subject_uuid, filter
                     if found_match:
                         break
 
-        elif len(sub_pieces) == 2 and sub_pieces[0] == 'derivatives':
-            type = sub_pieces[1] # 'ilx:0102597' for example
+        if (len(sub_pieces) == 2 and sub_pieces[0] == 'derivatives') or len(sub_pieces) == 1:
+            if len(sub_pieces) == 2:
+                term = sub_pieces[1] # 'ilx:0102597' for example
             derivatives_details = GetDerivativesDataForSubject(nidm_file_list, project_uuid, subject_uuid)
             for key in derivatives_details:
                 derivatives = derivatives_details[key]['values']
                 for vkey in derivatives:  # values will be in the form { http://example.com/a/b/c#fs_00001 : { datumType: '', label: '', value: '', units:'' }, ... }
                     short_key = URITail(vkey)
-                    if short_key == type:
+                    if short_key == term:
                         found_match = filterCompare(derivatives[vkey]['value'], op, value)
                     if found_match:
                         break
-
-
-
 
         # check after each test if we got false because the tests are joined with 'and'
         if not found_match:
@@ -755,16 +810,16 @@ def GetProjectsMetadata(nidm_file_list):
     return {'projects': compressForJSONResponse(projects)}
 
 
-def GetProjectsComputedMetadata(nidm_file_list):
-    '''
-     :param nidm_file_list: List of one or more NIDM files to query across for list of Projects
-    :return: dataframe with two columns: "project_uuid" and "project_dentifier"
-    '''
-
-    meta_data = GetProjectsMetadata(nidm_file_list)
-    ExtractProjectSummary(meta_data, nidm_file_list)
-
-    return compressForJSONResponse(meta_data)
+# def GetProjectsComputedMetadata(nidm_file_list):
+#     '''
+#      :param nidm_file_list: List of one or more NIDM files to query across for list of Projects
+#     :return: dataframe with two columns: "project_uuid" and "project_dentifier"
+#     '''
+#
+#     meta_data = GetProjectsMetadata(nidm_file_list)
+#     ExtractProjectSummary(meta_data, nidm_file_list)
+#
+#     return compressForJSONResponse(meta_data)
 
 def GetDataElements(nidm_file_list):
 
@@ -871,74 +926,6 @@ def GetBrainVolumes(nidm_file_list):
     df = sparql_query_nidm(nidm_file_list.split(','), query, output_file=None)
     return df
 
-
-
-def ExtractProjectSummary(meta_data, nidm_file_list):
-    '''
-
-    :param meta_data: a dictionary of projects containing their meta data as pulled from the nidm_file_list
-    :param nidm_file_list: List of NIDM files
-    :return:
-    '''
-    query = '''
-    prefix ncicb: <http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#>
-    prefix ndar: <https://ndar.nih.gov/api/datadictionary/v2/dataelement/>
-    prefix obo: <http://purl.obolibrary.org/obo/>
-    prefix dct: <http://purl.org/dc/terms/>
-    prefix prov: <http://www.w3.org/ns/prov#>
-    prefix nidm: <http://purl.org/nidash/nidm#>
-
-    SELECT DISTINCT ?id ?person ?age ?gender ?hand ?assessment ?acq ?session ?project
-    WHERE {
-      # Added by DBK to support new data element format
-      {?age_measure a nidm:DataElement ;
-					nidm:isAbout ncicb:Age .}
-	  {?gender_measure a nidm:DataElement ;
-					nidm:isAbout ndar:gender .}
-	  {?handedness_measure a nidm:DataElement ;
-					nidm:isAbout obo:handedness .}
-      OPTIONAL { ?assessment ?age_measure ?age } .
-      OPTIONAL { ?assessment ?gender_measure ?gender } .
-      OPTIONAL { ?assessment ?handedness_measure ?hand } .
-      ?person ndar:src_subject_id ?id .
-      ?acq prov:qualifiedAssociation _:blank .
-      _:blank prov:hadRole sio:Subject .
-      _:blank prov:agent ?person .
-      ?assessment prov:wasGeneratedBy ?acq .
-      ?acq dct:isPartOf ?session .
-      ?session dct:isPartOf ?project .
-      ?project a nidm:Project
-    }
-    ORDER BY ?id
-      '''
-
-    df = sparql_query_nidm(nidm_file_list, query, output_file=None)
-    projects = meta_data['projects']
-
-    arr = df.values
-    key = str(Constants.NIDM_NUMBER_OF_SUBJECTS)
-    for project_id, project in projects.items():
-        project[key] = 0
-        project['age_max'] = 0
-        project['age_min'] = sys.maxsize
-        project[str(Constants.NIDM_GENDER)] = []
-        project[str(Constants.NIDM_HANDEDNESS)] = []
-
-    for row in arr:
-        project_id = matchPrefix( str(row[8]) ) # 9th column is the project UUID
-        projects[project_id][str(Constants.NIDM_NUMBER_OF_SUBJECTS)] += 1
-
-        age = float(row[2])
-        projects[project_id]['age_min'] = min(age, projects[project_id]['age_min'])
-        projects[project_id]['age_max'] = max(age, projects[project_id]['age_max'])
-
-        gender = str(row[3])
-        if gender not in projects[project_id][str(Constants.NIDM_GENDER)]:
-            projects[project_id][str(Constants.NIDM_GENDER)].append(gender)
-
-        hand = str(row[4])
-        if hand not in projects[project_id][str(Constants.NIDM_HANDEDNESS)]:
-            projects[project_id][str(Constants.NIDM_HANDEDNESS)].append(hand)
 
 
 def expandNIDMAbbreviation(shortKey) -> str:
@@ -1063,7 +1050,7 @@ def getDataTypeInfo(source_graph, datatype):
     if source_graph and  (expanded_datatype, isa, Constants.NIDM['DataElement']) in source_graph:
         rdf_graph = source_graph
     else:
-        rdf_graph = getCDEs()
+        rdf_graph = nidm.experiment.CDE.getCDEs()
 
     typeURI = ''
     hasUnit = ''
@@ -1073,6 +1060,7 @@ def getDataTypeInfo(source_graph, datatype):
     isAbout = ''
     structure = ''
     prefix = ''
+    source_variable = ''
 
     found = False
 
@@ -1082,6 +1070,8 @@ def getDataTypeInfo(source_graph, datatype):
         found = True
         if (re.search(r'label$', str(p)) != None):
             label = o
+        if (re.search(r'source_variable$', str(p)) != None):
+            source_variable = o
         if (re.search(r'description$', str(p)) != None):
             description = o
         if (re.search(r'hasUnit$', str(p), flags=re.IGNORECASE) != None):
@@ -1102,7 +1092,8 @@ def getDataTypeInfo(source_graph, datatype):
         return False
     else:
         return {'label': label, 'hasUnit': hasUnit, 'datumType': typeURI, 'measureOf': measureOf, 'isAbout': isAbout,
-                'dataElement': str(URITail(s)), 'dataElementURI': str(s), 'description': description, 'prefix': prefix }
+                'dataElement': str(URITail(s)), 'dataElementURI': s, 'description': description, 'prefix': prefix,
+                'source_variable': source_variable}
 
 def getStatsCollectionForNode (rdf_graph, derivatives_node):
 
@@ -1130,9 +1121,22 @@ def OpenGraph(file):
     :param file: filename
     :return: Graph
     '''
+
     # if someone passed me a RDF graph rather than a file, just send it back
     if isinstance(file, rdflib.graph.Graph):
         return file
+
+
+    # If we have a Blazegraph instance, load the data then do the rest
+    if 'BLAZEGRAPH_URL' in environ.keys():
+        try:
+            f = open(file)
+            data = f.read()
+            logging.debug("Sending {} to blazegraph".format(file))
+            r = requests.post(url=environ['BLAZEGRAPH_URL'], data=data, headers={'Content-type': 'application/x-turtle'})
+        except Exception as e:
+            logging.error("Exception {} loading {} into Blazegraph.".format(e, file))
+
 
     BLOCKSIZE = 65536
     hasher = hashlib.md5()
@@ -1205,13 +1209,12 @@ def getSoftwareAgents(rdf_graph):
     return agents
 
 def download_cde_files():
-    cde_dir = tempfile.gettempdir()
+        cde_dir = tempfile.gettempdir()
 
-    for url in Constants.CDE_FILE_LOCATIONS:
-        urlretrieve( url, "{}/{}".format(cde_dir, url.split('/')[-1] ) )
+        for url in Constants.CDE_FILE_LOCATIONS:
+            urlretrieve(url, "{}/{}".format(cde_dir, url.split('/')[-1]))
 
-    return cde_dir
-
+        return cde_dir
 
 def getCDEs(file_list=None):
 
@@ -1243,6 +1246,7 @@ def getCDEs(file_list=None):
         if (not cde_dir):
             cde_dir = download_cde_files()
 
+        # TODO: the list of file names should be it's own constant or derived from CDE_FILE_LOCATIONS
         file_list = [ ]
         for f in ['ants_cde.ttl', 'fs_cde.ttl', 'fsl_cde.ttl']:
             fname = '{}/{}'.format(cde_dir, f)
