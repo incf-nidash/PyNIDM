@@ -54,7 +54,7 @@ from patsy.contrasts import ContrastMatrix
 from patsy.contrasts import Sum
 from patsy.contrasts import Diff
 from patsy.contrasts import Helmert
-MAX_ALPHA = 3
+MAX_ALPHA = 700
 #Defining the parameters of the commands.
 @cli.command()
 @click.option("--nidm_file_list", "-nl", required=True,
@@ -116,12 +116,42 @@ def data_aggregation(): #all data from all the files is collected
             # join the independent variables into a comma-separated list to make it easier to call from the uri
             global ind_vars #used in dataparsing()
             ind_vars = ""
+            """in the following code, we are checking for spelling mistakes in the independent variables before appending them
+            to the necessary lists for processing"""
             for i in range(len(model_list)-1, 0, -1):
-                full_model_variable_list.append(model_list[i]) #will be used in the regularization, but we need the full list
-                if "*" in model_list[i]: #removing the star term from the columns we're about to pull from data
-                    model_list.pop(i)
-                else:
+                if (model_list[i] == "age") or (model_list[i] == "sex") or (model_list[i] == "group"):
                     ind_vars = ind_vars + model_list[i] + ","
+                    full_model_variable_list.append(model_list[i]) #will be used in the regularization, but we need the full list
+                elif "*" in model_list[i]: #removing the star term from the columns we're about to pull from data
+                    if (model_list[i] == "age*sex") or (model_list[i] == "age*group") or (model_list[i] == "sex*age") or (model_list[i] == "sex*group" or (model_list[i] == "group*age") or (model_list[i] == "group*sex")):
+                        full_model_variable_list.append(model_list[i])
+                        model_list.pop(i)
+                    else:
+                        if ("a" in model_list[i]) and ("s" in model_list[i]):
+                            full_model_variable_list.append("age*sex")
+                            model_list.pop(i)
+                        elif ("a" in model_list[i]) and ("gr" in model_list[i]):
+                            full_model_variable_list.append("age*group")
+                            model_list.pop(i)
+                        elif ("s" in model_list[i]) and ("gr" in model_list[i]):
+                            full_model_variable_list.append("sex*group")
+                            model_list.pop(i)
+                        else:
+                            print("Invalid query parameter. Please check spelling.")
+                            exit(1)
+                else: #fixing the input so if there is a spelling mistake, it catches it and fixes it
+                    if "a" in model_list[i]:
+                        ind_vars = ind_vars + "age" + ","
+                        full_model_variable_list.append("age")
+                    elif "s" in model_list[i]:
+                        ind_vars = ind_vars + "sex" + ","
+                        full_model_variable_list.append("sex")
+                    elif "gr" in model_list[i]:
+                        ind_vars = ind_vars + "group" + ","
+                        full_model_variable_list.append("group")
+                    else:
+                        print("Invalid query parameter. Please check spelling.")
+                        exit(1)
             ind_vars = ind_vars[0:len(ind_vars) - 1]
             uri = "/projects/" + project[0].toPython().split("/")[-1] + "?fields=" + ind_vars + "," + dep_var
             # get fields output from each file and concatenate
@@ -206,7 +236,16 @@ def dataparsing(): #The data is changed to a format that is usable by the linear
 
 def linreg(): #actual linear regression
     print("Model Results: ")
-    print(m) #prints model
+    #printing the corrected model_string
+    model_string = []
+    model_string.append(dep_var)
+    model_string.append(" ~ ")
+    for i in range(0, len(full_model_variable_list)):
+        model_string.append(full_model_variable_list[i])
+        model_string.append(" + ")
+    model_string.pop(-1)
+    model = ''.join(model_string)
+    print(model) #prints model
     print()
     print("***********************************************************************************************************")
     print()
@@ -226,16 +265,19 @@ def linreg(): #actual linear regression
     global X
     global y
     if "*" in m:
-        model_string = list(m)
+        #correcting the format of the model string
+        model_string = []
+        model_string.append(dep_var)
+        model_string.append(" ~ ")
+        for i in range(0,len(full_model_variable_list)):
+            model_string.append(full_model_variable_list[i])
+            model_string.append(" + ")
+        model_string.pop(-1)
         for i in range(0,len(model_string)):
-            if model_string[i] == "=":
-                model_string[i] = "~"
             if model_string[i] == "*":
                 model_string[i] = ":"
-                print("Done") #makes sure the model is in the right format.
+               #makes sure the model is in the right format.
         string = ''.join(model_string)
-        print(string)
-        print(df_final)
         y, X = dmatrices(string, df_final)
     else:
         X = df_final[independentvariables]  # gets the modified values of the independent variables
