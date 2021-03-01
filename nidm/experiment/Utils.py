@@ -4,6 +4,7 @@ import os,sys
 from rdflib import Namespace, Literal,RDFS
 from rdflib.namespace import XSD
 from rdflib.resource import Resource
+from rdflib.util import from_n3
 from urllib.parse import urlparse, urlsplit
 from rdflib import Graph, RDF, URIRef, util
 from rdflib.namespace import split_uri
@@ -389,7 +390,7 @@ def add_metadata_for_subject (rdf_graph,subject_uri,namespaces,nidm_obj):
                     # automatically by provDocument so they aren't accessible via the namespaces list
                     # so we check explicitly here
                     if ((obj_nm == str(Constants.PROV))):
-                        nidm_obj.add_attributes({predicate: Constants.PROV[obj_term]})
+                        nidm_obj.add_attributes({predicate: pm.QualifiedName(Constants.PROV,obj_term)})
                     elif ((obj_nm == str(Constants.NIDM))):
                         nidm_obj.add_attributes({predicate: pm.QualifiedName(Constants.NIDM,obj_term)})
                     else:
@@ -404,9 +405,12 @@ def add_metadata_for_subject (rdf_graph,subject_uri,namespaces,nidm_obj):
                 except:
                     nidm_obj.add_attributes({predicate: pm.QualifiedName(namespace=Namespace(str(objects)),localpart="")})
             else:
-
+                # check if this is a qname and if so expand it
+                # added to handle when a value is a qname.  this should expand it....
+                if (":" in objects) and isinstance(objects,URIRef):
+                    objects = from_n3(objects)
                 # check if objects is a url and if so store it as a URIRef else a Literal
-                if validators.url(objects):
+                if (validators.url(objects)):
                     obj_nm, obj_term = split_uri(objects)
                     nidm_obj.add_attributes({predicate : Identifier(objects)})
                 else:
