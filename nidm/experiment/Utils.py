@@ -914,7 +914,7 @@ def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_
             # check if json_source is a file
             if os.path.isfile(json_source):
                 # load file
-                with open(json_source,'r+') as f:
+                with open(json_source,'r') as f:
                     json_map = json.load(f)
             else:
                 print("ERROR: Can't open json mapping file: %s" %(json_source))
