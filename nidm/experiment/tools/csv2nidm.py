@@ -100,8 +100,17 @@ def main(argv):
         json_map = redcap_datadictionary_to_json(args.redcap, basename(args.csv_file))
     else:
         json_map = args.json_map
-    #open CSV file and load into
-    df = pd.read_csv(args.csv_file)
+    # open CSV file and load into
+    # DBK added to accomodate TSV files with tab separator 3/15/21
+    if args.csv_file.endswith(".csv"):
+        df = pd.read_csv(args.csv_file)
+    elif args.csv_file.endswith(".tsv"):
+        df = pd.read_csv(args.csv_file,sep='\t')
+    else:
+        print("ERROR: input file must have .csv (comma-separated) or .tsv (tab separated) extensions/"
+              "file types.  Please change your input file appropriately and re-run.")
+        print("no NIDM file created!")
+        exit(1)
     #temp = csv.reader(args.csv_file)
     #df = pd.DataFrame(temp)
 
