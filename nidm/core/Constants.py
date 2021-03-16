@@ -383,6 +383,7 @@ NIDM_MRI_T2_STAR = QualifiedName(provNamespace("nidm", NIDM),"T2StarWeighted")
 NIDM_MRI_DIFFUSION_TENSOR = QualifiedName(provNamespace("nidm", NIDM),"DiffusionTensor")
 NIDM_MRI_FLOW = QualifiedName(provNamespace("nidm", NIDM),"FlowWeighted")
 NIDM_MRI_BOLD_EVENTS = QualifiedName(provNamespace("nidm", NIDM),"StimulusResponseFile")
+NIDM_MRI_ASL = QualifiedName(provNamespace("nidm",NIDM),"ArterialSpinLabelingPerfusion")
 CRYPTO_SHA512  =QualifiedName(provNamespace("crypto", CRYPTO),"sha512")
 DATALAD_LOCATION = QualifiedName(provNamespace("datalad", DATALAD),"Location")
 ##############################################################################
