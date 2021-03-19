@@ -361,18 +361,21 @@ class Core(object):
 
 
 
-        #WIP: currently this creates a default JSON-LD context from Constants.py and not in the correct way from the
-        #NIDM-E OWL files that that will be the next iteration
+        # WIP: currently this creates a default JSON-LD context from Constants.py and not in the correct way from the
+        # NIDM-E OWL files that that will be the next iteration
         context1 = self.createDefaultJSONLDcontext()
-        #This part adds to the context any prefixes in an existing NIDM-E file that might have been added by a user
-        #and isn't covered by the default namespaces / constants in Constants.py
+        # This part adds to the context any prefixes in an existing NIDM-E file that might have been added by a user
+        # and isn't covered by the default namespaces / constants in Constants.py
         context2 = self.prefix_to_context()
         context = dict(context1, **context2)
 
-        #WIP: LOOK AT https://github.com/satra/nidm-jsonld
+        # WIP: LOOK AT https://github.com/satra/nidm-jsonld
         #return rdf_graph_parse.serialize(format='json-ld', context=context, indent=4).decode('ASCII')
         g=rdf_graph_parse.serialize(format='json-ld', indent=4).decode('ASCII')
+
+
         import pyld as ld
+
         return json.dumps(ld.jsonld.compact(json.loads(g), context),indent=4)
 
     def createDefaultJSONLDcontext(self):
