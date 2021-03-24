@@ -95,6 +95,8 @@ def read_nidm(nidmDoc):
     rdf_graph = Graph()
     rdf_graph_parse = rdf_graph.parse(nidmDoc,format=util.guess_format(nidmDoc))
 
+
+
     # add known CDE graphs
     #rdf_graph_parse = rdf_graph.parse
 
@@ -137,6 +139,7 @@ def read_nidm(nidmDoc):
         add_metadata_for_subject (rdf_graph_parse,proj_id,project.graph.namespaces,project)
 
 
+
     #Query graph for sessions, instantiate session objects, and add to project._session list
     #Get subject URI for sessions
     for s in rdf_graph_parse.subjects(predicate=RDF.type,object=URIRef(Constants.NIDM_SESSION.uri)):
@@ -152,7 +155,6 @@ def read_nidm(nidmDoc):
 
         #add session to project
         project.add_sessions(session)
-
 
         #now get remaining metadata in session object and add to session
         #Cycle through Session metadata adding to prov graph
@@ -325,6 +327,7 @@ def read_nidm(nidmDoc):
         add_metadata_for_subject(rdf_graph_parse, row['uuid'], project.graph.namespaces, derivobj)
 
 
+
     return(project)
 
 
@@ -390,9 +393,9 @@ def add_metadata_for_subject (rdf_graph,subject_uri,namespaces,nidm_obj):
                     # automatically by provDocument so they aren't accessible via the namespaces list
                     # so we check explicitly here
                     if ((obj_nm == str(Constants.PROV))):
-                        nidm_obj.add_attributes({predicate: pm.QualifiedName(Constants.PROV,obj_term)})
+                        nidm_obj.add_attributes({predicate: QualifiedName(Constants.PROV[obj_term])})
                     elif ((obj_nm == str(Constants.NIDM))):
-                        nidm_obj.add_attributes({predicate: pm.QualifiedName(Constants.NIDM,obj_term)})
+                        nidm_obj.add_attributes({predicate: QualifiedName(Constants.NIDM[obj_term])})
                     else:
                         found_uri = find_in_namespaces(search_uri=URIRef(obj_nm),namespaces=namespaces)
                         # if obj_nm is not in namespaces then it must just be part of some URI in the triple

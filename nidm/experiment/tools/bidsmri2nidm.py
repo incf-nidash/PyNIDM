@@ -27,7 +27,7 @@
 # **************************************************************************************
 
 import sys, getopt, os
-
+import bids
 from nidm.experiment import Project,Session,MRAcquisition,AcquisitionObject,DemographicsObject, AssessmentAcquisition, \
     AssessmentObject,MRObject,Acquisition
 from nidm.core import BIDS_Constants,Constants
@@ -44,7 +44,7 @@ import logging
 import csv
 import glob
 from argparse import ArgumentParser
-from bids import BIDSLayout
+
 #  Python program to find SHA256 hash string of a file
 import hashlib
 from io import StringIO
@@ -395,6 +395,69 @@ def addimagingsessions(bids_layout,subject_id,session,participant, directory,img
                     else:
                         acq_obj.add_attributes({BIDS_Constants.json_keys[key]:dataset[key]})
 
+        # DBK added for ASL support 3/16/21
+        # WIP: Waiting for pybids > 0.12.4 to support perfusion scans
+        elif file_tpl.entities['datatype'] == 'perf':
+            acq_obj = MRObject(acq)
+            # add image contrast type
+            if file_tpl.entities['suffix'] in BIDS_Constants.scans:
+                acq_obj.add_attributes(
+                    {Constants.NIDM_IMAGE_CONTRAST_TYPE: BIDS_Constants.scans[file_tpl.entities['suffix']]})
+            else:
+                logging.info(
+                    "WARNING: No matching image contrast type found in BIDS_Constants.py for %s" % file_tpl.entities[
+                        'suffix'])
+            # add image usage type
+            if file_tpl.entities['datatype'] in BIDS_Constants.scans:
+                acq_obj.add_attributes({Constants.NIDM_IMAGE_USAGE_TYPE: BIDS_Constants.scans["asl"]})
+            else:
+                logging.info(
+                        "WARNING: No matching image usage type found in BIDS_Constants.py for %s" % file_tpl.entities[
+                            'datatype'])
+            # make relative link to
+            acq_obj.add_attributes(
+                    {Constants.NIDM_FILENAME: getRelPathToBIDS(join(file_tpl.dirname, file_tpl.filename), directory)})
+            # add sha512 sum
+            if isfile(join(directory, file_tpl.dirname, file_tpl.filename)):
+                acq_obj.add_attributes(
+                        {Constants.CRYPTO_SHA512: getsha512(join(directory, file_tpl.dirname, file_tpl.filename))})
+            else:
+                logging.info(
+                        "WARNING file %s doesn't exist! No SHA512 sum stored in NIDM files..." % join(directory,
+                                                                                                      file_tpl.dirname,
+                                                                                                      file_tpl.filename))
+
+            # add git-annex/datalad info if exists
+            num_sources = addGitAnnexSources(obj=acq_obj, filepath=join(file_tpl.dirname, file_tpl.filename),
+                                                 bids_root=directory)
+
+            if num_sources == 0:
+                acq_obj.add_attributes(
+                        {Constants.PROV['Location']: "file:/" + join(file_tpl.dirname, file_tpl.filename)})
+
+            if 'run' in file_tpl.entities:
+                acq_obj.add_attributes({BIDS_Constants.json_keys["run"]: file_tpl.run})
+
+            # get associated JSON file if exists
+            json_data = (bids_layout.get(suffix=file_tpl.entities['suffix'], subject=subject_id))[0].metadata
+
+            if len(json_data.info) > 0:
+                for key in json_data.info.items():
+                    if key in BIDS_Constants.json_keys:
+                        if type(json_data.info[key]) is list:
+                            acq_obj.add_attributes({BIDS_Constants.json_keys[key.replace(" ", "_")]: ''.join(
+                                    str(e) for e in json_data.info[key])})
+                        else:
+                            acq_obj.add_attributes(
+                                    {BIDS_Constants.json_keys[key.replace(" ", "_")]: json_data.info[key]})
+
+            # check if separate M0 scan exists, if so add location and filename
+            # WIP, waiting for pybids > 0.12.4 to support...
+
+        # WIP support B0 maps...waiting for pybids > 0.12.4
+        # elif file_tpl.entities['datatype'] == 'fmap':
+
+
         elif file_tpl.entities['datatype'] == 'dwi':
             #do stuff with with dwi scans...
             acq_obj = MRObject(acq)
@@ -516,7 +579,8 @@ def bidsmri2project(directory, args):
 
 
     # get BIDS layout
-    bids_layout = BIDSLayout(directory)
+    bids.config.set_option('extension_initial_dot', True)
+    bids_layout = bids.BIDSLayout(directory)
 
 
     # create empty dictinary for sessions where key is subject id and used later to link scans to same session as demographics
