@@ -1631,9 +1631,12 @@ def DD_to_nidm(dd_struct):
 
                 cde_id = DD_UUID(key,dd_struct)
                 #cde_id = URIRef(niiri_ns + safe_string(item) + "_" + str(crc32hash))
-                g.add((cde_id,RDF.type, Constants.NIDM['DataElement']))
+                g.add((cde_id,RDF.type, Constants.NIDM['PersonalDataElement']))
                 g.add((cde_id,RDF.type, Constants.PROV['Entity']))
-
+                # DBK: 3/25/21 - added to connect nidm:PersonalDataElement to the more general nidm:DataElement as
+                # subclass to aid in queries
+                g.add((Constants.NIDM['PersonalDataElement'], Constants.RDFS['subClassOf'],
+                       Constants.NIDM['DataElement']))
 
         # this code adds the properties about the particular CDE into NIDM document
         for key, value in dd_struct[str(key_tuple)].items():
