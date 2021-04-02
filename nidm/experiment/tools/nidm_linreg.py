@@ -62,7 +62,7 @@ MAX_ALPHA = 700
 @click.option("-contrast", required=False,
               help="This parameter will show differences in relationship by group (e.g. -group age+sex, fs_003343).")
 @click.option("-model",
-                 help="This parameter will return the results of the linear regression from all nidm files supplied")
+                 help="This parameter will return the results of the linear regression from all nidm files supplied\nThe way this looks in the command is python3 nidm_linreg.py -nl MTdemog_aseg_v2.ttl -model \"fs_003343 = age*sex + sex + age + group + age*group + bmi\" -contrast group -r L1")
 @click.option("--output_file", "-o", required=False,
               help="Optional output file (CSV) to store results of query")
 @click.option("--regularization", "-r", required=False,
@@ -116,42 +116,12 @@ def data_aggregation(): #all data from all the files is collected
             # join the independent variables into a comma-separated list to make it easier to call from the uri
             global ind_vars #used in dataparsing()
             ind_vars = ""
-            """in the following code, we are checking for spelling mistakes in the independent variables before appending them
-            to the necessary lists for processing"""
             for i in range(len(model_list)-1, 0, -1):
-                if (model_list[i] == "age") or (model_list[i] == "sex") or (model_list[i] == "group"):
+                full_model_variable_list.append(model_list[i]) #will be used in the regularization, but we need the full list
+                if "*" in model_list[i]: #removing the star term from the columns we're about to pull from data
+                    model_list.pop(i)
+                else:
                     ind_vars = ind_vars + model_list[i] + ","
-                    full_model_variable_list.append(model_list[i]) #will be used in the regularization, but we need the full list
-                elif "*" in model_list[i]: #removing the star term from the columns we're about to pull from data
-                    if (model_list[i] == "age*sex") or (model_list[i] == "age*group") or (model_list[i] == "sex*age") or (model_list[i] == "sex*group" or (model_list[i] == "group*age") or (model_list[i] == "group*sex")):
-                        full_model_variable_list.append(model_list[i])
-                        model_list.pop(i)
-                    else:
-                        if ("a" in model_list[i]) and ("s" in model_list[i]):
-                            full_model_variable_list.append("age*sex")
-                            model_list.pop(i)
-                        elif ("a" in model_list[i]) and ("gr" in model_list[i]):
-                            full_model_variable_list.append("age*group")
-                            model_list.pop(i)
-                        elif ("s" in model_list[i]) and ("gr" in model_list[i]):
-                            full_model_variable_list.append("sex*group")
-                            model_list.pop(i)
-                        else:
-                            print("Invalid query parameter. Please check spelling.")
-                            exit(1)
-                else: #fixing the input so if there is a spelling mistake, it catches it and fixes it
-                    if "a" in model_list[i]:
-                        ind_vars = ind_vars + "age" + ","
-                        full_model_variable_list.append("age")
-                    elif "s" in model_list[i]:
-                        ind_vars = ind_vars + "sex" + ","
-                        full_model_variable_list.append("sex")
-                    elif "gr" in model_list[i]:
-                        ind_vars = ind_vars + "group" + ","
-                        full_model_variable_list.append("group")
-                    else:
-                        print("Invalid query parameter. Please check spelling.")
-                        exit(1)
             ind_vars = ind_vars[0:len(ind_vars) - 1]
             uri = "/projects/" + project[0].toPython().split("/")[-1] + "?fields=" + ind_vars + "," + dep_var
             # get fields output from each file and concatenate
@@ -182,6 +152,8 @@ def dataparsing(): #The data is changed to a format that is usable by the linear
     fieldcolumn = 0  # the column the variable name is in in the original dataset
     valuecolumn = 0  # the column the value is in in the original dataset
     datacolumn = 0  # if it is identified by the dataElement name instead of the field's name
+    not_found_list = []
+
     for i in range(len(data[0])):
         if data[0][i] == 'label':
             fieldcolumn = i  # finds the column where the variable names are
@@ -191,13 +163,46 @@ def dataparsing(): #The data is changed to a format that is usable by the linear
             datacolumn = i
     for i in range(len(condensed_data[0])):  # starts iterating through the dataset, looking for the name in that
         for j in range(1, len(data)):  # column, so it can append the values under the proper variables
-            if data[j][fieldcolumn] == condensed_data[0][i]:  # in the dataframe, the name is in column 3
-                condensed_data[numrows][i] = data[j][valuecolumn]  # in the dataframe, the value is in column 2
-                numrows = numrows + 1  # moves on to the next row to add the proper values
-            elif data[j][datacolumn] == condensed_data[0][i]:  # in the dataframe, the name is in column 9
-                condensed_data[numrows][i] = data[j][valuecolumn]  # in the dataframe, the value is in column 2
-                numrows = numrows + 1  # moves on to the next row to add the proper values
+            try:
+                if data[j][fieldcolumn] == condensed_data[0][i]:  # in the dataframe, the name is in column 3
+                    condensed_data[numrows][i] = data[j][valuecolumn]  # in the dataframe, the value is in column 2
+                    numrows = numrows + 1  # moves on to the next row to add the proper values
+                elif data[j][datacolumn] == condensed_data[0][i]:  # in the dataframe, the name is in column 9
+                    condensed_data[numrows][i] = data[j][valuecolumn]  # in the dataframe, the value is in column 2
+                    numrows = numrows + 1  # moves on to the next row to add the proper values
+            except IndexError:
+                numrows = numrows + 1
         numrows = 1  # resets to the first row for the next variable
+    rowsize = len(condensed_data[0])
+    count = 0
+    for i in range(0, rowsize):
+        for row in condensed_data:
+            if row[i]==0 or row[i]=="NaN" or row[i]=="0":
+                count = count + 1
+        if count>len(condensed_data)-2:
+            not_found_list.append(condensed_data[0][i])
+        count = 0
+    if len(not_found_list)>0:
+        print(
+            "***********************************************************************************************************")
+        print()
+        print("Your model was " + m)
+        print()
+        print("The following variables were not found. Try checking your spelling or use nidm_query.py to see other possible variables.")
+        if (o is not None):
+            f = open(o, "w")
+            f.write("Your model was " + m)
+            f.write("The following variables were not found. Try checking your spelling or use nidm_query.py to see other possible variables.")
+            f.close()
+        for i in range(0, len(not_found_list)):
+            print(str(i+1) + ". " + not_found_list[i])
+            if (o is not None):
+                f = open(o, "w")
+                f.write(str(i+1) + ". " + not_found_list[i])
+                f.close()
+        print()
+        exit(1)
+
     x = pd.read_csv(opencsv(condensed_data))  # changes the dataframe to a csv to make it easier to work with
     x.head()  # prints what the csv looks like
     x.dtypes  # checks data format
@@ -230,9 +235,12 @@ def dataparsing(): #The data is changed to a format that is usable by the linear
     print()
     if (o is not None):
         # concatenate data frames
-        df = pd.concat(df_list)
+        f = open(o,"w")
+        f.write(df_final)
+        f.write("Model Results: ")
+        f.close()
         # output to csv file
-        df.to_csv(o)
+        #df.to_csv(o)
 
 def linreg(): #actual linear regression
     print("Model Results: ")
@@ -292,27 +300,46 @@ def linreg(): #actual linear regression
         statistics = sm.OLS(y, X2)
         finalstats = statistics.fit()
         print(finalstats.summary())
-
+    if (o is not None):
+        # concatenate data frames
+        f = open(o,"w")
+        f.write(model)
+        f.write("\n***********************************************************************************************************\n")
+        f.write(finalstats.summary())
+        f.close()
 def contrasting():
     if c:
+        #to account for multiple contrast variables
+        contrastvars = []
+        if "," in c:
+            contrastvars = c.split(",")
         ind_vars_no_contrast_var = ''
         index = 1
         for var in full_model_variable_list:
-            if var != c:
+            if var != c and not(var in contrastvars):
                 if index == 1:
                     ind_vars_no_contrast_var = var
                     index += 1
                 else:
                     ind_vars_no_contrast_var = ind_vars_no_contrast_var + " + " + var
-
+        if len(contrastvars)>0:
+            contraststring = ' + '.join(contrastvars)
+        else:
+            contraststring=c
         # With contrast (treatment coding)
         print("\n\nTreatment (Dummy) Coding: Dummy coding compares each level of the categorical variable to a base reference level. The base reference level is the value of the intercept.")
         ctrst = Treatment(reference=0).code_without_intercept(levels)
-        mod = ols(dep_var + " ~ " + ind_vars_no_contrast_var + " + C(" + c + ", Treatment)", data=df_final)
+        mod = ols(dep_var + " ~ " + ind_vars_no_contrast_var + " + C(" + contraststring + ", Treatment)", data=df_final)
         res = mod.fit()
         print("With contrast (treatment coding)")
         print(res.summary())
-
+        if (o is not None):
+            # concatenate data frames
+            f = open(o, "w")
+            f.write("\n\nTreatment (Dummy) Coding: Dummy coding compares each level of the categorical variable to a base reference level. The base reference level is the value of the intercept.")
+            f.write("With contrast (treatment coding)")
+            f.write(res.summary())
+            f.close()
         # Defining the Simple class
         def _name_levels(prefix, levels):
             return ["[%s%s]" % (prefix, level) for level in levels]
@@ -333,31 +360,55 @@ def contrasting():
                 return ContrastMatrix(c, _name_levels("Simp.", levels[:-1]))
 
         ctrst = Simple().code_without_intercept(levels)
-        mod = ols(dep_var + " ~ " + ind_vars_no_contrast_var + " + C(" + c + ", Simple)", data=df_final)
+        mod = ols(dep_var + " ~ " + ind_vars_no_contrast_var + " + C(" + contraststring + ", Simple)", data=df_final)
         res = mod.fit()
         print("\n\nSimple Coding: Like Treatment Coding, Simple Coding compares each level to a fixed reference level. However, with simple coding, the intercept is the grand mean of all the levels of the factors.")
         print(res.summary())
+        if (o is not None):
+            # concatenate data frames
+            f = open(o, "w")
+            f.write("\n\nSimple Coding: Like Treatment Coding, Simple Coding compares each level to a fixed reference level. However, with simple coding, the intercept is the grand mean of all the levels of the factors.")
+            f.write(res.summary())
+            f.close()
 
         #With contrast (sum/deviation coding)
         ctrst = Sum().code_without_intercept(levels)
-        mod = ols(dep_var + " ~ " + ind_vars_no_contrast_var + " + C(" + c + ", Sum)", data=df_final)
+        mod = ols(dep_var + " ~ " + ind_vars_no_contrast_var + " + C(" + contraststring + ", Sum)", data=df_final)
         res = mod.fit()
         print("\n\nSum (Deviation) Coding: Sum coding compares the mean of the dependent variable for a given level to the overall mean of the dependent variable over all the levels.")
         print(res.summary())
+        if (o is not None):
+            # concatenate data frames
+            f = open(o, "w")
+            f.write("\n\nSum (Deviation) Coding: Sum coding compares the mean of the dependent variable for a given level to the overall mean of the dependent variable over all the levels.")
+            f.write(res.summary())
+            f.close()
 
         #With contrast (backward difference coding)
         ctrst = Diff().code_without_intercept(levels)
-        mod = ols(dep_var + " ~ " + ind_vars_no_contrast_var + " + C(" + c + ", Diff)", data=df_final)
+        mod = ols(dep_var + " ~ " + ind_vars_no_contrast_var + " + C(" + contraststring + ", Diff)", data=df_final)
         res = mod.fit()
         print("\n\nBackward Difference Coding: In backward difference coding, the mean of the dependent variable for a level is compared with the mean of the dependent variable for the prior level.")
         print(res.summary())
+        if (o is not None):
+            # concatenate data frames
+            f = open(o, "w")
+            f.write("\n\nBackward Difference Coding: In backward difference coding, the mean of the dependent variable for a level is compared with the mean of the dependent variable for the prior level.")
+            f.write(res.summary())
+            f.close()
 
         #With contrast (Helmert coding)
         ctrst = Helmert().code_without_intercept(levels)
-        mod = ols(dep_var + " ~ " + ind_vars_no_contrast_var + " + C(" + c + ", Helmert)", data=df_final)
+        mod = ols(dep_var + " ~ " + ind_vars_no_contrast_var + " + C(" + contraststring + ", Helmert)", data=df_final)
         res = mod.fit()
         print("\n\nHelmert Coding: Our version of Helmert coding is sometimes referred to as Reverse Helmert Coding. The mean of the dependent variable for a level is compared to the mean of the dependent variable over all previous levels. Hence, the name ‘reverse’ being sometimes applied to differentiate from forward Helmert coding.")
         print(res.summary())
+        if (o is not None):
+            # concatenate data frames
+            f = open(o, "w")
+            f.write("\n\nHelmert Coding: Our version of Helmert coding is sometimes referred to as Reverse Helmert Coding. The mean of the dependent variable for a level is compared to the mean of the dependent variable over all previous levels. Hence, the name ‘reverse’ being sometimes applied to differentiate from forward Helmert coding.")
+            f.write(res.summary())
+            f.close()
 
 def regularizing():
     if r== ("L1" or "Lasso" or "l1" or "lasso"):
@@ -387,6 +438,15 @@ def regularizing():
             index = index + 1
         print("Intercept: %f" %(lassoModelChosen.intercept_))
         print()
+        if (o is not None):
+            # concatenate data frames
+            f = open(o, "w")
+            f.write("\nLasso regression model:")
+            f.write("Alpha with maximum likelihood (range: 1 to %d) = %f" %(MAX_ALPHA, max_cross_val_alpha))
+            f.write("Current Model Score = %f" %(lassoModelChosen.score(X, y)))
+            f.write("\nCoefficients:")
+            f.write("Intercept: %f\n" %(lassoModelChosen.intercept_))
+            f.close()
 
     if r== ("L2" or "Ridge" or "l2" or "Ridge"):
         # Loop to compute the different values of cross-validation scores
@@ -431,7 +491,15 @@ def regularizing():
                 index = index + 1
             print("Intercept: %f" % (ridgeModelChosen.intercept_))
             print()
-
+        if (o is not None):
+            # concatenate data frames
+            f = open(o, "w")
+            f.write("\nLasso regression model:")
+            f.write("Alpha with maximum likelihood (range: 1 to %d) = %f" %(MAX_ALPHA, max_cross_val_alpha))
+            f.write("Current Model Score = %f" %(lassoModelChosen.score(X, y)))
+            f.write("\nCoefficients:")
+            f.write("Intercept: %f\n" %(lassoModelChosen.intercept_))
+            f.close()
 def opencsv(data):
     """saves a list of lists as a csv and opens"""
     import tempfile
