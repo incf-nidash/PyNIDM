@@ -35,12 +35,15 @@
 #**************************************************************************************
 
 import sys, getopt, os
-from os.path import join
+from os.path import join, isfile, basename, isdir,splitext
+from os import mkdir
+
 
 from nidm.experiment import Project,Session,Acquisition,AcquisitionObject,DemographicsObject,AssessmentObject, MRObject
 from nidm.core import BIDS_Constants,Constants
 from prov.model import PROV_LABEL,PROV_TYPE
 from nidm.experiment.Utils import read_nidm
+from nidm.experiment.Query import GetProjectsUUID, GetProjectLocation, GetParticipantIDFromAcquisition
 
 import json
 from pprint import pprint
@@ -48,11 +51,36 @@ import csv
 import glob
 from rdflib import Graph,URIRef,RDF
 from argparse import ArgumentParser
-from bids.grabbids import BIDSLayout
 from io import StringIO
 import pandas as pd
 import validators
 import urllib.parse
+from shutil import copyfile, move
+import urllib.request as ur
+import tempfile
+
+def GetImageFromURL(url):
+    '''
+    This function will try and retrieve the file referenced by url
+    :param url: url to file to download
+    :return: temporary filename or -1 if fails
+    '''
+
+
+    # try to open the url and get the pointed to file
+    try:
+        # open url and get file
+        opener = ur.urlopen(url)
+        # write temporary file to disk and use for stats
+        temp = tempfile.NamedTemporaryFile(delete=False)
+        temp.write(opener.read())
+        temp.close()
+        return temp.name
+    except:
+        print("ERROR! Can't open url: %s" % url)
+        return -1
+
+
 
 def CreateBIDSParticipantFile(nidm_graph,output_file,participant_fields):
     '''
@@ -76,7 +104,7 @@ def CreateBIDSParticipantFile(nidm_graph,output_file,participant_fields):
         #data=[]
         #adding subject ID to data list to append to participants data frame
         #data.append(str(subj_id))
-        participants.ix[row_index,'participant_id',] = subj_id
+        participants.loc[row_index,'participant_id',] = subj_id
         #for each of the fields in the participants list
         for fields in participant_fields:
             #if field identifier isn't a proper URI then do a fuzzy search on the graph, else an explicit search for the URL
@@ -85,7 +113,7 @@ def CreateBIDSParticipantFile(nidm_graph,output_file,participant_fields):
                 for subj,obj in nidm_graph.subject_objects(predicate=URIRef(BIDS_Constants.participants[fields].uri)):
                     #add row to the pandas data frame
                     #data.append(obj)
-                    participants.ix[row_index,BIDS_Constants.participants[fields].uri] = obj
+                    participants.loc[row_index,BIDS_Constants.participants[fields].uri] = obj
             else:
                 #text matching task, remove basepart of URIs and try to fuzzy match the field in the part_fields parameter string
                 #to the "term" part of a qname URI...this part let's a user simply ask for "age" for example without knowing the
@@ -129,7 +157,7 @@ def CreateBIDSParticipantFile(nidm_graph,output_file,participant_fields):
                     participants_json[short_name] = {}
                     participants_json[short_name]['TermURL'] = row[0]
 
-                    participants.ix[row_index,str(short_name)] = str(row[1])
+                    participants.loc[row_index,str(short_name)] = str(row[1])
                     #data.append(str(row[1]))
 
         #add row to participants DataFrame
@@ -206,6 +234,9 @@ def main(argv):
 
     rdf_file = args.rdf_file
     output_directory = args.bids_dir
+    # check if output directory exists, if not create it
+    if not isdir(output_directory):
+        mkdir(path=output_directory)
 
 
     #try to read RDF file
@@ -249,18 +280,60 @@ def main(argv):
     #create participants file
     CreateBIDSParticipantFile(rdf_graph_parse,join(output_directory,os.path.splitext(args.rdf_file)[0],"participants"),args.part_fields)
 
+    # get nidm:Project prov:Location
+    # first get nidm:Project UUIDs
+    project_uuid = GetProjectsUUID([rdf_file], output_file=None)
+    project_location = []
+    for uuid in project_uuid:
+        project_location.append(GetProjectLocation(nidm_file_list = [rdf_file],project_uuid = uuid))
+
+
+
     #creating BIDS hierarchy with requested scans
     if args.anat==True:
-        #make BIDS anat directory
-        if not os.path.exists(join(output_directory,"anat")):
-            os.makedirs(join(output_directory,"anat"))
+
 
         #query NIDM document for acquisition entity "subjects" with predicate nidm:hasImageUsageType and object nidm:Anatomical
         for anat_acq in rdf_graph_parse.subjects(predicate=URIRef(Constants.NIDM_IMAGE_USAGE_TYPE.uri),object=URIRef(Constants.NIDM_MRI_ANATOMIC_SCAN.uri)):
-            #get filename
-            for anat_filename in rdf_graph_parse.objects(subject=anat_acq,predicate=URIRef(Constants.NIDM_FILENAME.uri)):
-                #change filename to be BIDS compliant
+            # first see if file exists locally.  Get nidm:Project prov:Location and append the nfo:Filename of the image
+            # from the anat_acq acquisition entity.  If that file doesn't exist try the prov:Location in the anat acq
+            # entity and see if we can download it from the cloud
 
+            # get acquisition uuid from entity uuid
+            anat_act = rdf_graph_parse.objects(subject=anat_acq, predicate=Constants.PROV['wasGeneratedBy'])
+            # get participant ID with sio:Subject role in anat_acq qualified association
+            part_id = GetParticipantIDFromAcquisition(nidm_file_list = [rdf_file], acquisition= anat_act[0])
+
+            # make BIDS sub directory
+            sub_dir = join(output_directory, "sub-" + part_id[0])
+            sub_filename_base = "sub-" + part_id[0]
+            if not os.path.exists(sub_dir):
+                os.makedirs(sub_dir)
+
+            # make BIDS anat directory
+            if not os.path.exists(join(sub_dir, "anat")):
+                os.makedirs(join(sub_dir, "anat"))
+
+            for anat_filename in rdf_graph_parse.objects(subject=anat_acq,predicate=URIRef(Constants.NIDM_FILENAME.uri)):
+                # check if file exists
+                for location in project_location:
+                    # if anatomical MRI exists in this location then copy and rename
+                    if isfile(location[0]+anat_filename):
+                        # copy and rename file to be BIDS compliant
+                        copyfile(srd=location[0]+anat_filename, dest=join(sub_dir,"anat",sub_filename_base + splitext(anat_filename)[1]))
+                        continue
+                # if the file wasn't accessible locally, try with the prov:Location in the anat_acq
+                for location in rdf_graph_parse.objects(subject=anat_acq,
+                                                             predicate=URIRef(Constants.PROV['Location'])):
+                    # try to download the file and rename
+                    ret = GetImageFromURL(location)
+                    if ret == -1:
+                        print("Can't download file: %s from url: %s, skipping...." %(anat_filename,location))
+                    else:
+                        # copy temporary file to BIDS directory
+                        copyfile(srd=join(ret), dest=join(output_directory, 'anat'))
+                        # rename file in dest
+                        move(src=join(output_directory, 'anat',basename(ret)), dest=join(output_directory, 'anat',anat_filename))
 
 
 if __name__ == "__main__":
