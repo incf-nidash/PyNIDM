@@ -7,7 +7,7 @@ requests
 rapidfuzz
 pygithub
 pandas
-pybids
+pybids>=0.12.4
 duecredit
 pytest
 graphviz
@@ -16,11 +16,11 @@ rdflib-jsonld
 pyld
 rdflib
 datalad
-ontquery>=0.2.3
+ontquery==0.2.3
 orthauth>=0.0.12
 tabulate
 joblib
 cognitiveatlas
-numpy
+numpy>=1.16.5
 etelemetry
 click-option-group

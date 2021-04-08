@@ -190,14 +190,14 @@ def dataparsing(): #The data is changed to a format that is usable by the linear
         print()
         print("The following variables were not found. Try checking your spelling or use nidm_query.py to see other possible variables.")
         if (o is not None):
-            f = open(o, "w")
+            f = open(o, "a")
             f.write("Your model was " + m)
             f.write("The following variables were not found. Try checking your spelling or use nidm_query.py to see other possible variables.")
             f.close()
         for i in range(0, len(not_found_list)):
             print(str(i+1) + ". " + not_found_list[i])
             if (o is not None):
-                f = open(o, "w")
+                f = open(o, "a")
                 f.write(str(i+1) + ". " + not_found_list[i])
                 f.close()
         print()
@@ -234,10 +234,14 @@ def dataparsing(): #The data is changed to a format that is usable by the linear
     print("***********************************************************************************************************")
     print()
     if (o is not None):
-        # concatenate data frames
+        f = open(o,"a")
+        f.write(df_final.to_string(header=True, index=True))
+        """# concatenate data frames
         f = open(o,"w")
-        f.write(df_final)
-        f.write("Model Results: ")
+        np.savetext(o,df_final.to_numpy())
+        #f.write(df_final)"""
+        f.write("\n\n***********************************************************************************************************")
+        f.write("\n\nModel Results: ")
         f.close()
         # output to csv file
         #df.to_csv(o)
@@ -252,8 +256,9 @@ def linreg(): #actual linear regression
         model_string.append(full_model_variable_list[i])
         model_string.append(" + ")
     model_string.pop(-1)
-    model = ''.join(model_string)
-    print(model) #prints model
+    global full_model
+    full_model = ''.join(model_string)
+    print(full_model) #prints model
     print()
     print("***********************************************************************************************************")
     print()
@@ -300,13 +305,13 @@ def linreg(): #actual linear regression
         statistics = sm.OLS(y, X2)
         finalstats = statistics.fit()
         print(finalstats.summary())
-    if (o is not None):
-        # concatenate data frames
-        f = open(o,"w")
-        f.write(model)
-        f.write("\n***********************************************************************************************************\n")
-        f.write(finalstats.summary())
-        f.close()
+        if (o is not None):
+            # concatenate data frames
+            f = open(o,"a")
+            f.write(full_model)
+            f.write("\n*************************************************************************************\n")
+            f.write(finalstats.summary())
+            f.close()
 def contrasting():
     if c:
         #to account for multiple contrast variables
@@ -335,10 +340,14 @@ def contrasting():
         print(res.summary())
         if (o is not None):
             # concatenate data frames
-            f = open(o, "w")
-            f.write("\n\nTreatment (Dummy) Coding: Dummy coding compares each level of the categorical variable to a base reference level. The base reference level is the value of the intercept.")
+            f = open(o, "a")
+            f.write("\n" + full_model)
+            f.write(
+                "\n\n***********************************************************************************************************")
+
+            f.write("\n\n\n\nTreatment (Dummy) Coding: Dummy coding compares each level of the categorical variable to a base reference level. The base reference level is the value of the intercept.")
             f.write("With contrast (treatment coding)")
-            f.write(res.summary())
+            f.write(res.summary().as_text())
             f.close()
         # Defining the Simple class
         def _name_levels(prefix, levels):
@@ -366,9 +375,9 @@ def contrasting():
         print(res.summary())
         if (o is not None):
             # concatenate data frames
-            f = open(o, "w")
-            f.write("\n\nSimple Coding: Like Treatment Coding, Simple Coding compares each level to a fixed reference level. However, with simple coding, the intercept is the grand mean of all the levels of the factors.")
-            f.write(res.summary())
+            f = open(o, "a")
+            f.write("\n\n\nSimple Coding: Like Treatment Coding, Simple Coding compares each level to a fixed reference level. However, with simple coding, the intercept is the grand mean of all the levels of the factors.")
+            f.write(res.summary().as_text())
             f.close()
 
         #With contrast (sum/deviation coding)
@@ -379,9 +388,9 @@ def contrasting():
         print(res.summary())
         if (o is not None):
             # concatenate data frames
-            f = open(o, "w")
-            f.write("\n\nSum (Deviation) Coding: Sum coding compares the mean of the dependent variable for a given level to the overall mean of the dependent variable over all the levels.")
-            f.write(res.summary())
+            f = open(o, "a")
+            f.write("\n\n\nSum (Deviation) Coding: Sum coding compares the mean of the dependent variable for a given level to the overall mean of the dependent variable over all the levels.")
+            f.write(res.summary().as_text())
             f.close()
 
         #With contrast (backward difference coding)
@@ -392,9 +401,9 @@ def contrasting():
         print(res.summary())
         if (o is not None):
             # concatenate data frames
-            f = open(o, "w")
-            f.write("\n\nBackward Difference Coding: In backward difference coding, the mean of the dependent variable for a level is compared with the mean of the dependent variable for the prior level.")
-            f.write(res.summary())
+            f = open(o, "a")
+            f.write("\n\n\nBackward Difference Coding: In backward difference coding, the mean of the dependent variable for a level is compared with the mean of the dependent variable for the prior level.")
+            f.write(res.summary().as_text())
             f.close()
 
         #With contrast (Helmert coding)
@@ -405,9 +414,9 @@ def contrasting():
         print(res.summary())
         if (o is not None):
             # concatenate data frames
-            f = open(o, "w")
-            f.write("\n\nHelmert Coding: Our version of Helmert coding is sometimes referred to as Reverse Helmert Coding. The mean of the dependent variable for a level is compared to the mean of the dependent variable over all previous levels. Hence, the name ‘reverse’ being sometimes applied to differentiate from forward Helmert coding.")
-            f.write(res.summary())
+            f = open(o, "a")
+            f.write("\n\n\nHelmert Coding: Our version of Helmert coding is sometimes referred to as Reverse Helmert Coding. The mean of the dependent variable for a level is compared to the mean of the dependent variable over all previous levels. Hence, the name ‘reverse’ being sometimes applied to differentiate from forward Helmert coding.")
+            f.write(res.summary().as_text())
             f.close()
 
 def regularizing():
@@ -433,20 +442,24 @@ def regularizing():
         print("Current Model Score = %f" %(lassoModelChosen.score(X, y)))
         index = 0
         print("\nCoefficients:")
-        for var in full_model_variable_list:
-            print("%s \t %f" %(var,lassoModelChosen.coef_[index]))
-            index = index + 1
-        print("Intercept: %f" %(lassoModelChosen.intercept_))
-        print()
         if (o is not None):
             # concatenate data frames
-            f = open(o, "w")
-            f.write("\nLasso regression model:")
-            f.write("Alpha with maximum likelihood (range: 1 to %d) = %f" %(MAX_ALPHA, max_cross_val_alpha))
-            f.write("Current Model Score = %f" %(lassoModelChosen.score(X, y)))
-            f.write("\nCoefficients:")
-            f.write("Intercept: %f\n" %(lassoModelChosen.intercept_))
-            f.close()
+            f = open(o, "a")
+            f.write("\n\nLasso regression model:")
+            f.write("\nAlpha with maximum likelihood (range: 1 to %d) = %f" %(MAX_ALPHA, max_cross_val_alpha))
+            f.write("\nCurrent Model Score = %f" %(lassoModelChosen.score(X, y)))
+            f.write("\n\nCoefficients:")
+        for var in full_model_variable_list:
+            print("%s \t %f" %(var,lassoModelChosen.coef_[index]))
+            if (o is not None):
+                with open(o, "a") as f:
+                    f.write("\n%s \t %f" %(var, lassoModelChosen.coef_[index]))
+            index = index + 1
+        print("Intercept: %f" %(lassoModelChosen.intercept_))
+        if (o is not None):
+            with open(o, "a") as f:
+                f.write("\nIntercept: %f" %(lassoModelChosen.intercept_))
+        print()
 
     if r== ("L2" or "Ridge" or "l2" or "Ridge"):
         # Loop to compute the different values of cross-validation scores
@@ -476,30 +489,40 @@ def regularizing():
         for var in full_model_variable_list:
             if ("*" in var) or (":" in var):
                 numpy_conversion = True
+        if (o is not None):
+            # concatenate data frames
+            f = open(o, "a")
+            f.write("\n\nRidge regression model:")
+            f.write("\nAlpha with maximum likelihood (range: 1 to %d) = %f" %(MAX_ALPHA, max_cross_val_alpha))
+            f.write("\nCurrent Model Score = %f" %(ridgeModelChosen.score(X, y)))
+            f.write("\n\nCoefficients:")
         print("\nCoefficients:")
         if numpy_conversion:
             coeff_list = ridgeModelChosen.coef_[index].tolist()
             coeff_list.pop(0)
             for var in full_model_variable_list:
                 print("%s \t %f" %(var, coeff_list[index]))
+                if (o is not None):
+                    with open(o,"a") as f:
+                        f.write("\n%s \t %f" % (var, coeff_list[index]))
                 index = index + 1
             print("Intercept: %f" % (ridgeModelChosen.intercept_))
+            if (o is not None):
+                with open(o, "a") as f:
+                    f.write("\nIntercept: %f" % (ridgeModelChosen.intercept_))
             print()
         else:
             for var in full_model_variable_list:
                 print("%s \t %f" % (var, ridgeModelChosen.coef_[index]))
+                if (o is not None):
+                    with open(o,"a") as f:
+                        f.write("\n%s \t %f" % (var, ridgeModelChosen.coef_[index]))
                 index = index + 1
             print("Intercept: %f" % (ridgeModelChosen.intercept_))
+            if (o is not None):
+                with open(o, "a") as f:
+                    f.write("\nIntercept: %f" % (ridgeModelChosen.intercept_))
             print()
-        if (o is not None):
-            # concatenate data frames
-            f = open(o, "w")
-            f.write("\nLasso regression model:")
-            f.write("Alpha with maximum likelihood (range: 1 to %d) = %f" %(MAX_ALPHA, max_cross_val_alpha))
-            f.write("Current Model Score = %f" %(lassoModelChosen.score(X, y)))
-            f.write("\nCoefficients:")
-            f.write("Intercept: %f\n" %(lassoModelChosen.intercept_))
-            f.close()
 def opencsv(data):
     """saves a list of lists as a csv and opens"""
     import tempfile
