@@ -32,6 +32,7 @@
 # *******************************************************************************************************
 # *******************************************************************************************************
 import os
+import re
 import tempfile
 import pandas as pd
 import csv
@@ -105,10 +106,15 @@ def data_aggregation(): #all data from all the files is collected
             project = GetProjectsUUID([nidm_file])
             # split the model into its constituent variables
             global full_model_variable_list
-            model_list = m.split(" ")
-            for i in reversed(model_list):
-                if i == "+" or i == "~" or i == "=":
-                    model_list.remove(i)
+            #below, we edit the model so it splits by +,~, or =. However, to help it out in catching everything
+            #we replaced ~ and = with a + so that we can still use split. Regex wasn't working.
+            if "~" in m:
+                plus_replace = m.replace('~','+')
+            else:
+                plus_replace = m.replace('=', '+')
+            model_list = plus_replace.split("+")
+            for i in range(len(model_list)): #here, we remove any leading or trailing spaces
+                model_list[i] = model_list[i].strip()
             full_model_variable_list = []
             # set the dependent variable to the one dependent variable in the model
             global dep_var #used in dataparsing(), linreg(), and contrasting()
@@ -318,6 +324,8 @@ def contrasting():
         contrastvars = []
         if "," in c:
             contrastvars = c.split(",")
+        for i in range(len(contrastvars)):
+            contrastvars[i] = contrastvars[i].strip()
         ind_vars_no_contrast_var = ''
         index = 1
         for var in full_model_variable_list:
