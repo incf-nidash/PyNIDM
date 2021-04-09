@@ -108,10 +108,13 @@ def data_aggregation(): #all data from all the files is collected
             global full_model_variable_list
             #below, we edit the model so it splits by +,~, or =. However, to help it out in catching everything
             #we replaced ~ and = with a + so that we can still use split. Regex wasn't working.
+            plus_replace = m
             if "~" in m:
                 plus_replace = m.replace('~','+')
-            else:
+            elif "=" in m:
                 plus_replace = m.replace('=', '+')
+            elif "," in m:
+                plus_replace = m.replace(",", '+')
             model_list = plus_replace.split("+")
             for i in range(len(model_list)): #here, we remove any leading or trailing spaces
                 model_list[i] = model_list[i].strip()
