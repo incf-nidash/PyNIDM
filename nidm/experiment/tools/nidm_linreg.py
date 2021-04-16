@@ -92,9 +92,19 @@ def data_aggregation(): #all data from all the files is collected
             """
     # query result list
     results = []
-
     # if there is a CDE file list, seed the CDE cache
     if m:  # ex: fs_00343 ~ age + sex + group
+        print("***********************************************************************************************************")
+        command = "python nidm_linreg.py -nl " + n + " -model \"" + m + "\" "
+        if c:
+            command = command + "-contrast \"" + c + "\" "
+        if r:
+            command = command + "-r " + r
+        print("Your command was: " + command)
+        if (o is not None):
+            f = open(o, "w")
+            f.write("Your command was " + command)
+            f.close()
         verbosity = 0
         restParser = RestParser(verbosity_level=int(verbosity))
         restParser.setOutputFormat(RestParser.OBJECT_FORMAT)
@@ -142,6 +152,7 @@ def data_aggregation(): #all data from all the files is collected
         exit(1)
 
 def dataparsing(): #The data is changed to a format that is usable by the linear regression method
+    global dep_var
     df = pd.concat(df_list)
     with tempfile.NamedTemporaryFile(delete=False) as temp: # turns the dataframe into a temporary csv
         df.to_csv(temp.name + '.csv')
@@ -197,7 +208,6 @@ def dataparsing(): #The data is changed to a format that is usable by the linear
     for i in range(len(independentvariables)):
         if " " in independentvariables[i]:
             independentvariables[i]=independentvariables[i].replace(" ","_")
-    global dep_var
     if " " in dep_var:
         dep_var = dep_var.replace(" ", "_")
     if len(not_found_list)>0:
@@ -208,7 +218,7 @@ def dataparsing(): #The data is changed to a format that is usable by the linear
         print()
         print("The following variables were not found. Try checking your spelling or use nidm_query.py to see other possible variables.")
         if (o is not None):
-            f = open(o, "w")
+            f = open(o, "a")
             f.write("Your model was " + m)
             f.write("The following variables were not found. Try checking your spelling or use nidm_query.py to see other possible variables.")
             f.close()
