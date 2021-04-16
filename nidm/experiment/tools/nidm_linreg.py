@@ -61,13 +61,13 @@ MAX_ALPHA = 700
 @click.option("--nidm_file_list", "-nl", required=True,
               help="A comma separated list of NIDM files with full path")
 @click.option("-contrast", required=False,
-              help="This parameter will show differences in relationship by group (e.g. -group age+sex, fs_003343).")
+              help="This parameter will show differences in relationship by group (e.g. -contrast age*sex,group). It can be one variable, interacting variables, or multiple")
 @click.option("-model",
                  help="This parameter will return the results of the linear regression from all nidm files supplied\nThe way this looks in the command is python3 nidm_linreg.py -nl MTdemog_aseg_v2.ttl -model \"fs_003343 = age*sex + sex + age + group + age*group + bmi\" -contrast group -r L1")
 @click.option("--output_file", "-o", required=False,
-              help="Optional output file (CSV) to store results of query")
+              help="Optional output file (TXT) to store results of the linear regression, contrast, and regularization")
 @click.option("--regularization", "-r", required=False,
-              help="This parameter will return the results of the linear regression with L1 or L2 regularization depending on the type specified")
+              help="This parameter will return the results of the linear regression with L1 or L2 regularization depending on the type specified, and the weight with the maximum likelihood solution")
 def full_regression(nidm_file_list, output_file, model, contrast, regularization):
     #NOTE: Every time I make a global variable, it is because I need it in at least one other method.
     global c #used in linreg(), contrasting()
@@ -191,6 +191,15 @@ def dataparsing(): #The data is changed to a format that is usable by the linear
         if count>len(condensed_data)-2:
             not_found_list.append(condensed_data[0][i])
         count = 0
+    for i in range(len(condensed_data[0])):
+        if " " in condensed_data[0][i]:
+            condensed_data[0][i]=condensed_data[0][i].replace(" ","_")
+    for i in range(len(independentvariables)):
+        if " " in independentvariables[i]:
+            independentvariables[i]=independentvariables[i].replace(" ","_")
+    global dep_var
+    if " " in dep_var:
+        dep_var = dep_var.replace(" ", "_")
     if len(not_found_list)>0:
         print(
             "***********************************************************************************************************")
@@ -199,7 +208,7 @@ def dataparsing(): #The data is changed to a format that is usable by the linear
         print()
         print("The following variables were not found. Try checking your spelling or use nidm_query.py to see other possible variables.")
         if (o is not None):
-            f = open(o, "a")
+            f = open(o, "w")
             f.write("Your model was " + m)
             f.write("The following variables were not found. Try checking your spelling or use nidm_query.py to see other possible variables.")
             f.close()
@@ -322,15 +331,22 @@ def linreg(): #actual linear regression
             f.write(finalstats.summary())
             f.close()
 def contrasting():
+    global c
     if c:
+        print(c)
         #to account for multiple contrast variables
         contrastvars = []
         if "," in c:
             contrastvars = c.split(",")
         for i in range(len(contrastvars)):
+            if " " in contrastvars[i]:
+                contrastvars[i]=contrastvars[i].replace(" ","_")
             contrastvars[i] = contrastvars[i].strip()
         ind_vars_no_contrast_var = ''
         index = 1
+        for i in range(len(full_model_variable_list)):
+            if " " in full_model_variable_list[i]:
+                full_model_variable_list[i]=full_model_variable_list[i].replace(" ","_")
         for var in full_model_variable_list:
             if var != c and not(var in contrastvars):
                 if index == 1:
@@ -341,6 +357,8 @@ def contrasting():
         if len(contrastvars)>0:
             contraststring = ' + '.join(contrastvars)
         else:
+            if " " in c:
+                c = c.replace(" ", "_")
             contraststring=c
         # With contrast (treatment coding)
         print("\n\nTreatment (Dummy) Coding: Dummy coding compares each level of the categorical variable to a base reference level. The base reference level is the value of the intercept.")
