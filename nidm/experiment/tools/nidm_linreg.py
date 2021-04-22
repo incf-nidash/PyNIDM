@@ -55,7 +55,7 @@ from patsy.contrasts import ContrastMatrix
 from patsy.contrasts import Sum
 from patsy.contrasts import Diff
 from patsy.contrasts import Helmert
-MAX_ALPHA = 700
+MAX_ALPHA = 3
 #Defining the parameters of the commands.
 @cli.command()
 @click.option("--nidm_file_list", "-nl", required=True,
@@ -154,7 +154,7 @@ def data_aggregation(): #all data from all the files is collected
 def dataparsing(): #The data is changed to a format that is usable by the linear regression method
     global dep_var
     df = pd.concat(df_list)
-    with tempfile.NamedTemporaryFile(delete=False) as temp: # turns the dataframe into a temporary csv
+    with tempfile.NamedTemporaryFile(delete=False) as temp:  # turns the dataframe into a temporary csv
         df.to_csv(temp.name + '.csv')
         temp.close()
     data = list(csv.reader(open(temp.name + '.csv')))  # makes the csv a 2D list to make it easier to call the contents of certain cells
@@ -175,7 +175,9 @@ def dataparsing(): #The data is changed to a format that is usable by the linear
     not_found_list = []
 
     for i in range(len(data[0])):
-        if data[0][i] == 'label':
+        if data[0][i] == 'source_variable':
+            fieldcolumn = i
+        elif data[0][i] == 'label':
             fieldcolumn = i  # finds the column where the variable names are
         elif data[0][i] == 'value':
             valuecolumn = i  # finds the column where the values are
@@ -187,7 +189,7 @@ def dataparsing(): #The data is changed to a format that is usable by the linear
                 if data[j][fieldcolumn] == condensed_data[0][i]:  # in the dataframe, the name is in column 3
                     condensed_data[numrows][i] = data[j][valuecolumn]  # in the dataframe, the value is in column 2
                     numrows = numrows + 1  # moves on to the next row to add the proper values
-                elif data[j][datacolumn] == condensed_data[0][i]:  # in the dataframe, the name is in column 9
+                elif (condensed_data[0][i] in data[j][datacolumn]):  # in the dataframe, the name is in column 9
                     condensed_data[numrows][i] = data[j][valuecolumn]  # in the dataframe, the value is in column 2
                     numrows = numrows + 1  # moves on to the next row to add the proper values
             except IndexError:
@@ -210,6 +212,7 @@ def dataparsing(): #The data is changed to a format that is usable by the linear
             independentvariables[i]=independentvariables[i].replace(" ","_")
     if " " in dep_var:
         dep_var = dep_var.replace(" ", "_")
+
     if len(not_found_list)>0:
         print(
             "***********************************************************************************************************")
@@ -230,7 +233,29 @@ def dataparsing(): #The data is changed to a format that is usable by the linear
                 f.close()
         print()
         exit(1)
-
+    """In this section, if there are less than 20 points, the model will be innacurate and there are too few variables for regularization.
+    That means that we warn the user that such errors can occur and ask them if they want to proceed.
+    The answer is stored in answer. If the user responds with N, it exits the code after writing the error to the output file (if there is one).
+    If the user says Y instead, the code runs, but stops before doing the regularization."""
+    global answer
+    answer = "?"
+    if(len(condensed_data)-1)<20:
+        print("\nYour data set has less than 20 points, which means the model calculated may not be accurate due to a lack of data. ")
+        print("This means you cannot regularize the data either.")
+        answer = input("Continue anyways? Y or N: ")
+    if "n" in answer.lower():
+        print("\nModel halted.")
+        if (o is not None):
+            f = open(o, "a")
+            f.write("Your model was " + m)
+            f.write("Due to a lack of data (<20 points), you stopped the model because the results may have been innacurate.")
+            f.close()
+        exit(1)
+    if (o is not None):
+        f = open(o, "a")
+        f.write("Your model was " + m)
+        f.write("There was a lack of data (<20 points) in your model, which may result in inaccuracies. In addition, a regularization cannot and will not be performed.")
+        f.close()
     x = pd.read_csv(opencsv(condensed_data))  # changes the dataframe to a csv to make it easier to work with
     x.head()  # prints what the csv looks like
     x.dtypes  # checks data format
@@ -343,7 +368,6 @@ def linreg(): #actual linear regression
 def contrasting():
     global c
     if c:
-        print(c)
         #to account for multiple contrast variables
         contrastvars = []
         if "," in c:
@@ -459,7 +483,7 @@ def contrasting():
             f.close()
 
 def regularizing():
-    if r== ("L1" or "Lasso" or "l1" or "lasso"):
+    if r== (("L1" or "Lasso" or "l1" or "lasso") and not("y" in answer.lower())):
         # Loop to compute the cross-validation scores
         max_cross_val_alpha = 1
         max_cross_val_score = -1000000000.000 #making it a super negative number initially
@@ -500,7 +524,7 @@ def regularizing():
                 f.write("\nIntercept: %f" %(lassoModelChosen.intercept_))
         print()
 
-    if r== ("L2" or "Ridge" or "l2" or "Ridge"):
+    if (r== ("L2" or "Ridge" or "l2" or "Ridge") and not("y" in answer.lower())):
         # Loop to compute the different values of cross-validation scores
         max_cross_val_alpha = 1
         max_cross_val_score = -1000000000.000  # making it a super negative number initially
