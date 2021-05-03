@@ -11,20 +11,20 @@ from nidm.experiment.Utils import validate_uuid
 isa = URIRef('http://www.w3.org/1999/02/22-rdf-syntax-ns#type')
 isPartOf = Constants.DCT['isPartOf']
 ValueType = collections.namedtuple('ValueType',
-                                   ['value', 'label', 'datumType', 'hasUnit', 'isAbout', 'measureOf', 'hasLaterality', 'dataElement', 'description', 'subject', 'project'])
+                                   ['value', 'label', 'datumType', 'hasUnit', 'isAbout', 'measureOf', 'hasLaterality', 'dataElement', 'description', 'subject', 'project', 'sourceVariable'])
 ActivityData = collections.namedtuple('ActivityData', ['category', 'uuid', 'data'])
 QUERY_CACHE_SIZE=0
 BIG_CACHE_SIZE=0
 
-def makeValueType(value=None, label=None, datumType=None, hasUnit=None, isAbout=None, measureOf=None, hasLaterality=None, dataElement=None, description=None, subject=None, project=None):
-    return ValueType(str(value), str(label), str(datumType), str(hasUnit), str(isAbout), str(measureOf), str(hasLaterality), str(dataElement), str(description), str(subject), str(project))
+def makeValueType(value=None, label=None, datumType=None, hasUnit=None, isAbout=None, measureOf=None, hasLaterality=None, dataElement=None, description=None, subject=None, project=None, source_variable=None):
+    return ValueType(str(value), str(label), str(datumType), str(hasUnit), str(isAbout), str(measureOf), str(hasLaterality), str(dataElement), str(description), str(subject), str(project), str(source_variable))
 
 def makeValueTypeFromDataTypeInfo(value, data_type_info_tuple):
 
     if not data_type_info_tuple:
         data_type_info_tuple = {}
 
-    for key in ['label', 'datumType', 'hasUnit', 'isAbout', 'measureOf', 'hasLaterality', 'dataElement', 'description', 'subject', 'project']:
+    for key in ['label', 'datumType', 'hasUnit', 'isAbout', 'measureOf', 'hasLaterality', 'dataElement', 'description', 'subject', 'project', 'source_variable']:
         if not key in data_type_info_tuple:
             data_type_info_tuple[key] = None
 
@@ -32,7 +32,7 @@ def makeValueTypeFromDataTypeInfo(value, data_type_info_tuple):
     return ValueType(str(value), str(data_type_info_tuple['label']), str(data_type_info_tuple['datumType']),
                      str(data_type_info_tuple['hasUnit']), str(data_type_info_tuple['isAbout']), str(data_type_info_tuple['measureOf']),
                      str(data_type_info_tuple['hasLaterality']), str(data_type_info_tuple['dataElement']),
-                     str(data_type_info_tuple['description']), str(data_type_info_tuple['subject']), str(data_type_info_tuple['project']))
+                     str(data_type_info_tuple['description']), str(data_type_info_tuple['subject']), str(data_type_info_tuple['project']), str(data_type_info_tuple['source_variable']))
 
 def expandID(id, namespace):
     '''
