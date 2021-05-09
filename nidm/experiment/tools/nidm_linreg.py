@@ -175,10 +175,12 @@ def dataparsing(): #The data is changed to a format that is usable by the linear
     not_found_list = []
 
     for i in range(len(data[0])):
-        if data[0][i] == 'source_variable':
+        if data[0][i] == 'sourceVariable': # finds the column where the variable names are
             fieldcolumn = i
-        elif data[0][i] == 'label':
-            fieldcolumn = i  # finds the column where the variable names are
+        elif data[0][i] == 'source_variable': # finds the column where the variable names are
+            fieldcolumn = i
+        if data[0][i] == 'label':
+            namecolumn = i  # finds the column where the variable names are
         elif data[0][i] == 'value':
             valuecolumn = i  # finds the column where the values are
         elif data[0][i] == 'dataElement':  # finds the column where the data element is if necessary
@@ -189,7 +191,10 @@ def dataparsing(): #The data is changed to a format that is usable by the linear
                 if data[j][fieldcolumn] == condensed_data[0][i]:  # in the dataframe, the name is in column 3
                     condensed_data[numrows][i] = data[j][valuecolumn]  # in the dataframe, the value is in column 2
                     numrows = numrows + 1  # moves on to the next row to add the proper values
-                elif (condensed_data[0][i] in data[j][datacolumn]):  # in the dataframe, the name is in column 9
+                elif data[j][namecolumn] == condensed_data[0][i]:  # in the dataframe, the name is in column 12
+                    condensed_data[numrows][i] = data[j][valuecolumn]  # in the dataframe, the value is in column 2
+                    numrows = numrows + 1  # moves on to the next row to add the proper values
+                elif condensed_data[0][i] == data[j][datacolumn]:  # in the dataframe, the name is in column 9
                     condensed_data[numrows][i] = data[j][valuecolumn]  # in the dataframe, the value is in column 2
                     numrows = numrows + 1  # moves on to the next row to add the proper values
             except IndexError:
@@ -483,7 +488,7 @@ def contrasting():
             f.close()
 
 def regularizing():
-    if r== (("L1" or "Lasso" or "l1" or "lasso") and not("y" in answer.lower())):
+    if (r== ("L1" or "Lasso" or "l1" or "lasso") and not("y" in answer.lower())): #does it say L1, and has the user chosen to go ahead with running the code?
         # Loop to compute the cross-validation scores
         max_cross_val_alpha = 1
         max_cross_val_score = -1000000000.000 #making it a super negative number initially
@@ -524,7 +529,7 @@ def regularizing():
                 f.write("\nIntercept: %f" %(lassoModelChosen.intercept_))
         print()
 
-    if (r== ("L2" or "Ridge" or "l2" or "Ridge") and not("y" in answer.lower())):
+    if (r== ("L2" or "Ridge" or "l2" or "Ridge") and not("y" in answer.lower())): #does it say L2, and has the user chosen to go ahead with running the code?
         # Loop to compute the different values of cross-validation scores
         max_cross_val_alpha = 1
         max_cross_val_score = -1000000000.000  # making it a super negative number initially
