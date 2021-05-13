@@ -111,7 +111,21 @@ def data_aggregation(): #all data from all the files is collected
         global df_list #used in dataparsing()
         df_list = []
         # set up uri to do fields query for each nidm file
-        for nidm_file in n.split(","):
+        global file_list
+        file_list = n.split(",")
+        df_list_holder = {}
+        for i in range(len(file_list)):
+            df_list_holder[i] = []
+        df_holder = {}
+        for i in range(len(file_list)):
+            df_holder[i] = []
+        global condensed_data_holder
+        condensed_data_holder = {}
+        for i in range(len(file_list)):
+            condensed_data_holder[i] = []
+
+        count = 0
+        for nidm_file in file_list:
             # get project UUID
             project = GetProjectsUUID([nidm_file])
             # split the model into its constituent variables
@@ -144,7 +158,111 @@ def data_aggregation(): #all data from all the files is collected
             ind_vars = ind_vars[0:len(ind_vars) - 1]
             uri = "/projects/" + project[0].toPython().split("/")[-1] + "?fields=" + ind_vars + "," + dep_var
             # get fields output from each file and concatenate
-            df_list.append(pd.DataFrame(restParser.run([nidm_file], uri)))
+            df_list_holder[count].append(pd.DataFrame(restParser.run([nidm_file], uri)))
+            #global dep_var
+            df = pd.concat(df_list_holder[count])
+            with tempfile.NamedTemporaryFile(delete=False) as temp:  # turns the dataframe into a temporary csv
+                df.to_csv(temp.name + '.csv')
+                temp.close()
+            data = list(csv.reader(open(
+                temp.name + '.csv')))  # makes the csv a 2D list to make it easier to call the contents of certain cells
+            global independentvariables  # used in linreg
+            independentvariables = ind_vars.split(",")  # makes a list of the independent variables
+            numcols = (len(data) - 1) // (
+                        len(independentvariables) + 1)  # Finds the number of columns in the original dataframe
+            global condensed_data  # also used in linreg()
+            condensed_data_holder[count] = [
+                [0] * (len(independentvariables) + 1)]  # makes an array 1 row by the number of necessary columns
+            for i in range(
+                    numcols):  # makes the 2D array big enough to store all of the necessary values in the edited dataset
+                condensed_data_holder[count].append([0] * (len(independentvariables) + 1))
+            for i in range(len(independentvariables)):  # stores the independent variable names in the first row
+                condensed_data_holder[count][0][i] = independentvariables[i]
+            condensed_data_holder[count][0][-1] = str(dep_var)  # stores the dependent variable name in the first row
+            numrows = 1  # begins at the first row to add data
+            fieldcolumn = 0  # the column the variable name is in in the original dataset
+            valuecolumn = 0  # the column the value is in in the original dataset
+            datacolumn = 0  # if it is identified by the dataElement name instead of the field's name
+            not_found_list = []
+
+            for i in range(len(data[0])):
+                if data[0][i] == 'sourceVariable':  # finds the column where the variable names are
+                    fieldcolumn = i
+                elif data[0][i] == 'source_variable':  # finds the column where the variable names are
+                    fieldcolumn = i
+                if data[0][i] == 'label':
+                    namecolumn = i  # finds the column where the variable names are
+                elif data[0][i] == 'value':
+                    valuecolumn = i  # finds the column where the values are
+                elif data[0][i] == 'dataElement':  # finds the column where the data element is if necessary
+                    datacolumn = i
+            for i in range(
+                    len(condensed_data_holder[count][0])):  # starts iterating through the dataset, looking for the name in that
+                for j in range(1, len(data)):  # column, so it can append the values under the proper variables
+                    try:
+                        if data[j][fieldcolumn] == condensed_data_holder[count][0][i]:  # in the dataframe, the name is in column 3
+                            condensed_data_holder[count][numrows][i] = data[j][
+                                valuecolumn]  # in the dataframe, the value is in column 2
+                            numrows = numrows + 1  # moves on to the next row to add the proper values
+                        elif data[j][namecolumn] == condensed_data_holder[count][0][i]:  # in the dataframe, the name is in column 12
+                            condensed_data_holder[count][numrows][i] = data[j][
+                                valuecolumn]  # in the dataframe, the value is in column 2
+                            numrows = numrows + 1  # moves on to the next row to add the proper values
+                        elif condensed_data_holder[count][0][i] == data[j][datacolumn]:  # in the dataframe, the name is in column 9
+                            condensed_data_holder[count][numrows][i] = data[j][
+                                valuecolumn]  # in the dataframe, the value is in column 2
+                            numrows = numrows + 1  # moves on to the next row to add the proper values
+                    except IndexError:
+                        numrows = numrows + 1
+                numrows = 1  # resets to the first row for the next variable
+            #print(condensed_data_holder[count][0][len(condensed_data_holder[count])-2])
+            temp_list = condensed_data_holder[count]
+            for j in range(len(temp_list[0])-1, 0,-1):  # if the software appends a column with 0 as the heading, it removes this null column
+                if temp_list[0][j] == "0" or temp_list[0][j] == "NaN":
+                    for row in condensed_data_holder[count]:
+                        row.pop(j)
+            rowsize = len(condensed_data_holder[count][0])
+            count1 = 0
+            for i in range(0, rowsize):
+                for row in condensed_data_holder[count]:
+                    if row[i] == 0 or row[i] == "NaN" or row[i] == "0":
+                        count1 = count1 + 1
+                print(count1)
+                if count1 > len(condensed_data_holder[count]) - 2:
+                    not_found_list.append(condensed_data_holder[count][0][i])
+                count1 = 0
+            for i in range(len(condensed_data_holder[count][0])):
+                if " " in condensed_data_holder[count][0][i]:
+                    condensed_data_holder[count][0][i] = condensed_data_holder[count][0][i].replace(" ", "_")
+            for i in range(len(independentvariables)):
+                if " " in independentvariables[i]:
+                    independentvariables[i] = independentvariables[i].replace(" ", "_")
+            if " " in dep_var:
+                dep_var = dep_var.replace(" ", "_")
+            print(condensed_data_holder[count])
+            count = count + 1
+            if len(not_found_list) > 0:
+                print(
+                    "***********************************************************************************************************")
+                print()
+                print("Your model was " + m)
+                print()
+                print(
+                    "The following variables were not found in " + nidm_file + ". The model cannot run because this will skew the data. Try checking your spelling or use nidm_query.py to see other possible variables.")
+                if (o is not None):
+                    f = open(o, "a")
+                    f.write("Your model was " + m)
+                    f.write(
+                        "The following variables were not found in " + nidm_file + ". The model cannot run because this will skew the data. Try checking your spelling or use nidm_query.py to see other possible variables.")
+                    f.close()
+                for i in range(0, len(not_found_list)):
+                    print(str(i + 1) + ". " + not_found_list[i])
+                    if (o is not None):
+                        f = open(o, "a")
+                        f.write(str(i + 1) + ". " + not_found_list[i])
+                        f.close()
+                print()
+                exit(1)
     else:
         print("ERROR: No query parameter provided.  See help:")
         print()
@@ -152,92 +270,10 @@ def data_aggregation(): #all data from all the files is collected
         exit(1)
 
 def dataparsing(): #The data is changed to a format that is usable by the linear regression method
-    global dep_var
-    df = pd.concat(df_list)
-    with tempfile.NamedTemporaryFile(delete=False) as temp:  # turns the dataframe into a temporary csv
-        df.to_csv(temp.name + '.csv')
-        temp.close()
-    data = list(csv.reader(open(temp.name + '.csv')))  # makes the csv a 2D list to make it easier to call the contents of certain cells
-    global independentvariables #used in linreg
-    independentvariables = ind_vars.split(",")  # makes a list of the independent variables
-    numcols = (len(data) - 1) // (len(independentvariables) + 1)  # Finds the number of columns in the original dataframe
-    global condensed_data #also used in linreg()
-    condensed_data = [[0] * (len(independentvariables) + 1)]  # makes an array 1 row by the number of necessary columns
-    for i in range(numcols):  # makes the 2D array big enough to store all of the necessary values in the edited dataset
-        condensed_data.append([0] * (len(independentvariables) + 1))
-    for i in range(len(independentvariables)):  # stores the independent variable names in the first row
-        condensed_data[0][i] = independentvariables[i]
-    condensed_data[0][-1] = str(dep_var)  # stores the dependent variable name in the first row
-    numrows = 1  # begins at the first row to add data
-    fieldcolumn = 0  # the column the variable name is in in the original dataset
-    valuecolumn = 0  # the column the value is in in the original dataset
-    datacolumn = 0  # if it is identified by the dataElement name instead of the field's name
-    not_found_list = []
-
-    for i in range(len(data[0])):
-        if data[0][i] == 'sourceVariable': # finds the column where the variable names are
-            fieldcolumn = i
-        elif data[0][i] == 'source_variable': # finds the column where the variable names are
-            fieldcolumn = i
-        if data[0][i] == 'label':
-            namecolumn = i  # finds the column where the variable names are
-        elif data[0][i] == 'value':
-            valuecolumn = i  # finds the column where the values are
-        elif data[0][i] == 'dataElement':  # finds the column where the data element is if necessary
-            datacolumn = i
-    for i in range(len(condensed_data[0])):  # starts iterating through the dataset, looking for the name in that
-        for j in range(1, len(data)):  # column, so it can append the values under the proper variables
-            try:
-                if data[j][fieldcolumn] == condensed_data[0][i]:  # in the dataframe, the name is in column 3
-                    condensed_data[numrows][i] = data[j][valuecolumn]  # in the dataframe, the value is in column 2
-                    numrows = numrows + 1  # moves on to the next row to add the proper values
-                elif data[j][namecolumn] == condensed_data[0][i]:  # in the dataframe, the name is in column 12
-                    condensed_data[numrows][i] = data[j][valuecolumn]  # in the dataframe, the value is in column 2
-                    numrows = numrows + 1  # moves on to the next row to add the proper values
-                elif condensed_data[0][i] == data[j][datacolumn]:  # in the dataframe, the name is in column 9
-                    condensed_data[numrows][i] = data[j][valuecolumn]  # in the dataframe, the value is in column 2
-                    numrows = numrows + 1  # moves on to the next row to add the proper values
-            except IndexError:
-                numrows = numrows + 1
-        numrows = 1  # resets to the first row for the next variable
-    rowsize = len(condensed_data[0])
-    count = 0
-    for i in range(0, rowsize):
-        for row in condensed_data:
-            if row[i]==0 or row[i]=="NaN" or row[i]=="0":
-                count = count + 1
-        if count>len(condensed_data)-2:
-            not_found_list.append(condensed_data[0][i])
-        count = 0
-    for i in range(len(condensed_data[0])):
-        if " " in condensed_data[0][i]:
-            condensed_data[0][i]=condensed_data[0][i].replace(" ","_")
-    for i in range(len(independentvariables)):
-        if " " in independentvariables[i]:
-            independentvariables[i]=independentvariables[i].replace(" ","_")
-    if " " in dep_var:
-        dep_var = dep_var.replace(" ", "_")
-
-    if len(not_found_list)>0:
-        print(
-            "***********************************************************************************************************")
-        print()
-        print("Your model was " + m)
-        print()
-        print("The following variables were not found. Try checking your spelling or use nidm_query.py to see other possible variables.")
-        if (o is not None):
-            f = open(o, "a")
-            f.write("Your model was " + m)
-            f.write("The following variables were not found. Try checking your spelling or use nidm_query.py to see other possible variables.")
-            f.close()
-        for i in range(0, len(not_found_list)):
-            print(str(i+1) + ". " + not_found_list[i])
-            if (o is not None):
-                f = open(o, "a")
-                f.write(str(i+1) + ". " + not_found_list[i])
-                f.close()
-        print()
-        exit(1)
+    global condensed_data
+    condensed_data = []
+    for i in range(0, len(file_list)):
+        condensed_data = condensed_data + condensed_data_holder[i]
     """In this section, if there are less than 20 points, the model will be innacurate and there are too few variables for regularization.
     That means that we warn the user that such errors can occur and ask them if they want to proceed.
     The answer is stored in answer. If the user responds with N, it exits the code after writing the error to the output file (if there is one).
@@ -259,7 +295,7 @@ def dataparsing(): #The data is changed to a format that is usable by the linear
     if (o is not None):
         f = open(o, "a")
         f.write("Your model was " + m)
-        f.write("There was a lack of data (<20 points) in your model, which may result in inaccuracies. In addition, a regularization cannot and will not be performed.")
+        f.write("\n\nThere was a lack of data (<20 points) in your model, which may result in inaccuracies. In addition, a regularization cannot and will not be performed.")
         f.close()
     x = pd.read_csv(opencsv(condensed_data))  # changes the dataframe to a csv to make it easier to work with
     x.head()  # prints what the csv looks like
