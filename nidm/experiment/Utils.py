@@ -21,6 +21,7 @@ from numpy import base_repr
 from binascii import crc32
 import pandas as pd
 from uuid import UUID
+from urllib.request import urlopen
 
 #NIDM imports
 from ..core import Constants
@@ -672,6 +673,27 @@ def AddConceptToInterlex(ilx_obj, label, definition):
     prefix = INTERLEX_PREFIX
     tmp = ilx_obj.add_pde(label=label, definition=definition)
     return tmp
+def load_nidm_terms_concepts():
+    '''
+    This function will pull NIDM-Terms used concepts from the NIDM-Terms repo. These are concepts used in annotating
+    other datasets and should be used prior to broadening the search to InterLex and CogAtlas concepts. By using these
+    first, ones that have already been used to annotate datasets, we maximize our ability to find concept-based query
+    matches across datasets
+    :return:
+    '''
+
+    concept_url = "https://raw.githubusercontent.com/NIDM-Terms/terms/master/terms/NIDM_Concepts.jsonld"
+
+
+    try:
+        response = urlopen(concept_url)
+        concept_graph = json.loads(response.read().decode("utf-8"))
+    except Exception:
+        logging.info("Error opening %s used concepts file..continuing" % concept_url)
+        return None
+
+    return concept_graph
+
 
 def load_nidm_owl_files():
     '''
@@ -681,41 +703,56 @@ def load_nidm_owl_files():
     #load nidm-experiment.owl file and all imports directly
     #create empty graph
     union_graph = Graph()
+
+
+    ## COMMENTED OUT BY DBK (5/13/21). CHANGING TO GET OWL FILES DIRECTORY FROM NIDM-SPECS REPO
+    #
     #check if there is an internet connection, if so load directly from https://github.com/incf-nidash/nidm-specs/tree/master/nidm/nidm-experiment/terms and
-    # https://github.com/incf-nidash/nidm-specs/tree/master/nidm/nidm-experiment/imports
-    basepath=os.path.dirname(os.path.dirname(__file__))
-    terms_path = os.path.join(basepath,"terms")
-    imports_path=os.path.join(basepath,"terms","imports")
+    #basepath=os.path.dirname(os.path.dirname(__file__))
+    #terms_path = os.path.join(basepath,"terms")
+    #imports_path=os.path.join(basepath,"terms","imports")
+    #
+    #imports=[
+    #        "crypto_import.ttl",
+    #        "dc_import.ttl",
+    #        "iao_import.ttl",
+    #        "nfo_import.ttl",
+    #        "nlx_import.ttl",
+    #        "obi_import.ttl",
+    #        "ontoneurolog_instruments_import.ttl",
+    #        "pato_import.ttl",
+    #        "prv_import.ttl",
+    #        "qibo_import.ttl",
+    #        "sio_import.ttl",
+    #        "stato_import.ttl"
+    #]
 
-    imports=[
-            "crypto_import.ttl",
-            "dc_import.ttl",
-            "iao_import.ttl",
-            "nfo_import.ttl",
-            "nlx_import.ttl",
-            "obi_import.ttl",
-            "ontoneurolog_instruments_import.ttl",
-            "pato_import.ttl",
-            "prv_import.ttl",
-            "qibo_import.ttl",
-            "sio_import.ttl",
-            "stato_import.ttl"
-    ]
-
-    #load each import
-    for resource in imports:
-        temp_graph = Graph()
-        try:
-
-            temp_graph.parse(os.path.join(imports_path,resource),format="turtle")
-            union_graph=union_graph+temp_graph
-
-        except Exception:
-            logging.info("Error opening %s import file..continuing" %os.path.join(imports_path,resource))
-            continue
+    ##load each import
+    #for resource in imports:
+    #    temp_graph = Graph()
+    #    try:
+    #
+    #        temp_graph.parse(os.path.join(imports_path,resource),format="turtle")
+    #        union_graph=union_graph+temp_graph
+    #
+    #    except Exception:
+    #        logging.info("Error opening %s import file..continuing" %os.path.join(imports_path,resource))
+    #        continue
 
     owls=[
-            "https://raw.githubusercontent.com/incf-nidash/nidm-specs/master/nidm/nidm-experiment/terms/nidm-experiment.owl"
+            "https://raw.githubusercontent.com/incf-nidash/nidm-specs/master/nidm/nidm-experiment/imports/crypto_import.ttl",
+            "https://raw.githubusercontent.com/incf-nidash/nidm-specs/master/nidm/nidm-experiment/imports/dc_import.ttl",
+            "https://raw.githubusercontent.com/incf-nidash/nidm-specs/master/nidm/nidm-experiment/imports/dicom_import.ttl",
+            "https://raw.githubusercontent.com/incf-nidash/nidm-specs/master/nidm/nidm-experiment/imports/iao_import.ttl",
+            "https://raw.githubusercontent.com/incf-nidash/nidm-specs/master/nidm/nidm-experiment/imports/nfo_import.ttl",
+            "https://raw.githubusercontent.com/incf-nidash/nidm-specs/master/nidm/nidm-experiment/imports/obi_import.ttl",
+            "https://raw.githubusercontent.com/incf-nidash/nidm-specs/master/nidm/nidm-experiment/imports/ontoneurolog_instruments_import.ttl",
+            "https://raw.githubusercontent.com/incf-nidash/nidm-specs/master/nidm/nidm-experiment/imports/pato_import.ttl",
+            "https://raw.githubusercontent.com/incf-nidash/nidm-specs/master/nidm/nidm-experiment/imports/pato_import.ttl",
+            "https://raw.githubusercontent.com/incf-nidash/nidm-specs/master/nidm/nidm-experiment/imports/prv_import.ttl",
+            "https://raw.githubusercontent.com/incf-nidash/nidm-specs/master/nidm/nidm-experiment/imports/sio_import.ttl",
+            "https://raw.githubusercontent.com/incf-nidash/nidm-specs/master/nidm/nidm-experiment/terms/nidm-experiment.owl",
+            "https://raw.githubusercontent.com/incf-nidash/nidm-specs/master/nidm/nidm-results/terms/nidm-results.owl"
     ]
 
     #load each owl file
@@ -725,7 +762,7 @@ def load_nidm_owl_files():
             temp_graph.parse(location=resource, format="turtle")
             union_graph=union_graph+temp_graph
         except Exception:
-            logging.info("Error opening %s owl file..continuing" %os.path.join(terms_path,resource))
+            logging.info("Error opening %s owl file..continuing" %resource)
             continue
 
 
@@ -758,6 +795,28 @@ def fuzzy_match_terms_from_graph(graph,query_string):
     #for term in owl_graph.classes():
     #    print(term.get_properties())
     return match_scores
+
+def fuzzy_match_concepts_from_nidmterms_jsonld(json_struct,query_string):
+    match_scores = {}
+
+    # search for labels rdfs:label and obo:IAO_0000115 (description) for each rdf:type owl:Class
+    for entry in json_struct['terms']:
+        match_scores[entry['label']] = {}
+        match_scores[entry['label']]['score'] = fuzz.token_sort_ratio(query_string, entry['label'])
+        match_scores[entry['label']]['label'] = entry['label']
+        if "http://schema.org/url" in entry.keys():
+            match_scores[entry['label']]['url'] = entry["http://schema.org/url"]
+        else:
+            match_scores[entry['label']]['url'] = ""
+        if 'description' in entry.keys():
+            match_scores[entry['label']]['definition'] = entry['description']
+        else:
+            match_scores[entry['label']]['definition'] = ""
+
+    # for term in owl_graph.classes():
+    #    print(term.get_properties())
+    return match_scores
+
 def fuzzy_match_terms_from_cogatlas_json(json_struct,query_string):
 
     match_scores={}
@@ -1062,6 +1121,13 @@ def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_
                         column_to_terms[current_tuple]['source_variable'] = str(column)
                         print("Added source variable (%s) to annotations" %column)
 
+                    if "associatedWith" in json_map[json_key[0]]:
+                        column_to_terms[current_tuple]['associatedWith'] = json_map[json_key[0]]['associatedWith']
+                        print("associatedWith: %s" % column_to_terms[current_tuple]['associatedWith'])
+                    if "allowableValues" in json_map[json_key[0]]:
+                        column_to_terms[current_tuple]['allowableValues'] = json_map[json_key[0]]['allowableValues']
+                        print("allowableValues: %s" % column_to_terms[current_tuple]['allowableValues'])
+
                     if "isAbout" in json_map[json_key[0]]:
                         #check if we have a single isAbout or multiple...
                         if isinstance(json_map[json_key[0]]['isAbout'],list):
@@ -1083,12 +1149,7 @@ def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_
                             find_concept_interactive(column,current_tuple,column_to_terms,ilx_obj,nidm_owl_graph=nidm_owl_graph)
                             # write annotations to json file so user can start up again if not doing whole file
                             write_json_mapping_file(column_to_terms,output_file,bids)
-                    if "associatedWith" in json_map[json_key[0]]:
-                        column_to_terms[current_tuple]['associatedWith'] = json_map[json_key[0]]['associatedWith']
-                        print("associatedWith: %s" % column_to_terms[current_tuple]['associatedWith'])
-                    if "allowableValues" in json_map[json_key[0]]:
-                        column_to_terms[current_tuple]['allowableValues'] = json_map[json_key[0]]['allowableValues']
-                        print("allowableValues: %s" % column_to_terms[current_tuple]['allowableValues'])
+
                     print("---------------------------------------------------------------------------------------")
 
             if (json_map is not None) and (len(json_key)>0):
@@ -1211,10 +1272,13 @@ def write_json_mapping_file(source_variable_annotations, output_file, bids=False
                     as fp:
             json.dump(source_variable_annotations, fp,indent=4)
 
-def find_concept_interactive(source_variable, current_tuple, source_variable_annotations, ilx_obj,ancestor=False,nidm_owl_graph=None):
+def find_concept_interactive(source_variable, current_tuple, source_variable_annotations, ilx_obj,ancestor=True,nidm_owl_graph=None):
     '''
-    This function will allow user to interactively find a concept in the InterLex to associate with the
+    This function will allow user to interactively find a concept in the InterLex, CogAtlas, and NIDM to associate with the
     source variable from the assessment encoded in the current_tuple
+
+    Starts by using NIDM-Terms concepts which are ones that have previously been used to annotate datasets.  By
+    starting with these we maximize chances of being able to query across datasets using concept-drivin queries.
 
     '''
 
@@ -1225,6 +1289,10 @@ def find_concept_interactive(source_variable, current_tuple, source_variable_ann
         print("Check your internet connection and try again or supply a JSON annotation file with all the variables "
               "mapped to terms")
         return source_variable_annotations
+
+    # added by DBK 5/14/21 to support pulling concepts used in previous dataset annotations in from NIDM-Terms
+    # repo.
+    nidmterms_concepts = load_nidm_terms_concepts()
 
     # Retrieve cognitive atlas concepts and disorders
     cogatlas_concepts = get_concept(silent=True)
@@ -1242,95 +1310,125 @@ def find_concept_interactive(source_variable, current_tuple, source_variable_ann
         print("Concept Association")
         print("Query String: %s " % search_term)
 
-        if ilx_obj is not None:
-            # for each column name, query Interlex for possible matches
-            search_result = GetNIDMTermsFromSciCrunch(search_term, type='term', ancestor=ancestor)
-
-            temp = search_result.copy()
-            # print("Search Term: %s" %search_term)
-            if len(temp) != 0:
-                print("InterLex:")
-                print()
-                # print("Search Results: ")
-                for key, value in temp.items():
-                    print("%d: Label: %s \t Definition: %s \t Preferred URL: %s " % (
-                    option, search_result[key]['label'], search_result[key]['definition'],
-                    search_result[key]['preferred_url']))
-
-                    search_result[str(option)] = key
-                    option = option + 1
-
-        # if user supplied an OWL file to search in for terms
-        # if owl_file:
-
-        if nidm_owl_graph is not None:
-            # Add existing NIDM Terms as possible selections which fuzzy match the search_term
-            nidm_constants_query = fuzzy_match_terms_from_graph(nidm_owl_graph, search_term)
-
+        # modified by DBK 5/14/21 to start with nidm-terms used concepts
+        if nidmterms_concepts is not None:
+            nidmterms_concepts_query = fuzzy_match_concepts_from_nidmterms_jsonld(nidmterms_concepts, search_term)
+            search_result = {}
             first_nidm_term = True
-            for key, subdict in nidm_constants_query.items():
-                if nidm_constants_query[key]['score'] > min_match_score:
+            for key, subdict in nidmterms_concepts_query.items():
+                if nidmterms_concepts_query[key]['score'] > min_match_score:
                     if first_nidm_term:
                         print()
-                        print("NIDM Terms:")
+                        print("NIDM-Terms Concepts:")
                         first_nidm_term = False
 
-                    print("%d: Label(NIDM Term): %s \t Definition: %s \t URL: %s" % (
-                    option, nidm_constants_query[key]['label'], nidm_constants_query[key]['definition'],
-                    nidm_constants_query[key]['url']))
+                    print("%d: Label: %s \t Definition: %s \t URL: %s" % (
+                    option, nidmterms_concepts_query[key]['label'], nidmterms_concepts_query[key]['definition'],
+                    nidmterms_concepts_query[key]['url']))
                     search_result[key] = {}
-                    search_result[key]['label'] = nidm_constants_query[key]['label']
-                    search_result[key]['definition'] = nidm_constants_query[key]['definition']
-                    search_result[key]['preferred_url'] = nidm_constants_query[key]['url']
+                    search_result[key]['label'] = nidmterms_concepts_query[key]['label']
+                    search_result[key]['definition'] = nidmterms_concepts_query[key]['definition']
+                    search_result[key]['preferred_url'] = nidmterms_concepts_query[key]['url']
                     search_result[str(option)] = key
                     option = option + 1
 
-        # Cognitive Atlas Concepts Search
-        try:
-            cogatlas_concepts_query = fuzzy_match_terms_from_cogatlas_json(cogatlas_concepts.json,search_term)
-            first_cogatlas_concept = True
-            for key, subdict in cogatlas_concepts_query.items():
-                if cogatlas_concepts_query[key]['score'] > min_match_score+20:
-                    if first_cogatlas_concept:
-                        print()
-                        print("Cognitive Atlas:")
-                        print()
-                        first_cogatlas_concept = False
 
-                    print("%d: Label: %s \t Definition:   %s " % (
-                        option, cogatlas_concepts_query[key]['label'], cogatlas_concepts_query[key]['definition'].rstrip('\r\n')))
-                    search_result[key] = {}
-                    search_result[key]['label'] = cogatlas_concepts_query[key]['label']
-                    search_result[key]['definition'] = cogatlas_concepts_query[key]['definition'].rstrip('\r\n')
-                    search_result[key]['preferred_url'] = cogatlas_concepts_query[key]['url']
-                    search_result[str(option)] = key
-                    option = option + 1
-        except:
-            pass
+        if not ancestor:
+            if ilx_obj is not None:
+                # for each column name, query Interlex for possible matches
+                ilx_result = GetNIDMTermsFromSciCrunch(search_term, type='term', ancestor=False)
 
-        # Cognitive Atlas Disorders Search
-        try:
-            cogatlas_disorders_query = fuzzy_match_terms_from_cogatlas_json(cogatlas_disorders.json, search_term)
-            for key, subdict in cogatlas_disorders_query.items():
-                if cogatlas_disorders_query[key]['score'] > min_match_score+20:
-                    print("%d: Label: %s \t Definition:   %s " % (
-                        option, cogatlas_disorders_query[key]['label'], cogatlas_disorders_query[key]['definition'].rstrip('\r\n'),
-                        ))
-                    search_result[key] = {}
-                    search_result[key]['label'] = cogatlas_disorders_query[key]['label']
-                    search_result[key]['definition'] = cogatlas_disorders_query[key]['definition'].rstrip('\r\n')
-                    search_result[key]['preferred_url'] = cogatlas_disorders_query[key]['url']
-                    search_result[str(option)] = key
-                    option = option + 1
-        except:
-            pass
+                #temp = ilx_result.copy()
+                # print("Search Term: %s" %search_term)
+                if len(ilx_result) != 0:
+                    print("InterLex:")
+                    print()
+                    # print("Search Results: ")
+                    for key, value in ilx_result.items():
+                        print("%d: Label: %s \t Definition: %s \t Preferred URL: %s " % (
+                        option, ilx_result[key]['label'], ilx_result[key]['definition'],
+                        ilx_result[key]['preferred_url']))
 
+                        search_result[key]={}
+                        search_result[key]['label'] = ilx_result[key]['label']
+                        search_result[key]['definition'] = ilx_result[key]['definition']
+                        search_result[key]['preferred_url'] = ilx_result[key]['preferred_url']
+                        search_result[str(option)] = key
+                        option = option + 1
+
+
+            # Cognitive Atlas Concepts Search
+            try:
+                cogatlas_concepts_query = fuzzy_match_terms_from_cogatlas_json(cogatlas_concepts.json,search_term)
+                first_cogatlas_concept = True
+                for key, subdict in cogatlas_concepts_query.items():
+                    if cogatlas_concepts_query[key]['score'] > min_match_score+20:
+                        if first_cogatlas_concept:
+                            print()
+                            print("Cognitive Atlas:")
+                            print()
+                            first_cogatlas_concept = False
+
+                        print("%d: Label: %s \t Definition:   %s " % (
+                            option, cogatlas_concepts_query[key]['label'], cogatlas_concepts_query[key]['definition'].rstrip('\r\n')))
+                        search_result[key] = {}
+                        search_result[key]['label'] = cogatlas_concepts_query[key]['label']
+                        search_result[key]['definition'] = cogatlas_concepts_query[key]['definition'].rstrip('\r\n')
+                        search_result[key]['preferred_url'] = cogatlas_concepts_query[key]['url']
+                        search_result[str(option)] = key
+                        option = option + 1
+            except:
+                pass
+
+            # Cognitive Atlas Disorders Search
+            try:
+                cogatlas_disorders_query = fuzzy_match_terms_from_cogatlas_json(cogatlas_disorders.json, search_term)
+                for key, subdict in cogatlas_disorders_query.items():
+                    if cogatlas_disorders_query[key]['score'] > min_match_score+20:
+                        print("%d: Label: %s \t Definition:   %s " % (
+                            option, cogatlas_disorders_query[key]['label'], cogatlas_disorders_query[key]['definition'].rstrip('\r\n'),
+                            ))
+                        search_result[key] = {}
+                        search_result[key]['label'] = cogatlas_disorders_query[key]['label']
+                        search_result[key]['definition'] = cogatlas_disorders_query[key]['definition'].rstrip('\r\n')
+                        search_result[key]['preferred_url'] = cogatlas_disorders_query[key]['url']
+                        search_result[str(option)] = key
+                        option = option + 1
+            except:
+                pass
+
+            # if user supplied an OWL file to search in for terms
+            # if owl_file:
+
+            if nidm_owl_graph is not None:
+                # Add existing NIDM Terms as possible selections which fuzzy match the search_term
+                nidm_constants_query = fuzzy_match_terms_from_graph(nidm_owl_graph, search_term)
+
+                first_nidm_term = True
+                for key, subdict in nidm_constants_query.items():
+                    if nidm_constants_query[key]['score'] > min_match_score:
+                        if first_nidm_term:
+                            print()
+                            print("NIDM Ontology Terms:")
+                            first_nidm_term = False
+
+                        print("%d: Label: %s \t Definition: %s \t URL: %s" % (
+                                option, nidm_constants_query[key]['label'], nidm_constants_query[key]['definition'],
+                                nidm_constants_query[key]['url']))
+                        search_result[key] = {}
+                        search_result[key]['label'] = nidm_constants_query[key]['label']
+                        search_result[key]['definition'] = nidm_constants_query[key]['definition']
+                        search_result[key]['preferred_url'] = nidm_constants_query[key]['url']
+                        search_result[str(option)] = key
+                        option = option + 1
+
+        print()
         if ancestor:
             # Broaden Interlex search
-            print("%d: Broaden Interlex query " % option)
+            print("%d: Broaden Search (includes interlex, cogatlas, and nidm ontology) " % option)
         else:
             # Narrow Interlex search
-            print("%d: Narrow Interlex query " % option)
+            print("%d: Narrow Search (includes nidm-terms previously used concepts) " % option)
         option = option + 1
 
         # Add option to change query string
@@ -1375,7 +1473,7 @@ def find_concept_interactive(source_variable, current_tuple, source_variable_ann
             # if user says no concept mapping needed then just exit this loop
         ########DEFINE NEW CONCEPT COMMENTED OUT RIGHT NOW####################################
         elif int(selection) == (option):
-            # don't need to continue while loop because we've defined a term for this CSV column
+            # don't need to continue while loop because we've decided not to associate a concept with this variable.
             go_loop = False
         else:
             # user selected one of the existing concepts to add its URL to the isAbout property
