@@ -55,7 +55,7 @@ from patsy.contrasts import ContrastMatrix
 from patsy.contrasts import Sum
 from patsy.contrasts import Diff
 from patsy.contrasts import Helmert
-MAX_ALPHA = 3
+MAX_ALPHA = 700
 #Defining the parameters of the commands.
 @cli.command()
 @click.option("--nidm_file_list", "-nl", required=True,
