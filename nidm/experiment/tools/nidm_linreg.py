@@ -125,6 +125,7 @@ def data_aggregation(): #all data from all the files is collected
             condensed_data_holder[i] = []
 
         count = 0
+        not_found_count = 0
         for nidm_file in file_list:
             # get project UUID
             project = GetProjectsUUID([nidm_file])
@@ -259,8 +260,15 @@ def data_aggregation(): #all data from all the files is collected
                         f = open(o, "a")
                         f.write(str(i + 1) + ". " + not_found_list[i])
                         f.close()
+                for j in range(len(not_found_list)-1, 0,-1):
+                    not_found_list.pop(j)
+                not_found_count = not_found_count + 1
                 print()
-                exit(1)
+                #exit(1)
+        if not_found_count > 0:
+            exit(1)
+
+
     else:
         print("ERROR: No query parameter provided.  See help:")
         print()
