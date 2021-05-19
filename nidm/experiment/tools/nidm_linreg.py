@@ -7,7 +7,7 @@
 #  License: GPL
 # *******************************************************************************************************
 # *******************************************************************************************************
-# Date: 2-19-21                 Coded by: Ashmita Kumar (ashmita.kumar@gmail.com)
+# Date: 5-19-21                 Coded by: Ashmita Kumar (ashmita.kumar@gmail.com)
 # Filename: regularized_nidm_linreg.py
 #
 # Program description:  This program provides a tool to complete a linear regression on nidm files
@@ -216,7 +216,6 @@ def data_aggregation(): #all data from all the files is collected
                     except IndexError:
                         numrows = numrows + 1
                 numrows = 1  # resets to the first row for the next variable
-            #print(condensed_data_holder[count][0][len(condensed_data_holder[count])-2])
             temp_list = condensed_data_holder[count]
             for j in range(len(temp_list[0])-1, 0,-1):  # if the software appends a column with 0 as the heading, it removes this null column
                 if temp_list[0][j] == "0" or temp_list[0][j] == "NaN":
@@ -264,7 +263,6 @@ def data_aggregation(): #all data from all the files is collected
                     not_found_list.pop(j)
                 not_found_count = not_found_count + 1
                 print()
-                #exit(1)
         if not_found_count > 0:
             exit(1)
 
@@ -346,8 +344,6 @@ def dataparsing(): #The data is changed to a format that is usable by the linear
         f.write("\n\n***********************************************************************************************************")
         f.write("\n\nModel Results: ")
         f.close()
-        # output to csv file
-        #df.to_csv(o)
 
 def linreg(): #actual linear regression
     print("Model Results: ")
