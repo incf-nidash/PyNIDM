@@ -227,7 +227,6 @@ def data_aggregation(): #all data from all the files is collected
                 for row in condensed_data_holder[count]:
                     if row[i] == 0 or row[i] == "NaN" or row[i] == "0":
                         count1 = count1 + 1
-                print(count1)
                 if count1 > len(condensed_data_holder[count]) - 2:
                     not_found_list.append(condensed_data_holder[count][0][i])
                 count1 = 0
@@ -239,7 +238,6 @@ def data_aggregation(): #all data from all the files is collected
                     independentvariables[i] = independentvariables[i].replace(" ", "_")
             if " " in dep_var:
                 dep_var = dep_var.replace(" ", "_")
-            print(condensed_data_holder[count])
             count = count + 1
             if len(not_found_list) > 0:
                 print(
