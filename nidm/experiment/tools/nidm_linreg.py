@@ -319,7 +319,10 @@ def dataparsing(): #The data is changed to a format that is usable by the linear
         le.fit(obj_df[variables[i]].astype(str))
     obj_df_trf = obj_df.astype(str).apply(le.fit_transform)  # transforms the categorical variables into numbers.
     global df_final #also used in linreg()
-    df_final = pd.concat([df_int_float, obj_df_trf], axis=1)  # join_axes=[df_int_float.index])
+    if not obj_df_trf.empty:
+        df_final = pd.concat([df_int_float, obj_df_trf], axis=1)  # join_axes=[df_int_float.index])
+    else:
+        df_final = df_int_float
     df_final.head()  # shows the final dataset with all the encoding
     print(df_final)  # prints the final dataset
     print()
