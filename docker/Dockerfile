@@ -1,7 +1,7 @@
 FROM ubuntu:18.04
 
 RUN apt-get update &&  \
-    apt-get install -y git python3 graphviz python3-pip ssh mercurial python-setuptools
+    apt-get install -y git python3 graphviz python3-pip ssh mercurial python-setuptools zip
 
 RUN python3 -m pip install --upgrade pip && \
     pip3 install rdflib requests rapidfuzz fuzzywuzzy pygithub pybids duecredit setuptools \
