@@ -34,180 +34,164 @@ def full_kmeans(nidm_file_list, output_file, variables):
     o = output_file
     global n  # used in data_aggregation()
     n = nidm_file_list
+    data_aggregation()
+    dataparsing()
+    kmeans()
 
-    def data_aggregation():  # all data from all the files is collected
-        """
-                This function provides query support for NIDM graphs.
-                """
-        # query result list
-        results = []
-        # if there is a CDE file list, seed the CDE cache
-        if v:  # ex: fs_00343 ~ age + sex + group
-            print(
-                "***********************************************************************************************************")
-            command = "python nidm_kmeans.py -nl " + n + " -variables \"" + v + "\" "
-            """if c:
-                command = command + "-contrast \"" + c + "\" "
-            if r:
-                command = command + "-r " + r"""
-            print("Your command was: " + command)
-            if (o is not None):
-                f = open(o, "w")
-                f.write("Your command was " + command)
-                f.close()
-            verbosity = 0
-            restParser = RestParser(verbosity_level=int(verbosity))
-            restParser.setOutputFormat(RestParser.OBJECT_FORMAT)
-            global df_list  # used in dataparsing()
-            df_list = []
-            # set up uri to do fields query for each nidm file
-            global file_list
-            file_list = n.split(",")
-            df_list_holder = {}
-            for i in range(len(file_list)):
-                df_list_holder[i] = []
-            df_holder = {}
-            for i in range(len(file_list)):
-                df_holder[i] = []
-            global condensed_data_holder
-            condensed_data_holder = {}
-            for i in range(len(file_list)):
-                condensed_data_holder[i] = []
 
-            count = 0
-            not_found_count = 0
-            for nidm_file in file_list:
-                # get project UUID
-                project = GetProjectsUUID([nidm_file])
-                # split the model into its constituent variables
-                global full_model_variable_list
-                full_model_variable_list=[]
-                model_list = v.split(",")
-                for i in range(len(model_list)):  # here, we remove any leading or trailing spaces
-                    model_list[i] = model_list[i].strip()
-                global vars  # used in dataparsing()
-                vars = ""
-                for i in range(len(model_list) - 1, 0, -1):
-                    full_model_variable_list.append(
-                        model_list[i])  # will be used in the regularization, but we need the full list
-                    if "*" in model_list[i]:  # removing the star term from the columns we're about to pull from data
-                        model_list.pop(i)
-                    else:
-                        vars = vars + model_list[i] + ","
-                vars = vars[0:len(vars) - 1]
-                uri = "/projects/" + project[0].toPython().split("/")[-1] + "?fields=" + vars
-                # get fields output from each file and concatenate
-                df_list_holder[count].append(pd.DataFrame(restParser.run([nidm_file], uri)))
-                df = pd.concat(df_list_holder[count])
-                with tempfile.NamedTemporaryFile(delete=False) as temp:  # turns the dataframe into a temporary csv
-                    df.to_csv(temp.name + '.csv')
-                    temp.close()
-                data = list(csv.reader(open(
-                    temp.name + '.csv')))  # makes the csv a 2D list to make it easier to call the contents of certain cells
-                numcols = (len(data) - 1) // (
-                        len(vars) + 1)  # Finds the number of columns in the original dataframe
-                global condensed_data  # also used in linreg()
-                condensed_data_holder[count] = [
-                    [0] * (len(vars) + 1)]  # makes an array 1 row by the number of necessary columns
-                for i in range(
-                        numcols):  # makes the 2D array big enough to store all of the necessary values in the edited dataset
-                    condensed_data_holder[count].append([0] * (len(vars) + 1))
-                for i in range(len(vars)):  # stores the independent variable names in the first row
-                    condensed_data_holder[count][0][i] = vars[i]
-                numrows = 1  # begins at the first row to add data
-                fieldcolumn = 0  # the column the variable name is in in the original dataset
-                valuecolumn = 0  # the column the value is in in the original dataset
-                datacolumn = 0  # if it is identified by the dataElement name instead of the field's name
-                not_found_list = []
-                for i in range(len(data[0])):
-                    if data[0][i] == 'sourceVariable':  # finds the column where the variable names are
-                        fieldcolumn = i
-                    elif data[0][i] == 'source_variable':  # finds the column where the variable names are
-                        fieldcolumn = i
-                    if data[0][i] == 'label':
-                        namecolumn = i  # finds the column where the variable names are
-                    elif data[0][i] == 'value':
-                        valuecolumn = i  # finds the column where the values are
-                    elif data[0][i] == 'dataElement':  # finds the column where the data element is if necessary
-                        datacolumn = i
-                for i in range(
-                        len(condensed_data_holder[count][
-                                0])):  # starts iterating through the dataset, looking for the name in that
-                    for j in range(1, len(data)):  # column, so it can append the values under the proper variables
-                        try:
-                            if data[j][fieldcolumn] == condensed_data_holder[count][0][
-                                i]:  # in the dataframe, the name is in column 3
-                                condensed_data_holder[count][numrows][i] = data[j][
-                                    valuecolumn]  # in the dataframe, the value is in column 2
-                                numrows = numrows + 1  # moves on to the next row to add the proper values
-                            elif data[j][namecolumn] == condensed_data_holder[count][0][
-                                i]:  # in the dataframe, the name is in column 12
-                                condensed_data_holder[count][numrows][i] = data[j][
-                                    valuecolumn]  # in the dataframe, the value is in column 2
-                                numrows = numrows + 1  # moves on to the next row to add the proper values
-                            elif condensed_data_holder[count][0][i] == data[j][
-                                datacolumn]:  # in the dataframe, the name is in column 9
-                                condensed_data_holder[count][numrows][i] = data[j][
-                                    valuecolumn]  # in the dataframe, the value is in column 2
-                                numrows = numrows + 1  # moves on to the next row to add the proper values
-                        except IndexError:
-                            numrows = numrows + 1
-                    numrows = 1  # resets to the first row for the next variable
-                temp_list = condensed_data_holder[count]
-                for j in range(len(temp_list[0]) - 1, 0,
-                               -1):  # if the software appends a column with 0 as the heading, it removes this null column
-                    if temp_list[0][j] == "0" or temp_list[0][j] == "NaN":
-                        for row in condensed_data_holder[count]:
-                            row.pop(j)
-                rowsize = len(condensed_data_holder[count][0])
-                count1 = 0
-                for i in range(0, rowsize):
+def data_aggregation():  # all data from all the files is collected
+    """    This function provides query support for NIDM graphs.   """
+    # query result list
+    results = []
+    # if there is a CDE file list, seed the CDE cache
+    if v:  # ex: fs_00343 ~ age + sex + group
+        print("***********************************************************************************************************")
+        command = "python nidm_kmeans.py -nl " + n + " -variables \"" + v + "\" "
+
+        print("Your command was: " + command)
+        if (o is not None):
+            f = open(o, "w")
+            f.write("Your command was " + command)
+            f.close()
+        verbosity = 0
+        restParser = RestParser(verbosity_level=int(verbosity))
+        restParser.setOutputFormat(RestParser.OBJECT_FORMAT)
+        global df_list  # used in dataparsing()
+        df_list = []
+        # set up uri to do fields query for each nidm file
+        global file_list
+        file_list = n.split(",")
+        df_list_holder = {}
+        for i in range(len(file_list)):
+            df_list_holder[i] = []
+        df_holder = {}
+        for i in range(len(file_list)):
+            df_holder[i] = []
+        global condensed_data_holder
+        condensed_data_holder = {}
+        for i in range(len(file_list)):
+            condensed_data_holder[i] = []
+        count = 0
+        not_found_count = 0
+        for nidm_file in file_list:
+            # get project UUID
+            project = GetProjectsUUID([nidm_file])
+            # split the model into its constituent variables
+            global full_model_variable_list
+            full_model_variable_list=[]
+            global model_list
+            model_list = v.split(",")
+            for i in range(len(model_list)):  # here, we remove any leading or trailing spaces
+                model_list[i] = model_list[i].strip()
+            global vars  # used in dataparsing()
+            vars = ""
+            for i in range(len(model_list) - 1, -1, -1):
+                full_model_variable_list.append(model_list[i])  # will be used in the regularization, but we need the full list
+                if "*" in model_list[i]:  # removing the star term from the columns we're about to pull from data
+                    model_list.pop(i)
+                else:
+                    vars = vars + model_list[i] + ","
+            vars = vars[0:len(vars) - 1]
+            uri = "/projects/" + project[0].toPython().split("/")[-1] + "?fields=" + vars
+            # get fields output from each file and concatenate
+            df_list_holder[count].append(pd.DataFrame(restParser.run([nidm_file], uri)))
+            df = pd.concat(df_list_holder[count])
+            with tempfile.NamedTemporaryFile(delete=False) as temp:  # turns the dataframe into a temporary csv
+                df.to_csv(temp.name + '.csv')
+                temp.close()
+            data = list(csv.reader(open(temp.name + '.csv')))  # makes the csv a 2D list to make it easier to call the contents of certain cells
+            numcols = (len(data) - 1) // (len(model_list))  # Finds the number of columns in the original dataframe
+            global condensed_data  # also used in linreg()
+            condensed_data_holder[count] = [[0] * (len(model_list))]  # makes an array 1 row by the number of necessary columns
+            for i in range(numcols):  # makes the 2D array big enough to store all of the necessary values in the edited dataset
+                condensed_data_holder[count].append([0] * (len(model_list)))
+            for i in range(len(model_list)):  # stores the independent variable names in the first row
+                condensed_data_holder[count][0][i] = model_list[i]
+            numrows = 1  # begins at the first row to add data
+            fieldcolumn = 0  # the column the variable name is in in the original dataset
+            valuecolumn = 0  # the column the value is in in the original dataset
+            datacolumn = 0  # if it is identified by the dataElement name instead of the field's name
+            not_found_list = []
+            for i in range(len(data[0])):
+                if data[0][i] == 'sourceVariable':  # finds the column where the variable names are
+                    fieldcolumn = i
+                elif data[0][i] == 'source_variable':  # finds the column where the variable names are
+                    fieldcolumn = i
+                if data[0][i] == 'label':
+                    namecolumn = i  # finds the column where the variable names are
+                elif data[0][i] == 'value':
+                    valuecolumn = i  # finds the column where the values are
+                elif data[0][i] == 'dataElement':  # finds the column where the data element is if necessary
+                    datacolumn = i
+            for i in range(len(condensed_data_holder[count][0])):  # starts iterating through the dataset, looking for the name in that
+                for j in range(1, len(data)):  # column, so it can append the values under the proper variables
+                    try:
+                        if data[j][fieldcolumn] == condensed_data_holder[count][0][i]:  # in the dataframe, the name is in column 3
+                            condensed_data_holder[count][numrows][i] = data[j][valuecolumn]  # in the dataframe, the value is in column 2
+                            numrows = numrows + 1  # moves on to the next row to add the proper values
+                        elif data[j][namecolumn] == condensed_data_holder[count][0][i]:  # in the dataframe, the name is in column 12
+                            condensed_data_holder[count][numrows][i] = data[j][valuecolumn]  # in the dataframe, the value is in column 2
+                            numrows = numrows + 1  # moves on to the next row to add the proper values
+                        elif condensed_data_holder[count][0][i] == data[j][datacolumn]:  # in the dataframe, the name is in column 9
+                            condensed_data_holder[count][numrows][i] = data[j][valuecolumn]  # in the dataframe, the value is in column 2
+                            numrows = numrows + 1  # moves on to the next row to add the proper values
+                    except IndexError:
+                        numrows = numrows + 1
+                numrows = 1  # resets to the first row for the next variable
+            temp_list = condensed_data_holder[count]
+            for j in range(len(temp_list[0]) - 1, 0,-1):  # if the software appends a column with 0 as the heading, it removes this null column
+                if temp_list[0][j] == "0" or temp_list[0][j] == "NaN":
                     for row in condensed_data_holder[count]:
-                        if row[i] == 0 or row[i] == "NaN" or row[i] == "0":
-                            count1 = count1 + 1
-                    if count1 > len(condensed_data_holder[count]) - 2:
-                        not_found_list.append(condensed_data_holder[count][0][i])
-                    count1 = 0
-                for i in range(len(condensed_data_holder[count][0])):
-                    if " " in condensed_data_holder[count][0][i]:
-                        condensed_data_holder[count][0][i] = condensed_data_holder[count][0][i].replace(" ", "_")
-                for i in range(len(vars)):
-                    if " " in vars[i]:
-                        vars[i] = vars[i].replace(" ", "_")
-                count = count + 1
-                if len(not_found_list) > 0:
-                    print(
+                        row.pop(j)
+            rowsize = len(condensed_data_holder[count][0])
+            count1 = 0
+            for i in range(0, rowsize):
+                for row in condensed_data_holder[count]:
+                    if row[i] == 0 or row[i] == "NaN" or row[i] == "0":
+                        count1 = count1 + 1
+                if count1 > len(condensed_data_holder[count]) - 2:
+                    not_found_list.append(condensed_data_holder[count][0][i])
+                count1 = 0
+            for i in range(len(condensed_data_holder[count][0])):
+                if " " in condensed_data_holder[count][0][i]:
+                    condensed_data_holder[count][0][i] = condensed_data_holder[count][0][i].replace(" ", "_")
+            for i in range(len(vars)):
+                if " " in vars[i]:
+                    vars[i] = vars[i].replace(" ", "_")
+            count = count + 1
+            if len(not_found_list) > 0:
+                print(
                         "***********************************************************************************************************")
-                    print()
-                    print("Your variables were " + v)
-                    print()
-                    print(
+                print()
+                print("Your variables were " + v)
+                print()
+                print(
                         "The following variables were not found in " + nidm_file + ". The model cannot run because this will skew the data. Try checking your spelling or use nidm_query.py to see other possible variables.")
+                if (o is not None):
+                    f = open(o, "a")
+                    f.write("Your variables were " + v)
+                    f.write(
+                            "The following variables were not found in " + nidm_file + ". The model cannot run because this will skew the data. Try checking your spelling or use nidm_query.py to see other possible variables.")
+                    f.close()
+                for i in range(0, len(not_found_list)):
+                    print(str(i + 1) + ". " + not_found_list[i])
                     if (o is not None):
                         f = open(o, "a")
-                        f.write("Your variables were " + v)
-                        f.write(
-                            "The following variables were not found in " + nidm_file + ". The model cannot run because this will skew the data. Try checking your spelling or use nidm_query.py to see other possible variables.")
+                        f.write(str(i + 1) + ". " + not_found_list[i])
                         f.close()
-                    for i in range(0, len(not_found_list)):
-                        print(str(i + 1) + ". " + not_found_list[i])
-                        if (o is not None):
-                            f = open(o, "a")
-                            f.write(str(i + 1) + ". " + not_found_list[i])
-                            f.close()
-                    for j in range(len(not_found_list) - 1, 0, -1):
-                        not_found_list.pop(j)
-                    not_found_count = not_found_count + 1
-                    print()
-            if not_found_count > 0:
-                exit(1)
-
-
-            else:
-                print("ERROR: No query parameter provided.  See help:")
+                for j in range(len(not_found_list) - 1, 0, -1):
+                    not_found_list.pop(j)
+                not_found_count = not_found_count + 1
                 print()
-                os.system("pynidm query --help")
-                exit(1)
+        if not_found_count > 0:
+            exit(1)
+
+
+    else:
+        print("ERROR: No query parameter provided.  See help:")
+        print()
+        os.system("pynidm query --help")
+        exit(1)
 
 def dataparsing(): #The data is changed to a format that is usable by the linear regression method
     global condensed_data
@@ -258,9 +242,6 @@ def dataparsing(): #The data is changed to a format that is usable by the linear
         f.write("\n\nModel Results: ")
         f.close()
 def kmeans():
-    print("Model Results: ")
-    print("***********************************************************************************************************")
-    print()
     index = 0
     global levels  # also used in contrasting()
     levels = []
@@ -274,68 +255,37 @@ def kmeans():
     global X
     #global y
     #Unsure on how to procede here with interacting variables, since I'm sure dmatrices won't work
-    X = df_final[vars]
-    preprocessor = Pipeline([("scaler", MinMaxScaler()), ("pca", PCA(n_components=2, random_state=42))])
-    clusterer = Pipeline(
-        [
-            (
-                "kmeans",
-                KMeans(
-                    n_clusters=len(vars),
-                    init="k-means++",
-                    n_init=50,
-                    max_iter=500,
-                    random_state=42,
-                ),
-            ),
-        ]
-    )
-    pipe = Pipeline(
-        [
-            ("preprocessor", preprocessor),
-            ("clusterer", clusterer)
-        ]
-    )
-    le = LabelEncoder()
-    label = le.fit_transform(vars)
-    pipe.fit(X)
-    preprocessed_data = pipe["preprocessor"].transform(X)
-    predicted_labels = pipe["clusterer"]["kmeans"].labels_
-    ss = silhouette_score(preprocessed_data, predicted_labels)
-    ars = adjusted_rand_score(label, predicted_labels)
-    print(silhouette_score(preprocessed_data, predicted_labels))
-    print(adjusted_rand_score(label, predicted_labels))
-    """km = KMeans(n_clusters=3, n_init=3, init = "random", random_state=42)
-    km = KMeans(n_clusters=4, init='k-means++', max_iter=300, n_init=10, random_state=0)
-    y = km.fit_transform(X)
-    plt.scatter(X[:, 0], X[:, 1])
-    plt.scatter(kmeans.cluster_centers_[:, 0], kmeans.cluster_centers_[:, 1], s=300, c='red')
-    plt.show()"""
-    pcadf = pd.DataFrame(pipe["preprocessor"].transform(X),columns=["component_1","component_2"],)
-    pcadf["predicted_cluster"] = pipe["clusterer"]["kmeans"].labels_
-    pcadf["labels"] = le.inverse_transform(label)
-    plt.style.use("fivethirtyeight")
-    plt.figure(figsize=(8,8))
-    graphing = sns.scatterplot(
-        "component_1",
-        "component_2",
-        s=50,
-        data=pcadf,
-        hue="predicted_cluster",
-        style="labels",
-        palette="Set2",
-    )
+
+    scaler = MinMaxScaler()
+
+    for i in range(len(model_list)):
+        scaler.fit(df_final[[model_list[i]]])
+        df_final[[model_list[i]]] = scaler.transform(df_final[[model_list[i]]])
+
+    X = df_final[model_list]
+
+    sse = []
+    for i in range(1,10):
+        km = KMeans(n_clusters=i, init='k-means++', max_iter=300, n_init=10, random_state=0)
+        km.fit(X)
+        sse.append(km.inertia_)
+    n_clusters = 2
+    for i in range(1,len(sse)-1):
+        if (sse[i]<1) and (n_clusters==2):
+            n_clusters = i
+    km = KMeans(n_clusters=n_clusters, init='k-means++', max_iter=300, n_init=10, random_state=0)
+    y = km.fit_predict(X)
+    sns.scatterplot(data=X, x=model_list[0], y=model_list[1], hue=y, palette = "gnuplot")
+    plt.xlabel(model_list[1])
+    plt.ylabel(model_list[0])
     title = "Clustering results of "
-    for i in range(len(vars)):
-        title = title + vars[i] + ","
+    for i in range(len(model_list)):
+        title = title + model_list[i] + ","
     title = title[0:len(title)-1]
-    graphing.set_title(title)
-    plt.legend(bbox_to_anchor=(1.05,1), loc=2, borderaxespad=0.0)
+    plt.title(title)
     plt.show()
     if (o is not None):
         f = open(o, "a")
-        f.write("\n\n" + str(ss))
-        f.write("\n\n" + str(ars))
         f.close()
 def opencsv(data):
     """saves a list of lists as a csv and opens"""

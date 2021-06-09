@@ -28,7 +28,10 @@
 #
 #**************************************************************************************
 #**************************************************************************************
+import os
 import sys
+from urllib.request import urlretrieve
+
 import rdflib
 from rdflib import Graph, URIRef, util
 import pandas as pd
