@@ -1,0 +1,116 @@
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix dctypes: <http://purl.org/dc/dcmitype/> .
+@prefix ncicb: <http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#> .
+@prefix ncit: <http://ncitt.ncit.nih.gov/> .
+@prefix ndar: <https://ndar.nih.gov/api/datadictionary/v2/dataelement/> .
+@prefix nidm: <http://purl.org/nidash/nidm#> .
+@prefix niiri: <http://iri.nidash.org/> .
+@prefix obo: <http://purl.obolibrary.org/obo/> .
+@prefix onli: <http://neurolog.unice.fr/ontoneurolog/v3.0/instrument.owl#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix sio: <http://semanticscience.org/ontology/sio.owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+niiri:b27ef8a8-aff7-11ea-94eb-7cd1c3e4f5d7 a onli:assessment-instrument,
+        nidm:AcquisitionObject,
+        prov:Entity ;
+    ncicb:Age "9"^^xsd:int ;
+    ncit:Diagnosis "Anxiety"^^xsd:string ;
+    obo:handedness "R"^^xsd:string ;
+    prov:wasGeneratedBy niiri:_acq1 .
+
+niiri:b27f0c30-aff7-11ea-94eb-7cd1c3e4f5d7 a onli:assessment-instrument,
+        nidm:AcquisitionObject,
+        prov:Entity ;
+    ncicb:Age "8"^^xsd:int ;
+    ncit:Diagnosis "ADHD"^^xsd:string ;
+    obo:handedness "L"^^xsd:string ;
+    prov:wasGeneratedBy niiri:_acq2 .
+
+niiri:c27f2a8a-aff7-11ea-94eb-7cd1c3e4f5d7 a onli:assessment-instrument,
+        nidm:AcquisitionObject,
+        prov:Entity ;
+    ncicb:Age "6"^^xsd:int ;
+    ncit:Diagnosis "Depression"^^xsd:string ;
+    obo:handedness "R"^^xsd:string ;
+    prov:wasGeneratedBy niiri:_acq4 .
+
+niiri:e27f1aa4-aff7-11ea-94eb-7cd1c3e4f5d7 a onli:assessment-instrument,
+        nidm:AcquisitionObject,
+        prov:Entity ;
+    ncicb:Age "7"^^xsd:int ;
+    ncit:Diagnosis "Depression"^^xsd:string ;
+    obo:handedness "A"^^xsd:string ;
+    prov:wasGeneratedBy niiri:_acq3 .
+
+niiri:_acq1 a nidm:Acquisition,
+        prov:Activity ;
+    dct:isPartOf niiri:_ses1 ;
+    prov:qualifiedAssociation [ a prov:Association ;
+            prov:agent niiri:a27ea2fe-aff7-11ea-94eb-7cd1c3e4f5d7 ;
+            prov:hadRole sio:Subject ] .
+
+niiri:_acq2 a nidm:Acquisition,
+        prov:Activity ;
+    dct:isPartOf niiri:_ses1 ;
+    prov:qualifiedAssociation [ a prov:Association ;
+            prov:agent niiri:d27eb85c-aff7-11ea-94eb-7cd1c3e4f5d7 ;
+            prov:hadRole sio:Subject ],
+        [ a prov:Association ;
+            prov:agent niiri:d27eb348-aff7-11ea-94eb-7cd1c3e4f5d7 ;
+            prov:hadRole sio:Subject ] .
+
+niiri:_acq3 a nidm:Acquisition,
+        prov:Activity ;
+    dct:isPartOf niiri:_ses2 ;
+    prov:qualifiedAssociation [ a prov:Association ;
+            prov:agent niiri:a27ee4da-aff7-11ea-94eb-7cd1c3e4f5d7 ;
+            prov:hadRole sio:Subject ] .
+
+niiri:_acq4 a nidm:Acquisition,
+        prov:Activity ;
+    dct:isPartOf niiri:_ses2 ;
+    prov:qualifiedAssociation [ a prov:Association ;
+            prov:agent niiri:b27eef20-aff7-11ea-94eb-7cd1c3e4f5d7 ;
+            prov:hadRole sio:Subject ] .
+
+niiri:a27ea2fe-aff7-11ea-94eb-7cd1c3e4f5d7 a prov:Agent,
+        prov:Person ;
+    ndar:src_subject_id "a1_9999"^^xsd:string .
+
+niiri:a27ee4da-aff7-11ea-94eb-7cd1c3e4f5d7 a prov:Agent,
+        prov:Person ;
+    ndar:src_subject_id "a3_6666"^^xsd:string .
+
+niiri:b27eef20-aff7-11ea-94eb-7cd1c3e4f5d7 a prov:Agent,
+        prov:Person ;
+    ndar:src_subject_id "a4_5555"^^xsd:string .
+
+niiri:d27eb348-aff7-11ea-94eb-7cd1c3e4f5d7 a prov:Agent,
+        prov:Person ;
+    ndar:src_subject_id "a1_8888"^^xsd:string .
+
+niiri:d27eb85c-aff7-11ea-94eb-7cd1c3e4f5d7 a prov:Agent,
+        prov:Person ;
+    ndar:src_subject_id "a2_7777"^^xsd:string .
+
+niiri:p1 a nidm:Project,
+        prov:Activity ;
+    dctypes:title "Project_name_sample"^^xsd:string ;
+    dct:description "1234356 Test investigation"^^xsd:string ;
+    sio:Identifier "9610"^^xsd:int .
+
+niiri:p2 a nidm:Project,
+        prov:Activity ;
+    dctypes:title "Project_name_sample"^^xsd:string ;
+    dct:description "1234356 Test investigation"^^xsd:string ;
+    sio:Identifier "550"^^xsd:int .
+
+niiri:_ses1 a nidm:Session,
+        prov:Activity ;
+    dct:isPartOf niiri:p1 .
+
+niiri:_ses2 a nidm:Session,
+        prov:Activity ;
+    dct:isPartOf niiri:p2 .
+

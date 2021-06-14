@@ -668,7 +668,7 @@ def GetDatatypeSynonyms(nidm_file_list, project_id, datatype):
         datatype = datatype[12:]
     project_data_elements = GetProjectDataElements(nidm_file_list, project_id)
     for dti in project_data_elements['data_type_info']:
-        if str(datatype) in [ str(x) for x in [dti['source_variable'], dti['label'], dti['datumType'], dti['measureOf'], URITail(dti['measureOf']), dti['isAbout'], URITail(dti['isAbout']), dti['dataElement'], dti['dataElementURI'], dti['prefix']] ]:
+        if str(datatype) in [ str(x) for x in [dti['source_variable'], dti['label'], dti['datumType'], dti['measureOf'], URITail(dti['measureOf']), str(dti['isAbout']), URITail(dti['isAbout']), dti['dataElement'], dti['dataElementURI'], dti['prefix']] ]:
             all_synonyms = set([str(dti['source_variable']), str(dti['label']), str(dti['datumType']), str(dti['measureOf']), URITail(dti['measureOf']), str(dti['isAbout']), str(dti['dataElement']), str(dti['dataElementURI'])] )
             all_synonyms.remove("")  # remove the empty string in case that is in there
             return list(all_synonyms)
@@ -1171,7 +1171,7 @@ def getStatsCollectionForNode (rdf_graph, derivatives_node):
         else:
             dti = getDataTypeInfo(rdf_graph, datatype )
             if dti:  # if we can't find a datatype then this is non-data info so don't record it
-                data['values'][str(datatype)] = {'datumType': str(dti['datumType']), 'label': str(dti['label']), 'value': str(value), 'units': str(dti['hasUnit'])}
+                data['values'][str(datatype)] = {'datumType': str(dti['datumType']), 'label': str(dti['label']), 'value': str(value), 'units': str(dti['hasUnit']), 'isAbout': str(dti['isAbout'])}
 
     return data
 

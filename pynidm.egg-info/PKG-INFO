@@ -1,6 +1,10 @@
 Metadata-Version: 1.2
 Name: pynidm
+<<<<<<< HEAD
 Version: 3.7.7
+=======
+Version: 3.7.6
+>>>>>>> 664c997aee3bd6fdc0d2bb21a3689d3eabc3e054
 Summary: PYNIDM: a Python NIDM library and tools
 Home-page: https://github.com/incf-nidash/PyNIDM
 Author: INCF-NIDASH developers

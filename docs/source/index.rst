@@ -338,8 +338,8 @@ Operations
 
 **/projects**
  | Get a list of all project IDs available.
- | Supported query parameters: none
  |
+ | Supported optional query parameters: fields
  |
 
 **/projects/{project_id}**
