@@ -270,9 +270,9 @@ def kmeans():
         km.fit(X)
         sse.append(km.inertia_)
     n_clusters = 2
-    for i in range(1,len(sse)-1):
+    for i in range(0,len(sse)):
         if (sse[i]<1) and (n_clusters==2):
-            n_clusters = i
+            n_clusters = i+1
     km = KMeans(n_clusters=n_clusters, init='k-means++', max_iter=300, n_init=10, random_state=0)
     y = km.fit_predict(X)
     sns.scatterplot(data=X, x=model_list[0], y=model_list[1], hue=y, palette = "gnuplot")

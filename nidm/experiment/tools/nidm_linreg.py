@@ -62,7 +62,7 @@ MAX_ALPHA = 700
               help="A comma separated list of NIDM files with full path")
 @click.option("-contrast", required=False,
               help="This parameter will show differences in relationship by group (e.g. -contrast age*sex,group). It can be one variable, interacting variables, or multiple")
-@click.option("-model",
+@click.option("-model", required=True,
                  help="This parameter will return the results of the linear regression from all nidm files supplied\nThe way this looks in the command is python3 nidm_linreg.py -nl MTdemog_aseg_v2.ttl -model \"fs_003343 = age*sex + sex + age + group + age*group + bmi\" -contrast group -r L1")
 @click.option("--output_file", "-o", required=False,
               help="Optional output file (TXT) to store results of the linear regression, contrast, and regularization")
@@ -185,12 +185,13 @@ def data_aggregation(): #all data from all the files is collected
             valuecolumn = 0  # the column the value is in in the original dataset
             datacolumn = 0  # if it is identified by the dataElement name instead of the field's name
             not_found_list = []
-
             for i in range(len(data[0])):
                 if data[0][i] == 'sourceVariable':  # finds the column where the variable names are
                     fieldcolumn = i
                 elif data[0][i] == 'source_variable':  # finds the column where the variable names are
                     fieldcolumn = i
+                elif data[0][i] == 'isAbout':
+                    aboutcolumn = i
                 if data[0][i] == 'label':
                     namecolumn = i  # finds the column where the variable names are
                 elif data[0][i] == 'value':
@@ -202,6 +203,11 @@ def data_aggregation(): #all data from all the files is collected
                 for j in range(1, len(data)):  # column, so it can append the values under the proper variables
                     try:
                         if data[j][fieldcolumn] == condensed_data_holder[count][0][i]:  # in the dataframe, the name is in column 3
+                            condensed_data_holder[count][numrows][i] = data[j][
+                                valuecolumn]  # in the dataframe, the value is in column 2
+                            numrows = numrows + 1  # moves on to the next row to add the proper values
+                        elif data[j][aboutcolumn] == condensed_data_holder[count][0][
+                            i]:  # in the dataframe, the name is in column 3
                             condensed_data_holder[count][numrows][i] = data[j][
                                 valuecolumn]  # in the dataframe, the value is in column 2
                             numrows = numrows + 1  # moves on to the next row to add the proper values
@@ -270,7 +276,7 @@ def data_aggregation(): #all data from all the files is collected
     else:
         print("ERROR: No query parameter provided.  See help:")
         print()
-        os.system("pynidm query --help")
+        os.system("pynidm linreg --help")
         exit(1)
 
 def dataparsing(): #The data is changed to a format that is usable by the linear regression method
