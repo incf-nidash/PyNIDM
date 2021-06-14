@@ -159,8 +159,14 @@ class RestParser:
 
         if self.output_format == self.CLI_FORMAT:
             ### added by DBK to sort things
-            result["subjects"]["uuid"],result["subjects"]["subject id"] = self.sort_list(result["subjects"]["uuid"], result["subjects"]["subject id"])
-            result["data_elements"]["uuid"],result["data_elements"]["label"] = self.sort_list(result["data_elements"]["uuid"], result["data_elements"]["label"])
+            if "subjects" in result:
+                result["subjects"]["uuid"],result["subjects"]["subject id"] = self.sort_list(result["subjects"]["uuid"], result["subjects"]["subject id"])
+            else:
+                result["subjects"] = []
+            if "data_elements" in result:
+                result["data_elements"]["uuid"],result["data_elements"]["label"] = self.sort_list(result["data_elements"]["uuid"], result["data_elements"]["label"])
+            else:
+                result["data_elements"] = []
 
             toptable = []
             for key in result:
@@ -168,8 +174,8 @@ class RestParser:
                     toptable.append([ key, simplejson.dumps(result[key]) ])
 
             if 'field_values' in result and len(result['field_values']) > 0 :
-                fh_header = ['subject', 'label', 'value', 'unit'] #result['field_values'][0].keys()
-                fh_rows = [ [x.subject, x.label, x.value, x.hasUnit] for x in result['field_values']]
+                fh_header = ['subject', 'label', 'value', 'unit', 'isAbout'] #result['field_values'][0].keys()
+                fh_rows = [ [x.subject, x.label, x.value, x.hasUnit, x.isAbout] for x in result['field_values']]
                 field_table = tabulate(fh_rows, fh_header)
                 #added by DBK, if they asked for fields then just give them the fields
                 return "{}".format(field_table)
@@ -207,8 +213,9 @@ class RestParser:
                                       measurement,
                                       derivative[uri]["values"][measurement]["label"],
                                       "{} {}".format(derivative[uri]["values"][measurement]["value"], derivative[uri]["values"][measurement]["units"]),
-                                      derivative[uri]["values"][measurement]["datumType"]])
-            return tabulate(table, headers=["Derivative_UUID", "Measurement", "Label", "Value", "Datumtype"])
+                                      derivative[uri]["values"][measurement]["datumType"],
+                                      derivative[uri]["values"][measurement]["isAbout"]])
+            return tabulate(table, headers=["Derivative_UUID", "Measurement", "Label", "Value", "Datumtype", "isAbout"])
         else:
             return self.format(derivative)
 
@@ -216,7 +223,7 @@ class RestParser:
         if self.output_format == self.CLI_FORMAT:
 
             table = []
-            headers = ['label', 'source_variable', 'hasUnit', 'description', 'dataElement']
+            headers = ['label', 'source_variable', 'hasUnit', 'description', 'dataElement', 'isAbout']
 
             # for each data element, create a row with each value from the header
             for de in de_data['data_elements']['data_type_info']:
@@ -348,10 +355,55 @@ class RestParser:
 
     def projects(self):
         result = []
+        field_values = []
         self.restLog("Returning all projects", 2)
         projects = Query.GetProjectsUUID(self.nidm_files)
         for uuid in projects:
             result.append(str(uuid).replace(Constants.NIIRI, ""))
+
+
+        # if we got fields, drill into each subject and pull out the field data
+        # subject details -> derivitives / instrument -> values -> element
+        if 'fields' in self.query and len(self.query['fields']) > 0:
+            subjects_set = set()
+            dataelements_set = set()
+            self.restLog("Using fields {}".format(self.query['fields']), 2)
+            # result['field_values'] = []
+
+            for proj in projects:
+                # get all the synonyms for all the fields
+                field_synonyms = functools.reduce(operator.iconcat,
+                                                  [Query.GetDatatypeSynonyms(self.nidm_files, proj, x) for x in
+                                                   self.query['fields']], [])
+
+                files = self.nidm_files
+                all_subjects = Query.GetParticipantUUIDsForProject(self.nidm_files, proj, self.query['filter']) # nidm_file_list= files, project_id=proj['uuid'], filter=self.query['filter']):
+                for sub in all_subjects['uuid']:
+
+                    for activity in Navigate.getActivities(self.nidm_files, sub):
+                        activity = Navigate.getActivityData(self.nidm_files, activity)
+                        for data_element in activity.data:
+                            if data_element.dataElement in field_synonyms:
+                                field_values.append(data_element._replace(subject=sub))
+                                subjects_set.add(sub)
+                                dataelements_set.add( (data_element.datumType, data_element.label) )
+
+            if len(field_values) == 0:
+                raise ValueError("Supplied field not found. (" + ", ".join(self.query['fields']) + ")")
+            else:
+                summary_result = {}
+                summary_result['subjects']= {"uuid":[], "subject id":[]}
+                for sub in subjects_set:
+                    summary_result["subjects"]["uuid"].append(sub)
+                    summary_result["subjects"]["subject id"].append("")
+                summary_result['data_elements'] = {"uuid": [], "lable":[]}
+                for de in dataelements_set:
+                    summary_result['data_elements']["uuid"] = de[0]
+                    summary_result['data_elements']["label"] = de[1]
+                summary_result['field_values'] = field_values
+                return self.projectSummaryFormat(summary_result)
+
+
         return self.format(result, ["UUID"])
 
     def ExpandProjectMetaData(self, meta_data):

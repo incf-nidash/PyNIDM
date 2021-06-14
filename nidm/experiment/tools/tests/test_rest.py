@@ -582,6 +582,25 @@ def test_cli_rest_routes():
     assert is_uuid(i_uuid)
     assert i_uuid in summary['instruments'].split(',')
 
+def test_multiple_project_fields():
+    rest_parser = RestParser(verbosity_level=0)
+    # rest_parser.setOutputFormat(RestParser.CLI_FORMAT)
+    rest_parser.setOutputFormat(RestParser.OBJECT_FORMAT)
+
+    field = 'fs_000003,http://uri.interlex.org/base/ilx_0100400'  # ilx0100400 is 'isAbout' age
+    fields = rest_parser.run( BRAIN_VOL_FILES, "/projects?fields={}".format(field) )
+
+    # edited by DBK to account for only field values being returned
+    #assert( 'field_values' in project )
+    assert (len(fields) > 0)
+    #fv = project['field_values']
+    print (fields)
+    fv = fields
+    assert( type( fv ) == list )
+    fields_used = set( [ i.label for i in fv ]  )
+    assert 'Brain Segmentation Volume (mm^3)' in fields_used
+    assert 'age at scan' in fields_used
+
 
 def test_project_fields_deriv():
     rest_parser = RestParser(verbosity_level=0)
