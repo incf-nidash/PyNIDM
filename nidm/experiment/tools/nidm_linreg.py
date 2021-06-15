@@ -167,6 +167,7 @@ def data_aggregation(): #all data from all the files is collected
                 temp.close()
             data = list(csv.reader(open(
                 temp.name + '.csv')))  # makes the csv a 2D list to make it easier to call the contents of certain cells
+
             global independentvariables  # used in linreg
             independentvariables = ind_vars.split(",")  # makes a list of the independent variables
             numcols = (len(data) - 1) // (
@@ -190,9 +191,9 @@ def data_aggregation(): #all data from all the files is collected
                     fieldcolumn = i
                 elif data[0][i] == 'source_variable':  # finds the column where the variable names are
                     fieldcolumn = i
-                elif data[0][i] == 'isAbout':
+                if data[0][i] == 'isAbout':
                     aboutcolumn = i
-                if data[0][i] == 'label':
+                elif data[0][i] == 'label':
                     namecolumn = i  # finds the column where the variable names are
                 elif data[0][i] == 'value':
                     valuecolumn = i  # finds the column where the values are
@@ -207,7 +208,7 @@ def data_aggregation(): #all data from all the files is collected
                                 valuecolumn]  # in the dataframe, the value is in column 2
                             numrows = numrows + 1  # moves on to the next row to add the proper values
                         elif data[j][aboutcolumn] == condensed_data_holder[count][0][
-                            i]:  # in the dataframe, the name is in column 3
+                            i]:
                             condensed_data_holder[count][numrows][i] = data[j][
                                 valuecolumn]  # in the dataframe, the value is in column 2
                             numrows = numrows + 1  # moves on to the next row to add the proper values
