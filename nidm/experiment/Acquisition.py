@@ -8,7 +8,7 @@ from ..experiment.Core import getUUID
 import prov.model as pm
 
 class Acquisition(pm.ProvActivity,Core):
-    """Class for NIDM-Experimenent Acquisition-Level Objects.
+    """Class for NIDM-Experiment Acquisition-Level Objects.
 
     Default constructor uses empty graph with namespaces added from NIDM/Scripts/Constants.py.
     Additional alternate constructors for user-supplied graphs and default namespaces (i.e. from Constants.py)
