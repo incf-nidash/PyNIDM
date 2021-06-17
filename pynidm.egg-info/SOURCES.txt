@@ -1,7 +1,10 @@
 README.rst
 setup.py
+<<<<<<< HEAD
+=======
 bin/BIDSMRI2NIDM
 bin/CSV2NIDM
+>>>>>>> 664c997aee3bd6fdc0d2bb21a3689d3eabc3e054
 bin/bidsmri2nidm
 bin/csv2nidm
 bin/nidm_query
@@ -46,18 +49,27 @@ nidm/experiment/tests/test_experiment_basic.py
 nidm/experiment/tests/test_load_nidmowl.py
 nidm/experiment/tests/test_navigate.py
 nidm/experiment/tests/test_query.py
+<<<<<<< HEAD
+=======
 nidm/experiment/tools/BIDSMRI2NIDM.py
 nidm/experiment/tools/CSV2NIDM.py
+>>>>>>> 664c997aee3bd6fdc0d2bb21a3689d3eabc3e054
 nidm/experiment/tools/__init__.py
 nidm/experiment/tools/bidsmri2nidm.py
 nidm/experiment/tools/click_base.py
 nidm/experiment/tools/click_main.py
 nidm/experiment/tools/csv2nidm.py
+<<<<<<< HEAD
+nidm/experiment/tools/nidm2bids.py
+nidm/experiment/tools/nidm_concat.py
+nidm/experiment/tools/nidm_convert.py
+=======
 nidm/experiment/tools/linreg.py
 nidm/experiment/tools/nidm2bids.py
 nidm/experiment/tools/nidm_concat.py
 nidm/experiment/tools/nidm_convert.py
 nidm/experiment/tools/nidm_linreg.py
+>>>>>>> 664c997aee3bd6fdc0d2bb21a3689d3eabc3e054
 nidm/experiment/tools/nidm_merge.py
 nidm/experiment/tools/nidm_query.py
 nidm/experiment/tools/nidm_utils.py
