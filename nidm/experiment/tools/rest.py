@@ -712,7 +712,9 @@ class RestParser:
             self.restLog("Using {} as the graph cache directory".format(gettempdir()), 1)
 
             self.nidm_files = tuple(nidm_files)
-            u = urlparse(command)
+            #replace # marks with %23 - they are sometimes used in the is_about terms
+            escaped = command.replace("#", "%23")
+            u = urlparse(escaped)
             self.command = u.path
             self.query = parse_qs(u.query)
 
