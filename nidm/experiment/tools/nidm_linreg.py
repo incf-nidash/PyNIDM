@@ -191,7 +191,7 @@ def data_aggregation(): #all data from all the files is collected
                     fieldcolumn = i
                 elif data[0][i] == 'source_variable':  # finds the column where the variable names are
                     fieldcolumn = i
-                if data[0][i] == 'isAbout':
+                elif data[0][i] == 'isAbout':
                     aboutcolumn = i
                 elif data[0][i] == 'label':
                     namecolumn = i  # finds the column where the variable names are
@@ -203,6 +203,7 @@ def data_aggregation(): #all data from all the files is collected
                     len(condensed_data_holder[count][0])):  # starts iterating through the dataset, looking for the name in that
                 for j in range(1, len(data)):  # column, so it can append the values under the proper variables
                     try:
+                        split_url = condensed_data_holder[count][0][i].split("/")
                         if data[j][fieldcolumn] == condensed_data_holder[count][0][i]:  # in the dataframe, the name is in column 3
                             condensed_data_holder[count][numrows][i] = data[j][
                                 valuecolumn]  # in the dataframe, the value is in column 2
@@ -212,6 +213,11 @@ def data_aggregation(): #all data from all the files is collected
                             condensed_data_holder[count][numrows][i] = data[j][
                                 valuecolumn]  # in the dataframe, the value is in column 2
                             numrows = numrows + 1  # moves on to the next row to add the proper values
+                        elif data[j][aboutcolumn] == split_url[len(split_url)-1]: #this is in case the uri only works by querying the part after the last backslash
+                            condensed_data_holder[count][numrows][i] = data[j][
+                                valuecolumn]  # in the dataframe, the value is in column 2
+                            numrows = numrows + 1  # moves on to the next row to add the proper values
+
                         elif data[j][namecolumn] == condensed_data_holder[count][0][i]:  # in the dataframe, the name is in column 12
                             condensed_data_holder[count][numrows][i] = data[j][
                                 valuecolumn]  # in the dataframe, the value is in column 2
