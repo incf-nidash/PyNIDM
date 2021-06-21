@@ -1298,6 +1298,9 @@ def find_concept_interactive(source_variable, current_tuple, source_variable_ann
     # Retrieve cognitive atlas concepts and disorders
     cogatlas_concepts = get_concept(silent=True)
     cogatlas_disorders = get_disorder(silent=True)
+    # WIP Retrieve cognitive atlas tasks
+    # do a get from the following website and then parse/organize for lookup
+    # https://www.cognitiveatlas.org/api/v-alpha/task
 
     # minimum match score for fuzzy matching NIDM terms
     min_match_score = 50
