@@ -434,9 +434,9 @@ class RestParser:
                 for acq in Navigate.getAcquisitions(self.nidm_files, session):
                     act_data = Navigate.getActivityData(self.nidm_files, acq)
                     for de in act_data.data:
-                        if de.isAbout == "http://uri.interlex.org/base/ilx_0100400":
+                        if de.isAbout == "http://uri.interlex.org/ilx_0100400" or de.isAbout == "http://uri.interlex.org/base/ilx_0100400":
                             ages.add(float(de.value))
-                        elif de.isAbout == "http://uri.interlex.org/base/ilx_0101292":
+                        elif de.isAbout == "http://uri.interlex.org/ilx_0101292" or de.isAbout == "http://uri.interlex.org/base/ilx_0101292":
                             genders.add(de.value)
                         elif de.isAbout == "http://purl.obolibrary.org/obo/PATO_0002201":
                             hands.add(de.value)

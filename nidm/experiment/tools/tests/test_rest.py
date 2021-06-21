@@ -587,7 +587,7 @@ def test_multiple_project_fields():
     # rest_parser.setOutputFormat(RestParser.CLI_FORMAT)
     rest_parser.setOutputFormat(RestParser.OBJECT_FORMAT)
 
-    field = 'fs_000003,http://uri.interlex.org/base/ilx_0100400'  # ilx0100400 is 'isAbout' age
+    field = 'fs_000003,ilx_0100400'  # ilx0100400 is 'isAbout' age
     fields = rest_parser.run( BRAIN_VOL_FILES, "/projects?fields={}".format(field) )
 
     # edited by DBK to account for only field values being returned
@@ -606,7 +606,7 @@ def test_odd_isabout_uris():
     # rest_parser.setOutputFormat(RestParser.CLI_FORMAT)
     rest_parser.setOutputFormat(RestParser.OBJECT_FORMAT)
 
-    field = 'http://www.cognitiveatlas.org/ontology/cogat.owl#CAO_00962'  # ilx0100400 is 'isAbout' age
+    field = 'http://www.cognitiveatlas.org/ontology/cogat.owl#CAO_00962'
     fields = rest_parser.run( BRAIN_VOL_FILES, "/projects?fields={}".format(field) )
 
     # edited by DBK to account for only field values being returned
@@ -675,7 +675,7 @@ def test_project_fields_not_found():
 
     assert "error" in keys
 
-
+# ATC - fail
 def test_GetProjectsComputedMetadata():
 
     files = []
