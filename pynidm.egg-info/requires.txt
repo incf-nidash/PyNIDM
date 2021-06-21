@@ -13,11 +13,7 @@ pytest
 graphviz
 click
 rdflib-jsonld
-<<<<<<< HEAD
 pyld==1.0.5
-=======
-pyld
->>>>>>> 664c997aee3bd6fdc0d2bb21a3689d3eabc3e054
 rdflib
 datalad
 ontquery==0.2.3

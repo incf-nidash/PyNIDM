@@ -434,9 +434,9 @@ class RestParser:
                 for acq in Navigate.getAcquisitions(self.nidm_files, session):
                     act_data = Navigate.getActivityData(self.nidm_files, acq)
                     for de in act_data.data:
-                        if de.isAbout == "http://uri.interlex.org/base/ilx_0100400":
+                        if de.isAbout == "http://uri.interlex.org/ilx_0100400" or de.isAbout == "http://uri.interlex.org/base/ilx_0100400":
                             ages.add(float(de.value))
-                        elif de.isAbout == "http://uri.interlex.org/base/ilx_0101292":
+                        elif de.isAbout == "http://uri.interlex.org/ilx_0101292" or de.isAbout == "http://uri.interlex.org/base/ilx_0101292":
                             genders.add(de.value)
                         elif de.isAbout == "http://purl.obolibrary.org/obo/PATO_0002201":
                             hands.add(de.value)
@@ -712,7 +712,9 @@ class RestParser:
             self.restLog("Using {} as the graph cache directory".format(gettempdir()), 1)
 
             self.nidm_files = tuple(nidm_files)
-            u = urlparse(command)
+            #replace # marks with %23 - they are sometimes used in the is_about terms
+            escaped = command.replace("#", "%23")
+            u = urlparse(escaped)
             self.command = u.path
             self.query = parse_qs(u.query)
 
