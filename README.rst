@@ -252,13 +252,15 @@ Usage: python3 nidm_linreg.py [OPTIONS]
 Options:
   -nl, --nidm_file_list TEXT      A comma-separated list of NIDM files with
                                   full path  [required]
-  -model TEXT       		  An equation representing the linear
+  -model TEXT       		  
+  				  An equation representing the linear
   				  regression. The dependent variable comes
 				  first, followed by "=" or "~", followed by
 				  the independent variables separated by "+"
 				  (Ex: -model "fs_003343 = age*sex + sex + 
 				  age + group + age*group + bmi") [required]
-  -contstant TEXT       	  Parameter, if set, will return differences in
+  -contstant TEXT       	  
+  				  Parameter, if set, will return differences in
   				  variable relationships by group. One or
 				  multiple parameters can be used (multiple 
 				  parameters should be separated by a comma-
