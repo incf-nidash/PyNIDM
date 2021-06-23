@@ -257,13 +257,13 @@ Options:
 				  depending on the type specified, and the weight 
 				  with the maximum likelihood solution. This will
 				  prevent overfitting. (Ex: -r L1)
-  -model TEXT 			  An equation representing the linear
+  -model, --m TEXT 		  An equation representing the linear
   				  regression. The dependent variable comes
 				  first, followed by "=" or "~", followed by
 				  the independent variables separated by "+"
 				  (Ex: -model "fs_003343 = age*sex + sex + 
 				  age + group + age*group + bmi") [required]
-  -contstant TEXT       	  Parameter, if set, will return differences in
+  -contstant, --c TEXT       	  Parameter, if set, will return differences in
   				  variable relationships by group. One or
 				  multiple parameters can be used (multiple 
 				  parameters should be separated by a comma-
