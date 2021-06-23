@@ -60,24 +60,24 @@ MAX_ALPHA = 700
 @cli.command()
 @click.option("--nidm_file_list", "-nl", required=True,
               help="A comma separated list of NIDM files with full path")
-@click.option("-contrast", required=False,
+@click.option("--ctr", "-contrast", required=False,
               help="This parameter will show differences in relationship by group (e.g. -contrast age*sex,group). It can be one variable, interacting variables, or multiple")
-@click.option("-model", required=True,
+@click.option("--ml", "-model", required=True,
                  help="This parameter will return the results of the linear regression from all nidm files supplied\nThe way this looks in the command is python3 nidm_linreg.py -nl MTdemog_aseg_v2.ttl -model \"fs_003343 = age*sex + sex + age + group + age*group + bmi\" -contrast group -r L1")
 @click.option("--output_file", "-o", required=False,
               help="Optional output file (TXT) to store results of the linear regression, contrast, and regularization")
 @click.option("--regularization", "-r", required=False,
               help="This parameter will return the results of the linear regression with L1 or L2 regularization depending on the type specified, and the weight with the maximum likelihood solution")
-def linear_regression(nidm_file_list, output_file, model, contrast, regularization):
+def linear_regression(nidm_file_list, output_file, ml, ctr, regularization):
     """
         This function provides a tool to complete a linear regression on NIDM data with optional contrast and regularization.
         """
 
     #NOTE: Every time I make a global variable, it is because I need it in at least one other method.
     global c #used in linreg(), contrasting()
-    c = contrast #Storing all important parameters in global variables so they can be accessed in other methods
+    c = ctr #Storing all important parameters in global variables so they can be accessed in other methods
     global m #Needed to do this because the code only used the parameters in the first method, meaning I had to move it all to method 1.
-    m = model.strip() #used in data_aggregation, linreg(), spaces stripped from left and right
+    m = ml.strip() #used in data_aggregation, linreg(), spaces stripped from left and right
     global o #used in dataparsing()
     o = output_file
     global n #used in data_aggregation()
