@@ -241,6 +241,38 @@ Options:
 
 Details on the REST API URI format and usage can be found on the :ref:`REST API usage<rest>` page.
 
+linreg
+-----
+This function provides linear regression support for NIDM graphs.
+
+.. code-block:: bash
+
+Usage: python3 nidm_linreg.py [OPTIONS]
+
+Options:
+  -nl, --nidm_file_list TEXT      A comma-separated list of NIDM files with
+                                  full path  [required]
+  -r, --regularization TEXT       Parameter, if set, will return the results of
+  				  the linear regression with L1 or L2 regularization 
+				  depending on the type specified, and the weight 
+				  with the maximum likelihood solution. This will
+				  prevent overfitting. (Ex: -r L1)
+  -model, --m TEXT 		  An equation representing the linear
+  				  regression. The dependent variable comes
+				  first, followed by "=" or "~", followed by
+				  the independent variables separated by "+"
+				  (Ex: -model "fs_003343 = age*sex + sex + 
+				  age + group + age*group + bmi") [required]
+  -contstant, --c TEXT       	  Parameter, if set, will return differences in
+  				  variable relationships by group. One or
+				  multiple parameters can be used (multiple 
+				  parameters should be separated by a comma-
+				  separated list) (Ex: -contrast group,age)
+  -o, --output_file TEXT          Optional output file (TXT) to store results
+                                  of query
+  --help                          Show this message and exit.
+
+Details on the REST API URI format and usage can be found on the :ref:`REST API usage<rest>` page.
 .. _rest:
 
 PyNIDM: REST API and Command Line Usage
