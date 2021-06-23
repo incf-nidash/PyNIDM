@@ -241,7 +241,7 @@ Options:
 
 Details on the REST API URI format and usage can be found on the :ref:`REST API usage<rest>` page.
 
-linreg
+linear_regression
 -----
 This function provides linear regression support for NIDM graphs.
 
