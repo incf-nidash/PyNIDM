@@ -99,7 +99,7 @@ def data_aggregation(): #all data from all the files is collected
     # if there is a CDE file list, seed the CDE cache
     if m:  # ex: fs_00343 ~ age + sex + group
         print("***********************************************************************************************************")
-        command = "python nidm_linreg.py -nl " + n + " -model \"" + m + "\" "
+        command = "pynidm linear-regression -nl " + n + " -model \"" + m + "\" "
         if c:
             command = command + "-contrast \"" + c + "\" "
         if r:
