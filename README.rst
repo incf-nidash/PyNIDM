@@ -247,7 +247,7 @@ This function provides linear regression support for NIDM graphs.
 
 .. code-block:: bash
 
-Usage: python3 nidm_linreg.py [OPTIONS]
+Usage: pynidm linear-regression [OPTIONS]
 
 Options:
   -nl, --nidm_file_list TEXT      A comma-separated list of NIDM files with
