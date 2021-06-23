@@ -68,7 +68,11 @@ MAX_ALPHA = 700
               help="Optional output file (TXT) to store results of the linear regression, contrast, and regularization")
 @click.option("--regularization", "-r", required=False,
               help="This parameter will return the results of the linear regression with L1 or L2 regularization depending on the type specified, and the weight with the maximum likelihood solution")
-def full_regression(nidm_file_list, output_file, model, contrast, regularization):
+def linear_regression(nidm_file_list, output_file, model, contrast, regularization):
+    """
+        This function provides a tool to complete a linear regression on NIDM data with optional contrast and regularization.
+        """
+
     #NOTE: Every time I make a global variable, it is because I need it in at least one other method.
     global c #used in linreg(), contrasting()
     c = contrast #Storing all important parameters in global variables so they can be accessed in other methods
@@ -154,6 +158,16 @@ def data_aggregation(): #all data from all the files is collected
                 full_model_variable_list.append(model_list[i]) #will be used in the regularization, but we need the full list
                 if "*" in model_list[i]: #removing the star term from the columns we're about to pull from data
                     model_list.pop(i)
+                elif model_list[i] == dep_var:
+                    model_list.pop(i)
+                    print("\n\nAn independent variable cannot be the same as the dependent variable. This prevents the model from running accurately.")
+                    print("Please try a different model removing \"" + dep_var + "\" from either the right or the left side of the equation.\n\n")
+                    if (o is not None):
+                        f = open(o, "a")
+                        f.write("\n\nAn independent variable cannot be the same as the dependent variable. This prevents the model from running accurately.")
+                        f.write("Please try a different model removing \"" + dep_var + "\" from either the right or the left side of the equation.")
+                        f.close()
+                    exit(1)
                 else:
                     ind_vars = ind_vars + model_list[i] + ","
             ind_vars = ind_vars[0:len(ind_vars) - 1]
@@ -658,4 +672,4 @@ def opencsv(data):
 
 # it can be used calling the script `python nidm_query.py -nl ... -q ..
 if __name__ == "__main__":
-    full_regression()
+    linear_regression()

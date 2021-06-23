@@ -10,14 +10,15 @@ from nidm.experiment.tools.rest import RestParser
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+from sklearn.cluster import AgglomerativeClustering
+import scipy.cluster.hierarchy as sch
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 from sklearn.metrics import silhouette_score, adjusted_rand_score
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import LabelEncoder, MinMaxScaler
-from statistics import mean
-import statsmodels.api as sm
-from statsmodels.formula.api import ols
+from sklearn.cluster import AffinityPropagation
+from sklearn import metrics
 from sklearn import preprocessing
 
 @cli.command()
@@ -27,7 +28,7 @@ from sklearn import preprocessing
                  help="This parameter is for the variables the user would like to complete the k-means algorithm on.\nThe way this looks in the command is python3 nidm_kmeans.py -nl MTdemog_aseg_v2.ttl -v \"fs_003343,age*sex,sex,age,group,age*group,bmi\"")
 @click.option("--output_file", "-o", required=False,
               help="Optional output file (TXT) to store results of the linear regression, contrast, and regularization")
-def full_kmeans(nidm_file_list, output_file, variables):
+def full_ac(nidm_file_list, output_file, variables):
     global v  # Needed to do this because the code only used the parameters in the first method, meaning I had to move it all to method 1.
     v = variables.strip()  # used in data_aggregation, linreg(), spaces stripped from left and right
     global o  # used in dataparsing()
@@ -36,7 +37,7 @@ def full_kmeans(nidm_file_list, output_file, variables):
     n = nidm_file_list
     data_aggregation()
     dataparsing()
-    kmeans()
+    ac()
 
 
 def data_aggregation():  # all data from all the files is collected
@@ -263,7 +264,7 @@ def dataparsing(): #The data is changed to a format that is usable by the linear
             "\n\n***********************************************************************************************************")
         f.write("\n\nModel Results: ")
         f.close()
-def kmeans():
+def ac():
     index = 0
     global levels  # also used in contrasting()
     levels = []
@@ -284,28 +285,20 @@ def kmeans():
         scaler.fit(df_final[[model_list[i]]])
         df_final[[model_list[i]]] = scaler.transform(df_final[[model_list[i]]])
 
-    X = df_final[model_list]
+    X = df_final[model_list] #going to need to find out how to do the correct number of clusters
+    dendrogram = sch.dendrogram(sch.linkage(X, method='ward'))
+    model = AgglomerativeClustering(n_clusters=5, affinity='euclidean', linkage='ward')
+    model.fit(X)
+    labels = model.labels_
 
-    sse = []
-    for i in range(1,10):
-        km = KMeans(n_clusters=i, init='k-means++', max_iter=300, n_init=10, random_state=0)
-        km.fit(X)
-        sse.append(km.inertia_)
-    n_clusters = 2
-    for i in range(0,len(sse)):
-        if (sse[i]<1) and (n_clusters==2):
-            n_clusters = i+1
-    km = KMeans(n_clusters=n_clusters, init='k-means++', max_iter=300, n_init=10, random_state=0)
-    Y = km.fit_predict(X)
-    sns.scatterplot(data=X, x=model_list[0], y=model_list[1], hue=Y, palette = "gnuplot")
-    plt.xlabel(model_list[1])
-    plt.ylabel(model_list[0])
-    title = "Clustering results of "
-    for i in range(len(model_list)):
-        title = title + model_list[i] + ","
-    title = title[0:len(title)-1]
-    plt.title(title)
+    plt.scatter(X[labels == 0, 0], X[labels == 0, 1], s=50, marker='o', color='red')
+    plt.scatter(X[labels == 1, 0], X[labels == 1, 1], s=50, marker='o', color='blue')
+    plt.scatter(X[labels == 2, 0], X[labels == 2, 1], s=50, marker='o', color='green')
+    plt.scatter(X[labels == 3, 0], X[labels == 3, 1], s=50, marker='o', color='purple')
+    plt.scatter(X[labels == 4, 0], X[labels == 4, 1], s=50, marker='o', color='orange')
     plt.show()
+
+    
     if (o is not None):
         f = open(o, "a")
         f.close()
@@ -322,4 +315,4 @@ def opencsv(data):
 
 # it can be used calling the script `python nidm_query.py -nl ... -q ..
 if __name__ == "__main__":
-    full_kmeans()
+    full_ac()

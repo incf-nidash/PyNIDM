@@ -14,6 +14,7 @@ from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 from sklearn.metrics import silhouette_score, adjusted_rand_score
 from sklearn.pipeline import Pipeline
+from sklearn.mixture import GaussianMixture
 from sklearn.preprocessing import LabelEncoder, MinMaxScaler
 from statistics import mean
 import statsmodels.api as sm
@@ -27,7 +28,7 @@ from sklearn import preprocessing
                  help="This parameter is for the variables the user would like to complete the k-means algorithm on.\nThe way this looks in the command is python3 nidm_kmeans.py -nl MTdemog_aseg_v2.ttl -v \"fs_003343,age*sex,sex,age,group,age*group,bmi\"")
 @click.option("--output_file", "-o", required=False,
               help="Optional output file (TXT) to store results of the linear regression, contrast, and regularization")
-def full_kmeans(nidm_file_list, output_file, variables):
+def full_gmm(nidm_file_list, output_file, variables):
     global v  # Needed to do this because the code only used the parameters in the first method, meaning I had to move it all to method 1.
     v = variables.strip()  # used in data_aggregation, linreg(), spaces stripped from left and right
     global o  # used in dataparsing()
@@ -36,7 +37,7 @@ def full_kmeans(nidm_file_list, output_file, variables):
     n = nidm_file_list
     data_aggregation()
     dataparsing()
-    kmeans()
+    gmm()
 
 
 def data_aggregation():  # all data from all the files is collected
@@ -263,7 +264,7 @@ def dataparsing(): #The data is changed to a format that is usable by the linear
             "\n\n***********************************************************************************************************")
         f.write("\n\nModel Results: ")
         f.close()
-def kmeans():
+def gmm():
     index = 0
     global levels  # also used in contrasting()
     levels = []
@@ -295,8 +296,9 @@ def kmeans():
     for i in range(0,len(sse)):
         if (sse[i]<1) and (n_clusters==2):
             n_clusters = i+1
-    km = KMeans(n_clusters=n_clusters, init='k-means++', max_iter=300, n_init=10, random_state=0)
-    Y = km.fit_predict(X)
+    gmm = GaussianMixture(n_components=n_clusters)
+    Y = gmm.fit(X)
+    labels = gmm.predict(X)
     sns.scatterplot(data=X, x=model_list[0], y=model_list[1], hue=Y, palette = "gnuplot")
     plt.xlabel(model_list[1])
     plt.ylabel(model_list[0])
@@ -322,4 +324,4 @@ def opencsv(data):
 
 # it can be used calling the script `python nidm_query.py -nl ... -q ..
 if __name__ == "__main__":
-    full_kmeans()
+    full_gmm()
