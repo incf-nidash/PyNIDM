@@ -255,6 +255,44 @@ Options:
   -v, --verbosity TEXT            Verbosity level 0-5, 0 is default
   --help                          Show this message and exit.
 
+linear_regression
+-----
+This function provides linear regression support for NIDM graphs.
+
+.. code-block:: bash
+
+Usage: pynidm linear-regression [OPTIONS]
+
+Options:
+  -nl, --nidm_file_list TEXT      A comma-separated list of NIDM files with
+                                  full path  [required]
+  -r, --regularization TEXT       Parameter, if set, will return the results of
+  				  the linear regression with L1 or L2 regularization 
+				  depending on the type specified, and the weight 
+				  with the maximum likelihood solution. This will
+				  prevent overfitting. (Ex: -r L1)
+  -model, --ml TEXT 		  An equation representing the linear
+  				  regression. The dependent variable comes
+				  first, followed by "=" or "~", followed by
+				  the independent variables separated by "+"
+				  (Ex: -model "fs_003343 = age*sex + sex + 
+				  age + group + age*group + bmi") [required]
+  -contstant, --ctr TEXT       	  Parameter, if set, will return differences in
+  				  variable relationships by group. One or
+				  multiple parameters can be used (multiple 
+				  parameters should be separated by a comma-
+				  separated list) (Ex: -contrast group,age)
+  -o, --output_file TEXT          Optional output file (TXT) to store results
+                                  of query
+  --help                          Show this message and exit.
+
+To use the linear regression algorithm successfully, structure, syntax, and querying is important. Here is how to maximize the usefulness of the tool:
+1. Use pynidm query to discover the variables to use. PyNIDM allows for the use of either data elements (DX_GROUP_16oad7a), specific URLs (http://uri.interlex.org/ilx_0100400), or source variables (DX_GROUP).
+[example of the query]
+2. Select the variables to use. For example, [probably age, sex, etc].
+3. An example of a model is: pynidm linear-regression -nl /simple2_NIDM_examples/datasets.datalad.org/abide/RawDataBIDS/CMU_a/nidm.ttl,/simple2_NIDM_examples/datasets.datalad.org/abide/RawDataBIDS/CMU_b/nidm.ttl -model "fs_000008 = AGE_AT_SCAN + handedness + diagnostic group" -contrast "diagnostic group"
+4. [example output]
+
 Details on the REST API URI format and usage can be found on the :ref:`REST API usage<rest>` page.
 
 .. |Build Status| image:: https://travis-ci.org/incf-nidash/PyNIDM.svg?branch=master
