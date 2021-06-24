@@ -454,7 +454,6 @@ def contrasting():
         if "," in c:
             contrastvars = c.split(",")
         for i in range(len(contrastvars)):
-            print(contrastvars[i])
             if " " in contrastvars[i]:
                 contrastvars[i]=contrastvars[i].replace(" ","_")
             if "/" in contrastvars[i]: #to account for URLs
@@ -486,8 +485,6 @@ def contrasting():
             if " " in c:
                 c = c.replace(" ", "_")
             contraststring=c
-        #print(ind_vars_no_contrast_var)
-        #print(contraststring)
         # With contrast (treatment coding)
         print("\n\nTreatment (Dummy) Coding: Dummy coding compares each level of the categorical variable to a base reference level. The base reference level is the value of the intercept.")
         ctrst = Treatment(reference=0).code_without_intercept(levels)
