@@ -231,7 +231,11 @@ def data_aggregation(): #all data from all the files is collected
                             condensed_data_holder[count][numrows][i] = data[j][
                                 valuecolumn]  # in the dataframe, the value is in column 2
                             numrows = numrows + 1  # moves on to the next row to add the proper values
-
+                        elif condensed_data_holder[count][0][
+                            i] in data[j][aboutcolumn]: #this is in case the uri only works by querying the part after the last backslash
+                            condensed_data_holder[count][numrows][i] = data[j][
+                                valuecolumn]  # in the dataframe, the value is in column 2
+                            numrows = numrows + 1  # moves on to the next row to add the proper values
                         elif data[j][namecolumn] == condensed_data_holder[count][0][i]:  # in the dataframe, the name is in column 12
                             condensed_data_holder[count][numrows][i] = data[j][
                                 valuecolumn]  # in the dataframe, the value is in column 2
