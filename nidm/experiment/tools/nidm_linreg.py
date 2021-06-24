@@ -261,6 +261,9 @@ def data_aggregation(): #all data from all the files is collected
                 if " " in condensed_data_holder[count][0][i]:
                     condensed_data_holder[count][0][i] = condensed_data_holder[count][0][i].replace(" ", "_")
             for i in range(len(independentvariables)):
+                if "/" in independentvariables[i]:
+                    splitted = independentvariables[i].split("/")
+                    independentvariables[i] = splitted[len(splitted)-1]
                 if " " in independentvariables[i]:
                     independentvariables[i] = independentvariables[i].replace(" ", "_")
             if " " in dep_var:
@@ -305,6 +308,11 @@ def dataparsing(): #The data is changed to a format that is usable by the linear
     condensed_data = []
     for i in range(0, len(file_list)):
         condensed_data = condensed_data + condensed_data_holder[i]
+    for i in range(len(condensed_data[0])):
+        if "/" in condensed_data[0][i]: #change any URLs to just the last part so contrasting works.
+            splitted = condensed_data[0][i].split("/")
+            condensed_data[0][i] = splitted[len(splitted) - 1]
+
     """In this section, if there are less than 20 points, the model will be innacurate and there are too few variables for regularization.
     That means that we warn the user that such errors can occur and ask them if they want to proceed.
     The answer is stored in answer. If the user responds with N, it exits the code after writing the error to the output file (if there is one).
@@ -446,12 +454,23 @@ def contrasting():
         if "," in c:
             contrastvars = c.split(",")
         for i in range(len(contrastvars)):
+            print(contrastvars[i])
             if " " in contrastvars[i]:
                 contrastvars[i]=contrastvars[i].replace(" ","_")
+            if "/" in contrastvars[i]: #to account for URLs
+                splitted = contrastvars[i].split("/")
+                contrastvars[i] = splitted[len(splitted) - 1]
             contrastvars[i] = contrastvars[i].strip()
+        else:
+            splitted = c.split("/") #to account for URLs
+            c = splitted[len(splitted) - 1]
+        contrastvars.append(c)
         ind_vars_no_contrast_var = ''
         index = 1
         for i in range(len(full_model_variable_list)):
+            if "/" in full_model_variable_list[i]:
+                splitted = full_model_variable_list[i].split("/")
+                full_model_variable_list[i] = splitted[len(splitted) - 1]
             if " " in full_model_variable_list[i]:
                 full_model_variable_list[i]=full_model_variable_list[i].replace(" ","_")
         for var in full_model_variable_list:
@@ -467,6 +486,8 @@ def contrasting():
             if " " in c:
                 c = c.replace(" ", "_")
             contraststring=c
+        #print(ind_vars_no_contrast_var)
+        #print(contraststring)
         # With contrast (treatment coding)
         print("\n\nTreatment (Dummy) Coding: Dummy coding compares each level of the categorical variable to a base reference level. The base reference level is the value of the intercept.")
         ctrst = Treatment(reference=0).code_without_intercept(levels)
