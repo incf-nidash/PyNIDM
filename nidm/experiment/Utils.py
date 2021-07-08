@@ -28,6 +28,7 @@ from ..core import Constants
 from ..core.Constants import DD
 
 
+from .Core import getUUID
 from .Project import Project
 from .Session import Session
 from .Acquisition import Acquisition
@@ -1298,6 +1299,9 @@ def find_concept_interactive(source_variable, current_tuple, source_variable_ann
     # Retrieve cognitive atlas concepts and disorders
     cogatlas_concepts = get_concept(silent=True)
     cogatlas_disorders = get_disorder(silent=True)
+    # WIP Retrieve cognitive atlas tasks
+    # do a get from the following website and then parse/organize for lookup
+    # https://www.cognitiveatlas.org/api/v-alpha/task
 
     # minimum match score for fuzzy matching NIDM terms
     min_match_score = 50
@@ -1662,7 +1666,10 @@ def DD_UUID (element,dd_struct):
     # evaluate the compound data dictionary key and loop over the properties
     key_tuple = eval(element)
 
-    property_string=""
+    # added getUUID to property string to solve problem where all openneuro datasets that have the same
+    # source variable name and properties don't end up having the same UUID as they are sometimes not
+    # the same and end up being added to the same entity when merging graphs across all openneuro projects
+    property_string=getUUID()
     for key, value in dd_struct[str(key_tuple)].items():
         if key == 'label':
             property_string = property_string + str(value)
