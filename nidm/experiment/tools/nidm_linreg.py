@@ -218,6 +218,9 @@ def data_aggregation(): #all data from all the files is collected
                 for j in range(1, len(data)):  # column, so it can append the values under the proper variables
                     try:
                         split_url = condensed_data_holder[count][0][i].split("/")
+                        for k in range(0, len(full_model_variable_list)):
+                            if "/" in full_model_variable_list[k]:
+                                full_model_variable_list[k] = split_url[len(split_url) - 1]
                         if data[j][fieldcolumn] == condensed_data_holder[count][0][i]:  # in the dataframe, the name is in column 3
                             condensed_data_holder[count][numrows][i] = data[j][
                                 valuecolumn]  # in the dataframe, the value is in column 2
@@ -425,8 +428,9 @@ def linreg(): #actual linear regression
             model_string.append(" + ")
         model_string.pop(-1)
         for i in range(0,len(model_string)):
-            if model_string[i] == "*":
-                model_string[i] = ":"
+            if "*" in model_string[i]:
+                replacement = model_string[i].split("*")
+                model_string[i] = replacement[0] + ":" + replacement[1]
                #makes sure the model is in the right format.
         string = ''.join(model_string)
         y, X = dmatrices(string, df_final)
