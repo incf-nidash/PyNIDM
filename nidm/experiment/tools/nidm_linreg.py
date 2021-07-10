@@ -379,10 +379,6 @@ def dataparsing(): #The data is changed to a format that is usable by the linear
     if (o is not None):
         f = open(o,"a")
         f.write(df_final.to_string(header=True, index=True))
-        """# concatenate data frames
-        f = open(o,"w")
-        np.savetext(o,df_final.to_numpy())
-        #f.write(df_final)"""
         f.write("\n\n***********************************************************************************************************")
         f.write("\n\nModel Results: ")
         f.close()
