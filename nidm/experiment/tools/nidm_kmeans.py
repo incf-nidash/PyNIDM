@@ -115,7 +115,6 @@ def data_aggregation():  # all data from all the files is collected
             data = list(csv.reader(open(
                 temp.name + '.csv')))  # makes the csv a 2D list to make it easier to call the contents of certain cells
 
-            global var_list  # used in linreg
             var_list = vars.split(",")  # makes a list of the independent variables
             numcols = (len(data) - 1) // (
                     len(var_list))  # Finds the number of columns in the original dataframe
