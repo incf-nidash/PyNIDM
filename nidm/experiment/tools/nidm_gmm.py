@@ -317,20 +317,68 @@ def cluster_number():
         scaler.fit(df_final[[model_list[i]]])
         df_final[[model_list[i]]] = scaler.transform(df_final[[model_list[i]]])"""
     X = df_final[var_list]
+    if "si" in cm.lower():
+        print("Sillhoute Score")
+
+        ss = []
+
+        for i in range(2, k_num):
+            model = GaussianMixture(n_components=i, init_params='kmeans')
+            cluster_labels = model.fit_predict(X)
+            silhouette_avg = silhouette_score(X, cluster_labels)
+            ss.append(silhouette_avg)
+        optimal_i = 0
+        distance_to_one = abs(1-ss[0])
+        for i in range(0,len(ss)):
+            if abs(1-ss[i]) <= distance_to_one:
+                optimal_i = i
+                distance_to_one = abs(1-ss[i])
+
+        n_clusters = optimal_i + 2
+        gmm = GaussianMixture(n_components=n_clusters).fit(X)
+        labels = gmm.fit(X).predict(X)
+        ax = None or plt.gca()
+        X = df_final[var_list].to_numpy()
+        ax.scatter(X[:, 0], X[:, 1], c=labels, s=40, cmap='viridis', zorder=2)
+        ax.axis('equal')
+        plt.show()
+
     if "a" in cm.lower():
         print("AIC\n")
         aic = []
         for i in range(2, k_num):
             model = GaussianMixture(n_components=i, init_params='kmeans')
             model.fit(X)
-            aic.append(model.aic(X))
+            aic.append(model.bic(X))
         min_aic = aic[0]
-        optimal_i = 0
-        for i in range(1,len(aic)):
-            if aic[i]<=min_aic:
+        max_aic = aic[0]
+        max_i = 0
+        min_i = 0
+        for i in range(1, len(aic)):
+            if aic[i] >= max_aic:
+                max_aic = aic[i]
+                max_i = i
+            elif aic[i] <= min_aic:
                 min_aic = aic[i]
-                optimal_i = i
-        n_clusters = optimal_i + 2
+                min_i = i
+        p1 = np.array([min_i, aic[min_i]])
+        p2 = np.array([max_i, aic[max_i]])
+        # the way I am doing the elbow method is as follows:
+        # the different sse values form a curve like an L (like an exponential decay)
+        # The elbow is the point furthest from a line connecting max and min
+        # So I am calculating the distance, and the maximum distance from point to curve shows the optimal point
+        # AKA the number of clusters
+        dist = []
+        for n in range(0, len(aic)):
+            norm = np.linalg.norm
+            p3 = np.array([n, aic[n]])
+            dist.append(np.abs(norm(np.cross(p2 - p1, p1 - p3))) / norm(p2 - p1))
+        max_dist = dist[0]
+        n_clusters = 2
+        for x in range(1, len(dist)):
+            if dist[x] >= max_dist:
+                max_dist = dist[x]
+                n_clusters = x + 2
         gmm = GaussianMixture(n_components=n_clusters).fit(X)
         labels = gmm.fit(X).predict(X)
         ax = None or plt.gca()
@@ -347,12 +395,34 @@ def cluster_number():
             model.fit(X)
             bic.append(model.bic(X))
         min_bic = bic[0]
-        optimal_i = 0
-        for i in range(1, len(bic)):
-            if bic[i] <= min_bic:
+        max_bic = bic[0]
+        max_i = 0
+        min_i = 0
+        for i in range(1,len(bic)):
+            if bic[i]>=max_bic:
+                max_bic = bic[i]
+                max_i = i
+            elif bic[i]<= min_bic:
                 min_bic = bic[i]
-                optimal_i = i
-        n_clusters = optimal_i + 2
+                min_i = i
+        p1 = np.array([min_i, bic[min_i]])
+        p2 = np.array([max_i, bic[max_i]])
+        # the way I am doing the elbow method is as follows:
+        # the different sse values form a curve like an L (like an exponential decay)
+        # The elbow is the point furthest from a line connecting max and min
+        # So I am calculating the distance, and the maximum distance from point to curve shows the optimal point
+        # AKA the number of clusters
+        dist = []
+        for n in range(0, len(bic)):
+            norm = np.linalg.norm
+            p3 = np.array([n, bic[n]])
+            dist.append(np.abs(norm(np.cross(p2 - p1, p1 - p3))) / norm(p2 - p1))
+        max_dist = dist[0]
+        n_clusters = 2
+        for x in range(1, len(dist)):
+            if dist[x] >= max_dist:
+                max_dist = dist[x]
+                n_clusters = x + 2
         gmm = GaussianMixture(n_components=n_clusters).fit(X)
         labels = gmm.fit(X).predict(X)
         ax = None or plt.gca()

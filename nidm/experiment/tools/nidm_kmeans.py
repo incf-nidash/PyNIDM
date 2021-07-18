@@ -19,6 +19,9 @@ from statistics import mean
 import statsmodels.api as sm
 from statsmodels.formula.api import ols
 from sklearn import preprocessing
+from sklearn.metrics import davies_bouldin_score
+from sklearn.metrics import calinski_harabaz_score
+
 
 @cli.command()
 @click.option("--nidm_file_list", "-nl", required=True,
@@ -312,11 +315,11 @@ def cluster_number():
     X = df_final[var_list]
     if "ga" in cm.lower():
         print("\n\nGap Statistic")
-        gaps = np.zeros((len(range(1,k_num))))
+        gaps = np.zeros((len(range(2,int(k_num) + 1))))
         global resulting_df
         resulting_df = pd.DataFrame({'clusterCount':[],'gap':[]})
         global gap_index, k
-        for gap_index, k in enumerate(range(1,k_num)):
+        for gap_index, k in enumerate(range(2,int(k_num) + 1)):
             dispersion_results = np.zeros(3) #make three random datasets
             for i in range(3):
                 random_reference = np.random.random_sample(size=df_final.shape)
@@ -337,12 +340,26 @@ def cluster_number():
     if "el" in cm.lower():
         print("\n\nElbow Method")
         sse = []
-        for i in range(2, int(k_num)):
+
+
+        for i in range(2,int(k_num) + 1):
             km = KMeans(n_clusters=i, init='k-means++', max_iter=300, n_init=10, random_state=0)
             model = km.fit(X)
             sse.append(km.inertia_)
-        p1 = np.array([0,sse[0]])
-        p2 = np.array([len(sse)-1,sse[len(sse)-1]])
+
+        min_sse = sse[0]
+        max_sse = sse[0]
+        max_i = 0
+        min_i = 0
+        for i in range(1, len(sse)):
+            if sse[i] >= max_sse:
+                max_sse = sse[i]
+                max_i = i
+            elif sse[i] <= min_sse:
+                min_sse = sse[i]
+                min_i = i
+        p1 = np.array([min_i, sse[min_i]])
+        p2 = np.array([max_i, sse[max_i]])
         #the way I am doing the elbow method is as follows:
         #the different sse values form a curve like an L (like an exponential decay)
         #The elbow is the point furthest from a line connecting max and min
@@ -360,17 +377,98 @@ def cluster_number():
                 max_dist = dist[x]
                 optimal_cluster = x+2
         km = KMeans(n_clusters=optimal_cluster, init='k-means++', max_iter=300, n_init=10, random_state=0)
+        labels = km.fit(X).predict(X)
+        ax = None or plt.gca()
+        X = df_final[var_list].to_numpy()
+        ax.scatter(X[:, 0], X[:, 1], c=labels, s=40, cmap='viridis', zorder=2)
+        ax.axis('equal')
+        plt.show()
 
     if "si" in cm.lower():
-        print("Sillhouette Coefficient")
+        print("Sillhouette Score\n")
+
+        ss = []
+
+        for i in range(2,int(k_num) + 1):
+            km = KMeans(n_clusters=i, init='k-means++', max_iter=300, n_init=10, random_state=0)
+            model = km.fit_predict(X)
+            cluster_labels = model.fit_predict(X)
+            silhouette_avg = silhouette_score(X, cluster_labels)
+            ss.append(silhouette_avg)
+        optimal_i = 0
+        distance_to_one = abs(1 - ss[0])
+        for i in range(0, len(ss)):
+            if abs(1 - ss[i]) <= distance_to_one:
+                optimal_i = i
+                distance_to_one = abs(1 - ss[i])
+
+        n_clusters = optimal_i + 2
+        km = KMeans(n_clusters=n_clusters, init='k-means++', max_iter=300, n_init=10, random_state=0)
+        labels = km.fit(X).predict(X)
+        ax = None or plt.gca()
+        X = df_final[var_list].to_numpy()
+        ax.scatter(X[:, 0], X[:, 1], c=labels, s=40, cmap='viridis', zorder=2)
+        ax.axis('equal')
+        plt.show()
+
     if "ca" in cm.lower():
-        print("Calinski-Harabasz Index")
+        print("Calinski-Harabasz Index\n")
+        pca = PCA(n_components=2)
+        impca = pca.fit_transform(X)
+        scores = []
+
+        centers = list(range(2, int(k_num) + 1))
+        for center in centers:
+            km = KMeans(n_clusters=center, init='k-means++', max_iter=300, n_init=10, random_state=0).fit(impca)
+            score = calinski_harabaz_score(impca,km.labels_)
+            scores.append(score)
+        optimal_i = 0
+        max_score = scores[0]
+
+        for i in range(1, len(scores)):
+            if scores[i] >= max_score:
+                optimal_i = i
+                max_score = scores[i]
+        n_clusters = optimal_i + 2
+        km = KMeans(n_clusters=n_clusters, init='k-means++', max_iter=300, n_init=10, random_state=0)
+        labels = km.fit(X).predict(X)
+        ax = None or plt.gca()
+        X = df_final[var_list].to_numpy()
+        ax.scatter(X[:, 0], X[:, 1], c=labels, s=40, cmap='viridis', zorder=2)
+        ax.axis('equal')
+        plt.show()
+
     if "da" in cm.lower():
-        print("Davies-Bouldin Index")
+        print("Davies-Bouldin Index\n")
+        scores = []
+        
+        centers = list(range(2,int(k_num) + 1))
+        for center in centers:
+            km = KMeans(n_clusters=center, init='k-means++', max_iter=300, n_init=10, random_state=0)
+            model = km.fit_predict(X)
+            score = davies_bouldin_score(X, model)
+            scores.append(score)
+        optimal_i = 0
+        min_score = scores[0]
+
+        for i in range(1,len(scores)):
+            if scores[i]<=min_score:
+                optimal_i = i
+                min_score = scores[i]
+        n_clusters = optimal_i + 2
+        km = KMeans(n_clusters=n_clusters, init='k-means++', max_iter=300, n_init=10, random_state=0)
+        labels = km.fit(X).predict(X)
+        ax = None or plt.gca()
+        X = df_final[var_list].to_numpy()
+        ax.scatter(X[:, 0], X[:, 1], c=labels, s=40, cmap='viridis', zorder=2)
+        ax.axis('equal')
+        plt.show()
+
     if "de" in cm.lower():
         print("Dendrogram")
+        #ask for help: how does one do a dendrogram, also without graphing?
     sse = []
-    for i in range(2,int(k_num)):
+    for i in range(2,int(k_num) + 1):
         km = KMeans(n_clusters=i, init='k-means++', max_iter=300, n_init=10, random_state=0)
         model = km.fit(X)
         sse.append(km.inertia_)
