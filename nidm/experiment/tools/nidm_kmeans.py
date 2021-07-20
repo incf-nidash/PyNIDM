@@ -2,22 +2,16 @@ import os
 import tempfile
 import pandas as pd
 import csv
-from patsy.highlevel import dmatrices
 from nidm.experiment.Query import GetProjectsUUID
 import click
 from nidm.experiment.tools.click_base import cli
 from nidm.experiment.tools.rest import RestParser
 import numpy as np
 import matplotlib.pyplot as plt
-import seaborn as sns
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
-from sklearn.metrics import silhouette_score, adjusted_rand_score
-from sklearn.pipeline import Pipeline
+from sklearn.metrics import silhouette_score
 from sklearn.preprocessing import LabelEncoder, MinMaxScaler
-from statistics import mean
-import statsmodels.api as sm
-from statsmodels.formula.api import ols
 from sklearn import preprocessing
 from sklearn.metrics import davies_bouldin_score
 from sklearn.metrics import calinski_harabaz_score
@@ -31,7 +25,7 @@ from sklearn.metrics import calinski_harabaz_score
 @click.option("--k_range", "-k", required=True,
               help="The maxiumum number of clusters to try. The algorithm will go from 2 to this number to determine the optimal number of clusters.")
 @click.option("--optimal_cluster_method", "-m", required=True,
-              help="The criterion used to select the optimal partitioning (either AIC or BIC).")
+              help="The criterion used to select the optimal partitioning (either Gap Statistic, Elbow Method, Silhouette Coefficient, Calinski-Harabasz Index, or Davies_Bouldin Index).")
 @click.option("--output_file", "-o", required=False,
               help="Optional output file (TXT) to store results of the linear regression, contrast, and regularization")
 def k_means(nidm_file_list, output_file, var, k_range, optimal_cluster_method):
@@ -45,13 +39,12 @@ def k_means(nidm_file_list, output_file, var, k_range, optimal_cluster_method):
     global n  # used in data_aggregation()
     n = nidm_file_list
     global k_num
-    k_num = k_range
+    k_num = int(k_range)
     global cm
     cm = optimal_cluster_method
     data_aggregation()
     dataparsing()
     cluster_number()
-
 
 def data_aggregation():  # all data from all the files is collected
     """    This function provides query support for NIDM graphs.   """
@@ -60,7 +53,7 @@ def data_aggregation():  # all data from all the files is collected
     # if there is a CDE file list, seed the CDE cache
     if v:  #ex: age,sex,DX_GROUP
         print("***********************************************************************************************************")
-        command = "pynidm k-means -nl " + n + " -variables \"" + v + "\" " + "-k " + k_num + " -p " + cm
+        command = "pynidm k-means -nl " + n + " -variables \"" + v + "\" " + "-k " + str(k_num) + " -m " + cm
 
         print("Your command was: " + command)
         if (o is not None):
@@ -249,6 +242,12 @@ def dataparsing(): #The data is changed to a format that is usable by the linear
     condensed_data = []
     for i in range(0, len(file_list)):
         condensed_data = condensed_data + condensed_data_holder[i]
+    global k_num
+    if len(condensed_data[0]) <= k_num:
+        print("\nThe maximum number of clusters specified is greater than the amount of data present.")
+        print("The algorithm cannot run with this, so k_num will be reduced to 1 less than the length of the dataset.")
+        k_num = len(condensed_data) - 1
+        print("The k_num value is now: " + str(k_num))
     x = pd.read_csv(opencsv(condensed_data))  # changes the dataframe to a csv to make it easier to work with
     x.head()  # prints what the csv looks like
     x.dtypes  # checks data format
@@ -315,18 +314,18 @@ def cluster_number():
     X = df_final[var_list]
     if "ga" in cm.lower():
         print("\n\nGap Statistic")
-        gaps = np.zeros((len(range(2,int(k_num) + 1))))
+        gaps = np.zeros((len(range(2,int(k_num)))))
         global resulting_df
         resulting_df = pd.DataFrame({'clusterCount':[],'gap':[]})
         global gap_index, k
-        for gap_index, k in enumerate(range(2,int(k_num) + 1)):
+        for gap_index, k in enumerate(range(2,int(k_num))):
             dispersion_results = np.zeros(3) #make three random datasets
             for i in range(3):
                 random_reference = np.random.random_sample(size=df_final.shape)
                 km = KMeans(k)
                 km.fit(random_reference)
                 dispersion_results[i] = km.inertia_
-            km.KMeans(k)
+            km = KMeans(k)
             km.fit(df_final)
 
             original_sse = km.inertia_
@@ -334,19 +333,29 @@ def cluster_number():
             gap = np.log(np.mean(dispersion_results)) - np.log(original_sse)
 
             gaps[gap_index] = gap
-            resulting_df = resulting_df.append({'clusterCount':k, 'gap': gap}, ignore_index=True)
-        print(gaps.argmax() + 1, resulting_df)
+        max_gap = gaps[0]
+        optimal_i = 0
+        for i in range(1,len(gaps)):
+            if gaps[i] > max_gap:
+                optimal_i = i
+                max_gap = gaps[i]
+        optimal_cluster = optimal_i + 2
+        print("Optimal number of clusters: " + str(optimal_cluster)) #the optimal number of clusters for gap statistic
+        km = KMeans(n_clusters=optimal_cluster, init='k-means++', max_iter=300, n_init=10, random_state=0)
+        labels = km.fit(X).predict(X)
+        ax = None or plt.gca()
+        X = df_final[var_list].to_numpy()
+        ax.scatter(X[:, 0], X[:, 1], c=labels, s=40, cmap='viridis', zorder=2)
+        ax.axis('equal')
+        plt.show()
 
     if "el" in cm.lower():
         print("\n\nElbow Method")
         sse = []
-
-
-        for i in range(2,int(k_num) + 1):
+        for i in range(2,int(k_num)):
             km = KMeans(n_clusters=i, init='k-means++', max_iter=300, n_init=10, random_state=0)
             model = km.fit(X)
             sse.append(km.inertia_)
-
         min_sse = sse[0]
         max_sse = sse[0]
         max_i = 0
@@ -376,6 +385,7 @@ def cluster_number():
             if dist[x]>=max_dist:
                 max_dist = dist[x]
                 optimal_cluster = x+2
+        print("Optimal number of clusters: " + str(optimal_cluster)) #the optimal number of clusters for elbow method
         km = KMeans(n_clusters=optimal_cluster, init='k-means++', max_iter=300, n_init=10, random_state=0)
         labels = km.fit(X).predict(X)
         ax = None or plt.gca()
@@ -385,14 +395,11 @@ def cluster_number():
         plt.show()
 
     if "si" in cm.lower():
-        print("Sillhouette Score\n")
-
+        print("Silhouette Score\n")
         ss = []
-
-        for i in range(2,int(k_num) + 1):
+        for i in range(2,int(k_num)):
             km = KMeans(n_clusters=i, init='k-means++', max_iter=300, n_init=10, random_state=0)
-            model = km.fit_predict(X)
-            cluster_labels = model.fit_predict(X)
+            cluster_labels = km.fit_predict(X)
             silhouette_avg = silhouette_score(X, cluster_labels)
             ss.append(silhouette_avg)
         optimal_i = 0
@@ -401,8 +408,8 @@ def cluster_number():
             if abs(1 - ss[i]) <= distance_to_one:
                 optimal_i = i
                 distance_to_one = abs(1 - ss[i])
-
         n_clusters = optimal_i + 2
+        print("Optimal number of clusters: " + str(n_clusters)) #the optimal number of clusters
         km = KMeans(n_clusters=n_clusters, init='k-means++', max_iter=300, n_init=10, random_state=0)
         labels = km.fit(X).predict(X)
         ax = None or plt.gca()
@@ -412,12 +419,14 @@ def cluster_number():
         plt.show()
 
     if "ca" in cm.lower():
+        import warnings
+        warnings.filterwarnings("ignore", category=FutureWarning) #it is a function for 0.24 but says it is depracated in 0.23
         print("Calinski-Harabasz Index\n")
         pca = PCA(n_components=2)
         impca = pca.fit_transform(X)
         scores = []
 
-        centers = list(range(2, int(k_num) + 1))
+        centers = list(range(2, int(k_num)))
         for center in centers:
             km = KMeans(n_clusters=center, init='k-means++', max_iter=300, n_init=10, random_state=0).fit(impca)
             score = calinski_harabaz_score(impca,km.labels_)
@@ -430,6 +439,7 @@ def cluster_number():
                 optimal_i = i
                 max_score = scores[i]
         n_clusters = optimal_i + 2
+        print("Optimal number of clusters: " + str(n_clusters)) #the optimal number of clusters
         km = KMeans(n_clusters=n_clusters, init='k-means++', max_iter=300, n_init=10, random_state=0)
         labels = km.fit(X).predict(X)
         ax = None or plt.gca()
@@ -441,8 +451,8 @@ def cluster_number():
     if "da" in cm.lower():
         print("Davies-Bouldin Index\n")
         scores = []
-        
-        centers = list(range(2,int(k_num) + 1))
+
+        centers = list(range(2,int(k_num)))
         for center in centers:
             km = KMeans(n_clusters=center, init='k-means++', max_iter=300, n_init=10, random_state=0)
             model = km.fit_predict(X)
@@ -456,6 +466,7 @@ def cluster_number():
                 optimal_i = i
                 min_score = scores[i]
         n_clusters = optimal_i + 2
+        print("Optimal number of clusters: " + str(n_clusters)) #the optimal number of clusters
         km = KMeans(n_clusters=n_clusters, init='k-means++', max_iter=300, n_init=10, random_state=0)
         labels = km.fit(X).predict(X)
         ax = None or plt.gca()
@@ -467,25 +478,6 @@ def cluster_number():
     if "de" in cm.lower():
         print("Dendrogram")
         #ask for help: how does one do a dendrogram, also without graphing?
-    sse = []
-    for i in range(2,int(k_num) + 1):
-        km = KMeans(n_clusters=i, init='k-means++', max_iter=300, n_init=10, random_state=0)
-        model = km.fit(X)
-        sse.append(km.inertia_)
-    optimal_i = 2
-    for i in range(0, len(sse)):
-        if (sse[i] < 1) and (optimal_i == 2): #basically, the first value where sse dips below 1 is our value.
-            optimal_i = i + 1
-    km = KMeans(n_clusters=optimal_i, init='k-means++', max_iter=300, n_init=10, random_state=0)
-    Y = km.fit_predict(X)
-    df_final['Cluster'] = Y
-    print(sse)
-    print(df_final)
-    f, (ax1, ax2) = plt.subplots(1, 2, sharey=True, figsize=(10, 6))
-    ax1.set_title('K Means')
-    ax1.scatter(df_final[0][:, 0], df_final[0][:, 1], c=km.labels_, cmap='brg')
-    ax2.set_title("Original")
-    ax2.scatter(df_final[0][:, 0], df_final[0][:, 1], c=df_final[1], cmap='brg')
 
     if (o is not None):
         f = open(o, "a")

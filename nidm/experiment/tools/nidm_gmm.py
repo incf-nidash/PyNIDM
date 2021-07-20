@@ -2,23 +2,15 @@ import os
 import tempfile
 import pandas as pd
 import csv
-from patsy.highlevel import dmatrices
 from nidm.experiment.Query import GetProjectsUUID
 import click
 from nidm.experiment.tools.click_base import cli
 from nidm.experiment.tools.rest import RestParser
 import numpy as np
 import matplotlib.pyplot as plt
-import seaborn as sns
-from sklearn.cluster import KMeans
-from sklearn.decomposition import PCA
-from sklearn.metrics import silhouette_score, adjusted_rand_score
-from sklearn.pipeline import Pipeline
+from sklearn.metrics import silhouette_score
 from sklearn.mixture import GaussianMixture
 from sklearn.preprocessing import LabelEncoder, MinMaxScaler
-from statistics import mean
-import statsmodels.api as sm
-from statsmodels.formula.api import ols
 from sklearn import preprocessing
 
 @cli.command()
@@ -29,7 +21,7 @@ from sklearn import preprocessing
 @click.option("--k_range", "-k", required=True,
               help="The maxiumum number of clusters to try. The algorithm will go from 2 to this number to determine the optimal number of clusters.")
 @click.option("--optimal_cluster_method", "-m", required=True,
-              help="The criterion used to select the optimal partitioning (either AIC or BIC).")
+              help="The criterion used to select the optimal partitioning (either Silhouette Score, AIC, or BIC).")
 @click.option("--output_file", "-o", required=False,
               help="Optional output file (TXT) to store results of the linear regression, contrast, and regularization")
 def gmm(nidm_file_list, output_file, var, k_range, optimal_cluster_method):
@@ -335,6 +327,7 @@ def cluster_number():
                 distance_to_one = abs(1-ss[i])
 
         n_clusters = optimal_i + 2
+        print("Optimal number of clusters: " + str(n_clusters)) #optimal number of clusters
         gmm = GaussianMixture(n_components=n_clusters).fit(X)
         labels = gmm.fit(X).predict(X)
         ax = None or plt.gca()
@@ -351,6 +344,14 @@ def cluster_number():
             model.fit(X)
             aic.append(model.bic(X))
         min_aic = aic[0]
+        min_i = 0
+        for i in range(1, len(aic)):
+            if aic[i] <= min_aic:
+                min_aic = aic[i]
+                min_i = i
+        n_clusters = min_i +2
+        print("Optimal number of clusters: " + str(n_clusters)) #optimal number of clusters, minimizing aic
+        """min_aic = aic[0]
         max_aic = aic[0]
         max_i = 0
         min_i = 0
@@ -363,7 +364,7 @@ def cluster_number():
                 min_i = i
         p1 = np.array([min_i, aic[min_i]])
         p2 = np.array([max_i, aic[max_i]])
-        # the way I am doing the elbow method is as follows:
+        # the way I am doing the method is as follows:
         # the different sse values form a curve like an L (like an exponential decay)
         # The elbow is the point furthest from a line connecting max and min
         # So I am calculating the distance, and the maximum distance from point to curve shows the optimal point
@@ -379,6 +380,10 @@ def cluster_number():
             if dist[x] >= max_dist:
                 max_dist = dist[x]
                 n_clusters = x + 2
+
+        plt.plot(aic)
+        plt.show()"""
+
         gmm = GaussianMixture(n_components=n_clusters).fit(X)
         labels = gmm.fit(X).predict(X)
         ax = None or plt.gca()
@@ -395,6 +400,13 @@ def cluster_number():
             model.fit(X)
             bic.append(model.bic(X))
         min_bic = bic[0]
+        min_i = 0
+        for i in range(1, len(bic)):
+            if bic[i] <= min_bic:
+                min_bic = bic[i]
+                min_i = i
+        n_clusters = min_i + 2
+        """min_bic = bic[0]
         max_bic = bic[0]
         max_i = 0
         min_i = 0
@@ -407,7 +419,7 @@ def cluster_number():
                 min_i = i
         p1 = np.array([min_i, bic[min_i]])
         p2 = np.array([max_i, bic[max_i]])
-        # the way I am doing the elbow method is as follows:
+        # the way I am doing the method is as follows:
         # the different sse values form a curve like an L (like an exponential decay)
         # The elbow is the point furthest from a line connecting max and min
         # So I am calculating the distance, and the maximum distance from point to curve shows the optimal point
@@ -423,6 +435,9 @@ def cluster_number():
             if dist[x] >= max_dist:
                 max_dist = dist[x]
                 n_clusters = x + 2
+        plt.plot(bic)
+        plt.show()"""
+        print("Optimal number of clusters: " + str(n_clusters)) #optimal number of clusters
         gmm = GaussianMixture(n_components=n_clusters).fit(X)
         labels = gmm.fit(X).predict(X)
         ax = None or plt.gca()
