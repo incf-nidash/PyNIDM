@@ -92,6 +92,9 @@ def main(argv):
                                 'asked of the user.  This is useful if you already have a -json_map specified without concepts and want to'
                                 'simply run this program to get a NIDM file with user interaction to associate concepts.')
     parser.add_argument('-log','--log', dest='logfile',required=False, default=None, help="full path to directory to save log file. Log file name is csv2nidm_[arg.csv_file].log")
+    parser.add_argument('-dataset_id', '--dataset_id', dest='dataset_identifier',required=False, default=None,
+                        help='If this is provided, which can be any dataset ID although its suggested to use a dataset'
+                             'DOI if available, unique data element IDs will use this information as part of the hash.')
     parser.add_argument('-out', dest='output_file', required=True, help="Full path with filename to save NIDM file")
     args = parser.parse_args()
 
@@ -120,12 +123,15 @@ def main(argv):
     #else:
     # if user did not specify -no_concepts then associate concepts interactively with user
     if not args.no_concepts:
-        column_to_terms, cde = map_variables_to_terms(df=df,  assessment_name=basename(args.csv_file),directory=dirname(args.output_file), output_file=args.output_file, json_source=json_map)
+        column_to_terms, cde = map_variables_to_terms(df=df,  assessment_name=basename(args.csv_file),
+                                                    directory=dirname(args.output_file), output_file=args.output_file,
+                                                      json_source=json_map,dataset_identifier=args.dataset_identifier)
     # run without concept mappings
     else:
         column_to_terms, cde = map_variables_to_terms(df=df, assessment_name=basename(args.csv_file),
                                                       directory=dirname(args.output_file), output_file=args.output_file,
-                                                      json_source=json_map, associate_concepts=False)
+                                                      json_source=json_map, associate_concepts=False,
+                                                      dataset_identifier=args.dataset_identifier)
 
     if args.logfile is not None:
         logging.basicConfig(filename=join(args.logfile,'csv2nidm_' + os.path.splitext(os.path.basename(args.csv_file))[0] + '.log'), level=logging.DEBUG)
