@@ -68,7 +68,7 @@ MAX_ALPHA = 700
               help="Optional output file (TXT) to store results of the linear regression, contrast, and regularization")
 @click.option("--regularization", "-r", required=False,
               help="This parameter will return the results of the linear regression with L1 or L2 regularization depending on the type specified, and the weight with the maximum likelihood solution")
-def full_regression(nidm_file_list, output_file, model, contrast, regularization):
+def linreg(nidm_file_list, output_file, model, contrast, regularization):
     #NOTE: Every time I make a global variable, it is because I need it in at least one other method.
     global c #used in linreg(), contrasting()
     c = contrast #Storing all important parameters in global variables so they can be accessed in other methods
@@ -645,4 +645,4 @@ def opencsv(data):
 
 # it can be used calling the script `python nidm_query.py -nl ... -q ..
 if __name__ == "__main__":
-    full_regression()
+    linreg()

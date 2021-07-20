@@ -61,7 +61,8 @@ OWL = Namespace("http://www.w3.org/2002/07/owl#")
 ONLI = Namespace("http://neurolog.unice.fr/ontoneurolog/v3.0/instrument.owl#")
 PATO = Namespace("http://purl.obolibrary.org/obo/pato#")
 DATALAD = Namespace("http://datasets.datalad.org/")
-INTERLEX = Namespace("http://uri.interlex.org/base/")
+INTERLEX = Namespace("http://uri.interlex.org/")
+EDAM = Namespace("https://bioportal.bioontology.org/ontologies/EDAM")
 
 namespaces = {
    # "prov": PROV,
@@ -95,7 +96,8 @@ namespaces = {
     "onli" : ONLI,
     "pato" : PATO,
 	"datalad" : DATALAD,
-	"ilx" : INTERLEX
+	"ilx" : INTERLEX,
+	"edam" : EDAM
     }
 
 # Empty graph used to compute qnames
@@ -386,6 +388,9 @@ NIDM_MRI_BOLD_EVENTS = QualifiedName(provNamespace("nidm", NIDM),"StimulusRespon
 NIDM_MRI_ASL = QualifiedName(provNamespace("nidm",NIDM),"ArterialSpinLabeling")
 CRYPTO_SHA512  =QualifiedName(provNamespace("crypto", CRYPTO),"sha512")
 DATALAD_LOCATION = QualifiedName(provNamespace("datalad", DATALAD),"Location")
+NIDM_DOI = QualifiedName(provNamespace("edam",EDAM),"data_1188")
+NIDM_FUNDING = QualifiedName(provNamespace("obo",OBO),"IAO_0000623")
+NIDM_ACKNOWLEDGEMENTS = QualifiedName(provNamespace("obo",OBO),"IAO_0000324")
 ##############################################################################
 # OBO constants
 OBO_EXAMPLE = OBO['IAO_0000112']
@@ -609,7 +614,8 @@ NIDM_MRI_T2,
 NIDM_MRI_T2_STAR,
 NIDM_MRI_DIFFUSION_TENSOR,
 NIDM_MRI_FLOW,
-NIDM_MRI_BOLD_EVENTS]
+NIDM_MRI_BOLD_EVENTS,
+NIDM_DOI]
 
 # Common isAbout URIs
 NIDM_IS_ABOUT_AGE = str(INTERLEX['ilx_0100400'])
