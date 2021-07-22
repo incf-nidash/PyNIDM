@@ -575,6 +575,18 @@ def bidsmri2project(directory, args):
             else:
                 project.add_attributes({BIDS_Constants.dataset_description[key]:dataset[key]})
 
+            # added special case to include DOI of project in hash for data element UUIDs to prevent collisions with
+            # similar data elements from other projects and make the bids2nidm conversion deterministic in the sense
+            # that if you re-convert the same dataset to NIDM, the data element UUIDs will remain the same.
+            if key == "DatasetDOI":
+                if dataset[key] == "":
+                    dataset_doi = None
+                else:
+                    dataset_doi = dataset[key]
+            else:
+                dataset_doi = None
+
+
 
 
 
@@ -615,28 +627,34 @@ def bidsmri2project(directory, args):
                     temp=DataFrame(columns=mapping_list)
                     if args.no_concepts:
                         column_to_terms,cde = map_variables_to_terms(directory=directory,assessment_name='participants.tsv',
-                            df=temp,output_file=os.path.join(directory,'participants.json'),bids=True,associate_concepts=False)
+                            df=temp,output_file=os.path.join(directory,'participants.json'),bids=True,associate_concepts=False,
+                            dataset_identifier = dataset_doi)
                     else:
                         column_to_terms,cde = map_variables_to_terms(directory=directory,assessment_name='participants.tsv',
-                            df=temp,output_file=os.path.join(directory,'participants.json'),bids=True)
+                            df=temp,output_file=os.path.join(directory,'participants.json'),bids=True,
+                            dataset_identifier = dataset_doi)
                 else:
                     #maps variables in CSV file to terms
                     temp=DataFrame(columns=mapping_list)
                     if args.no_concepts:
                         column_to_terms,cde = map_variables_to_terms(directory=directory, assessment_name='participants.tsv', df=temp,
-                            output_file=os.path.join(directory,'participants.json'),json_source=os.path.join(directory,'participants.json'),bids=True,associate_concepts=False)
+                            output_file=os.path.join(directory,'participants.json'),json_source=os.path.join(directory,'participants.json'),
+                            bids=True,associate_concepts=False, dataset_identifier = dataset_doi)
                     else:
                         column_to_terms,cde = map_variables_to_terms(directory=directory, assessment_name='participants.tsv', df=temp,
-                            output_file=os.path.join(directory,'participants.json'),json_source=os.path.join(directory,'participants.json'),bids=True)
+                            output_file=os.path.join(directory,'participants.json'),json_source=os.path.join(directory,'participants.json'),
+                            bids=True,dataset_identifier = dataset_doi)
             else:
                 #maps variables in CSV file to terms
                 temp=DataFrame(columns=mapping_list)
                 if args.no_concepts:
                     column_to_terms, cde = map_variables_to_terms(directory=directory, assessment_name='participants.tsv', df=temp,
-                        output_file=os.path.join(directory,'participants.json'),json_source=args.json_map,bids=True,associate_concepts=False)
+                        output_file=os.path.join(directory,'participants.json'),json_source=args.json_map,bids=True,
+                        associate_concepts=False, dataset_identifier = dataset_doi)
                 else:
                     column_to_terms, cde = map_variables_to_terms(directory=directory, assessment_name='participants.tsv', df=temp,
-                        output_file=os.path.join(directory,'participants.json'),json_source=args.json_map,bids=True)
+                        output_file=os.path.join(directory,'participants.json'),json_source=args.json_map,bids=True,
+                        dataset_identifier = dataset_doi)
 
 
             for row in participants_data:

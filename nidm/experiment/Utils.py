@@ -955,7 +955,7 @@ def redcap_datadictionary_to_json(redcap_dd_file,assessment_name):
 
 
 def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_source=None,bids=False,owl_file='nidm',
-                           associate_concepts=True):
+                           associate_concepts=True, dataset_identifier=None):
     '''
 
     :param df: data frame with first row containing variable names
@@ -1253,7 +1253,7 @@ def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_
     write_json_mapping_file(column_to_terms, output_file, bids)
 
     # get CDEs for data dictonary and NIDM graph entity of data
-    cde = DD_to_nidm(column_to_terms)
+    cde = DD_to_nidm(column_to_terms,dataset_identifier=dataset_identifier)
 
     return [column_to_terms, cde]
 
@@ -1652,7 +1652,7 @@ def annotate_data_element(source_variable, current_tuple, source_variable_annota
         print("levels: %s" % source_variable_annotations[current_tuple]['levels'])
     print("---------------------------------------------------------------------------------------")
 
-def DD_UUID (element,dd_struct):
+def DD_UUID (element,dd_struct,dataset_identifier=None):
     '''
     This function will produce a hash of the data dictionary (personal data element) properties defined
     by the user for use as a UUID.  The data dictionary key is a tuple identifying the file and variable
@@ -1669,7 +1669,11 @@ def DD_UUID (element,dd_struct):
     # added getUUID to property string to solve problem where all openneuro datasets that have the same
     # source variable name and properties don't end up having the same UUID as they are sometimes not
     # the same and end up being added to the same entity when merging graphs across all openneuro projects
-    property_string=getUUID()
+    # if a dataset identifier is not provided then we use a random UUID 
+    if dataset_identifier is not None:
+        property_string = dataset_identifier
+    else:
+        property_string = getUUID()
     for key, value in dd_struct[str(key_tuple)].items():
         if key == 'label':
             property_string = property_string + str(value)
@@ -1688,7 +1692,7 @@ def DD_UUID (element,dd_struct):
     cde_id = URIRef(niiri_ns + safe_string(variable_name) + "_" + str(crc32hash))
     return cde_id
 
-def DD_to_nidm(dd_struct):
+def DD_to_nidm(dd_struct,dataset_identifier=None):
     '''
 
     Takes a DD json structure and returns nidm CDE-style graph to be added to NIDM documents
@@ -1735,7 +1739,7 @@ def DD_to_nidm(dd_struct):
                 # md5hash = hashlib.md5(str(key).encode()).hexdigest()
 
 
-                cde_id = DD_UUID(key,dd_struct)
+                cde_id = DD_UUID(key,dd_struct,dataset_identifier)
                 #cde_id = URIRef(niiri_ns + safe_string(item) + "_" + str(crc32hash))
                 g.add((cde_id,RDF.type, Constants.NIDM['PersonalDataElement']))
                 g.add((cde_id,RDF.type, Constants.PROV['Entity']))
@@ -1757,7 +1761,7 @@ def DD_to_nidm(dd_struct):
             elif (key == 'levels') or (key == 'Levels'):
                 g.add((cde_id,Constants.NIDM['levels'],Literal(value)))
             elif key == 'source_variable':
-                g.add((cde_id, Constants.NIDM['source_variable'], Literal(value)))
+                g.add((cde_id, Constants.NIDM['sourceVariable'], Literal(value)))
             elif key == 'isAbout':
                 #dct_ns = Namespace(Constants.DCT)
                 #g.bind(prefix='dct', namespace=dct_ns)
@@ -1802,7 +1806,7 @@ def DD_to_nidm(dd_struct):
             elif (key == 'maxValue') or (key == 'maximumValue'):
                 g.add((cde_id, Constants.NIDM['maxValue'], Literal(value)))
             elif key == 'hasUnit':
-                g.add((cde_id, Constants.NIDM['hasUnit'], Literal(value)))
+                g.add((cde_id, Constants.NIDM['unitCode'], Literal(value)))
             elif key == 'sameAs':
                 g.add((cde_id, Constants.NIDM['sameAs'], URIRef(value)))
             elif key == 'associatedWith':
@@ -1820,7 +1824,7 @@ def add_attributes_with_cde(prov_object, cde, row_variable, value):
 
     # find the ID in cdes where nidm:source_variable matches the row_variable
     # qres = cde.subjects(predicate=Constants.RDFS['label'],object=Literal(row_variable))
-    qres = cde.subjects(predicate=Constants.NIDM['source_variable'],object=Literal(row_variable))
+    qres = cde.subjects(predicate=Constants.NIDM['sourceVariable'],object=Literal(row_variable))
     for s in qres:
         entity_id = s
         # find prefix matching our url in rdflib graph...this is because we're bouncing between
