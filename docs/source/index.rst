@@ -255,6 +255,494 @@ Options:
   -v, --verbosity TEXT            Verbosity level 0-5, 0 is default
   --help                          Show this message and exit.
 
+linear_regression
+-----
+This function provides linear regression support for NIDM graphs.
+
+.. code-block:: bash
+
+Usage: pynidm linear-regression [OPTIONS]
+
+Options:
+  -nl, --nidm_file_list TEXT      A comma-separated list of NIDM files with
+                                  full path  [required]
+  -r, --regularization TEXT       Parameter, if set, will return the results of
+  				  the linear regression with L1 or L2 regularization 
+				  depending on the type specified, and the weight 
+				  with the maximum likelihood solution. This will
+				  prevent overfitting. (Ex: -r L1)
+  -model, --ml TEXT 		  An equation representing the linear
+  				  regression. The dependent variable comes
+				  first, followed by "=" or "~", followed by
+				  the independent variables separated by "+"
+				  (Ex: -model "fs_003343 = age*sex + sex + 
+				  age + group + age*group + bmi") [required]
+  -contstant, --ctr TEXT       	  Parameter, if set, will return differences in
+  				  variable relationships by group. One or
+				  multiple parameters can be used (multiple 
+				  parameters should be separated by a comma-
+				  separated list) (Ex: -contrast group,age)
+  -o, --output_file TEXT          Optional output file (TXT) to store results
+                                  of query
+  --help                          Show this message and exit.
+
+To use the linear regression algorithm successfully, structure, syntax, and querying is important. Here is how to maximize the usefulness of the tool:
+
+
+First, use pynidm query to discover the variables to use. PyNIDM allows for the use of either data elements (PIQ_tca9ck), specific URLs (http://uri.interlex.org/ilx_0100400), or source variables (DX_GROUP).
+
+An example of a potential query is: pynidm query -nl /Users/Ashu/Downloads/simple2_NIDM_examples/datasets.datalad.org/abide/RawDataBIDS/CMU_a/nidm.ttl,/Users/Ashu/Downloads/simple2_NIDM_examples/datasets.datalad.org/abide/RawDataBIDS/CMU_b/nidm.ttl -u /projects?fields=fs_000008,DX_GROUP,PIQ_tca9ck,http://uri.interlex.org/ilx_0100400
+
+You can also do:
+pynidm query -nl /simple2_NIDM_examples/datasets.datalad.org/abide/RawDataBIDS/CMU_a/nidm.ttl,/Users/Ashu/Downloads/simple2_NIDM_examples/datasets.datalad.org/abide/RawDataBIDS/CMU_b/nidm.ttl -gf fs_000008,DX_GROUP,PIQ_tca9ck,http://uri.interlex.org/ilx_0100400
+
+The query looks in the two files specified in the -nl parameter for the variables specified. In this case, we use fs_000008 and DX_GROUP (source variables), a URL (http://uri.interlex.org/ilx_0100400), and a data element (PIQ_tca9ck). The output of the file is slightly different depending on whether you use -gf or -u. With -gf, it will return the variables from both files separately, while -u combines them.
+
+For -gf, the file output is:
+subject                               label                                    value  unit    isAbout
+------------------------------------  ----------------------------  ----------------  ------  ----------------------------------------
+ea9510e8-1561-11eb-b5e0-1094bbf2086c  PIQ                              104                    http://uri.interlex.org/base/ilx_0739363
+ea9510e8-1561-11eb-b5e0-1094bbf2086c  diagnostic group                   2            NA
+ea9510e8-1561-11eb-b5e0-1094bbf2086c  age at scan                       33            years   http://uri.interlex.org/ilx_0100400
+ea9510e8-1561-11eb-b5e0-1094bbf2086c  Supratentorial volume (mm^3)  977207            mm^3
+e940d16e-1561-11eb-b5e0-1094bbf2086c  Supratentorial volume (mm^3)       1.1513e+06   mm^3
+e940d16e-1561-11eb-b5e0-1094bbf2086c  age at scan                       21            years   http://uri.interlex.org/ilx_0100400
+e940d16e-1561-11eb-b5e0-1094bbf2086c  diagnostic group                   2            NA
+e940d16e-1561-11eb-b5e0-1094bbf2086c  PIQ                              108                    http://uri.interlex.org/base/ilx_0739363
+e9ead2c2-1561-11eb-b5e0-1094bbf2086c  Supratentorial volume (mm^3)       1.01447e+06  mm^3
+e9ead2c2-1561-11eb-b5e0-1094bbf2086c  age at scan                       21            years   http://uri.interlex.org/ilx_0100400
+e9ead2c2-1561-11eb-b5e0-1094bbf2086c  diagnostic group                   2            NA
+e9ead2c2-1561-11eb-b5e0-1094bbf2086c  PIQ                              110                    http://uri.interlex.org/base/ilx_0739363
+e745d44a-1561-11eb-b5e0-1094bbf2086c  Supratentorial volume (mm^3)  932932            mm^3
+e745d44a-1561-11eb-b5e0-1094bbf2086c  age at scan                       28            years   http://uri.interlex.org/ilx_0100400
+e745d44a-1561-11eb-b5e0-1094bbf2086c  diagnostic group                   2            NA
+e745d44a-1561-11eb-b5e0-1094bbf2086c  PIQ                              127                    http://uri.interlex.org/base/ilx_0739363
+e3e5fe06-1561-11eb-b5e0-1094bbf2086c  Supratentorial volume (mm^3)       1.20074e+06  mm^3
+e3e5fe06-1561-11eb-b5e0-1094bbf2086c  PIQ                              115                    http://uri.interlex.org/base/ilx_0739363
+e3e5fe06-1561-11eb-b5e0-1094bbf2086c  age at scan                       21            years   http://uri.interlex.org/ilx_0100400
+e3e5fe06-1561-11eb-b5e0-1094bbf2086c  diagnostic group                   1            NA
+e3386110-1561-11eb-b5e0-1094bbf2086c  Supratentorial volume (mm^3)       1.07492e+06  mm^3
+e3386110-1561-11eb-b5e0-1094bbf2086c  age at scan                       33            years   http://uri.interlex.org/ilx_0100400
+e3386110-1561-11eb-b5e0-1094bbf2086c  PIQ                              107                    http://uri.interlex.org/base/ilx_0739363
+e3386110-1561-11eb-b5e0-1094bbf2086c  diagnostic group                   1            NA
+e490522a-1561-11eb-b5e0-1094bbf2086c  PIQ                              109                    http://uri.interlex.org/base/ilx_0739363
+e490522a-1561-11eb-b5e0-1094bbf2086c  diagnostic group                   1            NA
+e490522a-1561-11eb-b5e0-1094bbf2086c  age at scan                       27            years   http://uri.interlex.org/ilx_0100400
+e490522a-1561-11eb-b5e0-1094bbf2086c  Supratentorial volume (mm^3)  922970            mm^3
+eb3ef252-1561-11eb-b5e0-1094bbf2086c  diagnostic group                   2            NA
+eb3ef252-1561-11eb-b5e0-1094bbf2086c  age at scan                       31            years   http://uri.interlex.org/ilx_0100400
+eb3ef252-1561-11eb-b5e0-1094bbf2086c  PIQ                              109                    http://uri.interlex.org/base/ilx_0739363
+eb3ef252-1561-11eb-b5e0-1094bbf2086c  Supratentorial volume (mm^3)       1.35311e+06  mm^3
+ebe3a9d2-1561-11eb-b5e0-1094bbf2086c  age at scan                       25            years   http://uri.interlex.org/ilx_0100400
+ebe3a9d2-1561-11eb-b5e0-1094bbf2086c  diagnostic group                   2            NA
+ebe3a9d2-1561-11eb-b5e0-1094bbf2086c  PIQ                              108                    http://uri.interlex.org/base/ilx_0739363
+ebe3a9d2-1561-11eb-b5e0-1094bbf2086c  Supratentorial volume (mm^3)       1.03955e+06  mm^3
+e7f16a8a-1561-11eb-b5e0-1094bbf2086c  diagnostic group                   2            NA
+e7f16a8a-1561-11eb-b5e0-1094bbf2086c  PIQ                              106                    http://uri.interlex.org/base/ilx_0739363
+e7f16a8a-1561-11eb-b5e0-1094bbf2086c  age at scan                       27            years   http://uri.interlex.org/ilx_0100400
+e7f16a8a-1561-11eb-b5e0-1094bbf2086c  Supratentorial volume (mm^3)       1.30477e+06  mm^3
+e5e28d3c-1561-11eb-b5e0-1094bbf2086c  diagnostic group                   1            NA
+e5e28d3c-1561-11eb-b5e0-1094bbf2086c  age at scan                       30            years   http://uri.interlex.org/ilx_0100400
+e5e28d3c-1561-11eb-b5e0-1094bbf2086c  PIQ                              129                    http://uri.interlex.org/base/ilx_0739363
+e5e28d3c-1561-11eb-b5e0-1094bbf2086c  Supratentorial volume (mm^3)       1.26338e+06  mm^3
+e89869d4-1561-11eb-b5e0-1094bbf2086c  Supratentorial volume (mm^3)       1.10791e+06  mm^3
+e89869d4-1561-11eb-b5e0-1094bbf2086c  diagnostic group                   2            NA
+e89869d4-1561-11eb-b5e0-1094bbf2086c  PIQ                              109                    http://uri.interlex.org/base/ilx_0739363
+e89869d4-1561-11eb-b5e0-1094bbf2086c  age at scan                       25            years   http://uri.interlex.org/ilx_0100400
+e53b63e0-1561-11eb-b5e0-1094bbf2086c  Supratentorial volume (mm^3)       1.08075e+06  mm^3
+e53b63e0-1561-11eb-b5e0-1094bbf2086c  age at scan                       22            years   http://uri.interlex.org/ilx_0100400
+e53b63e0-1561-11eb-b5e0-1094bbf2086c  PIQ                              126                    http://uri.interlex.org/base/ilx_0739363
+e53b63e0-1561-11eb-b5e0-1094bbf2086c  diagnostic group                   1            NA
+e6944dba-1561-11eb-b5e0-1094bbf2086c  diagnostic group                   1            NA
+e6944dba-1561-11eb-b5e0-1094bbf2086c  age at scan                       24            years   http://uri.interlex.org/ilx_0100400
+e6944dba-1561-11eb-b5e0-1094bbf2086c  PIQ                               92                    http://uri.interlex.org/base/ilx_0739363
+e6944dba-1561-11eb-b5e0-1094bbf2086c  Supratentorial volume (mm^3)       1.12088e+06  mm^3
+subject                               label                                    value  unit    isAbout
+------------------------------------  ----------------------------  ----------------  ------  ----------------------------------------
+f6653854-1566-11eb-94fa-1094bbf2086c  age at scan                       30            years   http://uri.interlex.org/ilx_0100400
+f6653854-1566-11eb-94fa-1094bbf2086c  diagnostic group                   2            NA
+f6653854-1566-11eb-94fa-1094bbf2086c  PIQ                              123                    http://uri.interlex.org/base/ilx_0739363
+f6653854-1566-11eb-94fa-1094bbf2086c  Supratentorial volume (mm^3)       1.07372e+06  mm^3
+e25a489e-1566-11eb-94fa-1094bbf2086c  Supratentorial volume (mm^3)       1.13679e+06  mm^3
+e25a489e-1566-11eb-94fa-1094bbf2086c  PIQ                              119                    http://uri.interlex.org/base/ilx_0739363
+e25a489e-1566-11eb-94fa-1094bbf2086c  diagnostic group                   1            NA
+e25a489e-1566-11eb-94fa-1094bbf2086c  age at scan                       24            years   http://uri.interlex.org/ilx_0100400
+a3b4dc04-1566-11eb-94fa-1094bbf2086c  Supratentorial volume (mm^3)       1.20216e+06  mm^3
+a3b4dc04-1566-11eb-94fa-1094bbf2086c  diagnostic group                   2            NA
+a3b4dc04-1566-11eb-94fa-1094bbf2086c  age at scan                       21            years   http://uri.interlex.org/ilx_0100400
+a3b4dc04-1566-11eb-94fa-1094bbf2086c  PIQ                              124                    http://uri.interlex.org/base/ilx_0739363
+f1ab4e2a-1566-11eb-94fa-1094bbf2086c  diagnostic group                   1            NA
+f1ab4e2a-1566-11eb-94fa-1094bbf2086c  age at scan                       39            years   http://uri.interlex.org/ilx_0100400
+f1ab4e2a-1566-11eb-94fa-1094bbf2086c  PIQ                              121                    http://uri.interlex.org/base/ilx_0739363
+f1ab4e2a-1566-11eb-94fa-1094bbf2086c  Supratentorial volume (mm^3)       1.30558e+06  mm^3
+dfa366a8-1566-11eb-94fa-1094bbf2086c  PIQ                              115                    http://uri.interlex.org/base/ilx_0739363
+dfa366a8-1566-11eb-94fa-1094bbf2086c  age at scan                       20            years   http://uri.interlex.org/ilx_0100400
+dfa366a8-1566-11eb-94fa-1094bbf2086c  diagnostic group                   1            NA
+dfa366a8-1566-11eb-94fa-1094bbf2086c  Supratentorial volume (mm^3)       1.07583e+06  mm^3
+e512bb02-1566-11eb-94fa-1094bbf2086c  diagnostic group                   2            NA
+e512bb02-1566-11eb-94fa-1094bbf2086c  age at scan                       20            years   http://uri.interlex.org/ilx_0100400
+e512bb02-1566-11eb-94fa-1094bbf2086c  PIQ                              114                    http://uri.interlex.org/base/ilx_0739363
+e512bb02-1566-11eb-94fa-1094bbf2086c  Supratentorial volume (mm^3)  943040            mm^3
+ee45788c-1566-11eb-94fa-1094bbf2086c  Supratentorial volume (mm^3)       1.03868e+06  mm^3
+ee45788c-1566-11eb-94fa-1094bbf2086c  diagnostic group                   1            NA
+ee45788c-1566-11eb-94fa-1094bbf2086c  PIQ                              128                    http://uri.interlex.org/base/ilx_0739363
+ee45788c-1566-11eb-94fa-1094bbf2086c  age at scan                       21            years   http://uri.interlex.org/ilx_0100400
+c051a510-1566-11eb-94fa-1094bbf2086c  age at scan                       31            years   http://uri.interlex.org/ilx_0100400
+c051a510-1566-11eb-94fa-1094bbf2086c  diagnostic group                   1            NA
+c051a510-1566-11eb-94fa-1094bbf2086c  PIQ                              106                    http://uri.interlex.org/base/ilx_0739363
+c051a510-1566-11eb-94fa-1094bbf2086c  Supratentorial volume (mm^3)  912843            mm^3
+c5ba1e06-1566-11eb-94fa-1094bbf2086c  age at scan                       40            years   http://uri.interlex.org/ilx_0100400
+c5ba1e06-1566-11eb-94fa-1094bbf2086c  PIQ                              128                    http://uri.interlex.org/base/ilx_0739363
+c5ba1e06-1566-11eb-94fa-1094bbf2086c  diagnostic group                   2            NA
+c5ba1e06-1566-11eb-94fa-1094bbf2086c  Supratentorial volume (mm^3)       1.11559e+06  mm^3
+f0fea06c-1566-11eb-94fa-1094bbf2086c  age at scan                       31            years   http://uri.interlex.org/ilx_0100400
+f0fea06c-1566-11eb-94fa-1094bbf2086c  PIQ                              121                    http://uri.interlex.org/base/ilx_0739363
+f0fea06c-1566-11eb-94fa-1094bbf2086c  diagnostic group                   1            NA
+f0fea06c-1566-11eb-94fa-1094bbf2086c  Supratentorial volume (mm^3)  848574            mm^3
+e45f8c9e-1566-11eb-94fa-1094bbf2086c  age at scan                       27            years   http://uri.interlex.org/ilx_0100400
+e45f8c9e-1566-11eb-94fa-1094bbf2086c  diagnostic group                   2            NA
+e45f8c9e-1566-11eb-94fa-1094bbf2086c  PIQ                               96                    http://uri.interlex.org/base/ilx_0739363
+e45f8c9e-1566-11eb-94fa-1094bbf2086c  Supratentorial volume (mm^3)       1.22199e+06  mm^3
+eef4532a-1566-11eb-94fa-1094bbf2086c  PIQ                              102                    http://uri.interlex.org/base/ilx_0739363
+eef4532a-1566-11eb-94fa-1094bbf2086c  diagnostic group                   1            NA
+eef4532a-1566-11eb-94fa-1094bbf2086c  age at scan                       19            years   http://uri.interlex.org/ilx_0100400
+eef4532a-1566-11eb-94fa-1094bbf2086c  Supratentorial volume (mm^3)       1.05939e+06  mm^3
+b3072a82-1566-11eb-94fa-1094bbf2086c  Supratentorial volume (mm^3)       1.33577e+06  mm^3
+b3072a82-1566-11eb-94fa-1094bbf2086c  diagnostic group                   1            NA
+b3072a82-1566-11eb-94fa-1094bbf2086c  age at scan                       27            years   http://uri.interlex.org/ilx_0100400
+b3072a82-1566-11eb-94fa-1094bbf2086c  PIQ                              111                    http://uri.interlex.org/base/ilx_0739363
+
+For -u, the file output is:
+subject                               label                                    value  unit    isAbout
+------------------------------------  ----------------------------  ----------------  ------  ----------------------------------------
+ea9510e8-1561-11eb-b5e0-1094bbf2086c  Supratentorial volume (mm^3)  977207            mm^3
+ea9510e8-1561-11eb-b5e0-1094bbf2086c  PIQ                              104                    http://uri.interlex.org/base/ilx_0739363
+ea9510e8-1561-11eb-b5e0-1094bbf2086c  diagnostic group                   2            NA
+ea9510e8-1561-11eb-b5e0-1094bbf2086c  age at scan                       33            years   http://uri.interlex.org/ilx_0100400
+e940d16e-1561-11eb-b5e0-1094bbf2086c  age at scan                       21            years   http://uri.interlex.org/ilx_0100400
+e940d16e-1561-11eb-b5e0-1094bbf2086c  diagnostic group                   2            NA
+e940d16e-1561-11eb-b5e0-1094bbf2086c  PIQ                              108                    http://uri.interlex.org/base/ilx_0739363
+e940d16e-1561-11eb-b5e0-1094bbf2086c  Supratentorial volume (mm^3)       1.1513e+06   mm^3
+e9ead2c2-1561-11eb-b5e0-1094bbf2086c  Supratentorial volume (mm^3)       1.01447e+06  mm^3
+e9ead2c2-1561-11eb-b5e0-1094bbf2086c  age at scan                       21            years   http://uri.interlex.org/ilx_0100400
+e9ead2c2-1561-11eb-b5e0-1094bbf2086c  diagnostic group                   2            NA
+e9ead2c2-1561-11eb-b5e0-1094bbf2086c  PIQ                              110                    http://uri.interlex.org/base/ilx_0739363
+e745d44a-1561-11eb-b5e0-1094bbf2086c  age at scan                       28            years   http://uri.interlex.org/ilx_0100400
+e745d44a-1561-11eb-b5e0-1094bbf2086c  diagnostic group                   2            NA
+e745d44a-1561-11eb-b5e0-1094bbf2086c  PIQ                              127                    http://uri.interlex.org/base/ilx_0739363
+e745d44a-1561-11eb-b5e0-1094bbf2086c  Supratentorial volume (mm^3)  932932            mm^3
+e3e5fe06-1561-11eb-b5e0-1094bbf2086c  Supratentorial volume (mm^3)       1.20074e+06  mm^3
+e3e5fe06-1561-11eb-b5e0-1094bbf2086c  PIQ                              115                    http://uri.interlex.org/base/ilx_0739363
+e3e5fe06-1561-11eb-b5e0-1094bbf2086c  age at scan                       21            years   http://uri.interlex.org/ilx_0100400
+e3e5fe06-1561-11eb-b5e0-1094bbf2086c  diagnostic group                   1            NA
+e3386110-1561-11eb-b5e0-1094bbf2086c  age at scan                       33            years   http://uri.interlex.org/ilx_0100400
+e3386110-1561-11eb-b5e0-1094bbf2086c  PIQ                              107                    http://uri.interlex.org/base/ilx_0739363
+e3386110-1561-11eb-b5e0-1094bbf2086c  diagnostic group                   1            NA
+e3386110-1561-11eb-b5e0-1094bbf2086c  Supratentorial volume (mm^3)       1.07492e+06  mm^3
+e490522a-1561-11eb-b5e0-1094bbf2086c  PIQ                              109                    http://uri.interlex.org/base/ilx_0739363
+e490522a-1561-11eb-b5e0-1094bbf2086c  diagnostic group                   1            NA
+e490522a-1561-11eb-b5e0-1094bbf2086c  age at scan                       27            years   http://uri.interlex.org/ilx_0100400
+e490522a-1561-11eb-b5e0-1094bbf2086c  Supratentorial volume (mm^3)  922970            mm^3
+eb3ef252-1561-11eb-b5e0-1094bbf2086c  Supratentorial volume (mm^3)       1.35311e+06  mm^3
+eb3ef252-1561-11eb-b5e0-1094bbf2086c  diagnostic group                   2            NA
+eb3ef252-1561-11eb-b5e0-1094bbf2086c  age at scan                       31            years   http://uri.interlex.org/ilx_0100400
+eb3ef252-1561-11eb-b5e0-1094bbf2086c  PIQ                              109                    http://uri.interlex.org/base/ilx_0739363
+ebe3a9d2-1561-11eb-b5e0-1094bbf2086c  Supratentorial volume (mm^3)       1.03955e+06  mm^3
+ebe3a9d2-1561-11eb-b5e0-1094bbf2086c  age at scan                       25            years   http://uri.interlex.org/ilx_0100400
+ebe3a9d2-1561-11eb-b5e0-1094bbf2086c  diagnostic group                   2            NA
+ebe3a9d2-1561-11eb-b5e0-1094bbf2086c  PIQ                              108                    http://uri.interlex.org/base/ilx_0739363
+e7f16a8a-1561-11eb-b5e0-1094bbf2086c  diagnostic group                   2            NA
+e7f16a8a-1561-11eb-b5e0-1094bbf2086c  PIQ                              106                    http://uri.interlex.org/base/ilx_0739363
+e7f16a8a-1561-11eb-b5e0-1094bbf2086c  age at scan                       27            years   http://uri.interlex.org/ilx_0100400
+e7f16a8a-1561-11eb-b5e0-1094bbf2086c  Supratentorial volume (mm^3)       1.30477e+06  mm^3
+e5e28d3c-1561-11eb-b5e0-1094bbf2086c  Supratentorial volume (mm^3)       1.26338e+06  mm^3
+e5e28d3c-1561-11eb-b5e0-1094bbf2086c  diagnostic group                   1            NA
+e5e28d3c-1561-11eb-b5e0-1094bbf2086c  age at scan                       30            years   http://uri.interlex.org/ilx_0100400
+e5e28d3c-1561-11eb-b5e0-1094bbf2086c  PIQ                              129                    http://uri.interlex.org/base/ilx_0739363
+e89869d4-1561-11eb-b5e0-1094bbf2086c  diagnostic group                   2            NA
+e89869d4-1561-11eb-b5e0-1094bbf2086c  PIQ                              109                    http://uri.interlex.org/base/ilx_0739363
+e89869d4-1561-11eb-b5e0-1094bbf2086c  age at scan                       25            years   http://uri.interlex.org/ilx_0100400
+e89869d4-1561-11eb-b5e0-1094bbf2086c  Supratentorial volume (mm^3)       1.10791e+06  mm^3
+e53b63e0-1561-11eb-b5e0-1094bbf2086c  Supratentorial volume (mm^3)       1.08075e+06  mm^3
+e53b63e0-1561-11eb-b5e0-1094bbf2086c  age at scan                       22            years   http://uri.interlex.org/ilx_0100400
+e53b63e0-1561-11eb-b5e0-1094bbf2086c  PIQ                              126                    http://uri.interlex.org/base/ilx_0739363
+e53b63e0-1561-11eb-b5e0-1094bbf2086c  diagnostic group                   1            NA
+e6944dba-1561-11eb-b5e0-1094bbf2086c  diagnostic group                   1            NA
+e6944dba-1561-11eb-b5e0-1094bbf2086c  age at scan                       24            years   http://uri.interlex.org/ilx_0100400
+e6944dba-1561-11eb-b5e0-1094bbf2086c  PIQ                               92                    http://uri.interlex.org/base/ilx_0739363
+e6944dba-1561-11eb-b5e0-1094bbf2086c  Supratentorial volume (mm^3)       1.12088e+06  mm^3
+f6653854-1566-11eb-94fa-1094bbf2086c  age at scan                       30            years   http://uri.interlex.org/ilx_0100400
+f6653854-1566-11eb-94fa-1094bbf2086c  diagnostic group                   2            NA
+f6653854-1566-11eb-94fa-1094bbf2086c  PIQ                              123                    http://uri.interlex.org/base/ilx_0739363
+f6653854-1566-11eb-94fa-1094bbf2086c  Supratentorial volume (mm^3)       1.07372e+06  mm^3
+e25a489e-1566-11eb-94fa-1094bbf2086c  PIQ                              119                    http://uri.interlex.org/base/ilx_0739363
+e25a489e-1566-11eb-94fa-1094bbf2086c  diagnostic group                   1            NA
+e25a489e-1566-11eb-94fa-1094bbf2086c  age at scan                       24            years   http://uri.interlex.org/ilx_0100400
+e25a489e-1566-11eb-94fa-1094bbf2086c  Supratentorial volume (mm^3)       1.13679e+06  mm^3
+a3b4dc04-1566-11eb-94fa-1094bbf2086c  diagnostic group                   2            NA
+a3b4dc04-1566-11eb-94fa-1094bbf2086c  age at scan                       21            years   http://uri.interlex.org/ilx_0100400
+a3b4dc04-1566-11eb-94fa-1094bbf2086c  PIQ                              124                    http://uri.interlex.org/base/ilx_0739363
+a3b4dc04-1566-11eb-94fa-1094bbf2086c  Supratentorial volume (mm^3)       1.20216e+06  mm^3
+f1ab4e2a-1566-11eb-94fa-1094bbf2086c  Supratentorial volume (mm^3)       1.30558e+06  mm^3
+f1ab4e2a-1566-11eb-94fa-1094bbf2086c  diagnostic group                   1            NA
+f1ab4e2a-1566-11eb-94fa-1094bbf2086c  age at scan                       39            years   http://uri.interlex.org/ilx_0100400
+f1ab4e2a-1566-11eb-94fa-1094bbf2086c  PIQ                              121                    http://uri.interlex.org/base/ilx_0739363
+dfa366a8-1566-11eb-94fa-1094bbf2086c  Supratentorial volume (mm^3)       1.07583e+06  mm^3
+dfa366a8-1566-11eb-94fa-1094bbf2086c  PIQ                              115                    http://uri.interlex.org/base/ilx_0739363
+dfa366a8-1566-11eb-94fa-1094bbf2086c  age at scan                       20            years   http://uri.interlex.org/ilx_0100400
+dfa366a8-1566-11eb-94fa-1094bbf2086c  diagnostic group                   1            NA
+e512bb02-1566-11eb-94fa-1094bbf2086c  diagnostic group                   2            NA
+e512bb02-1566-11eb-94fa-1094bbf2086c  age at scan                       20            years   http://uri.interlex.org/ilx_0100400
+e512bb02-1566-11eb-94fa-1094bbf2086c  PIQ                              114                    http://uri.interlex.org/base/ilx_0739363
+e512bb02-1566-11eb-94fa-1094bbf2086c  Supratentorial volume (mm^3)  943040            mm^3
+ee45788c-1566-11eb-94fa-1094bbf2086c  Supratentorial volume (mm^3)       1.03868e+06  mm^3
+ee45788c-1566-11eb-94fa-1094bbf2086c  diagnostic group                   1            NA
+ee45788c-1566-11eb-94fa-1094bbf2086c  PIQ                              128                    http://uri.interlex.org/base/ilx_0739363
+ee45788c-1566-11eb-94fa-1094bbf2086c  age at scan                       21            years   http://uri.interlex.org/ilx_0100400
+c051a510-1566-11eb-94fa-1094bbf2086c  age at scan                       31            years   http://uri.interlex.org/ilx_0100400
+c051a510-1566-11eb-94fa-1094bbf2086c  diagnostic group                   1            NA
+c051a510-1566-11eb-94fa-1094bbf2086c  PIQ                              106                    http://uri.interlex.org/base/ilx_0739363
+c051a510-1566-11eb-94fa-1094bbf2086c  Supratentorial volume (mm^3)  912843            mm^3
+c5ba1e06-1566-11eb-94fa-1094bbf2086c  Supratentorial volume (mm^3)       1.11559e+06  mm^3
+c5ba1e06-1566-11eb-94fa-1094bbf2086c  age at scan                       40            years   http://uri.interlex.org/ilx_0100400
+c5ba1e06-1566-11eb-94fa-1094bbf2086c  PIQ                              128                    http://uri.interlex.org/base/ilx_0739363
+c5ba1e06-1566-11eb-94fa-1094bbf2086c  diagnostic group                   2            NA
+f0fea06c-1566-11eb-94fa-1094bbf2086c  Supratentorial volume (mm^3)  848574            mm^3
+f0fea06c-1566-11eb-94fa-1094bbf2086c  age at scan                       31            years   http://uri.interlex.org/ilx_0100400
+f0fea06c-1566-11eb-94fa-1094bbf2086c  PIQ                              121                    http://uri.interlex.org/base/ilx_0739363
+f0fea06c-1566-11eb-94fa-1094bbf2086c  diagnostic group                   1            NA
+e45f8c9e-1566-11eb-94fa-1094bbf2086c  age at scan                       27            years   http://uri.interlex.org/ilx_0100400
+e45f8c9e-1566-11eb-94fa-1094bbf2086c  diagnostic group                   2            NA
+e45f8c9e-1566-11eb-94fa-1094bbf2086c  PIQ                               96                    http://uri.interlex.org/base/ilx_0739363
+e45f8c9e-1566-11eb-94fa-1094bbf2086c  Supratentorial volume (mm^3)       1.22199e+06  mm^3
+eef4532a-1566-11eb-94fa-1094bbf2086c  PIQ                              102                    http://uri.interlex.org/base/ilx_0739363
+eef4532a-1566-11eb-94fa-1094bbf2086c  diagnostic group                   1            NA
+eef4532a-1566-11eb-94fa-1094bbf2086c  age at scan                       19            years   http://uri.interlex.org/ilx_0100400
+eef4532a-1566-11eb-94fa-1094bbf2086c  Supratentorial volume (mm^3)       1.05939e+06  mm^3
+b3072a82-1566-11eb-94fa-1094bbf2086c  Supratentorial volume (mm^3)       1.33577e+06  mm^3
+b3072a82-1566-11eb-94fa-1094bbf2086c  diagnostic group                   1            NA
+b3072a82-1566-11eb-94fa-1094bbf2086c  age at scan                       27            years   http://uri.interlex.org/ilx_0100400
+b3072a82-1566-11eb-94fa-1094bbf2086c  PIQ                              111                    http://uri.interlex.org/base/ilx_0739363
+
+
+Now that we have selected the variables, we can perform a linear regression. In this example, we will look at the effect of DX_GROUP, age at scan, and PIQ on supratentorial brain volume.
+
+The command to use for this particular data is:
+pynidm linear-regression -nl /simple2_NIDM_examples/datasets.datalad.org/abide/RawDataBIDS/CMU_a/nidm.ttl,/simple2_NIDM_examples/datasets.datalad.org/abide/RawDataBIDS/CMU_b/nidm.ttl -model "fs_000008 = DX_GROUP + PIQ_tca9ck + http://uri.interlex.org/ilx_0100400" -contrast "DX_GROUP" -r L1
+
+What the model says is that we want to do a linear regression using data from CMU_a's .ttl file and CMU_B's .ttl file. The variables in question are fs_000008 (the dependent variable, supratentorial brain volume), DX_GROUP (diagnostic group), PIQ_tca9ck (PIQ), and http://uri.interlex.org/ilx_0100400 (age at scan). We will contrast the data using DX_GROUP, and then do a L1 regularization to prevent overfitting. The results are as follows:
+
+***********************************************************************************************************
+Your command was: pynidm linear-regression -nl /simple2_NIDM_examples/datasets.datalad.org/abide/RawDataBIDS/CMU_a/nidm.ttl,/simple2_NIDM_examples/datasets.datalad.org/abide/RawDataBIDS/CMU_b/nidm.ttl -model "fs_000008 = DX_GROUP + PIQ_tca9ck + http://uri.interlex.org/ilx_0100400" -contrast "DX_GROUP" -r L1
+    ilx_0100400  PIQ_tca9ck  DX_GROUP  fs_000008
+0            10           1         1         26
+1             2           4         1         12
+2             2           6         1          0
+3             7          15         1         24
+4             2           9         0         13
+5            10           3         0          5
+6             6           5         0         23
+7             9           5         1         20
+8             5           4         1          2
+9             6           2         1         17
+10            8          17         0         16
+11            5           5         1          8
+12            3          14         0          7
+13            4          18         0         10
+14           13          20         2         27
+15            8          12         1          4
+16            4          10         0         11
+17            2          13         1         14
+18           11          11         0         18
+19            1           9         0          6
+20            1           8         1         25
+21            2          16         0          1
+22            9           2         0         22
+23           12          16         1          9
+24            9          11         0         21
+25            6          19         1         15
+26            0           0         0          3
+27            6           7         0         19
+
+***********************************************************************************************************
+
+Model Results: 
+fs_000008 ~ http://uri.interlex.org/ilx_0100400 + PIQ_tca9ck + DX_GROUP
+
+***********************************************************************************************************
+
+
+
+Treatment (Dummy) Coding: Dummy coding compares each level of the categorical variable to a base reference level. The base reference level is the value of the intercept.
+With contrast (treatment coding)
+                            OLS Regression Results                            
+==============================================================================
+Dep. Variable:              fs_000008   R-squared:                       0.242
+Model:                            OLS   Adj. R-squared:                  0.110
+Method:                 Least Squares   F-statistic:                     1.835
+Date:                Thu, 24 Jun 2021   Prob (F-statistic):              0.157
+Time:                        14:07:24   Log-Likelihood:                -94.348
+No. Observations:                  28   AIC:                             198.7
+Df Residuals:                      23   BIC:                             205.4
+Df Model:                           4                                         
+Covariance Type:            nonrobust                                         
+===============================================================================================
+                                  coef    std err          t      P>|t|      [0.025      0.975]
+-----------------------------------------------------------------------------------------------
+Intercept                       8.9220      3.995      2.233      0.036       0.657      17.187
+C(DX_GROUP, Treatment)[T.1]     0.5595      3.007      0.186      0.854      -5.660       6.779
+C(DX_GROUP, Treatment)[T.2]     9.0486      9.132      0.991      0.332      -9.842      27.940
+ilx_0100400                     0.8798      0.443      1.987      0.059      -0.036       1.796
+PIQ_tca9ck                     -0.1204      0.271     -0.445      0.661      -0.681       0.440
+==============================================================================
+Omnibus:                        0.227   Durbin-Watson:                   2.791
+Prob(Omnibus):                  0.893   Jarque-Bera (JB):                0.427
+Skew:                          -0.067   Prob(JB):                        0.808
+Kurtosis:                       2.410   Cond. No.                         78.1
+==============================================================================
+
+Notes:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+
+
+Simple Coding: Like Treatment Coding, Simple Coding compares each level to a fixed reference level. However, with simple coding, the intercept is the grand mean of all the levels of the factors.
+                            OLS Regression Results                            
+==============================================================================
+Dep. Variable:              fs_000008   R-squared:                       0.242
+Model:                            OLS   Adj. R-squared:                  0.110
+Method:                 Least Squares   F-statistic:                     1.835
+Date:                Thu, 24 Jun 2021   Prob (F-statistic):              0.157
+Time:                        14:07:24   Log-Likelihood:                -94.348
+No. Observations:                  28   AIC:                             198.7
+Df Residuals:                      23   BIC:                             205.4
+Df Model:                           4                                         
+Covariance Type:            nonrobust                                         
+===============================================================================================
+                                  coef    std err          t      P>|t|      [0.025      0.975]
+-----------------------------------------------------------------------------------------------
+Intercept                      12.1247      5.575      2.175      0.040       0.591      23.658
+C(DX_GROUP, Simple)[Simp.0]     0.5595      3.007      0.186      0.854      -5.660       6.779
+C(DX_GROUP, Simple)[Simp.1]     9.0486      9.132      0.991      0.332      -9.842      27.940
+ilx_0100400                     0.8798      0.443      1.987      0.059      -0.036       1.796
+PIQ_tca9ck                     -0.1204      0.271     -0.445      0.661      -0.681       0.440
+==============================================================================
+Omnibus:                        0.227   Durbin-Watson:                   2.791
+Prob(Omnibus):                  0.893   Jarque-Bera (JB):                0.427
+Skew:                          -0.067   Prob(JB):                        0.808
+Kurtosis:                       2.410   Cond. No.                         86.6
+==============================================================================
+
+Notes:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+
+
+Sum (Deviation) Coding: Sum coding compares the mean of the dependent variable for a given level to the overall mean of the dependent variable over all the levels.
+                            OLS Regression Results                            
+==============================================================================
+Dep. Variable:              fs_000008   R-squared:                       0.242
+Model:                            OLS   Adj. R-squared:                  0.110
+Method:                 Least Squares   F-statistic:                     1.835
+Date:                Thu, 24 Jun 2021   Prob (F-statistic):              0.157
+Time:                        14:07:24   Log-Likelihood:                -94.348
+No. Observations:                  28   AIC:                             198.7
+Df Residuals:                      23   BIC:                             205.4
+Df Model:                           4                                         
+Covariance Type:            nonrobust                                         
+=========================================================================================
+                            coef    std err          t      P>|t|      [0.025      0.975]
+-----------------------------------------------------------------------------------------
+Intercept                12.1247      5.575      2.175      0.040       0.591      23.658
+C(DX_GROUP, Sum)[S.0]    -3.2027      3.347     -0.957      0.349     -10.126       3.720
+C(DX_GROUP, Sum)[S.1]    -2.6432      3.380     -0.782      0.442      -9.635       4.349
+ilx_0100400               0.8798      0.443      1.987      0.059      -0.036       1.796
+PIQ_tca9ck               -0.1204      0.271     -0.445      0.661      -0.681       0.440
+==============================================================================
+Omnibus:                        0.227   Durbin-Watson:                   2.791
+Prob(Omnibus):                  0.893   Jarque-Bera (JB):                0.427
+Skew:                          -0.067   Prob(JB):                        0.808
+Kurtosis:                       2.410   Cond. No.                         56.4
+==============================================================================
+
+Notes:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+
+
+Backward Difference Coding: In backward difference coding, the mean of the dependent variable for a level is compared with the mean of the dependent variable for the prior level.
+                            OLS Regression Results                            
+==============================================================================
+Dep. Variable:              fs_000008   R-squared:                       0.242
+Model:                            OLS   Adj. R-squared:                  0.110
+Method:                 Least Squares   F-statistic:                     1.835
+Date:                Thu, 24 Jun 2021   Prob (F-statistic):              0.157
+Time:                        14:07:24   Log-Likelihood:                -94.348
+No. Observations:                  28   AIC:                             198.7
+Df Residuals:                      23   BIC:                             205.4
+Df Model:                           4                                         
+Covariance Type:            nonrobust                                         
+==========================================================================================
+                             coef    std err          t      P>|t|      [0.025      0.975]
+------------------------------------------------------------------------------------------
+Intercept                 12.1247      5.575      2.175      0.040       0.591      23.658
+C(DX_GROUP, Diff)[D.0]     0.5595      3.007      0.186      0.854      -5.660       6.779
+C(DX_GROUP, Diff)[D.1]     8.4891      9.169      0.926      0.364     -10.478      27.456
+ilx_0100400                0.8798      0.443      1.987      0.059      -0.036       1.796
+PIQ_tca9ck                -0.1204      0.271     -0.445      0.661      -0.681       0.440
+==============================================================================
+Omnibus:                        0.227   Durbin-Watson:                   2.791
+Prob(Omnibus):                  0.893   Jarque-Bera (JB):                0.427
+Skew:                          -0.067   Prob(JB):                        0.808
+Kurtosis:                       2.410   Cond. No.                         86.9
+==============================================================================
+
+Notes:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+
+
+Helmert Coding: Our version of Helmert coding is sometimes referred to as Reverse Helmert Coding. The mean of the dependent variable for a level is compared to the mean of the dependent variable over all previous levels. Hence, the name ‘reverse’ being sometimes applied to differentiate from forward Helmert coding.
+                            OLS Regression Results                            
+==============================================================================
+Dep. Variable:              fs_000008   R-squared:                       0.242
+Model:                            OLS   Adj. R-squared:                  0.110
+Method:                 Least Squares   F-statistic:                     1.835
+Date:                Thu, 24 Jun 2021   Prob (F-statistic):              0.157
+Time:                        14:07:24   Log-Likelihood:                -94.348
+No. Observations:                  28   AIC:                             198.7
+Df Residuals:                      23   BIC:                             205.4
+Df Model:                           4                                         
+Covariance Type:            nonrobust                                         
+=============================================================================================
+                                coef    std err          t      P>|t|      [0.025      0.975]
+---------------------------------------------------------------------------------------------
+Intercept                    12.1247      5.575      2.175      0.040       0.591      23.658
+C(DX_GROUP, Helmert)[H.1]     0.2797      1.503      0.186      0.854      -2.830       3.390
+C(DX_GROUP, Helmert)[H.2]     2.9230      3.009      0.972      0.341      -3.301       9.147
+ilx_0100400                   0.8798      0.443      1.987      0.059      -0.036       1.796
+PIQ_tca9ck                   -0.1204      0.271     -0.445      0.661      -0.681       0.440
+==============================================================================
+Omnibus:                        0.227   Durbin-Watson:                   2.791
+Prob(Omnibus):                  0.893   Jarque-Bera (JB):                0.427
+Skew:                          -0.067   Prob(JB):                        0.808
+Kurtosis:                       2.410   Cond. No.                         51.8
+==============================================================================
+
+Notes:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+
+Lasso regression model:
+Alpha with maximum likelihood (range: 1 to 700) = 3.000000
+Current Model Score = 0.197948
+
+Coefficients:
+ilx_0100400 	 0.793964
+PIQ_tca9ck 	 -0.000000
+DX_GROUP 	 0.000000
+Intercept: 8.877996
+
+The first thing the command prints is the inputted command in order to help the user make sure the command was the command intended. Afterwards, it prints, the dataframe, or the data it collected from both files. After that, it prints the different contrasts from the fitted model. Using that contrast, a user is able to look at the P>|t| column and see which variables have the greatest correlation. Finally, the regularization shows the likely coefficients and the independent variables that have the most impact on the data. It seems the age variable affects supranatorial brain volume most, which is a correlation that might be testable in the future. 
+###########################################
+
+
+
 Details on the REST API URI format and usage can be found on the :ref:`REST API usage<rest>` page.
 
 .. |Build Status| image:: https://travis-ci.org/incf-nidash/PyNIDM.svg?branch=master
