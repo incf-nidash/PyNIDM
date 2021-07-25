@@ -1,12 +1,12 @@
 nidm_linreg: PyNIDM project
 ===============
-Ashmita Kumar[^fn1]
-Albert Crowley[^fn2]
-David B. Keator[^fn3]
+Ashmita Kumar&#x00B9  
+Albert Crowley&#x00B2   
+David B. Keator&#x00B3    
 
-[^fn1]Troy High School. Fullerton, CA., USA.
-[^fn2]
-[^fn3]University of California, Irvine.  Psychiatry and Human Behavior, Irvine, CA., USA.
+&#x00B9Troy High School. Fullerton, CA., USA.  
+&#x00B2    
+&#x00B3University of California, Irvine.  Psychiatry and Human Behavior, Irvine, CA., USA.  
 
 Introduction
 ---------------
