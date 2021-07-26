@@ -10,16 +10,16 @@ authors:
     affiliation: 1
   - name: Albert Crowley 
     affiliation: 2
-  - name: Author David B. Keator
+  - name: David B. Keator
     affiliation: 3
 affiliations:
  - name: Troy High School. Fullerton, CA., USA.
    index: 1
- - name: 
+ - name: Independent Research
    index: 2
  - name: University of California, Irvine. Psychiatry and Human Behavior, Irvine, CA., USA. 
    index: 3
-date: 25 July 2021
+date: 26 July 2021
 bibliography: paper.bib
 ---
 
