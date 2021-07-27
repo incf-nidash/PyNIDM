@@ -15,7 +15,7 @@ authors:
 affiliations:
  - name: Troy High School. Fullerton, CA., USA.
    index: 1
- - name: Independent Research
+ - name: TCG, Inc., Washington, DC, USA.
    index: 2
  - name: University of California, Irvine. Psychiatry and Human Behavior, Irvine, CA., USA. 
    index: 3
