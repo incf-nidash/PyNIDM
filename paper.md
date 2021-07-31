@@ -10,6 +10,18 @@ authors:
     affiliation: 1
   - name: Albert Crowley 
     affiliation: 2
+  - name: Nazek Quedar 
+    affiliation: 3
+  - name: JB Poline 
+    affiliation: 4
+  - name: Satrajit S. Ghosh 
+    affiliation: 5
+  - name: David Kennedy
+    affiliation: 6
+  - name: Jeff Grethe
+    affiliation: 7
+  - name: Karl G. Helmer 
+    affiliation: 8
   - name: David B. Keator
     affiliation: 3
 affiliations:
@@ -19,7 +31,17 @@ affiliations:
    index: 2
  - name: University of California, Irvine. Psychiatry and Human Behavior, Irvine, CA., USA. 
    index: 3
-date: 26 July 2021
+ - name: McGill University, Montreal, Faculty of Medicine and Health Sciences, Department of Neurology and Neurosurgery, McConnell Brain Imaging Centre, Canada. 
+   index: 4
+ - name: McGovern Institute for Brain Research, Massachusetts Institute of Technology (MIT), Cambridge, MA, USA; Department of Otolaryngology, Harvard Medical School, Boston, MA, USA. 
+   index: 5
+ - name: Eunice Kennedy Shriver Center, Department of Psychiatry, University of Massachusetts Medical School, Worcester, Massachusetts, 01655, USA. 
+   index: 6
+ - name: Center for Research in Biological Systems, University of California, San Diego, USA. 
+   index: 7
+ - name: Massachusetts General Hospital, Department of Radiology; Harvard Medical School, Department of Radiology, Boston, MA, USA. 
+   index: 8
+date: 30 July 2021
 bibliography: paper.bib
 ---
 
