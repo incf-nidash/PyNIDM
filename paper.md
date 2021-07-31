@@ -10,6 +10,18 @@ authors:
     affiliation: 1
   - name: Albert Crowley 
     affiliation: 2
+  - name: Nazek Quedar 
+    affiliation: 3
+  - name: JB Poline 
+    affiliation: 4
+  - name: Satrajit S. Ghosh 
+    affiliation: 5
+  - name: David Kennedy
+    affiliation: 6
+  - name: Jeff Grethe
+    affiliation: 7
+  - name: Karl G. Helmer 
+    affiliation: 8
   - name: David B. Keator
     affiliation: 3
 affiliations:
@@ -19,7 +31,17 @@ affiliations:
    index: 2
  - name: University of California, Irvine. Psychiatry and Human Behavior, Irvine, CA., USA. 
    index: 3
-date: 26 July 2021
+ - name: McGill University, Montreal, Faculty of Medicine and Health Sciences, Department of Neurology and Neurosurgery, McConnell Brain Imaging Centre, Canada. 
+   index: 4
+ - name: McGovern Institute for Brain Research, Massachusetts Institute of Technology (MIT), Cambridge, MA, USA; Department of Otolaryngology, Harvard Medical School, Boston, MA, USA. 
+   index: 5
+ - name: Eunice Kennedy Shriver Center, Department of Psychiatry, University of Massachusetts Medical School, Worcester, Massachusetts, 01655, USA. 
+   index: 6
+ - name: Center for Research in Biological Systems, University of California, San Diego, USA. 
+   index: 7
+ - name: Massachusetts General Hospital, Department of Radiology; Harvard Medical School, Department of Radiology, Boston, MA, USA. 
+   index: 8
+date: 30 July 2021
 bibliography: paper.bib
 ---
 
@@ -27,7 +49,7 @@ bibliography: paper.bib
 
 The Neuroimaging Data Model (NIDM)(D. B. Keator et al. 2013; NIDM Working Group n.d.; Maumet et al. 2016) was started by an international team of cognitive scientists, computer scientists and statisticians to develop a data format capable of describing all aspects of the data lifecycle, from raw data through analyses and provenance. NIDM was built on top of the PROV standard(Moreau et al. 2008; “PROV-Overview” n.d.) and consists of three main interconnected specifications: Experiment, Results, and Workflow. These specifications were envisioned to capture information on all aspects of the neuroimaging data lifecycle, using semantic web techniques(“Semantic Web - W3C” n.d.). They provide a critical capability to aid in reproducibility and replication of studies, as well as data discovery in shared resources. The NIDM-Experiment component has been used to describe publicly-available human neuroimaging datasets (e.g. ABIDE(Di Martino et al. 2014), ADHD200(“ADHD200” n.d.), CoRR(Zuo et al. 2014), OpenNeuro(“OpenNeuro” n.d.) datasets) along with providing unambiguous descriptions of the clinical, neuropsychological, and imaging data collected as part of those studies resulting in approximately 4.5 million statements about aspects of these datasets. 
 
-PyNIDM(PyNIDM n.d.), a toolbox written in Python, supports the creation, manipulation, and query of NIDM documents. It is an open-source project hosted on GitHub and distributed under the Apache License, Version 2.0(“Apache License, Version 2.0” n.d.). PyNIDM is under active development and testing. Tools have been created to support RESTful(Ravan et al. 2020) SPARQL(“SPARQL Query Language for RDF” n.d.) queries of the NIDM documents (i.e. pynidm query) in support of users wanting to identify interesting cohorts across datasets in support of evaluating scientific hypotheses and/or replicating results found in the literature. This query functionality, together with the NIDM document semantics, provides a path for investigators to interrogate datasets, understand what data was collected in those studies, and provide sufficiently-annotated data dictionaries of the variables collected to facilitate transformation and combining of data across studies. 
+PyNIDM(PyNIDM n.d.), a toolbox written in Python, supports the creation, manipulation, and query of NIDM documents. It is an open-source project hosted on GitHub and distributed under the Apache License, Version 2.0(@noauthor_undated-eh). PyNIDM is under active development and testing. Tools have been created to support RESTful(Ravan et al. 2020) SPARQL(“SPARQL Query Language for RDF” n.d.) queries of the NIDM documents (i.e. pynidm query) in support of users wanting to identify interesting cohorts across datasets in support of evaluating scientific hypotheses and/or replicating results found in the literature. This query functionality, together with the NIDM document semantics, provides a path for investigators to interrogate datasets, understand what data was collected in those studies, and provide sufficiently-annotated data dictionaries of the variables collected to facilitate transformation and combining of data across studies. 
 
 Beyond querying across NIDM documents, some high-level statistical analysis tools are needed to provide investigators with an opportunity to gain more insight into data they may be interested in combining for a complete scientific investigation. Here we report on one such tool providing linear modeling support for NIDM documents (i.e. pynidm linear-regression). 
 
