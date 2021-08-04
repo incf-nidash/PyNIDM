@@ -28,15 +28,15 @@ from sklearn import metrics
 @click.option("--nidm_file_list", "-nl", required=True,
               help="A comma separated list of NIDM files with full path")
 @click.option("--var","-variables", required=True,
-                 help="This parameter is for the variables the user would like to complete the k-means algorithm on.\nThe way this looks in the command is python3 nidm_kmeans.py -nl MTdemog_aseg_v2.ttl -v \"fs_003343,age*sex,sex,age,group,age*group,bmi\"")
-@click.option("--cluster_num_range", "-c", required=True,
-              help="The maxiumum number of clusters to try. The algorithm will go from 2 to this number to determine the optimal number of clusters.")
-@click.option("--optimal_cluster_method", "-m", required=True,
-              help="The criterion used to select the optimal partitioning (either Silhouette Score, AIC, or BIC).")
+                 help="This parameter is for the variables the user would like to complete the k-means algorithm on.\nThe way this looks in the command is pynidm cluster -nl MTdemog_aseg_v2.ttl -v \"fs_003343,age*sex,sex,age,group,age*group,bmi\" -max 10 -min 2")
+@click.option("--cluster_num_maximum", "-max", required=True,
+              help="The maxiumum number of clusters to try. The algorithm will go from min to this number to determine the optimal number of clusters. By default, it is the length of the dataset.")
+@click.option("--cluster_num_minimum", "-min", required=True,
+              help="The minimum number of clusters to try. The algorithm will go from here to the maximum to determine the optimal number of clusters. By default, it is 2.")
 @click.option("--output_file", "-o", required=False,
               help="Optional output file (TXT) to store results of the linear regression, contrast, and regularization")
 
-def k_means(nidm_file_list, output_file, var, cluster_num_range, optimal_cluster_method):
+def cluster(nidm_file_list, output_file, var, cluster_num_minimum, cluster_num_maximum):
     """
             This function provides a tool to complete k-means clustering on NIDM data.
             """
@@ -46,15 +46,24 @@ def k_means(nidm_file_list, output_file, var, cluster_num_range, optimal_cluster
     o = output_file
     global n  # used in data_aggregation()
     n = nidm_file_list
-    global c_num
-    c_num = int(cluster_num_range)
-    global cm
-    cm = optimal_cluster_method
+    global min
+    if cluster_num_minimum:
+        min = int(cluster_num_minimum)
+    else:
+        min = 2
+    global max
+    if cluster_num_maximum:
+        max = int(cluster_num_maximum)
+    else:
+        max = None
+
+
     data_aggregation()
     dataparsing()
     k_means()
     gmm()
     affinity_propagation()
+    agglomerative_clustering()
 
 def data_aggregation():  # all data from all the files is collected
     """    This function provides query support for NIDM graphs.   """
@@ -63,7 +72,7 @@ def data_aggregation():  # all data from all the files is collected
     # if there is a CDE file list, seed the CDE cache
     if v:  #ex: age,sex,DX_GROUP
         print("***********************************************************************************************************")
-        command = "pynidm k-means -nl " + n + " -variables \"" + v + "\" " + "-k " + str(c_num) + " -m " + cm
+        command = "pynidm cluster -nl " + n + " -variables \"" + v + "\" " + "-min " + str(min) + " -max " + str(max)
 
         print("Your command was: " + command)
         if (o is not None):
@@ -252,12 +261,15 @@ def dataparsing(): #The data is changed to a format that is usable by the linear
     condensed_data = []
     for i in range(0, len(file_list)):
         condensed_data = condensed_data + condensed_data_holder[i]
-    global c_num
-    if len(condensed_data[0]) <= c_num:
-        print("\nThe maximum number of clusters specified is greater than the amount of data present.")
-        print("The algorithm cannot run with this, so the cluster number range will be reduced to 1 less than the length of the dataset.")
-        c_num = len(condensed_data) - 1
-        print("The cluster range value is now: " + str(c_num))
+    global max
+    if not (max == None):
+        if len(condensed_data[0]) <= max:
+            print("\nThe maximum number of clusters specified is greater than the amount of data present.")
+            print("The algorithm cannot run with this, so the cluster number range will be reduced to 1 less than the length of the dataset.")
+            max = len(condensed_data) - 1
+            print("The cluster range value is now: " + str(max))
+    else:
+        max = len(condensed_data) - 1
     x = pd.read_csv(opencsv(condensed_data))  # changes the dataframe to a csv to make it easier to work with
     x.head()  # prints what the csv looks like
     x.dtypes  # checks data format
@@ -332,271 +344,200 @@ def k_means():
         df_final[[model_list[i]]] = scaler.transform(df_final[[model_list[i]]])"""
     X = df_final[var_list]
 
-    if "el" in cm.lower():
-        print("\n\nElbow Method")
-        sse = []
-        for i in range(2,int(c_num)):
-            km = KMeans(n_clusters=i, init='k-means++', max_iter=300, n_init=10, random_state=0)
-            model = km.fit(X)
-            sse.append(km.inertia_)
-        min_sse = sse[0]
-        max_sse = sse[0]
-        max_i = 0
-        min_i = 0
-        for i in range(1, len(sse)):
-            if sse[i] >= max_sse:
-                max_sse = sse[i]
-                max_i = i
-            elif sse[i] <= min_sse:
-                min_sse = sse[i]
-                min_i = i
-        p1 = np.array([min_i, sse[min_i]])
-        p2 = np.array([max_i, sse[max_i]])
-        #the way I am doing the elbow method is as follows:
-        #the different sse values form a curve like an L (like an exponential decay)
-        #The elbow is the point furthest from a line connecting max and min
-        #So I am calculating the distance, and the maximum distance from point to curve shows the optimal point
-        #AKA the number of clusters
-        dist = []
-        for n in range(0,len(sse)):
-            norm = np.linalg.norm
-            p3 = np.array([n,sse[n]])
-            dist.append(np.abs(norm(np.cross(p2-p1, p1-p3)))/norm(p2-p1))
-        max_dist = dist[0]
-        optimal_cluster = 2
-        for x in range(1,len(dist)):
-            if dist[x]>=max_dist:
-                max_dist = dist[x]
-                optimal_cluster = x+2
-        print("Optimal number of clusters: " + str(optimal_cluster)) #the optimal number of clusters for elbow method
-        km = KMeans(n_clusters=optimal_cluster, init='k-means++', max_iter=300, n_init=10, random_state=0)
-        labels = km.fit(X).predict(X)
-        ax = None or plt.gca()
-        X = df_final[var_list].to_numpy()
-        ax.scatter(X[:, 0], X[:, 1], c=labels, s=40, cmap='viridis', zorder=2)
-        ax.axis('equal')
-        plt.show()
+    cluster_list = []
+    print("\n\nK-Means: Elbow Method")
+    sse = []
+    for i in range(min,max):
+        km = KMeans(n_clusters=i, init='k-means++', max_iter=300, n_init=10, random_state=0)
+        model = km.fit(X)
+        sse.append(km.inertia_)
+    min_sse = sse[0]
+    max_sse = sse[0]
+    max_i = 0
+    min_i = 0
+    for i in range(1, len(sse)):
+        if sse[i] >= max_sse:
+            max_sse = sse[i]
+            max_i = i
+        elif sse[i] <= min_sse:
+            min_sse = sse[i]
+            min_i = i
+    p1 = np.array([min_i, sse[min_i]])
+    p2 = np.array([max_i, sse[max_i]])
+    #the way I am doing the elbow method is as follows:
+    #the different sse values form a curve like an L (like an exponential decay)
+    #The elbow is the point furthest from a line connecting max and min
+    #So I am calculating the distance, and the maximum distance from point to curve shows the optimal point
+    #AKA the number of clusters
+    dist = []
+    for n in range(0,len(sse)):
+        norm = np.linalg.norm
+        p3 = np.array([n,sse[n]])
+        dist.append(np.abs(norm(np.cross(p2-p1, p1-p3)))/norm(p2-p1))
+    max_dist = dist[0]
+    optimal_cluster = 2
+    for x in range(1,len(dist)):
+        if dist[x]>=max_dist:
+            max_dist = dist[x]
+            optimal_cluster = x+2
+    cluster_list.append(optimal_cluster)
+    print("Optimal number of clusters by elbow method for k-means: " + str(optimal_cluster)) #the optimal number of clusters for elbow method
 
-    if "si" in cm.lower():
-        print("Silhouette Score\n")
-        ss = []
-        for i in range(2,int(c_num)):
-            km = KMeans(n_clusters=i, init='k-means++', max_iter=300, n_init=10, random_state=0)
-            cluster_labels = km.fit_predict(X)
-            silhouette_avg = silhouette_score(X, cluster_labels)
-            ss.append(silhouette_avg)
-        optimal_i = 0
-        distance_to_one = abs(1 - ss[0])
-        for i in range(0, len(ss)):
-            if abs(1 - ss[i]) <= distance_to_one:
-                optimal_i = i
-                distance_to_one = abs(1 - ss[i])
-        n_clusters = optimal_i + 2
-        print("Optimal number of clusters: " + str(n_clusters)) #the optimal number of clusters
-        km = KMeans(n_clusters=n_clusters, init='k-means++', max_iter=300, n_init=10, random_state=0)
-        labels = km.fit(X).predict(X)
-        ax = None or plt.gca()
-        X = df_final[var_list].to_numpy()
-        ax.scatter(X[:, 0], X[:, 1], c=labels, s=40, cmap='viridis', zorder=2)
-        ax.axis('equal')
-        plt.show()
+    print("\n\n K-Means: Silhouette Score\n")
+    ss = []
+    for i in range(min,max):
+        km = KMeans(n_clusters=i, init='k-means++', max_iter=300, n_init=10, random_state=0)
+        cluster_labels = km.fit_predict(X)
+        silhouette_avg = silhouette_score(X, cluster_labels)
+        ss.append(silhouette_avg)
+    optimal_i = 0
+    distance_to_one = abs(1 - ss[0])
+    for i in range(0, len(ss)):
+        if abs(1 - ss[i]) <= distance_to_one:
+            optimal_i = i
+            distance_to_one = abs(1 - ss[i])
+    n_clusters = optimal_i + 2
+    cluster_list.append(n_clusters)
+    print("\nOptimal number of clusters for K-Means by Silhouette Score: " + str(n_clusters)) #the optimal number of clusters
 
-    if "ca" in cm.lower():
-        import warnings
-        warnings.filterwarnings("ignore", category=FutureWarning) #it is a function for 0.24 but says it is depracated in 0.23
-        print("Calinski-Harabasz Index\n")
-        pca = PCA(n_components=2)
-        impca = pca.fit_transform(X)
-        scores = []
 
-        centers = list(range(2, int(c_num)))
-        for center in centers:
-            km = KMeans(n_clusters=center, init='k-means++', max_iter=300, n_init=10, random_state=0).fit(impca)
-            score = calinski_harabaz_score(impca,km.labels_)
-            scores.append(score)
-        optimal_i = 0
-        max_score = scores[0]
+    import warnings
+    warnings.filterwarnings("ignore", category=FutureWarning) #it is a function for 0.24 but says it is depracated in 0.23
+    print("\n\nK-Means: Calinski-Harabasz Index\n")
+    pca = PCA(n_components=2)
+    impca = pca.fit_transform(X)
+    scores = []
 
-        for i in range(1, len(scores)):
-            if scores[i] >= max_score:
-                optimal_i = i
-                max_score = scores[i]
-        n_clusters = optimal_i + 2
-        print("Optimal number of clusters: " + str(n_clusters)) #the optimal number of clusters
-        km = KMeans(n_clusters=n_clusters, init='k-means++', max_iter=300, n_init=10, random_state=0)
-        labels = km.fit(X).predict(X)
-        ax = None or plt.gca()
-        X = df_final[var_list].to_numpy()
-        ax.scatter(X[:, 0], X[:, 1], c=labels, s=40, cmap='viridis', zorder=2)
-        ax.axis('equal')
-        plt.show()
+    centers = list(range(min,max))
+    for center in centers:
+        km = KMeans(n_clusters=center, init='k-means++', max_iter=300, n_init=10, random_state=0).fit(impca)
+        score = calinski_harabaz_score(impca,km.labels_)
+        scores.append(score)
+    optimal_i = 0
+    max_score = scores[0]
 
-    if "da" in cm.lower():
-        print("Davies-Bouldin Index\n")
-        scores = []
+    for i in range(1, len(scores)):
+        if scores[i] >= max_score:
+            optimal_i = i
+            max_score = scores[i]
+    n_clusters = optimal_i + 2
+    cluster_list.append(n_clusters)
+    print("Optimal number of clusters for K-Means by Calinski-Harabaz Index: " + str(n_clusters)) #the optimal number of clusters
 
-        centers = list(range(2,int(c_num)))
-        for center in centers:
-            km = KMeans(n_clusters=center, init='k-means++', max_iter=300, n_init=10, random_state=0)
-            model = km.fit_predict(X)
-            score = davies_bouldin_score(X, model)
-            scores.append(score)
-        optimal_i = 0
-        min_score = scores[0]
 
-        for i in range(1,len(scores)):
-            if scores[i]<=min_score:
-                optimal_i = i
-                min_score = scores[i]
-        n_clusters = optimal_i + 2
-        print("Optimal number of clusters: " + str(n_clusters)) #the optimal number of clusters
-        km = KMeans(n_clusters=n_clusters, init='k-means++', max_iter=300, n_init=10, random_state=0)
-        labels = km.fit(X).predict(X)
-        ax = None or plt.gca()
-        X = df_final[var_list].to_numpy()
-        ax.scatter(X[:, 0], X[:, 1], c=labels, s=40, cmap='viridis', zorder=2)
-        ax.axis('equal')
-        plt.show()
+    print("\n\nK-Means: Davies-Bouldin Index\n")
+    scores = []
+
+    centers = list(range(min,max))
+    for center in centers:
+        km = KMeans(n_clusters=center, init='k-means++', max_iter=300, n_init=10, random_state=0)
+        model = km.fit_predict(X)
+        score = davies_bouldin_score(X, model)
+        scores.append(score)
+    optimal_i = 0
+    min_score = scores[0]
+
+    for i in range(1,len(scores)):
+        if scores[i]<=min_score:
+            optimal_i = i
+            min_score = scores[i]
+    n_clusters = optimal_i + 2
+    cluster_list.append(n_clusters)
+    print("Optimal number of clusters for K-Means by Davies-Bouldin Index: " + str(n_clusters)) #the optimal number of clusters
+
+    method_list = ['Elbow Method','Silhouette Score','Calinski-Harabasz Index','Davies-Bouldin Index']
+    min_num_clusters = cluster_list[0]
+    index = 0
+    for i in range(1,len(cluster_list)):
+        if cluster_list[i]<=min_num_clusters:
+            min_num_clusters = cluster_list[i]
+            index = i
+
+    print("The minimum number of clusters is " + str(min_num_clusters) + " produced by " + method_list[index])
+
+    km = KMeans(n_clusters=min_num_clusters, init='k-means++', max_iter=300, n_init=10, random_state=0)
+    labels = km.fit(X).predict(X)
+    ax = None or plt.gca()
+    X = df_final[var_list].to_numpy()
+    ax.scatter(X[:, 0], X[:, 1], c=labels, s=40, cmap='viridis', zorder=2)
+    ax.axis('equal')
+    plt.show()
+
 def gmm():
     global X
-    if "si" in cm.lower():
-        print("Sillhoute Score")
+    cluster_list = []
+    print("\n\nGMM: Silhouette Score")
+    ss = []
 
-        ss = []
+    for i in range(min,max):
+        model = GaussianMixture(n_components=i, init_params='kmeans')
+        cluster_labels = model.fit_predict(X)
+        silhouette_avg = silhouette_score(X, cluster_labels)
+        ss.append(silhouette_avg)
+    optimal_i = 0
+    distance_to_one = abs(1-ss[0])
+    for i in range(0,len(ss)):
+        if abs(1-ss[i]) <= distance_to_one:
+            optimal_i = i
+            distance_to_one = abs(1-ss[i])
 
-        for i in range(2, c_num):
-            model = GaussianMixture(n_components=i, init_params='kmeans')
-            cluster_labels = model.fit_predict(X)
-            silhouette_avg = silhouette_score(X, cluster_labels)
-            ss.append(silhouette_avg)
-        optimal_i = 0
-        distance_to_one = abs(1-ss[0])
-        for i in range(0,len(ss)):
-            if abs(1-ss[i]) <= distance_to_one:
-                optimal_i = i
-                distance_to_one = abs(1-ss[i])
+    n_clusters = optimal_i + 2
+    cluster_list.append(n_clusters)
+    print("\nOptimal number of clusters for GMM by Silhouette Score: " + str(n_clusters)) #optimal number of clusters
 
-        n_clusters = optimal_i + 2
-        print("Optimal number of clusters: " + str(n_clusters)) #optimal number of clusters
-        gmm = GaussianMixture(n_components=n_clusters).fit(X)
-        labels = gmm.fit(X).predict(X)
-        ax = None or plt.gca()
-        X = df_final[var_list].to_numpy()
-        ax.scatter(X[:, 0], X[:, 1], c=labels, s=40, cmap='viridis', zorder=2)
-        ax.axis('equal')
-        plt.show()
+    print("\n\nGMM: AIC\n")
+    aic = []
+    for i in range(min,max):
+        model = GaussianMixture(n_components=i, init_params='kmeans')
+        model.fit(X)
+        aic.append(model.bic(X))
+    min_aic = aic[0]
+    min_i = 0
+    for i in range(1, len(aic)):
+        if aic[i] <= min_aic:
+            min_aic = aic[i]
+            min_i = i
+    n_clusters = min_i +2
+    cluster_list.append(n_clusters)
+    print("Optimal number of clusters for GMM by AIC: " + str(n_clusters)) #optimal number of clusters, minimizing aic
 
-    if "a" in cm.lower():
-        print("AIC\n")
-        aic = []
-        for i in range(2, c_num):
-            model = GaussianMixture(n_components=i, init_params='kmeans')
-            model.fit(X)
-            aic.append(model.bic(X))
-        min_aic = aic[0]
-        min_i = 0
-        for i in range(1, len(aic)):
-            if aic[i] <= min_aic:
-                min_aic = aic[i]
-                min_i = i
-        n_clusters = min_i +2
-        print("Optimal number of clusters: " + str(n_clusters)) #optimal number of clusters, minimizing aic
-        """min_aic = aic[0]
-        max_aic = aic[0]
-        max_i = 0
-        min_i = 0
-        for i in range(1, len(aic)):
-            if aic[i] >= max_aic:
-                max_aic = aic[i]
-                max_i = i
-            elif aic[i] <= min_aic:
-                min_aic = aic[i]
-                min_i = i
-        p1 = np.array([min_i, aic[min_i]])
-        p2 = np.array([max_i, aic[max_i]])
-        # the way I am doing the method is as follows:
-        # the different sse values form a curve like an L (like an exponential decay)
-        # The elbow is the point furthest from a line connecting max and min
-        # So I am calculating the distance, and the maximum distance from point to curve shows the optimal point
-        # AKA the number of clusters
-        dist = []
-        for n in range(0, len(aic)):
-            norm = np.linalg.norm
-            p3 = np.array([n, aic[n]])
-            dist.append(np.abs(norm(np.cross(p2 - p1, p1 - p3))) / norm(p2 - p1))
-        max_dist = dist[0]
-        n_clusters = 2
-        for x in range(1, len(dist)):
-            if dist[x] >= max_dist:
-                max_dist = dist[x]
-                n_clusters = x + 2
+    print("\n\nGMM: BIC\n")
+    bic = []
+    for i in range(min,max):
+        model = GaussianMixture(n_components=i, init_params='kmeans')
+        model.fit(X)
+        bic.append(model.bic(X))
+    min_bic = bic[0]
+    min_i = 0
+    for i in range(1, len(bic)):
+        if bic[i] <= min_bic:
+            min_bic = bic[i]
+            min_i = i
+    n_clusters = min_i + 2
+    cluster_list.append(n_clusters)
+    print("Optimal number of clusters for GMM by BIC: " + str(n_clusters)) #optimal number of clusters
 
-        plt.plot(aic)
-        plt.show()"""
+    method_list = ["Silhouette Score","AIC","BIC"]
+    min_num_clusters = cluster_list[0]
+    index = 0
+    for i in range(1, len(cluster_list)):
+        if cluster_list[i] <= min_num_clusters:
+            min_num_clusters = cluster_list[i]
+            index = i
 
-        gmm = GaussianMixture(n_components=n_clusters).fit(X)
-        labels = gmm.fit(X).predict(X)
-        ax = None or plt.gca()
-        X = df_final[var_list].to_numpy()
-        ax.scatter(X[:, 0], X[:, 1], c=labels, s=40, cmap='viridis', zorder=2)
-        ax.axis('equal')
-        plt.show()
+    print("The minimum number of clusters is " + str(min_num_clusters) + " produced by " + method_list[index])
 
-    if "b" in cm.lower():
-        print("\n\nBIC\n")
-        bic = []
-        for i in range(2, c_num):
-            model = GaussianMixture(n_components=i, init_params='kmeans')
-            model.fit(X)
-            bic.append(model.bic(X))
-        min_bic = bic[0]
-        min_i = 0
-        for i in range(1, len(bic)):
-            if bic[i] <= min_bic:
-                min_bic = bic[i]
-                min_i = i
-        n_clusters = min_i + 2
-        """min_bic = bic[0]
-        max_bic = bic[0]
-        max_i = 0
-        min_i = 0
-        for i in range(1,len(bic)):
-            if bic[i]>=max_bic:
-                max_bic = bic[i]
-                max_i = i
-            elif bic[i]<= min_bic:
-                min_bic = bic[i]
-                min_i = i
-        p1 = np.array([min_i, bic[min_i]])
-        p2 = np.array([max_i, bic[max_i]])
-        # the way I am doing the method is as follows:
-        # the different sse values form a curve like an L (like an exponential decay)
-        # The elbow is the point furthest from a line connecting max and min
-        # So I am calculating the distance, and the maximum distance from point to curve shows the optimal point
-        # AKA the number of clusters
-        dist = []
-        for n in range(0, len(bic)):
-            norm = np.linalg.norm
-            p3 = np.array([n, bic[n]])
-            dist.append(np.abs(norm(np.cross(p2 - p1, p1 - p3))) / norm(p2 - p1))
-        max_dist = dist[0]
-        n_clusters = 2
-        for x in range(1, len(dist)):
-            if dist[x] >= max_dist:
-                max_dist = dist[x]
-                n_clusters = x + 2
-        plt.plot(bic)
-        plt.show()"""
-        print("Optimal number of clusters: " + str(n_clusters)) #optimal number of clusters
-        gmm = GaussianMixture(n_components=n_clusters).fit(X)
-        labels = gmm.fit(X).predict(X)
-        ax = None or plt.gca()
-        X = df_final[var_list].to_numpy()
-        ax.scatter(X[:, 0], X[:, 1], c=labels, s=40, cmap='viridis', zorder=2)
-        ax.axis('equal')
-        plt.show()
+    gmm = GaussianMixture(n_components=min_num_clusters).fit(X)
+    labels = gmm.fit(X).predict(X)
+    ax = None or plt.gca()
+    X = df_final[var_list].to_numpy()
+    ax.scatter(X[:, 0], X[:, 1], c=labels, s=40, cmap='viridis', zorder=2)
+    ax.axis('equal')
+    plt.show()
+
 def affinity_propagation():
     global X
+    print("\n\nAffinity Propagation")
     af = AffinityPropagation(preference=-50).fit(X)
     cluster_centers_indices = af.cluster_centers_indices_
     labels = af.labels_
@@ -628,135 +569,167 @@ def affinity_propagation():
 
 def agglomerative_clustering(): #Fowlkes-Mallows and Adjusted Rand Score are not possible since we don't have existing labels we're training on.
     global X
-    if "ca" in cm.lower():
-        import warnings
-        warnings.filterwarnings("ignore", category=FutureWarning) #it is a function for 0.24 but says it is depracated in 0.23
-        print("Calinski-Harabasz Index\n")
-        pca = PCA(n_components=2)
-        impca = pca.fit_transform(X)
+    import warnings
+    warnings.filterwarnings("ignore", category=FutureWarning) #it is a function for 0.24 but says it is depracated in 0.23
+    print("\n\nAgglomerative Clustering: Calinski-Harabasz Index\n")
+    pca = PCA(n_components=2)
+    impca = pca.fit_transform(X)
 
-        agg_comp_scores = []
-        agg_avg_scores = []
-        agg_ward_scores = []
+    comp_cluster_list = []
+    avg_cluster_list = []
+    ward_cluster_list = []
 
-        centers = list(range(2, int(c_num)))
-        for center in centers:
-            agg_comp = AgglomerativeClustering(linkage='complete', n_clusters=center)
-            labels_comp = agg_comp.labels_
-            agg_comp_scores.append(metrics.calinski_harabasz_score(X, labels_comp))
+    agg_comp_scores = []
+    agg_avg_scores = []
+    agg_ward_scores = []
 
-            agg_ward = AgglomerativeClustering(linkage='ward', n_clusters=center)
-            labels_ward = agg_ward.labels_
-            agg_ward_scores.append(metrics.calinski_harabasz_score(X, labels_ward))
+    centers = list(range(min,max))
+    for center in centers:
+        agg_comp = AgglomerativeClustering(linkage='complete', n_clusters=center)
+        labels_comp = agg_comp.labels_
+        agg_comp_scores.append(metrics.calinski_harabasz_score(X, labels_comp))
 
-            agg_avg = AgglomerativeClustering(linkage='average', n_clusters=center)
-            labels_avg = agg_avg.labels_
-            agg_avg_scores.append(metrics.calinski_harabasz_score(X, labels_avg))
+        agg_ward = AgglomerativeClustering(linkage='ward', n_clusters=center)
+        labels_ward = agg_ward.labels_
+        agg_ward_scores.append(metrics.calinski_harabasz_score(X, labels_ward))
 
-        optimal_comp_i = 0
-        max_score = agg_comp_scores[0]
+        agg_avg = AgglomerativeClustering(linkage='average', n_clusters=center)
+        labels_avg = agg_avg.labels_
+        agg_avg_scores.append(metrics.calinski_harabasz_score(X, labels_avg))
 
-        for i in range(1, len(agg_comp_scores)):
-            if agg_comp_scores[i] >= max_score:
-                optimal_comp_i = i
-                max_score = agg_comp_scores[i]
-        n_comp_clusters = optimal_comp_i + 2
-        print("Optimal number of clusters for agglomerative complete clustering: " + str(n_comp_clusters)) #the optimal number of clusters
-        agg_comp = AgglomerativeClustering(linkage='complete', n_clusters=n_comp_clusters)
-        as_comp = agg_comp.fit_predict(X)
-        plt.scatter(X[:, 0], X[:, 1], c=as_comp, s=10)
+    optimal_comp_i = 0
+    max_score = agg_comp_scores[0]
 
-        optimal_ward_i = 0
-        max_score = agg_ward_scores[0]
+    for i in range(1, len(agg_comp_scores)):
+        if agg_comp_scores[i] >= max_score:
+            optimal_comp_i = i
+            max_score = agg_comp_scores[i]
+    n_comp_clusters = optimal_comp_i + 2
+    comp_cluster_list.append(n_comp_clusters)
+    print("Optimal number of clusters for agglomerative complete clustering by Calinski-Harabasz Index: " + str(n_comp_clusters)) #the optimal number of clusters
 
-        for i in range(1, len(agg_ward_scores)):
-            if agg_ward_scores[i] >= max_score:
-                optimal_ward_i = i
-                max_score = agg_ward_scores[i]
-        n_ward_clusters = optimal_ward_i + 2
-        print("Optimal number of clusters for agglomerative ward clustering: " + str(
+
+    optimal_ward_i = 0
+    max_score = agg_ward_scores[0]
+
+    for i in range(1, len(agg_ward_scores)):
+        if agg_ward_scores[i] >= max_score:
+            optimal_ward_i = i
+            max_score = agg_ward_scores[i]
+    n_ward_clusters = optimal_ward_i + 2
+    ward_cluster_list.append(n_ward_clusters)
+    print("Optimal number of clusters for agglomerative ward clustering by Calinski-Harabasz Index: " + str(
             n_ward_clusters))  # the optimal number of clusters
-        agg_ward = AgglomerativeClustering(linkage='ward', n_clusters=n_ward_clusters)
-        as_ward = agg_ward.fit_predict(X)
-        plt.scatter(X[:, 0], X[:, 1], c=as_ward, s=10)
 
-        optimal_avg_i = 0
-        max_score = agg_avg_scores[0]
+    optimal_avg_i = 0
+    max_score = agg_avg_scores[0]
 
-        for i in range(1, len(agg_avg_scores)):
-            if agg_avg_scores[i] >= max_score:
-                optimal_avg_i = i
-                max_score = agg_avg_scores[i]
-        n_avg_clusters = optimal_avg_i + 2
-        print("Optimal number of clusters for agglomerative average clustering: " + str(
+    for i in range(1, len(agg_avg_scores)):
+        if agg_avg_scores[i] >= max_score:
+            optimal_avg_i = i
+            max_score = agg_avg_scores[i]
+    n_avg_clusters = optimal_avg_i + 2
+    avg_cluster_list.append(n_avg_clusters)
+    print("Optimal number of clusters for agglomerative average clustering by Calinski-Harabasz Index: " + str(
             n_avg_clusters))  # the optimal number of clusters
-        agg_avg = AgglomerativeClustering(linkage='average', n_clusters=n_avg_clusters)
-        as_avg = agg_avg.fit_predict(X)
-        plt.scatter(X[:, 0], X[:, 1], c=as_avg, s=10)
 
-    if "si" in cm.lower():
-        print("Silhoette Score\n")
-        pca = PCA(n_components=2)
-        impca = pca.fit_transform(X)
 
-        agg_comp_scores = []
-        agg_avg_scores = []
-        agg_ward_scores = []
+    print("\n\nAgglomerative Clustering: Silhoette Score\n")
+    pca = PCA(n_components=2)
+    impca = pca.fit_transform(X)
 
-        centers = list(range(2, int(c_num)))
-        for center in centers:
-            agg_comp = AgglomerativeClustering(linkage='complete', n_clusters=center)
-            labels_comp = agg_comp.labels_
-            agg_comp_scores.append(metrics.calinski_harabasz_score(X, labels_comp))
+    agg_comp_scores = []
+    agg_avg_scores = []
+    agg_ward_scores = []
 
-            agg_ward = AgglomerativeClustering(linkage='ward', n_clusters=center)
-            labels_ward = agg_ward.labels_
-            agg_ward_scores.append(metrics.calinski_harabasz_score(X, labels_ward))
+    centers = list(range(min,max))
+    for center in centers:
+        agg_comp = AgglomerativeClustering(linkage='complete', n_clusters=center)
+        labels_comp = agg_comp.labels_
+        agg_comp_scores.append(metrics.calinski_harabasz_score(X, labels_comp))
 
-            agg_avg = AgglomerativeClustering(linkage='average', n_clusters=center)
-            labels_avg = agg_avg.labels_
-            agg_avg_scores.append(metrics.calinski_harabasz_score(X, labels_avg))
+        agg_ward = AgglomerativeClustering(linkage='ward', n_clusters=center)
+        labels_ward = agg_ward.labels_
+        agg_ward_scores.append(metrics.calinski_harabasz_score(X, labels_ward))
 
-        optimal_comp_i = 0
+        agg_avg = AgglomerativeClustering(linkage='average', n_clusters=center)
+        labels_avg = agg_avg.labels_
+        agg_avg_scores.append(metrics.calinski_harabasz_score(X, labels_avg))
 
-        distance_to_one = abs(1 - agg_comp_scores[0])
-        for i in range(0, len(agg_comp_scores)):
-            if abs(1 - agg_comp_scores[i]) <= distance_to_one:
-                optimal_comp_i = i
-                distance_to_one = abs(1 - agg_comp_scores[i])
-        n_comp_clusters = optimal_comp_i + 2
-        print("Optimal number of clusters for agglomerative complete clustering: " + str(n_comp_clusters)) #the optimal number of clusters
-        agg_comp = AgglomerativeClustering(linkage='complete', n_clusters=n_comp_clusters)
-        as_comp = agg_comp.fit_predict(X)
-        plt.scatter(X[:, 0], X[:, 1], c=as_comp, s=10)
+    optimal_comp_i = 0
 
-        optimal_ward_i = 0
+    distance_to_one = abs(1 - agg_comp_scores[0])
+    for i in range(0, len(agg_comp_scores)):
+        if abs(1 - agg_comp_scores[i]) <= distance_to_one:
+            optimal_comp_i = i
+            distance_to_one = abs(1 - agg_comp_scores[i])
+    n_comp_clusters = optimal_comp_i + 2
+    comp_cluster_list.append(n_comp_clusters)
+    print("Optimal number of clusters for agglomerative complete clustering by Silhouette Score: " + str(n_comp_clusters)) #the optimal number of clusters
 
-        distance_to_one = abs(1 - agg_ward_scores[0])
-        for i in range(0, len(agg_ward_scores)):
-            if abs(1 - agg_ward_scores[i]) <= distance_to_one:
-                optimal_ward_i = i
-                distance_to_one = abs(1 - agg_ward_scores[i])
-        n_ward_clusters = optimal_ward_i + 2
-        print("Optimal number of clusters for agglomerative ward clustering: " + str(
+    optimal_ward_i = 0
+
+    distance_to_one = abs(1 - agg_ward_scores[0])
+    for i in range(0, len(agg_ward_scores)):
+        if abs(1 - agg_ward_scores[i]) <= distance_to_one:
+            optimal_ward_i = i
+            distance_to_one = abs(1 - agg_ward_scores[i])
+    n_ward_clusters = optimal_ward_i + 2
+    ward_cluster_list.append(n_ward_clusters)
+    print("Optimal number of clusters for agglomerative ward clustering by Silhouette Score: " + str(
             n_ward_clusters))  # the optimal number of clusters
-        agg_ward = AgglomerativeClustering(linkage='ward', n_clusters=n_ward_clusters)
-        as_ward = agg_ward.fit_predict(X)
-        plt.scatter(X[:, 0], X[:, 1], c=as_ward, s=10)
 
-        optimal_avg_i = 0
+    optimal_avg_i = 0
 
-        distance_to_one = abs(1 - agg_avg_scores[0])
-        for i in range(0, len(agg_avg_scores)):
-            if abs(1 - agg_avg_scores[i]) <= distance_to_one:
-                optimal_avg_i = i
-                distance_to_one = abs(1 - agg_avg_scores[i])
-        n_avg_clusters = optimal_avg_i + 2
-        print("Optimal number of clusters for agglomerative average clustering: " + str(
+    distance_to_one = abs(1 - agg_avg_scores[0])
+    for i in range(0, len(agg_avg_scores)):
+        if abs(1 - agg_avg_scores[i]) <= distance_to_one:
+            optimal_avg_i = i
+            distance_to_one = abs(1 - agg_avg_scores[i])
+    n_avg_clusters = optimal_avg_i + 2
+    avg_cluster_list.append(n_avg_clusters)
+    print("Optimal number of clusters for agglomerative average clustering: " + str(
             n_avg_clusters))  # the optimal number of clusters
-        agg_avg = AgglomerativeClustering(linkage='average', n_clusters=n_avg_clusters)
-        as_avg = agg_avg.fit_predict(X)
-        plt.scatter(X[:, 0], X[:, 1], c=as_avg, s=10)
+
+    method_list = ['Calinski-Harabasz Index', 'Silhouette Score']
+    min_num_comp_clusters = comp_cluster_list[0]
+    index = 0
+    for i in range(1, len(comp_cluster_list)):
+        if comp_cluster_list[i] <= min_num_comp_clusters:
+            min_num_comp_clusters = comp_cluster_list[i]
+            index = i
+
+    print("The minimum number of clusters for agglomerative complete clustering is " + str(min_num_comp_clusters) + " produced by " + method_list[index])
+    agg_comp = AgglomerativeClustering(linkage='complete', n_clusters=min_num_comp_clusters)
+    as_comp = agg_comp.fit_predict(X)
+    plt.scatter(X[:, 0], X[:, 1], c=as_comp, s=10)
+
+    min_num_ward_clusters = ward_cluster_list[0]
+    index = 0
+    for i in range(1, len(ward_cluster_list)):
+        if ward_cluster_list[i] <= min_num_ward_clusters:
+            min_num_ward_clusters = ward_cluster_list[i]
+            index = i
+
+    print("The minimum number of clusters for agglomerative ward clustering is " + str(
+        min_num_ward_clusters) + " produced by " + method_list[index])
+    agg_ward = AgglomerativeClustering(linkage='ward', n_clusters=min_num_ward_clusters)
+    as_ward = agg_ward.fit_predict(X)
+    plt.scatter(X[:, 0], X[:, 1], c=as_ward, s=10)
+
+    min_num_avg_clusters = avg_cluster_list[0]
+    index = 0
+    for i in range(1, len(avg_cluster_list)):
+        if avg_cluster_list[i] <= min_num_avg_clusters:
+            min_num_avg_clusters = avg_cluster_list[i]
+            index = i
+
+    print("The minimum number of clusters for agglomerative average clustering is " + str(
+        min_num_avg_clusters) + " produced by " + method_list[index])
+    agg_avg = AgglomerativeClustering(linkage='average', n_clusters=min_num_avg_clusters)
+    as_avg = agg_avg.fit_predict(X)
+    plt.scatter(X[:, 0], X[:, 1], c=as_avg, s=10)
+
 
 def opencsv(data):
     """saves a list of lists as a csv and opens"""
@@ -771,4 +744,4 @@ def opencsv(data):
 
 # it can be used calling the script `python nidm_query.py -nl ... -q ..
 if __name__ == "__main__":
-    k_means()
+    cluster()
