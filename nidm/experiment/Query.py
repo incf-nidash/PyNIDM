@@ -599,24 +599,24 @@ def GetParticipantUUIDsForProjectCached(nidm_file_list:tuple, project_id, filter
                     for blank in rdf_graph.objects(subject=activity, predicate=Constants.PROV['qualifiedAssociation']):
                         if (blank, Constants.PROV['hadRole'], Constants.SIO['Subject']):
                             for participant in rdf_graph.objects(subject=blank, predicate=Constants.PROV['agent']):
-                                uuid = (str(participant)).split('/')[-1]  # srip off the http://whatever/whatever/
+                                uuid = (str(participant)).split('/')[-1]  # strip off the http://whatever/whatever/
                                 if (not uuid in participants) and \
                                         ( (not filter) or CheckSubjectMatchesFilter( tuple([file]) , project, participant, filter) ):
                                     ### added by DBK for subject IDs as well ###
                                     for id in rdf_graph.objects(subject=participant,predicate=URIRef(Constants.NIDM_SUBJECTID.uri)):
-                                        subid = (str(id)).split('/')[-1]  # srip off the http://whatever/whatever/
+                                        subid = (str(id)).split('/')[-1]  # strip off the http://whatever/whatever/
 
-                                    ### added by DBK for subject IDs as well ###
-                                    #participants.append(uuid)
-                                    if ( not uuid in participants['uuid'] ):
-                                        try:
-                                            participants['uuid'].append(uuid)
-                                            participants['subject id'].append(subid)
-                                        # just in case there's no subject id in the file...
-                                        except:
-                                            #participants.append(uuid)
-                                            participants['uuid'].append(uuid)
-                                            participants['subject id'].apend('')
+                                        ### added by DBK for subject IDs as well ###
+                                        #participants.append(uuid)
+                                        if ( not uuid in participants['uuid'] ):
+                                            try:
+                                                participants['uuid'].append(uuid)
+                                                participants['subject id'].append(subid)
+                                            # just in case there's no subject id in the file...
+                                            except:
+                                                #participants.append(uuid)
+                                                participants['uuid'].append(uuid)
+                                                participants['subject id'].append('')
 
     return participants
 
