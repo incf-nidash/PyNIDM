@@ -263,7 +263,7 @@ Options:
 				  the independent variables separated by "+"
 				  (Ex: -model "fs_003343 = age*sex + sex + 
 				  age + group + age*group + bmi") [required]
-  -contstant, --ctr TEXT       	  Parameter, if set, will return differences in
+  -contrast, --ctr TEXT       	  Parameter, if set, will return differences in
   				  variable relationships by group. One or
 				  multiple parameters can be used (multiple 
 				  parameters should be separated by a comma-
