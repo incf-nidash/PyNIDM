@@ -1117,6 +1117,9 @@ def getDataTypeInfo(source_graph, datatype):
     # check to see if the datatype is in the main graph. If not, look in the CDE graph
     if source_graph and  (expanded_datatype, isa, Constants.NIDM['DataElement']) in source_graph:
         rdf_graph = source_graph
+    # check if datatype is a personal data element
+    elif source_graph and  (expanded_datatype, isa, Constants.NIDM['PersonalDataElement']) in source_graph:
+        rdf_graph = source_graph
     else:
         rdf_graph = nidm.experiment.CDE.getCDEs()
 

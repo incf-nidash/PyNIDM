@@ -334,6 +334,14 @@ def GetDataelements(nidm_files_tuple):
                 result['data_elements']['label'].append(str(dti['label']))
                 result['data_elements']['data_type_info'].append( dti )
                 found_uris.add(de_uri)
+        # find all the datatypes
+        for de_uri in rdf_graph.subjects(predicate=isa, object=Constants.NIDM['PersonalDataElement']):
+            if de_uri not in found_uris:  # don't add duplicates
+                dti = getDataTypeInfo(rdf_graph, de_uri)
+                result['data_elements']['uuid'].append(str(dti['dataElementURI']))
+                result['data_elements']['label'].append(str(dti['label']))
+                result['data_elements']['data_type_info'].append(dti)
+                found_uris.add(de_uri)
 
     # now look for any of the CDEs
     all_predicates = GetAllPredicates(nidm_files_tuple)
