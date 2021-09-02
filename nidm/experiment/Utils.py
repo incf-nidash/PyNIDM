@@ -806,8 +806,8 @@ def fuzzy_match_concepts_from_nidmterms_jsonld(json_struct,query_string):
         match_scores[entry['label']] = {}
         match_scores[entry['label']]['score'] = fuzz.token_sort_ratio(query_string, entry['label'])
         match_scores[entry['label']]['label'] = entry['label']
-        if "http://schema.org/url" in entry.keys():
-            match_scores[entry['label']]['url'] = entry["http://schema.org/url"]
+        if "schema:url" in entry.keys():
+            match_scores[entry['label']]['url'] = entry["schema:url"]
         else:
             match_scores[entry['label']]['url'] = ""
         if 'description' in entry.keys():
