@@ -598,7 +598,7 @@ def test_multiple_project_fields():
     fv = fields
     assert( type( fv ) == list )
     fields_used = set( [ i.label for i in fv ]  )
-    assert 'Brain Segmentation Volume (mm^3)' in fields_used
+    assert ('brain' in fields_used) or ('Brain Segmentation Volume (mm^3)' in fields_used)
     assert 'age at scan' in fields_used
 
 def test_odd_isabout_uris():
@@ -634,7 +634,7 @@ def test_project_fields_deriv():
     fv = project
     assert( type( fv ) == list )
     fields_used = set( [ i.label for i in fv ]  )
-    assert 'Brain Segmentation Volume (mm^3)' in fields_used
+    assert ('brain' in fields_used) or ('Brain Segmentation Volume (mm^3)' in fields_used)
 
 
 def test_project_fields_instruments():

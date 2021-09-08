@@ -346,7 +346,8 @@ class Core(object):
             rdf_graph = Graph()
             rdf_graph.parse(source=StringIO(self.serializeTurtle()),format='turtle')
 
-        return rdf_graph.serialize(format='trig').decode('ASCII')
+        #return rdf_graph.serialize(format='trig').decode('ASCII')
+        return rdf_graph.serialize(format='trig')
 
 
     def serializeJSONLD(self):
@@ -371,7 +372,8 @@ class Core(object):
 
         # WIP: LOOK AT https://github.com/satra/nidm-jsonld
         #return rdf_graph_parse.serialize(format='json-ld', context=context, indent=4).decode('ASCII')
-        g=rdf_graph_parse.serialize(format='json-ld', indent=4).decode('ASCII')
+        #g=rdf_graph_parse.serialize(format='json-ld', indent=4).decode('ASCII')
+        g = rdf_graph_parse.serialize(format='json-ld', indent=4)
 
 
         import pyld as ld
