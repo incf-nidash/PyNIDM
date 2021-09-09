@@ -212,7 +212,10 @@ def test_project_trig_serialization():
 
     #save as trig file with graph identifier Constants.NIDM_Project
     test = project.serializeTrig(identifier=Constants.NIIRI["_996"])
-    outfile.write(test)
+    if not isinstance(test,str):
+        outfile.write(test.decode('ASCII'))
+    else:
+        outfile.write(test)
     outfile.seek(0)
 
     # WIP: RDFLib doesn't seem to have a Trig parser?!?

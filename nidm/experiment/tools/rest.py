@@ -436,7 +436,9 @@ class RestParser:
                     for de in act_data.data:
                         if de.isAbout == "http://uri.interlex.org/ilx_0100400" or de.isAbout == "http://uri.interlex.org/base/ilx_0100400":
                             ages.add(float(de.value))
-                        elif de.isAbout == "http://uri.interlex.org/ilx_0101292" or de.isAbout == "http://uri.interlex.org/base/ilx_0101292":
+                        elif de.isAbout == "http://uri.interlex.org/ilx_0101292" or de.isAbout == "http://uri.interlex.org/base/ilx_0101292"\
+                                or de.isAbout == "http://uri.interlex.org/ilx_0738439" or de.isAbout == \
+                                "https://ndar.nih.gov/api/datadictionary/v2/dataelement/gender":
                             genders.add(de.value)
                         elif de.isAbout == "http://purl.obolibrary.org/obo/PATO_0002201":
                             hands.add(de.value)
