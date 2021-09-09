@@ -4,7 +4,7 @@ PyNIDM: Neuroimaging Data Model in Python
 A Python library to manipulate the [Neuroimaging Data Model](http://nidm.nidash.org). 
 
 
-|Build Status| |Docs|
+|PyNIDM Testing| |Docs|
 
 .. contents::
 .. section-numbering::
@@ -144,9 +144,9 @@ name then / put them in the same place as the input file.
                                   exported as JSONLD  [required]
     --help                          Show this message and exit.
 
-.. |Build Status| image:: https://travis-ci.org/incf-nidash/PyNIDM.svg?branch=master
-    :target: https://travis-ci.org/incf-nidash/PyNIDM
-    :alt: Build status of the master branch
+.. |PyNIDM Testing| image:: https://github.com/incf-nidash/PyNIDM/actions/workflows/pythontest.yml/badge.svg
+   :target: https://github.com/incf-nidash/PyNIDM/actions/workflows/pythontest.yml
+   :alt: Status of PyNIDM Testing
 .. |Docs| image:: https://readthedocs.org/projects/pynidm/badge/?version=latest&style=plastic
     :target: https://pynidm.readthedocs.io/en/latest/
     :alt: ReadTheDocs Documentation of master branch
