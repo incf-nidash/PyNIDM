@@ -32,7 +32,8 @@
 # *******************************************************************************************************
 # *******************************************************************************************************
 import os
-import re
+import sys
+from os import system
 import tempfile
 import pandas as pd
 import csv
@@ -42,19 +43,49 @@ import click
 from nidm.experiment.tools.click_base import cli
 from nidm.experiment.tools.rest import RestParser
 import numpy as np
-from sklearn.linear_model import LinearRegression
-import statsmodels.api as sm
-from statsmodels.formula.api import ols
-from sklearn import preprocessing
-from sklearn.linear_model import Ridge
-from sklearn.linear_model import Lasso
-from sklearn.model_selection import cross_val_score
-from statistics import mean
-from patsy.contrasts import Treatment
-from patsy.contrasts import ContrastMatrix
-from patsy.contrasts import Sum
-from patsy.contrasts import Diff
-from patsy.contrasts import Helmert
+try:
+    from sklearn.linear_model import LinearRegression
+    from sklearn import preprocessing
+    from sklearn.linear_model import Ridge
+    from sklearn.linear_model import Lasso
+    from sklearn.model_selection import cross_val_score
+except:
+    system('python -m pip install --upgrade pip sklearn')
+    from sklearn.linear_model import LinearRegression
+    from sklearn import preprocessing
+    from sklearn.linear_model import Ridge
+    from sklearn.linear_model import Lasso
+    from sklearn.model_selection import cross_val_score
+
+try:
+    import statsmodels.api as sm
+    from statsmodels.formula.api import ols
+except:
+    system('python -m pip install --upgrade pip statsmodels')
+    import statsmodels.api as sm
+    from statsmodels.formula.api import ols
+
+try:
+    from statistics import mean
+except:
+    system('python -m pip install --upgrade pip statistics')
+    from statistics import mean
+
+try:
+    from patsy.contrasts import Treatment
+    from patsy.contrasts import ContrastMatrix
+    from patsy.contrasts import Sum
+    from patsy.contrasts import Diff
+    from patsy.contrasts import Helmert
+except:
+    system('python -m pip install --upgrade pip patsy')
+    from patsy.contrasts import Treatment
+    from patsy.contrasts import ContrastMatrix
+    from patsy.contrasts import Sum
+    from patsy.contrasts import Diff
+    from patsy.contrasts import Helmert
+
+
 MAX_ALPHA = 700
 #Defining the parameters of the commands.
 @cli.command()
@@ -88,9 +119,11 @@ def linear_regression(nidm_file_list, output_file, ml, ctr, regularization):
     r = regularization
     data_aggregation() #collects data
     dataparsing() #converts it to proper format
-    linreg() #performs linear regression
+    l = linreg() #performs linear regression
     contrasting() #performs contrast
     regularizing() #performs regularization
+
+
 
 def data_aggregation(): #all data from all the files is collected
     """
@@ -447,11 +480,17 @@ def linreg(): #actual linear regression
         print(finalstats.summary())
         if (o is not None):
             # concatenate data frames
-            f = open(o,"a")
-            f.write(full_model)
-            f.write("\n*************************************************************************************\n")
-            f.write(finalstats.summary())
-            f.close()
+            #f = open(o,"a")
+            sys.stdout = open(o,"a")
+            print(full_model)
+            print("\n*************************************************************************************\n")
+            print(finalstats.summary())
+            sys.stdout.close()
+            #f.write(full_model)
+            #f.write("\n*************************************************************************************\n")
+            #f.write(finalstats.summary())
+            #f.close()
+        return finalstats
 def contrasting():
     global c
     if c:
