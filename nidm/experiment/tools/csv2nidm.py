@@ -108,7 +108,8 @@ def main(argv):
     if args.csv_file.endswith(".csv"):
         df = pd.read_csv(args.csv_file)
     elif args.csv_file.endswith(".tsv"):
-        df = pd.read_csv(args.csv_file,sep='\t')
+        df = pd.read_csv(args.csv_file,sep='\t', engine='python')
+
     else:
         print("ERROR: input file must have .csv (comma-separated) or .tsv (tab separated) extensions/"
               "file types.  Please change your input file appropriately and re-run.")
@@ -183,7 +184,10 @@ def main(argv):
             id_field=df.columns[int(selection)-1]
             #make sure id_field is a string for zero-padded subject ids
             #re-read data file with constraint that key field is read as string
-            df = pd.read_csv(args.csv_file,dtype={id_field : str})
+            if args.csv_file.endswith(".csv"):
+                df = pd.read_csv(args.csv_file,dtype={id_field : str})
+            else:
+                df = pd.read_csv(args.csv_file, dtype={id_field: str},sep='\t')
 
 
 
@@ -295,16 +299,21 @@ def main(argv):
         #look at column_to_terms dictionary for NIDM URL for subject id  (Constants.NIDM_SUBJECTID)
         id_field=None
         for key, value in column_to_terms.items():
-            # using skos:sameAs relationship to associate subject identifier variable from csv with a known term
+            # using isAbout concept association to associate subject identifier variable from csv with a known term
             # for subject IDs
-            if 'sameAs' in column_to_terms[key]:
-                if Constants.NIDM_SUBJECTID.uri == column_to_terms[key]['sameAs']:
-                    key_tuple = eval(key)
-                    id_field=key_tuple.variable
-                    #make sure id_field is a string for zero-padded subject ids
-                    #re-read data file with constraint that key field is read as string
-                    df = pd.read_csv(args.csv_file,dtype={id_field : str})
-                    break
+            if 'isAbout' in column_to_terms[key]:
+                # iterate over isAbout list entries and look for Constants.NIDM_SUBJECTID
+                for entries in column_to_terms[key]['isAbout']:
+                    if Constants.NIDM_SUBJECTID.uri == entries['@id']:
+                        key_tuple = eval(key)
+                        id_field=key_tuple.variable
+                        #make sure id_field is a string for zero-padded subject ids
+                        #re-read data file with constraint that key field is read as string
+                        if args.csv_file.endswith(".csv"):
+                            df = pd.read_csv(args.csv_file,dtype={id_field : str})
+                        else:
+                            df = pd.read_csv(args.csv_file, dtype={id_field: str},sep='\t')
+                        break
 
         #if we couldn't find a subject ID field in column_to_terms, ask user
         if id_field is None:
@@ -320,7 +329,10 @@ def main(argv):
             id_field=df.columns[int(selection)-1]
             #make sure id_field is a string for zero-padded subject ids
             #re-read data file with constraint that key field is read as string
-            df = pd.read_csv(args.csv_file,dtype={id_field : str})
+            if args.csv_file.endswith(".csv"):
+                df = pd.read_csv(args.csv_file,dtype={id_field : str})
+            else:
+                df = pd.read_csv(args.csv_file, dtype={id_field: str}, sep='\t')
 
 
         #iterate over rows and store in NIDM file

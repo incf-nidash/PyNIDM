@@ -952,7 +952,43 @@ def redcap_datadictionary_to_json(redcap_dd_file,assessment_name):
 
     return json_map
 
+def detect_json_format(json_map):
+    '''
+    This function will take a json "sidecar" file or json annotation data dictionary structure
+    and determine if it''s consistent with the ReproSchema structure (compound keys root-level keys
+    DD(source=XXX,variable=YYY) and 'responseOptions' subkeys), the older pynidm format (compound
+    keys as ReproSchema, no reponseOptions subkeys), or the BIDS sidecar file structure
+    (flat structure, variable names as keys, no response options).  It will return a string associated
+    with the structure: BIDS | OLD_PYNIDM | REPROSCHEMA
 
+    :param json_map: json annotation file dictionary (file already loaded with json.load)
+
+    '''
+
+    for key,value in json_map.keys():
+        if "DD(" in key:
+            if "responseOptions" in value.keys():
+                return "REPROSCHEMA"
+            else:
+                return "OLD_PYNIDM"
+        else:
+            return "BIDS"
+
+def match_participant_id_field(source_variable):
+    '''
+    This function will test whether the source_variable is a participant ID field or not by string matching.
+    :param source_variable: source variable string to test
+    '''
+
+    if ((("participant_id" in source_variable.lower()) or
+          ("subject_id" in source_variable.lower()) or
+          (("participant" in source_variable.lower()) and ("id" in source_variable.lower())) or
+          (("subject" in source_variable.lower()) and ("id" in source_variable.lower())) or
+          (("sub" in source_variable.lower()) and ("id" in source_variable.lower())))):
+
+        return True
+    else:
+        return False
 
 def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_source=None,bids=False,owl_file='nidm',
                            associate_concepts=True, dataset_identifier=None):
@@ -972,7 +1008,7 @@ def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_
     # dictionary mapping column name to preferred term
     column_to_terms = {}
 
-    # check if user supplied a JSON file and we already know a mapping for this column
+    # check if user supplied a JSON file or a json dictionary
     if json_source is not None:
         try:
             # check if json_source is a file
@@ -1034,7 +1070,8 @@ def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_
             #try:
                 # check for column in json file
             try:
-                json_key = [key for key in json_map if column.lstrip().rstrip() == key.split("variable")[1].split("=")[1].split(")")[0].lstrip("'").rstrip("'")]
+                json_key = [key for key in json_map if column.lstrip().rstrip() ==
+                        key.split("variable")[1].split("=")[1].split(")")[0].lstrip("'").rstrip("'")]
             except Exception as e:
                 if "list index out of range" in str(e):
                     json_key = [key for key in json_map if column.lstrip().rstrip() == key]
@@ -1076,38 +1113,9 @@ def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_
                         column_to_terms[current_tuple]['url'] = json_map[json_key[0]]['url']
                         print("url: %s" %column_to_terms[current_tuple]['url'])
                     # print("Variable: %s" %column_to_terms[current_tuple]['variable'])
-
-                    if 'levels' in json_map[json_key[0]]:
-                        column_to_terms[current_tuple]['levels'] = json_map[json_key[0]]['levels']
-                        print("levels: %s" %column_to_terms[current_tuple]['levels'])
-                    elif 'Levels' in json_map[json_key[0]]:
-                        column_to_terms[current_tuple]['levels'] = json_map[json_key[0]]['Levels']
-                        print("levels: %s" %column_to_terms[current_tuple]['levels'])
                     if 'sameAs' in json_map[json_key[0]]:
                         column_to_terms[current_tuple]['sameAs'] = json_map[json_key[0]]['sameAs']
                         print("sameAs: %s" %column_to_terms[current_tuple]['sameAs'])
-
-                    if 'valueType' in json_map[json_key[0]]:
-                        column_to_terms[current_tuple]['valueType'] = json_map[json_key[0]]['valueType']
-                        print("valueType: %s" % column_to_terms[current_tuple]['valueType'])
-
-                    if ('minValue' in json_map[json_key[0]]):
-                        column_to_terms[current_tuple]['minValue'] = json_map[json_key[0]]['minValue']
-                        print("minValue: %s" % column_to_terms[current_tuple]['minValue'])
-                    elif ('minimumValue' in json_map[json_key[0]]):
-                        column_to_terms[current_tuple]['minValue'] = json_map[json_key[0]]['minimumValue']
-                        print("minValue: %s" % column_to_terms[current_tuple]['minValue'])
-
-                    if 'maxValue' in json_map[json_key[0]]:
-                        column_to_terms[current_tuple]['maxValue'] = json_map[json_key[0]]['maxValue']
-                        print("maxValue: %s" % column_to_terms[current_tuple]['maxValue'])
-                    elif 'maximumValue' in json_map[json_key[0]]:
-                        column_to_terms[current_tuple]['maxValue'] = json_map[json_key[0]]['maximumValue']
-                        print("maxValue: %s" % column_to_terms[current_tuple]['maxValue'])
-                    if 'hasUnit' in json_map[json_key[0]]:
-                        column_to_terms[current_tuple]['hasUnit'] = json_map[json_key[0]]['hasUnit']
-                        print("hasUnit: %s" % column_to_terms[current_tuple]['hasUnit'])
-
                     if 'url' in json_map[json_key[0]]:
                         column_to_terms[current_tuple]['url'] = json_map[json_key[0]]['url']
                         print("url: %s" % column_to_terms[current_tuple]['url'])
@@ -1133,24 +1141,161 @@ def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_
                     if "isAbout" in json_map[json_key[0]]:
                         #check if we have a single isAbout or multiple...
                         if isinstance(json_map[json_key[0]]['isAbout'],list):
-                            column_to_terms[current_tuple]['isAbout'] = []
-                            for subdict in json_map[json_key[0]]['isAbout']:
-                                for isabout_key,isabout_value in subdict.items():
-                                    column_to_terms[current_tuple]['isAbout'].append({isabout_key:isabout_value})
-                                    print("isAbout: %s = %s" %(isabout_key, isabout_value))
-                        # if isAbout is a dictionary then we only have 1 isAbout...
+                            # isAbout is an empty list, do concept association if user asked for it else skip
+                            if not json_map[json_key[0]]['isAbout']:
+                                if associate_concepts:
+                                    # provide user with opportunity to associate a concept with this annotation
+                                    find_concept_interactive(column, current_tuple, column_to_terms, ilx_obj,
+                                            nidm_owl_graph=nidm_owl_graph)
+                                    # write annotations to json file so user can start up again if not doing whole file
+                                    write_json_mapping_file(column_to_terms, output_file, bids)
+                                else:
+                                    pass
+                            else:
+                                # else create a new list
+                                column_to_terms[current_tuple]['isAbout'] = []
+                                # for each isAbout entry
+                                for subdict in json_map[json_key[0]]['isAbout']:
+                                    # some entries may not have 'label' so check
+                                    if 'label' in subdict.keys():
+                                        column_to_terms[current_tuple]['isAbout'].append({'@id':subdict['@id'],'label':subdict['label']})
+                                        print("isAbout: %s = %s, %s = %s" %('@id',subdict['@id'],
+                                                    'label',subdict['label']))
+                                    else:
+                                        column_to_terms[current_tuple]['isAbout'].append(
+                                            {'@id': subdict['@id']})
+                                        print("isAbout: %s = %s" % ('@id', subdict['@id']))
+                                    #for isabout_key,isabout_value in subdict.items():
+                                    #    column_to_terms[current_tuple]['isAbout'].append({isabout_key:isabout_value})
+                                    #    print("isAbout: %s = %s" %(isabout_key, isabout_value))
+                        # if isAbout is a dictionary then we only have 1 isAbout...we'll upgrade it to a list
+                        # to be consistent moving forward
                         else:
-                            column_to_terms[current_tuple]['isAbout'] = {}
-                            for isabout_key,isabout_value in json_map[json_key[0]]['isAbout'].items():
-                                column_to_terms[current_tuple]['isAbout'][isabout_key] = json_map[json_key[0]]['isAbout'][isabout_key]
-                                print("isAbout: %s = %s" %(isabout_key, column_to_terms[current_tuple]['isAbout'][isabout_key]))
+                            column_to_terms[current_tuple]['isAbout'] = []
+                            if 'url' in json_map[json_key[0]]['isAbout'].keys():
+                                if 'label' in json_map[json_key[0]]['isAbout'].keys():
+                                    column_to_terms[current_tuple]['isAbout'].append({'@id':
+                                        json_map[json_key[0]]['isAbout']['url'],'label':
+                                        json_map[json_key[0]]['isAbout']['label']})
+                                else:
+                                    column_to_terms[current_tuple]['isAbout'].append({'@id':
+                                        json_map[json_key[0]]['isAbout']['url']})
+                            else:
+                                if 'label' in json_map[json_key[0]]['isAbout'].keys():
+                                    column_to_terms[current_tuple]['isAbout'].append({'@id':
+                                        json_map[json_key[0]]['isAbout']['@id'],'label':
+                                        json_map[json_key[0]]['isAbout']['label']})
+                                else:
+                                    column_to_terms[current_tuple]['isAbout'].append({'@id':
+                                        json_map[json_key[0]]['isAbout']['@id']})
+
+
+                            print("isAbout: %s = %s, %s = %s" %('@id',column_to_terms[current_tuple]['isAbout']['@id'],
+                                    'label',column_to_terms[current_tuple]['isAbout']['label']))
                     else:
-                        # if user ran in mode where they want to associate concepts
-                        if associate_concepts:
+
+                        # if user ran in mode where they want to associate concepts and this isn't the participant
+                        # id field then associate concepts.
+                        if match_participant_id_field(json_map[json_key[0]]['sourceVariable']):
+                            column_to_terms[current_tuple]['isAbout'] =[]
+                            column_to_terms[current_tuple]['isAbout'].append({'@id':Constants.NIDM_SUBJECTID.uri,
+                                        'label':Constants.NIDM_SUBJECTID.localpart})
+                            write_json_mapping_file(column_to_terms, output_file, bids)
+                        elif associate_concepts:
                             # provide user with opportunity to associate a concept with this annotation
                             find_concept_interactive(column,current_tuple,column_to_terms,ilx_obj,nidm_owl_graph=nidm_owl_graph)
                             # write annotations to json file so user can start up again if not doing whole file
                             write_json_mapping_file(column_to_terms,output_file,bids)
+
+
+                    # added to support ReproSchema json format
+                    if 'responseOptions' in json_map[json_key[0]]:
+                        for subkey,subvalye in json_map[json_key[0]]['responseOptions'].items():
+                            if 'valueType' in subkey:
+                                column_to_terms[current_tuple]['valueType'] = \
+                                    json_map[json_key[0]]['responseOptions']['valueType']
+                                print("valueType: %s" % column_to_terms[current_tuple]['valueType'])
+
+                            elif 'minValue' in subkey:
+                                column_to_terms[current_tuple]['minValue'] = \
+                                    json_map[json_key[0]]['responseOptions']['minValue']
+                                print("minValue: %s" % column_to_terms[current_tuple]['minValue'])
+
+                            elif 'maxValue' in subkey:
+                                column_to_terms[current_tuple]['maxValue'] = \
+                                    json_map[json_key[0]]['responseOptions']['maxValue']
+                                print("maxValue: %s" % column_to_terms[current_tuple]['maxValue'])
+                            elif 'choices' in subkey:
+                                column_to_terms[current_tuple]['levels'] = \
+                                    json_map[json_key[0]]['responseOptions']['choices']
+                                print("levels: %s" % column_to_terms[current_tuple]['levels'])
+                            elif 'hasUnit' in subkey:
+                                column_to_terms[current_tuple]['unitCode'] = \
+                                    json_map[json_key[0]]['responseOptions']['hasUnit']
+                                print("units: %s" % column_to_terms[current_tuple]['unitCode'])
+                            elif 'unitCode' in subkey:
+                                column_to_terms[current_tuple]['unitCode'] = \
+                                    json_map[json_key[0]]['responseOptions']['unitCode']
+                                print("units: %s" % column_to_terms[current_tuple]['unitCode'])
+
+                    if 'levels' in json_map[json_key[0]]:
+                        # upgrade 'levels' to 'responseOptions'->'choices'
+                        if 'responseOptions' not in column_to_terms[current_tuple].keys():
+                            column_to_terms[current_tuple]['responseOptions'] = {}
+                        column_to_terms[current_tuple]['responseOptions']['choices'] = json_map[json_key[0]]['levels']
+                        print("choices: %s" %column_to_terms[current_tuple]['responseOptions']['choices'])
+                    elif 'Levels' in json_map[json_key[0]]:
+                        # upgrade 'levels' to 'responseOptions'->'choices'
+                        if 'responseOptions' not in column_to_terms[current_tuple].keys():
+                            column_to_terms[current_tuple]['responseOptions'] ={}
+                        column_to_terms[current_tuple]['responseOptions']['choices'] = json_map[json_key[0]]['Levels']
+                        print("levels: %s" %column_to_terms[current_tuple]['responseOptions']['choices'])
+
+                    if 'valueType' in json_map[json_key[0]]:
+                        # upgrade 'valueType' to 'responseOptions'->'valueType
+                        if 'responseOptions' not in column_to_terms[current_tuple].keys():
+                            column_to_terms[current_tuple]['responseOptions'] = {}
+                        column_to_terms[current_tuple]['responseOptions']['valueType'] = \
+                            json_map[json_key[0]]['valueType']
+                        print("valueType: %s" % column_to_terms[current_tuple]['responseOptions']['valueType'])
+
+                    if ('minValue' in json_map[json_key[0]]):
+                        # upgrade 'minValue' to 'responseOptions'->'minValue
+                        if 'responseOptions' not in column_to_terms[current_tuple].keys():
+                            column_to_terms[current_tuple]['responseOptions'] = {}
+                        column_to_terms[current_tuple]['responseOptions']['minValue'] = \
+                            json_map[json_key[0]]['minValue']
+                        print("minValue: %s" % column_to_terms[current_tuple]['responseOptions']['minValue'])
+                    elif ('minimumValue' in json_map[json_key[0]]):
+                        # upgrade 'minValue' to 'responseOptions'->'minValue
+                        if 'responseOptions' not in column_to_terms[current_tuple].keys():
+                            column_to_terms[current_tuple]['responseOptions'] = {}
+                        column_to_terms[current_tuple]['responseOptions']['minValue'] = \
+                            json_map[json_key[0]]['minimumValue']
+                        print("minValue: %s" % column_to_terms[current_tuple]['responseOptions']['minValue'])
+
+                    if 'maxValue' in json_map[json_key[0]]:
+                        # upgrade 'maxValue' to 'responseOptions'->'maxValue
+                        if 'responseOptions' not in column_to_terms[current_tuple].keys():
+                            column_to_terms[current_tuple]['responseOptions'] = {}
+                        column_to_terms[current_tuple]['responseOptions']['maxValue'] = \
+                            json_map[json_key[0]]['maxValue']
+                        print("maxValue: %s" % column_to_terms[current_tuple]['responseOptions']['maxValue'])
+                    elif 'maximumValue' in json_map[json_key[0]]:
+                        # upgrade 'maxValue' to 'responseOptions'->'maxValue
+                        if 'responseOptions' not in column_to_terms[current_tuple].keys():
+                            column_to_terms[current_tuple]['responseOptions'] = {}
+                        column_to_terms[current_tuple]['responseOptions']['maxValue'] = \
+                            json_map[json_key[0]]['maximumValue']
+                        print("maxValue: %s" % column_to_terms[current_tuple]['responseOptions']['maxValue'])
+                    if 'hasUnit' in json_map[json_key[0]]:
+                        # upgrade 'hasUnit' to 'responseOptions'->'unitCode
+                        if 'responseOptions' not in column_to_terms[current_tuple].keys():
+                            column_to_terms[current_tuple]['responseOptions'] = {}
+                        column_to_terms[current_tuple]['responseOptions']['unitCode'] = \
+                            json_map[json_key[0]]['hasUnit']
+                        print("unitCode: %s" % column_to_terms[current_tuple]['responseOptions']['unitCode'])
+
 
                     print("---------------------------------------------------------------------------------------")
 
@@ -1165,39 +1310,33 @@ def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_
 
         search_term = str(column)
         #added for an automatic mapping of participant_id, subject_id, and variants
-        if ( ("participant_id" in search_term.lower()) or ("subject_id" in search_term.lower()) or
-            (("participant" in search_term.lower()) and ("id" in search_term.lower())) or
-            (("subject" in search_term.lower()) and ("id" in search_term.lower())) or
-            (("sub" in search_term.lower()) and ("id" in search_term.lower())) ):
+        if match_participant_id_field(search_term.lower()):
 
             # map this term to Constants.NIDM_SUBJECTID
             # since our subject ids are statically mapped to the Constants.NIDM_SUBJECTID we're creating a new
             # named tuple for this json map entry as it's not the same source as the rest of the data frame which
             # comes from the 'assessment_name' function parameter.
-            subjid_tuple = str(DD(source='ndar', variable=search_term))
+            subjid_tuple = str(DD(source=assessment_name, variable=search_term))
             column_to_terms[subjid_tuple] = {}
             column_to_terms[subjid_tuple]['label'] = search_term
             column_to_terms[subjid_tuple]['description'] = "subject/participant identifier"
             column_to_terms[subjid_tuple]['source_variable'] = str(search_term)
             column_to_terms[subjid_tuple]['valueType'] = URIRef(Constants.XSD["string"])
             column_to_terms[subjid_tuple]['isAbout'] = {}
-            column_to_terms[subjid_tuple]['isAbout']['url'] = Constants.NIDM_SUBJECTID.uri
+            column_to_terms[subjid_tuple]['isAbout']['@id'] = Constants.NIDM_SUBJECTID.uri
             column_to_terms[subjid_tuple]['isAbout']['label'] = Constants.NIDM_SUBJECTID.localpart
             # column_to_terms[subjid_tuple]['variable'] = str(column)
 
-            # delete temporary current_tuple key for this variable as it has been statically mapped to NIDM_SUBJECT
-            del column_to_terms[current_tuple]
-
-            print("Variable %s automatically mapped to participant/subject idenfier" %search_term)
+            print("Variable %s automatically mapped to participant/subject identifier" %search_term)
             print("Label: %s" %column_to_terms[subjid_tuple]['label'])
             print("Description: %s" %column_to_terms[subjid_tuple]['description'])
             #print("Url: %s" %column_to_terms[subjid_tuple]['url'])
             print("Source Variable: %s" % column_to_terms[subjid_tuple]['source_variable'])
             print("---------------------------------------------------------------------------------------")
             continue
-
         # if we haven't already found an annotation for this column then have user create one.
-        annotate_data_element(column, current_tuple, column_to_terms)
+        if current_tuple not in column_to_terms.keys():
+            annotate_data_element(column, current_tuple, column_to_terms)
         # then ask user to find a concept if they selected to do so
         if associate_concepts:
             # provide user with opportunity to associate a concept with this annotation
@@ -1483,9 +1622,10 @@ def find_concept_interactive(source_variable, current_tuple, source_variable_ann
         else:
             # user selected one of the existing concepts to add its URL to the isAbout property
             # added labels to these isAbout urls for easy querying later
-            source_variable_annotations[current_tuple]['isAbout'] = {}
-            source_variable_annotations[current_tuple]['isAbout']['url'] = search_result[search_result[selection]]['preferred_url']
-            source_variable_annotations[current_tuple]['isAbout']['label'] = search_result[search_result[selection]]['label']
+            source_variable_annotations[current_tuple]['isAbout'] = []
+            source_variable_annotations[current_tuple]['isAbout'].append({'@id':
+                    search_result[search_result[selection]]['preferred_url'],'label':
+                    search_result[search_result[selection]]['label']})
             print("\nConcept annotation added for source variable: %s" %source_variable)
             go_loop = False
 
