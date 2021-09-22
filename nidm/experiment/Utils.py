@@ -76,6 +76,8 @@ else:
     print("ERROR: Interlex mode can only be 'test' or 'production'")
     exit(1)
 
+
+
 def safe_string(string):
         return string.strip().replace(" ","_").replace("-", "_").replace(",", "_").replace("(", "_").replace(")","_")\
             .replace("'","_").replace("/", "_").replace("#","num")
@@ -2015,8 +2017,8 @@ def addGitAnnexSources(obj, bids_root, filepath = None):
 
         return len(sources)
     except Exception as e:
-        if "No annex found at" not in str(e):
-            print("Warning, error with AnnexRepo (Utils.py, addGitAnnexSources): %s" %str(e))
+        #if "No annex found at" not in str(e):
+        #    print("Warning, error with AnnexRepo (Utils.py, addGitAnnexSources): %s" %str(e))
         return 0
 
 
