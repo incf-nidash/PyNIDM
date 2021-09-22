@@ -1064,7 +1064,6 @@ def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_
 
         # set up a dictionary entry for this column
         current_tuple = str(DD(source=assessment_name, variable=column))
-        column_to_terms[current_tuple] = {}
 
         # if we loaded a json file with existing mappings
         try:
@@ -1077,12 +1076,12 @@ def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_
             except Exception as e:
                 if "list index out of range" in str(e):
                     json_key = [key for key in json_map if column.lstrip().rstrip() == key]
-                    #for key in json_map:
-                    #    print("%s == %s?" %(key,column.lstrip().rstrip()))
+
 
             finally:
 
                 if (json_map is not None) and (len(json_key)>0):
+                    column_to_terms[current_tuple] = {}
 
                     # added in case for some reason there isn't a label key, try source_variable and if it's
                     # a key then add this as the label as well.
@@ -1298,7 +1297,7 @@ def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_
                             json_map[json_key[0]]['hasUnit']
                         print("unitCode: %s" % column_to_terms[current_tuple]['responseOptions']['unitCode'])
 
-
+                    print("***************************************************************************************")
                     print("---------------------------------------------------------------------------------------")
 
             if (json_map is not None) and (len(json_key)>0):
@@ -1323,10 +1322,12 @@ def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_
             column_to_terms[subjid_tuple]['label'] = search_term
             column_to_terms[subjid_tuple]['description'] = "subject/participant identifier"
             column_to_terms[subjid_tuple]['source_variable'] = str(search_term)
-            column_to_terms[subjid_tuple]['valueType'] = URIRef(Constants.XSD["string"])
-            column_to_terms[subjid_tuple]['isAbout'] = {}
-            column_to_terms[subjid_tuple]['isAbout']['@id'] = Constants.NIDM_SUBJECTID.uri
-            column_to_terms[subjid_tuple]['isAbout']['label'] = Constants.NIDM_SUBJECTID.localpart
+            # added to support reproschema format
+            column_to_terms[subjid_tuple]['responseOptions'] = {}
+            column_to_terms[subjid_tuple]['responseOptions']['valueType'] = URIRef(Constants.XSD["string"])
+            column_to_terms[subjid_tuple]['isAbout'] = []
+            column_to_terms[subjid_tuple]['isAbout'].append({'@id':Constants.NIDM_SUBJECTID.uri,
+                        'label':Constants.NIDM_SUBJECTID.localpart})
             # column_to_terms[subjid_tuple]['variable'] = str(column)
 
             print("Variable %s automatically mapped to participant/subject identifier" %search_term)
@@ -1338,6 +1339,9 @@ def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_
             continue
         # if we haven't already found an annotation for this column then have user create one.
         if current_tuple not in column_to_terms.keys():
+            # create empty annotation structure for this source variable
+            column_to_terms[current_tuple] = {}
+            # enter user interaction function to get data dictionary annotations from user
             annotate_data_element(column, current_tuple, column_to_terms)
         # then ask user to find a concept if they selected to do so
         if associate_concepts:
@@ -1403,10 +1407,23 @@ def write_json_mapping_file(source_variable_annotations, output_file, bids=False
     if bids:
         # convert to simple keys
         temp_dict = tupleKeysToSimpleKeys(source_variable_annotations)
+
+        new_dict = {}
+        # remove 'responseOptions' and move 'choices' to 'levels' key
+        for key,value in temp_dict.items():
+            new_dict[key] = {}
+            for subkey,subvalue in temp_dict[key].items():
+                if subkey == 'responseOptions':
+                    for subkey2,subvalue2 in temp_dict[key]['responseOptions'].items():
+                        new_dict[key][subkey2] = subvalue2
+                else:
+                    new_dict[key][subkey] = subvalue
+
+
         # write
         with open(os.path.join(os.path.dirname(output_file), os.path.splitext(output_file)[0] + ".json"), 'w+') \
                     as fp:
-            json.dump(temp_dict, fp,indent=4)
+            json.dump(new_dict, fp,indent=4)
     else:
 
         # logging.info("saving json mapping file: %s" %os.path.join(os.path.basename(output_file), \
@@ -1747,35 +1764,46 @@ def annotate_data_element(source_variable, current_tuple, source_variable_annota
         term_min = input("Please enter the minimum value [NA]:\t")
         term_max = input("Please enter the maximum value [NA]:\t")
         term_units = input("Please enter the units [NA]:\t")
+        # check if responseOptions is a key, if not create it
+        if 'responseOptions' not in source_variable_annotations[current_tuple].keys():
+            source_variable_annotations[current_tuple]['responseOptions'] = {}
         # if user set any of these then store else ignore
-
-        source_variable_annotations[current_tuple]['hasUnit'] = term_units
-        source_variable_annotations[current_tuple]['minValue'] = term_min
-        source_variable_annotations[current_tuple]['maxValue'] = term_max
+        source_variable_annotations[current_tuple]['responseOptions']['unitCode'] = term_units
+        source_variable_annotations[current_tuple]['responseOptions']['minValue'] = term_min
+        source_variable_annotations[current_tuple]['responseOptions']['maxValue'] = term_max
 
     # if the categorical data has numeric values then we can infer a min/max
     elif cat_value in ['Y', 'y', 'YES', 'yes', 'Yes']:
-        source_variable_annotations[current_tuple]['minValue'] = min(term_category.values())
-        source_variable_annotations[current_tuple]['maxValue'] = max(term_category.values())
-        source_variable_annotations[current_tuple]['hasUnit'] = 'NA'
+        # check if responseOptions is a key, if not create it
+        if 'responseOptions' not in source_variable_annotations[current_tuple].keys():
+            source_variable_annotations[current_tuple]['responseOptions'] = {}
+        source_variable_annotations[current_tuple]['responseOptions']['minValue'] = min(term_category.values())
+        source_variable_annotations[current_tuple]['responseOptions']['maxValue'] = max(term_category.values())
+        source_variable_annotations[current_tuple]['responseOptions']['unitCode'] = 'NA'
     # categorical with no min/max values
     else:
-        source_variable_annotations[current_tuple]['minValue'] = 'NA'
-        source_variable_annotations[current_tuple]['maxValue'] = 'NA'
-        source_variable_annotations[current_tuple]['hasUnit'] = 'NA'
+        # check if responseOptions is a key, if not create it
+        if 'responseOptions' not in source_variable_annotations[current_tuple].keys():
+            source_variable_annotations[current_tuple]['responseOptions'] = {}
+        source_variable_annotations[current_tuple]['responseOptions']['minValue'] = 'NA'
+        source_variable_annotations[current_tuple]['responseOptions']['maxValue'] = 'NA'
+        source_variable_annotations[current_tuple]['responseOptions']['unitCode'] = 'NA'
 
     # set term variable name as column from CSV file we're currently interrogating
     term_variable_name = source_variable
 
     # store term info in dictionary
+    # check if responseOptions is a key, if not create it
+    if 'responseOptions' not in source_variable_annotations[current_tuple].keys():
+        source_variable_annotations[current_tuple]['responseOptions'] = {}
     source_variable_annotations[current_tuple]['label'] = term_label
     source_variable_annotations[current_tuple]['description'] = term_definition
     source_variable_annotations[current_tuple]['source_variable'] = str(source_variable)
-    source_variable_annotations[current_tuple]['valueType'] = term_datatype
+    source_variable_annotations[current_tuple]['responseOptions']['valueType'] = term_datatype
     source_variable_annotations[current_tuple]['associatedWith'] = "NIDM"
 
     if term_datatype == URIRef(Constants.XSD["complexType"]):
-        source_variable_annotations[current_tuple]['levels'] = term_category
+        source_variable_annotations[current_tuple]['responseOptions']['choices'] = term_category
 
     # print mappings
     print("\n*************************************************************************************")
@@ -1783,15 +1811,18 @@ def annotate_data_element(source_variable, current_tuple, source_variable_annota
     print("label: %s" % source_variable_annotations[current_tuple]['label'])
     print("source variable: %s" % source_variable_annotations[current_tuple]['source_variable'])
     print("description: %s" % source_variable_annotations[current_tuple]['description'])
-    print("valueType: %s" % source_variable_annotations[current_tuple]['valueType'])
+    print("valueType: %s" % source_variable_annotations[current_tuple]['responseOptions']['valueType'])
+    # left for legacy purposes
     if 'hasUnit' in source_variable_annotations[current_tuple]:
         print("hasUnit: %s" % source_variable_annotations[current_tuple]['hasUnit'])
-    if 'minValue' in source_variable_annotations[current_tuple]:
-        print("minimumValue: %s" % source_variable_annotations[current_tuple]['minValue'])
-    if 'maxValue' in source_variable_annotations[current_tuple]:
-        print("maximumValue: %s" % source_variable_annotations[current_tuple]['maxValue'])
-    if term_datatype == 'cat':
-        print("levels: %s" % source_variable_annotations[current_tuple]['levels'])
+    elif 'unitCode' in source_variable_annotations[current_tuple]['responseOptions']:
+        print("hasUnit: %s" % source_variable_annotations[current_tuple]['responseOptions']['unitCode'])
+    if 'minValue' in source_variable_annotations[current_tuple]['responseOptions']:
+        print("minimumValue: %s" % source_variable_annotations[current_tuple]['responseOptions']['minValue'])
+    if 'maxValue' in source_variable_annotations[current_tuple]['responseOptions']:
+        print("maximumValue: %s" % source_variable_annotations[current_tuple]['responseOptions']['maxValue'])
+    if term_datatype == URIRef(Constants.XSD["complexType"]):
+        print("choices: %s" % source_variable_annotations[current_tuple]['responseOptions']['choices'])
     print("---------------------------------------------------------------------------------------")
 
 def DD_UUID (element,dd_struct,dataset_identifier=None):
@@ -1819,12 +1850,15 @@ def DD_UUID (element,dd_struct,dataset_identifier=None):
     for key, value in dd_struct[str(key_tuple)].items():
         if key == 'label':
             property_string = property_string + str(value)
-        if (key == 'levels') or (key == 'Levels'):
-            property_string = property_string + str(value)
-        if key == 'valueType':
-            property_string = property_string + str(value)
-        if key == 'hasUnit':
-            property_string = property_string + str(value)
+        # added to support 'reponseOptions' reproschema format
+        if (key == 'responseOptions'):
+            for subkey,subvalue in dd_struct[str(key_tuple)]['responseOptions'].items():
+                if (subkey == 'levels') or (subkey == 'Levels') or (subkey == 'choices'):
+                    property_string = property_string + str(subvalue)
+                if subkey == 'valueType':
+                    property_string = property_string + str(subvalue)
+                if (subkey == 'hasUnit') or (subkey == 'unitCode'):
+                    property_string = property_string + str(subvalue)
         if key == 'source_variable':
             variable_name = value
 
