@@ -1,6 +1,6 @@
 name: PyNIDM Testing
 
-on: [push]
+on: [pull_request]
 
 jobs:
   build:
