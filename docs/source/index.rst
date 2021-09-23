@@ -21,7 +21,7 @@ Indices and tables
 * :ref:`search`
 
 
-|Build Status| |Docs|
+|PyNIDM Testing| |Docs|
 
 .. contents::
 .. section-numbering::
@@ -160,9 +160,9 @@ name then / put them in the same place as the input file.
                                   exported as JSONLD  [required]
     --help                          Show this message and exit.
 
-.. |Build Status| image:: https://travis-ci.org/incf-nidash/PyNIDM.svg?branch=master
-    :target: https://travis-ci.org/incf-nidash/PyNIDM
-    :alt: Build status of the master branch
+.. |PyNIDM Testing| image:: https://github.com/incf-nidash/PyNIDM/actions/workflows/pythontest.yml/badge.svg
+   :target: https://github.com/incf-nidash/PyNIDM/actions/workflows/pythontest.yml
+   :alt: Status of PyNIDM Testing
 .. |Docs| image:: https://readthedocs.org/projects/pynidm/badge/?version=latest&style=plastic
     :target: https://pynidm.readthedocs.io/en/latest/
     :alt: ReadTheDocs Documentation of master branch
@@ -256,7 +256,7 @@ Options:
   --help                          Show this message and exit.
 
 linear_regression
------
+------------------
 This function provides linear regression support for NIDM graphs.
 
 .. code-block:: bash
@@ -299,6 +299,8 @@ pynidm query -nl /simple2_NIDM_examples/datasets.datalad.org/abide/RawDataBIDS/C
 The query looks in the two files specified in the -nl parameter for the variables specified. In this case, we use fs_000008 and DX_GROUP (source variables), a URL (http://uri.interlex.org/ilx_0100400), and a data element (PIQ_tca9ck). The output of the file is slightly different depending on whether you use -gf or -u. With -gf, it will return the variables from both files separately, while -u combines them.
 
 For -gf, the file output is:
+
+``
 subject                               label                                    value  unit    isAbout
 ------------------------------------  ----------------------------  ----------------  ------  ----------------------------------------
 ea9510e8-1561-11eb-b5e0-1094bbf2086c  PIQ                              104                    http://uri.interlex.org/base/ilx_0739363
@@ -357,6 +359,7 @@ e6944dba-1561-11eb-b5e0-1094bbf2086c  diagnostic group                   1      
 e6944dba-1561-11eb-b5e0-1094bbf2086c  age at scan                       24            years   http://uri.interlex.org/ilx_0100400
 e6944dba-1561-11eb-b5e0-1094bbf2086c  PIQ                               92                    http://uri.interlex.org/base/ilx_0739363
 e6944dba-1561-11eb-b5e0-1094bbf2086c  Supratentorial volume (mm^3)       1.12088e+06  mm^3
+
 subject                               label                                    value  unit    isAbout
 ------------------------------------  ----------------------------  ----------------  ------  ----------------------------------------
 f6653854-1566-11eb-94fa-1094bbf2086c  age at scan                       30            years   http://uri.interlex.org/ilx_0100400
@@ -524,6 +527,7 @@ b3072a82-1566-11eb-94fa-1094bbf2086c  diagnostic group                   1      
 b3072a82-1566-11eb-94fa-1094bbf2086c  age at scan                       27            years   http://uri.interlex.org/ilx_0100400
 b3072a82-1566-11eb-94fa-1094bbf2086c  PIQ                              111                    http://uri.interlex.org/base/ilx_0739363
 
+``
 
 Now that we have selected the variables, we can perform a linear regression. In this example, we will look at the effect of DX_GROUP, age at scan, and PIQ on supratentorial brain volume.
 
@@ -532,6 +536,7 @@ pynidm linear-regression -nl /simple2_NIDM_examples/datasets.datalad.org/abide/R
 
 What the model says is that we want to do a linear regression using data from CMU_a's .ttl file and CMU_B's .ttl file. The variables in question are fs_000008 (the dependent variable, supratentorial brain volume), DX_GROUP (diagnostic group), PIQ_tca9ck (PIQ), and http://uri.interlex.org/ilx_0100400 (age at scan). We will contrast the data using DX_GROUP, and then do a L1 regularization to prevent overfitting. The results are as follows:
 
+``
 ***********************************************************************************************************
 Your command was: pynidm linear-regression -nl /simple2_NIDM_examples/datasets.datalad.org/abide/RawDataBIDS/CMU_a/nidm.ttl,/simple2_NIDM_examples/datasets.datalad.org/abide/RawDataBIDS/CMU_b/nidm.ttl -model "fs_000008 = DX_GROUP + PIQ_tca9ck + http://uri.interlex.org/ilx_0100400" -contrast "DX_GROUP" -r L1
     ilx_0100400  PIQ_tca9ck  DX_GROUP  fs_000008
@@ -741,13 +746,9 @@ Intercept: 8.877996
 The first thing the command prints is the inputted command in order to help the user make sure the command was the command intended. Afterwards, it prints, the dataframe, or the data it collected from both files. After that, it prints the different contrasts from the fitted model. Using that contrast, a user is able to look at the P>|t| column and see which variables have the greatest correlation. Finally, the regularization shows the likely coefficients and the independent variables that have the most impact on the data. It seems the age variable affects supranatorial brain volume most, which is a correlation that might be testable in the future. 
 ###########################################
 
-
+``
 
 Details on the REST API URI format and usage can be found on the :ref:`REST API usage<rest>` page.
-
-.. |Build Status| image:: https://travis-ci.org/incf-nidash/PyNIDM.svg?branch=master
-    :target: https://travis-ci.org/incf-nidash/PyNIDM
-    :alt: Build status of the master branch
 
 
 
