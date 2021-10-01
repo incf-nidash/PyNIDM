@@ -58,6 +58,18 @@ macOS
 
 You can try to run a test: `pytest`
 
+Contributing to the Software
+=============================
+This software is open source and community developed.  As such, we encourage anyone and everyone intersted in semantic web and neuroimaging to contribute.  To begin contributing code to the repository, please fork the main repo into your user space and use the pull request GitHub feature to submit code for review.  Please provide a reasonably detailed description of what was changed and why in the pull request.
+
+Reporting Issues or Problems
+============================
+If you encounter a bug, you can directly report it in the issues section. Please describe how to reproduce the issue and include as much information as possible that can be helpful for fixing it. If you would like to suggest a fix, please open a new pull request or include your suggested fix in the issue.
+
+Support and Feedback
+====================
+We would love to hear your thoughts on our Python toolbox. Feedback, questions, or feature requests can also be submitted as issues. Note, we are a small band of researchers who mostly volunteer our time to this project.  We will respond as quickly as possible.
+
 NIDM-Experiment Tools
 =====================
 
