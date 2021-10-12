@@ -4,11 +4,11 @@
 # *******************************************************************************************************
 # *******************************************************************************************************
 #  nidm_linreg.py
-#  License:Apache License, Version 2.0 
+#  License: Apache License, Version 2.0
 # *******************************************************************************************************
 # *******************************************************************************************************
-# Date: 5-19-21                 Coded by: Ashmita Kumar (ashmita.kumar@gmail.com)
-# Filename: regularized_nidm_linreg.py
+# Date: 10-09-21                 Coded by: Ashmita Kumar (ashmita.kumar@gmail.com)
+# Filename: nidm_linreg.py
 #
 # Program description:  This program provides a tool to complete a linear regression on nidm files
 #
@@ -85,7 +85,6 @@ except:
     from patsy.contrasts import Diff
     from patsy.contrasts import Helmert
 
-
 MAX_ALPHA = 700
 #Defining the parameters of the commands.
 @cli.command()
@@ -123,8 +122,6 @@ def linear_regression(nidm_file_list, output_file, ml, ctr, regularization):
     contrasting() #performs contrast
     regularizing() #performs regularization
 
-
-
 def data_aggregation(): #all data from all the files is collected
     """
             This function provides query support for NIDM graphs.
@@ -138,7 +135,7 @@ def data_aggregation(): #all data from all the files is collected
         if c:
             command = command + "-contrast \"" + c + "\" "
         if r:
-            command = command + "-r " + r
+            command = command + "-r " + r + " "
         print("Your command was: " + command)
         if (o is not None):
             f = open(o, "w")
@@ -364,7 +361,15 @@ def dataparsing(): #The data is changed to a format that is usable by the linear
     if(len(condensed_data)-1)<20:
         print("\nYour data set has less than 20 points, which means the model calculated may not be accurate due to a lack of data. ")
         print("This means you cannot regularize the data either.")
+        import warnings
+        warnings.filterwarnings("ignore")
         answer = input("Continue anyways? Y or N: ")
+        if (o is not None):
+            f = open(o, "a")
+            f.write("Your model was " + m)
+            f.write(
+                "\n\nThere was a lack of data (<20 points) in your model, which may result in inaccuracies. In addition, a regularization cannot and will not be performed.\n")
+            f.close()
     if "n" in answer.lower():
         print("\nModel halted.")
         if (o is not None):
@@ -373,11 +378,6 @@ def dataparsing(): #The data is changed to a format that is usable by the linear
             f.write("Due to a lack of data (<20 points), you stopped the model because the results may have been innacurate.")
             f.close()
         exit(1)
-    if (o is not None):
-        f = open(o, "a")
-        f.write("Your model was " + m)
-        f.write("\n\nThere was a lack of data (<20 points) in your model, which may result in inaccuracies. In addition, a regularization cannot and will not be performed.")
-        f.close()
     x = pd.read_csv(opencsv(condensed_data))  # changes the dataframe to a csv to make it easier to work with
     x.head()  # prints what the csv looks like
     x.dtypes  # checks data format
@@ -480,16 +480,16 @@ def linreg(): #actual linear regression
         print(finalstats.summary())
         if (o is not None):
             # concatenate data frames
-            #f = open(o,"a")
-            sys.stdout = open(o,"a")
+            """f = open(o,"a")
+            f.write(full_model)
+            f.write("\n*************************************************************************************\n")
+            f.write(finalstats.summary())
+            f.close()"""
+            sys.stdout = open(o, "a")
             print(full_model)
             print("\n*************************************************************************************\n")
             print(finalstats.summary())
             sys.stdout.close()
-            #f.write(full_model)
-            #f.write("\n*************************************************************************************\n")
-            #f.write(finalstats.summary())
-            #f.close()
         return finalstats
 def contrasting():
     global c
@@ -499,16 +499,16 @@ def contrasting():
         if "," in c:
             contrastvars = c.split(",")
         for i in range(len(contrastvars)):
+            contrastvars[i] = contrastvars[i].strip()
             if " " in contrastvars[i]:
                 contrastvars[i]=contrastvars[i].replace(" ","_")
             if "/" in contrastvars[i]: #to account for URLs
                 splitted = contrastvars[i].split("/")
                 contrastvars[i] = splitted[len(splitted) - 1]
-            contrastvars[i] = contrastvars[i].strip()
         else:
             splitted = c.split("/") #to account for URLs
             c = splitted[len(splitted) - 1]
-        contrastvars.append(c)
+
         ind_vars_no_contrast_var = ''
         index = 1
         for i in range(len(full_model_variable_list)):
@@ -648,16 +648,19 @@ def regularizing():
             f.write("\nAlpha with maximum likelihood (range: 1 to %d) = %f" %(MAX_ALPHA, max_cross_val_alpha))
             f.write("\nCurrent Model Score = %f" %(lassoModelChosen.score(X, y)))
             f.write("\n\nCoefficients:")
+            f.close()
         for var in full_model_variable_list:
             print("%s \t %f" %(var,lassoModelChosen.coef_[index]))
             if (o is not None):
                 with open(o, "a") as f:
                     f.write("\n%s \t %f" %(var, lassoModelChosen.coef_[index]))
+                f.close()
             index = index + 1
         print("Intercept: %f" %(lassoModelChosen.intercept_))
         if (o is not None):
             with open(o, "a") as f:
                 f.write("\nIntercept: %f" %(lassoModelChosen.intercept_))
+                f.close()
         print()
 
     if (r== ("L2" or "Ridge" or "l2" or "Ridge") and not("y" in answer.lower())): #does it say L2, and has the user chosen to go ahead with running the code?
@@ -695,6 +698,7 @@ def regularizing():
             f.write("\nAlpha with maximum likelihood (range: 1 to %d) = %f" %(MAX_ALPHA, max_cross_val_alpha))
             f.write("\nCurrent Model Score = %f" %(ridgeModelChosen.score(X, y)))
             f.write("\n\nCoefficients:")
+            f.close()
         print("\nCoefficients:")
         if numpy_conversion:
             coeff_list = ridgeModelChosen.coef_[index].tolist()
@@ -709,6 +713,7 @@ def regularizing():
             if (o is not None):
                 with open(o, "a") as f:
                     f.write("\nIntercept: %f" % (ridgeModelChosen.intercept_))
+                f.close()
             print()
         else:
             for var in full_model_variable_list:
@@ -721,6 +726,7 @@ def regularizing():
             if (o is not None):
                 with open(o, "a") as f:
                     f.write("\nIntercept: %f" % (ridgeModelChosen.intercept_))
+                f.close()
             print()
 def opencsv(data):
     """saves a list of lists as a csv and opens"""
