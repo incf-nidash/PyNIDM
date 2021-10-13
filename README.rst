@@ -304,8 +304,7 @@ pynidm linear-regression -nl /simple2_NIDM_examples/datasets.datalad.org/abide/R
 
 -nl specifies the file(s) to pull data from, while -model is the model to perform a linear regression model on. In this case, the variables are fs_000008 (the dependent variable, supratentorial brain volume), DX_GROUP (diagnostic group), PIQ_tca9ck (PIQ), and http://uri.interlex.org/ilx_0100400 (age at scan). The -contrast paramter says to contrast the data using DX_GROUP, and then do a L1 regularization to prevent overfitting. 
 
-Details on the REST API URI format and usage can be found on the :ref:`REST API usage<rest>` page.
-.. _rest:
+Details on the REST API URI format and usage can be found below.
 
 PyNIDM: REST API and Command Line Usage
 ##########################################
