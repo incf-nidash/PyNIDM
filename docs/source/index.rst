@@ -36,8 +36,8 @@ Dependencies
 * Datalad (optional): `pip install datalad`
 * Git-Annex (optional): <https://git-annex.branchable.com/>
 
-PyPi
-======
+Installation
+============
 
 .. code-block:: bash
 
