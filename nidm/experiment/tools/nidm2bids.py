@@ -37,7 +37,7 @@
 import sys, getopt, os
 from os.path import join, isfile, basename, isdir,splitext
 from os import mkdir
-
+from os import system
 
 from nidm.experiment import Project,Session,Acquisition,AcquisitionObject,DemographicsObject,AssessmentObject, MRObject
 from nidm.core import BIDS_Constants,Constants
@@ -58,6 +58,49 @@ import urllib.parse
 from shutil import copyfile, move
 import urllib.request as ur
 import tempfile
+import datalad.api as dl
+
+def GetImageFromAWS(location, output_file):
+    '''
+    This function will attempt to get a BIDS image identified by location from AWS S3.  It only
+    supports known URLs at this time (e.g. openneuro)
+    :param location: path string to file. This can be a local path. Function will try and detect if this
+    is a known project/archive and if so will format theh S3 string appropriately.  Otherwise it will return None
+    :param output_file: This is the full path and filename to store the S3 downloaded file if successful
+    :return: None if file not downloaded else will return True
+    '''
+
+    print("Trying AWS S3 for dataset: %s" % location)
+    # modify location to remove everything before the dataset name
+    # problem is we don't know the dataset identifier inside the path string because
+    # it doesn't have any constraints.  For openneuro datasets they start with "ds" so
+    # we could pick that out but for others it's difficult (impossible)?
+
+    # case for openneuro
+    if 'openneuro' in location:
+        # remove everything from location string before openneuro
+        openneuro_loc = location[location.find("openneuro/") + 10:]
+        # get a temporary directory for this file
+        temp_dir = tempfile.TemporaryDirectory()
+        # aws command
+        cmd = "aws s3 cp --no-sign-request " + "s3://openneuro.org/" + openneuro_loc + " " + temp_dir.name
+        # execute command
+        print(cmd)
+        system(cmd)
+        # check if aws command downloaded something
+        if not isfile(join(temp_dir.name, basename(location))):
+            print("Couldn't get dataset from AWS either...")
+            return None
+        else:
+            try:
+                # copy file from temp_dir to bids dataset
+                print("Copying temporary file to final location....")
+                copyfile(join(temp_dir.name, basename(location)),output_file)
+                return True
+            except:
+                print("Couldn't get dataset from AWS either...")
+                return None
+
 
 def GetImageFromURL(url):
     '''
@@ -225,6 +268,83 @@ def NIDMProject2BIDSDatasetDescriptor(nidm_graph,output_directory):
 
     ##############################################################################
 
+def ProcessFiles(graph,scan_type,output_directory,project_location,args):
+    '''
+    This function will essentially cycle through the acquisition objects in the NIDM file loaded into graph
+    and depending on the scan_type will try and copy the image to the output_directory
+    '''
+
+    if scan_type == Constants.NIDM_MRI_DWI_SCAN.uri:
+        bids_ext = 'dwi'
+    elif scan_type == Constants.NIDM_MRI_ANATOMIC_SCAN.uri:
+        bids_ext = 'anat'
+    elif scan_type == Constants.NIDM_MRI_FUNCTION_SCAN.uri:
+        bids_ext = 'func'
+
+    # query NIDM document for acquisition entity "subjects" with predicate nidm:hasImageUsageType and object nidm:Functional
+    for acq in graph.subjects(predicate=URIRef(Constants.NIDM_IMAGE_USAGE_TYPE.uri),
+                                             object=URIRef(scan_type)):
+        # first see if file exists locally.  Get nidm:Project prov:Location and append the nfo:Filename of the image
+        # from the acq acquisition entity.  If that file doesn't exist try the prov:Location in the func acq
+        # entity and see if we can download it from the cloud
+
+        # get acquisition uuid from entity uuid
+        temp = graph.objects(subject=acq, predicate=Constants.PROV['wasGeneratedBy'])
+        for item in temp:
+            activity = item
+        # get participant ID with sio:Subject role in anat_acq qualified association
+        part_id = GetParticipantIDFromAcquisition(nidm_file_list=[args.rdf_file], acquisition=activity)
+
+        # make BIDS sub directory
+        if 'sub' in (part_id['ID'].values)[0]:
+            sub_dir = join(output_directory, (part_id['ID'].values)[0])
+        else:
+            sub_dir = join(output_directory, "sub-" + (part_id['ID'].values)[0])
+        sub_filename_base = "sub-" + (part_id['ID'].values)[0]
+        if not os.path.exists(sub_dir):
+            os.makedirs(sub_dir)
+
+        # make BIDS anat directory
+        if not os.path.exists(join(sub_dir, bids_ext)):
+            os.makedirs(join(sub_dir, bids_ext))
+
+        for filename in graph.objects(subject=acq,predicate=URIRef(Constants.NIDM_FILENAME.uri)):
+            # check if file exists
+            for location in project_location:
+                # if anatomical MRI exists in this location then copy and rename
+                if isfile((location[0] + filename).lstrip("file:")):
+                    # copy and rename file to be BIDS compliant
+                    copyfile((location[0] + filename).lstrip("file:"),
+                             join(sub_dir, bids_ext, sub_filename_base + splitext(filename)[1]))
+                    continue
+            # if the file wasn't accessible locally, try with the prov:Location in the acq
+            for location in graph.objects(subject=acq,predicate=URIRef(Constants.PROV['Location'])):
+                # try to download the file and rename
+                ret = GetImageFromURL(location)
+                if ret == -1:
+                    print("ERROR! Can't download file: %s from url: %s, trying to copy locally...." % (
+                    filename, location))
+                    if "file" in location:
+                        location = str(location).lstrip("file:")
+                        print("Trying to copy file from %s" % (location))
+                        try:
+                            copyfile(location, join(output_directory, sub_dir, bids_ext, basename(filename)))
+                        except:
+                            print("ERROR! Failed to find file %s on filesystem..." % location)
+                            if not args.no_downloads:
+                                try:
+                                    print(
+                                        "Running datalad get command on dataset: %s" % location)
+                                    dl.Dataset(os.path.dirname(location)).get(recursive=True, jobs=1)
+
+                                except:
+                                    print("ERROR! Datalad returned error: %s for dataset %s." % (
+                                    sys.exc_info()[0], location))
+                                    GetImageFromAWS(location=location, output_file=
+                                    join(output_directory, sub_dir, bids_ext, basename(filename)))
+                else:
+                    # copy temporary file to BIDS directory
+                    copyfile(ret, join(output_directory, sub_dir, bids_ext, basename(filename)))
 
 def main(argv):
     parser = ArgumentParser(description='This program will convert a NIDM-Experiment RDF document \
@@ -242,6 +362,9 @@ def main(argv):
     parser.add_argument('-func', dest='func', action='store_true', required=False, help="Include flag to add functional scans + events files to BIDS dataset")
     parser.add_argument('-dwi', dest='dwi', action='store_true', required=False, help="Include flag to add DWI scans + Bval/Bvec files to BIDS dataset")
     parser.add_argument('-bids_dir', dest='bids_dir', required=True, help="Directory to store BIDS dataset")
+    parser.add_argument('-no_downloads',dest='no_downloads', action='store_true',required=False, help=
+                        "If this flag is set then script won't attempt to download images using datalad"
+                        "and AWS S3.  Default behavior is files are downloaded if they don't exist locally.")
     args = parser.parse_args()
 
     rdf_file = args.rdf_file
@@ -256,14 +379,14 @@ def main(argv):
     format_found=False
     for format in 'turtle','xml','n3','trix','rdfa':
         try:
-            print("reading RDF file as %s..." % format)
+            print("Reading RDF file as %s..." % format)
             #load NIDM graph into NIDM-Exp API objects
             nidm_project = read_nidm(rdf_file)
             print("RDF file sucessfully read")
             format_found=True
             break
         except Exception:
-            print("file: %s appears to be an invalid %s RDF file" % (rdf_file,format))
+            print("File: %s appears to be an invalid %s RDF file" % (rdf_file,format))
 
     if not format_found:
         print("File doesn't appear to be a valid RDF format supported by Python RDFLib!  Please check input file")
@@ -301,96 +424,15 @@ def main(argv):
 
     #creating BIDS hierarchy with requested scans
     if args.anat==True:
-
-
-        #query NIDM document for acquisition entity "subjects" with predicate nidm:hasImageUsageType and object nidm:Anatomical
-        for anat_acq in rdf_graph_parse.subjects(predicate=URIRef(Constants.NIDM_IMAGE_USAGE_TYPE.uri),object=URIRef(Constants.NIDM_MRI_ANATOMIC_SCAN.uri)):
-            # first see if file exists locally.  Get nidm:Project prov:Location and append the nfo:Filename of the image
-            # from the anat_acq acquisition entity.  If that file doesn't exist try the prov:Location in the anat acq
-            # entity and see if we can download it from the cloud
-
-            # get acquisition uuid from entity uuid
-            temp = rdf_graph_parse.objects(subject=anat_acq, predicate=Constants.PROV['wasGeneratedBy'])
-            for item in temp:
-                anat_activity=item
-            # get participant ID with sio:Subject role in anat_acq qualified association
-            part_id = GetParticipantIDFromAcquisition(nidm_file_list = [rdf_file], acquisition= anat_activity)
-
-            # make BIDS sub directory
-            sub_dir = join(output_directory, "sub-" + (part_id['ID'].values)[0])
-            sub_filename_base = "sub-" + (part_id['ID'].values)[0]
-            if not os.path.exists(sub_dir):
-                os.makedirs(sub_dir)
-
-            # make BIDS anat directory
-            if not os.path.exists(join(sub_dir, "anat")):
-                os.makedirs(join(sub_dir, "anat"))
-
-            for anat_filename in rdf_graph_parse.objects(subject=anat_acq,predicate=URIRef(Constants.NIDM_FILENAME.uri)):
-                # check if file exists
-                for location in project_location:
-                    # if anatomical MRI exists in this location then copy and rename
-                    if isfile((location[0]+anat_filename).lstrip("file:")):
-                        # copy and rename file to be BIDS compliant
-                        copyfile((location[0]+anat_filename).lstrip("file:"), join(sub_dir,"anat",sub_filename_base + splitext(anat_filename)[1]))
-                        continue
-                # if the file wasn't accessible locally, try with the prov:Location in the anat_acq
-                for location in rdf_graph_parse.objects(subject=anat_acq,
-                                                             predicate=URIRef(Constants.PROV['Location'])):
-                    # try to download the file and rename
-                    ret = GetImageFromURL(location)
-                    if ret == -1:
-                        print("Can't download file: %s from url: %s, skipping...." %(anat_filename,location))
-                    else:
-                        # copy temporary file to BIDS directory
-                        copyfile(ret,  join(output_directory,sub_dir,"anat",basename(anat_filename)))
+        ProcessFiles(graph=rdf_graph_parse, scan_type=Constants.NIDM_MRI_ANATOMIC_SCAN.uri,
+                     output_directory=output_directory, project_location=project_location, args=args)
 
     if args.func == True:
-        # query NIDM document for acquisition entity "subjects" with predicate nidm:hasImageUsageType and object nidm:Functional
-        for func_acq in rdf_graph_parse.subjects(predicate=URIRef(Constants.NIDM_IMAGE_USAGE_TYPE.uri),
-                                                 object=URIRef(Constants.NIDM_MRI_FUNCTION_SCAN.uri)):
-            # first see if file exists locally.  Get nidm:Project prov:Location and append the nfo:Filename of the image
-            # from the func_acq acquisition entity.  If that file doesn't exist try the prov:Location in the func acq
-            # entity and see if we can download it from the cloud
-
-            # get acquisition uuid from entity uuid
-            temp = rdf_graph_parse.objects(subject=func_acq, predicate=Constants.PROV['wasGeneratedBy'])
-            for item in temp:
-                func_activity = item
-            # get participant ID with sio:Subject role in anat_acq qualified association
-            part_id = GetParticipantIDFromAcquisition(nidm_file_list=[rdf_file], acquisition=func_activity)
-
-            # make BIDS sub directory
-            sub_dir = join(output_directory, "sub-" + (part_id['ID'].values)[0])
-            sub_filename_base = "sub-" + (part_id['ID'].values)[0]
-            if not os.path.exists(sub_dir):
-                os.makedirs(sub_dir)
-
-            # make BIDS anat directory
-            if not os.path.exists(join(sub_dir, "func")):
-                os.makedirs(join(sub_dir, "func"))
-
-            for func_filename in rdf_graph_parse.objects(subject=func_acq,
-                                                         predicate=URIRef(Constants.NIDM_FILENAME.uri)):
-                # check if file exists
-                for location in project_location:
-                    # if anatomical MRI exists in this location then copy and rename
-                    if isfile((location[0] + func_filename).lstrip("file:")):
-                        # copy and rename file to be BIDS compliant
-                        copyfile((location[0] + func_filename).lstrip("file:"),
-                                 join(sub_dir, "func", sub_filename_base + splitext(func_filename)[1]))
-                        continue
-                # if the file wasn't accessible locally, try with the prov:Location in the func_acq
-                for location in rdf_graph_parse.objects(subject=func_acq,
-                                                        predicate=URIRef(Constants.PROV['Location'])):
-                    # try to download the file and rename
-                    ret = GetImageFromURL(location)
-                    if ret == -1:
-                        print("Can't download file: %s from url: %s, skipping...." % (func_filename, location))
-                    else:
-                        # copy temporary file to BIDS directory
-                        copyfile(ret, join(output_directory, sub_dir, "func", basename(func_filename)))
-
+        ProcessFiles(graph=rdf_graph_parse, scan_type=Constants.NIDM_MRI_FUNCTION_SCAN.uri,
+                     output_directory=output_directory, project_location=project_location, args=args)
+    if args.dwi == True:
+        ProcessFiles(graph=rdf_graph_parse, scan_type = Constants.NIDM_MRI_DWI_SCAN.uri,
+                     output_directory=output_directory, project_location=project_location, args=args)
 
 if __name__ == "__main__":
    main(sys.argv[1:])
