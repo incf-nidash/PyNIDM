@@ -1,7 +1,7 @@
 .. image:: Logo.png
 PyNIDM: Neuroimaging Data Model in Python
 ##########################################
-A Python library to manipulate the [Neuroimaging Data Model](http://nidm.nidash.org). 
+A Python library to manipulate the `Neuroimaging Data Model <http://nidm.nidash.org>`_. 
 
 
 |PyNIDM Testing| |Docs|
@@ -12,12 +12,12 @@ A Python library to manipulate the [Neuroimaging Data Model](http://nidm.nidash.
 
 Dependencies
 ============
-* Git-annex <https://git-annex.branchable.com/install/>
-* Graphviz <http://graphviz.org> (native package):
+* `Git-annex <https://git-annex.branchable.com/install/>`_
+* `Graphviz <http://graphviz.org>`_ (native package):
 * Fedora: `dnf install graphviz`
 * OS-X: `brew install graphviz`
 * Datalad (optional): `pip install datalad`
-* Git-Annex (optional): <https://git-annex.branchable.com/>
+* `Git-Annex <https://git-annex.branchable.com/>`_ (optional): 
 
 Installation
 ============
@@ -61,7 +61,7 @@ NIDM-Experiment Tools
 BIDS MRI Conversion to NIDM
 ---------------------------
 
-This program will convert a BIDS MRI dataset to a NIDM-Experiment RDF document.  It will parse phenotype information and simply store variables/values and link to the associated json data dictionary file.  To use this tool please set your INTERLEX_API_KEY environment variable to your unique API key.  To get an Interlex API key you visit [SciCrunch](http://scicrunch.org/nidm-terms), register for an account, then click on "MyAccount" and "API Keys" to add a new API key for your account.
+This program will convert a BIDS MRI dataset to a NIDM-Experiment RDF document.  It will parse phenotype information and simply store variables/values and link to the associated json data dictionary file.  To use this tool please set your INTERLEX_API_KEY environment variable to your unique API key.  To get an Interlex API key you visit `SciCrunch <http://scicrunch.org/nidm-terms>`_, register for an account, then click on "MyAccount" and "API Keys" to add a new API key for your account.
 
 
 .. code-block:: bash
@@ -101,7 +101,7 @@ This program will load in a CSV file and iterate over the header variable
 names performing an elastic search of https://scicrunch.org/nidm-terms for NIDM-ReproNim
 tagged terms that fuzzy match the variable names. The user will then
 interactively pick a term to associate with the variable name. The resulting
-annotated CSV data will then be written to a NIDM data file.  To use this tool please set your INTERLEX_API_KEY environment variable to your unique API key.  To get an Interlex API key you visit [SciCrunch](http://scicrunch.org/nidm-terms), register for an account, then click on "MyAccount" and "API Keys" to add a new API key for your account.
+annotated CSV data will then be written to a NIDM data file.  To use this tool please set your INTERLEX_API_KEY environment variable to your unique API key.  To get an Interlex API key you visit `SciCrunch <http://scicrunch.org/nidm-terms>`_, register for an account, then click on "MyAccount" and "API Keys" to add a new API key for your account.
 
 
 .. code-block:: bash
