@@ -169,7 +169,7 @@ def read_nidm(nidmDoc):
         for acq in rdf_graph_parse.subjects(predicate=Constants.DCT['isPartOf'],object=s):
             #Split subject URI for session into namespace, uuid
             nm,acq_uuid = split_uri(acq)
-            print("acquisition uuid: %s" %acq_uuid)
+            # print("acquisition uuid: %s" %acq_uuid)
 
             #query for whether this is an AssessmentAcquisition of other Acquisition, etc.
             for rdf_type in  rdf_graph_parse.objects(subject=acq, predicate=RDF.type):

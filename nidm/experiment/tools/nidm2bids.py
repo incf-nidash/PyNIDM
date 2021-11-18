@@ -60,7 +60,7 @@ import urllib.request as ur
 import tempfile
 import datalad.api as dl
 
-def GetImageFromAWS(location, output_file):
+def GetImageFromAWS(location, output_file,args):
     '''
     This function will attempt to get a BIDS image identified by location from AWS S3.  It only
     supports known URLs at this time (e.g. openneuro)
@@ -100,6 +100,35 @@ def GetImageFromAWS(location, output_file):
             except:
                 print("Couldn't get dataset from AWS either...")
                 return None
+    # if user supplied a URL base, add dataset, subject, and file information to it and try to download the image
+    elif args.aws_baseurl:
+        aws_baseurl = args.aws_baseurl
+        # check if user supplied the last '/' in the aws_baseurl or not.  If not, add it.
+        if aws_baseurl[-1] != '/':
+            aws_baseurl = aws_baseurl = '/'
+        # remove everything from location string before openneuro
+        loc = location[location.find(args.dataset_string) + len(args.dataset_string):]
+        # get a temporary directory for this file
+        temp_dir = tempfile.TemporaryDirectory()
+        # aws command
+        cmd = "aws s3 cp --no-sign-request " + aws_baseurl + loc + " " + temp_dir.name
+        # execute command
+        print(cmd)
+        system(cmd)
+        # check if aws command downloaded something
+        if not isfile(join(temp_dir.name, basename(location))):
+            print("Couldn't get dataset from AWS either...")
+            return None
+        else:
+            try:
+                # copy file from temp_dir to bids dataset
+                print("Copying temporary file to final location....")
+                copyfile(join(temp_dir.name, basename(location)), output_file)
+                return True
+            except:
+                print("Couldn't get dataset from AWS either...")
+                return None
+
 
 
 def GetImageFromURL(url):
@@ -145,11 +174,9 @@ def CreateBIDSParticipantFile(nidm_graph,output_file,participant_fields):
     row_index=1
     for subj_uri,subj_id in nidm_graph.subject_objects(predicate=URIRef(Constants.NIDM_SUBJECTID.uri)):
 
-        #create temporary list to append to dataframe
-        #data=[]
         #adding subject ID to data list to append to participants data frame
-        #data.append(str(subj_id))
         participants.loc[row_index,'participant_id',] = subj_id
+
         #for each of the fields in the participants list
         for fields in participant_fields:
             #if field identifier isn't a proper URI then do a fuzzy search on the graph, else an explicit search for the URL
@@ -192,15 +219,13 @@ def CreateBIDSParticipantFile(nidm_graph,output_file,participant_fields):
                             ?pred ?value .
                         FILTER (regex(str(?pred) ,"%s","i" ))
                     }""" % (subj_uri,fields)
-                #print(query)
+                # print(query)
                 qres = nidm_graph.query(query)
 
                 for row in qres:
                     #use last field in URIs for short column name and add full URI to sidecar participants.json file
-                    #url_parts = urllib.parse.urlparse(row[0])
                     url_parts = urllib.parse.urlsplit(row[0],scheme='#')
-                    #path_parts = url_parts[2].rpartition('/')
-                    #short_name = path_parts[2]
+
                     if url_parts.fragment == '':
                         #do some parsing of the path URL because this particular one has no fragments
                         url_parts = urllib.parse.urlparse(row[0])
@@ -274,14 +299,14 @@ def ProcessFiles(graph,scan_type,output_directory,project_location,args):
     and depending on the scan_type will try and copy the image to the output_directory
     '''
 
-    if scan_type == Constants.NIDM_MRI_DWI_SCAN.uri:
+    if scan_type == Constants.NIDM_MRI_DIFFUSION_TENSOR.uri:
         bids_ext = 'dwi'
     elif scan_type == Constants.NIDM_MRI_ANATOMIC_SCAN.uri:
         bids_ext = 'anat'
     elif scan_type == Constants.NIDM_MRI_FUNCTION_SCAN.uri:
         bids_ext = 'func'
 
-    # query NIDM document for acquisition entity "subjects" with predicate nidm:hasImageUsageType and object nidm:Functional
+    # query NIDM document for acquisition entity "subjects" with predicate nidm:hasImageUsageType and object scan_type
     for acq in graph.subjects(predicate=URIRef(Constants.NIDM_IMAGE_USAGE_TYPE.uri),
                                              object=URIRef(scan_type)):
         # first see if file exists locally.  Get nidm:Project prov:Location and append the nfo:Filename of the image
@@ -304,14 +329,14 @@ def ProcessFiles(graph,scan_type,output_directory,project_location,args):
         if not os.path.exists(sub_dir):
             os.makedirs(sub_dir)
 
-        # make BIDS anat directory
+        # make BIDS scan type directory (bids_ext) directory
         if not os.path.exists(join(sub_dir, bids_ext)):
             os.makedirs(join(sub_dir, bids_ext))
 
         for filename in graph.objects(subject=acq,predicate=URIRef(Constants.NIDM_FILENAME.uri)):
             # check if file exists
             for location in project_location:
-                # if anatomical MRI exists in this location then copy and rename
+                # if MRI exists in this location then copy and rename
                 if isfile((location[0] + filename).lstrip("file:")):
                     # copy and rename file to be BIDS compliant
                     copyfile((location[0] + filename).lstrip("file:"),
@@ -341,10 +366,103 @@ def ProcessFiles(graph,scan_type,output_directory,project_location,args):
                                     print("ERROR! Datalad returned error: %s for dataset %s." % (
                                     sys.exc_info()[0], location))
                                     GetImageFromAWS(location=location, output_file=
-                                    join(output_directory, sub_dir, bids_ext, basename(filename)))
+                                        join(output_directory, sub_dir, bids_ext, basename(filename)),args=args)
                 else:
                     # copy temporary file to BIDS directory
                     copyfile(ret, join(output_directory, sub_dir, bids_ext, basename(filename)))
+
+            # if this is a DWI scan then we should copy over the b-value and b-vector files
+            if bids_ext == 'dwi':
+                # search for entity uuid with rdf:type nidm:b-value that was generated by activity
+                query = """
+                    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+                    PREFIX prov: <http://www.w3.org/ns/prov#>
+                    PREFIX nidm: <http://purl.org/nidash/nidm#>
+    
+                    SELECT DISTINCT ?entity
+                        WHERE {
+                            ?entity rdf:type <http://purl.org/nidash/nidm#b-value> ;
+                                prov:wasGeneratedBy <%s> .
+                        }""" % activity
+                # print(query)
+                qres = graph.query(query)
+
+                for row in qres:
+                    bval_entity = str(row[0])
+
+                # if the file wasn't accessible locally, try with the prov:Location in the acq
+                for location in graph.objects(subject=URIRef(bval_entity), predicate=URIRef(Constants.PROV['Location'])):
+                    # try to download the file and rename
+                    ret = GetImageFromURL(location)
+                    if ret == -1:
+                        print("ERROR! Can't download file: %s from url: %s, trying to copy locally...." % (
+                            filename, location))
+                        if "file" in location:
+                            location = str(location).lstrip("file:")
+                            print("Trying to copy file from %s" % (location))
+                            try:
+                                copyfile(location, join(output_directory, sub_dir, bids_ext, basename(location)))
+                            except:
+                                print("ERROR! Failed to find file %s on filesystem..." % location)
+                                if not args.no_downloads:
+                                    try:
+                                        print(
+                                            "Running datalad get command on dataset: %s" % location)
+                                        dl.Dataset(os.path.dirname(location)).get(recursive=True, jobs=1)
+
+                                    except:
+                                        print("ERROR! Datalad returned error: %s for dataset %s." % (
+                                            sys.exc_info()[0], location))
+                                        GetImageFromAWS(location=location, output_file=
+                                            join(output_directory, sub_dir, bids_ext, basename(location)),args=args)
+                # search for entity uuid with rdf:type nidm:b-value that was generated by activity
+                query = """
+                    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+                    PREFIX prov: <http://www.w3.org/ns/prov#>
+                    PREFIX nidm: <http://purl.org/nidash/nidm#>
+
+                    SELECT DISTINCT ?entity
+                        WHERE {
+                            ?entity rdf:type <http://purl.org/nidash/nidm#b-vector> ;
+                                prov:wasGeneratedBy <%s> .
+                        }""" % activity
+                # print(query)
+                qres = graph.query(query)
+
+                for row in qres:
+                    bvec_entity = str(row[0])
+
+                # if the file wasn't accessible locally, try with the prov:Location in the acq
+                for location in graph.objects(subject=URIRef(bvec_entity),
+                                              predicate=URIRef(Constants.PROV['Location'])):
+                    # try to download the file and rename
+                    ret = GetImageFromURL(location)
+                    if ret == -1:
+                        print(
+                            "ERROR! Can't download file: %s from url: %s, trying to copy locally...." % (
+                                filename, location))
+                        if "file" in location:
+                            location = str(location).lstrip("file:")
+                            print("Trying to copy file from %s" % (location))
+                            try:
+                                copyfile(location,
+                                         join(output_directory, sub_dir, bids_ext, basename(location)))
+                            except:
+                                print("ERROR! Failed to find file %s on filesystem..." % location)
+                                if not args.no_downloads:
+                                    try:
+                                        print(
+                                            "Running datalad get command on dataset: %s" % location)
+                                        dl.Dataset(os.path.dirname(location)).get(recursive=True,
+                                                                                  jobs=1)
+
+                                    except:
+                                        print("ERROR! Datalad returned error: %s for dataset %s." % (
+                                            sys.exc_info()[0], location))
+                                        GetImageFromAWS(location=location, output_file=
+                                            join(output_directory, sub_dir, bids_ext, basename(location)),
+                                                        args=args)
+
 
 def main(argv):
     parser = ArgumentParser(description='This program will convert a NIDM-Experiment RDF document \
@@ -362,13 +480,42 @@ def main(argv):
     parser.add_argument('-func', dest='func', action='store_true', required=False, help="Include flag to add functional scans + events files to BIDS dataset")
     parser.add_argument('-dwi', dest='dwi', action='store_true', required=False, help="Include flag to add DWI scans + Bval/Bvec files to BIDS dataset")
     parser.add_argument('-bids_dir', dest='bids_dir', required=True, help="Directory to store BIDS dataset")
-    parser.add_argument('-no_downloads',dest='no_downloads', action='store_true',required=False, help=
+
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument('-no_downloads',dest='no_downloads', action='store_true',required=False, help=
                         "If this flag is set then script won't attempt to download images using datalad"
                         "and AWS S3.  Default behavior is files are downloaded if they don't exist locally.")
+    group.add_argument('-aws_url', dest='aws_url', required=False, help="This tool facilites export of "
+        "user-selected information from a NIDM file to a BIDS dataset and may have to fetch images. The NIDM files contain links from"
+        "the local filesystem used to convert BIDS to NIDM and possibly DataLad dataset links to the files if the"
+        " original BIDS data was a DataLad dataset. Here we support 3 modes of trying to find images: (1) copy from"
+        " the local directory space using the prov:Location information in the NIDM file; (2) fetch the images from"
+        " a DataLad remote if the original BIDS dataset was a DataLad dataset when bids2nidm was run; (3) attempt "
+        " to download the images via a AWS S3 link.  This parameter lets the user set the base AWS S3 URL to try and"
+        " find the images.  Currently it supports using the URL provided here and adding the dataset id, subject id,"
+        " and filename.  For example, in OpenNeuro (OpenNeuro is supported by default but will serve as an example) the base AWS S3"
+        " URL is \'s3://openneuro.org\'. The URL then becomes (for example) "
+        " s3://openneuro.org/ds000002/sub-06/func/sub-06_task-probabilisticclassification_run-02_bold.nii.gz where this tool"
+        " has added \'ds000002/sub-06/[FILENAME] to the base AWS S3 URL.")
+    parser.add_argument('-dataset_string', dest='dataset_string', required=False, help="If -aws_url parameter is supplied"
+        " this parameter (-dataset_string) is required as it will be added to the aws_baseurl to retrieve images for each"
+        " subject and file.  For example, if -aws_baseurl is \'s3://davedata.org \' and -dataset_string is \'dataset1\' then"
+        " the AWS S3 url for sub-1 and file sub1-task-rest_run-1_bold.nii.gz would be: "
+        " \'s3://davedata.org/dataset1/sub-1/[anat | func | dwi/sub1-task-rest_run-1_bold.nii.gz\'")
+
     args = parser.parse_args()
 
+    # check some argument dependencies
+    if args.aws_url and not args.dataset_string:
+        print("ERROR! You must include a -dataset_string if you supplied the -aws_baseurl.  If there is no dataset"
+              " string in your AWS S3 urls then just supply -aws_baseurl with nothing after it.")
+        print(args.print_help())
+        exit(-1)
+
+    # set up some local variables
     rdf_file = args.rdf_file
     output_directory = args.bids_dir
+
     # check if output directory exists, if not create it
     if not isdir(output_directory):
         mkdir(path=output_directory)
@@ -408,19 +555,21 @@ def main(argv):
 
     #use RDFLib here for temporary graph making query easier
     rdf_graph = Graph()
-    rdf_graph_parse = rdf_graph.parse(source=StringIO(nidm_project.serializeTurtle()),format='turtle')
+    rdf_graph_parse = rdf_graph.parse(source=StringIO(nidm_project.serializeTurtle()), format='turtle')
+
+    # temporary write out turtle file for testing
+    # rdf_graph_parse.serialize(destination="/Users/dbkeator/Downloads/ds000117.ttl", format='turtle')
+
 
     #create participants file
-    CreateBIDSParticipantFile(rdf_graph_parse,join(output_directory,"participants"),args.part_fields)
+    CreateBIDSParticipantFile(rdf_graph_parse, join(output_directory, "participants"), args.part_fields)
 
     # get nidm:Project prov:Location
     # first get nidm:Project UUIDs
     project_uuid = GetProjectsUUID([rdf_file], output_file=None)
     project_location = []
     for uuid in project_uuid:
-        project_location.append(GetProjectLocation(nidm_file_list = [rdf_file],project_uuid = uuid))
-
-
+        project_location.append(GetProjectLocation(nidm_file_list=[rdf_file], project_uuid=uuid))
 
     #creating BIDS hierarchy with requested scans
     if args.anat==True:
@@ -431,7 +580,7 @@ def main(argv):
         ProcessFiles(graph=rdf_graph_parse, scan_type=Constants.NIDM_MRI_FUNCTION_SCAN.uri,
                      output_directory=output_directory, project_location=project_location, args=args)
     if args.dwi == True:
-        ProcessFiles(graph=rdf_graph_parse, scan_type = Constants.NIDM_MRI_DWI_SCAN.uri,
+        ProcessFiles(graph=rdf_graph_parse, scan_type = Constants.NIDM_MRI_DIFFUSION_TENSOR.uri ,
                      output_directory=output_directory, project_location=project_location, args=args)
 
 if __name__ == "__main__":
