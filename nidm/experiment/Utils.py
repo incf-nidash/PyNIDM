@@ -169,7 +169,7 @@ def read_nidm(nidmDoc):
         for acq in rdf_graph_parse.subjects(predicate=Constants.DCT['isPartOf'],object=s):
             #Split subject URI for session into namespace, uuid
             nm,acq_uuid = split_uri(acq)
-            #print("acquisition uuid: %s" %acq_uuid)
+            # print("acquisition uuid: %s" %acq_uuid)
 
             #query for whether this is an AssessmentAcquisition of other Acquisition, etc.
             for rdf_type in  rdf_graph_parse.objects(subject=acq, predicate=RDF.type):
@@ -216,6 +216,8 @@ def read_nidm(nidmDoc):
                                     #cycle through rest of metadata
                                     add_metadata_for_subject(rdf_graph_parse,assoc_acq,project.graph.namespaces,events_obj)
 
+
+
                         elif (acq_obj, RDF.type, URIRef(Constants.NIDM_MRI_BOLD_EVENTS._uri)) in rdf_graph:
                             #If this is a stimulus response file
                             #elif str(acq_modality) == Constants.NIDM_MRI_BOLD_EVENTS:
@@ -261,6 +263,23 @@ def read_nidm(nidmDoc):
                             acquisition.add_acquisition_object(acquisition_obj)
                             #Cycle through remaining metadata for acquisition entity and add attributes
                             add_metadata_for_subject(rdf_graph_parse,acq_obj,project.graph.namespaces,acquisition_obj)
+                        # if this is a DWI scan then we could have b-value and b-vector files associated
+                        elif ((acq_obj, RDF.type, URIRef(Constants.NIDM_MRI_DWI_BVAL._uri)) in rdf_graph) or \
+                            ((acq_obj, RDF.type, URIRef(Constants.NIDM_MRI_DWI_BVEC._uri)) in rdf_graph):
+                            # If this is a b-values filev
+                            acquisition = Acquisition(session=session, uuid=acq_uuid)
+                            if not session.acquisition_exist(acq_uuid):
+                                session.add_acquisition(acquisition)
+                                # Cycle through remaining metadata for acquisition activity and add attributes
+                                add_metadata_for_subject(rdf_graph_parse, acq, project.graph.namespaces, acquisition)
+
+                            # and add acquisition object
+                            acquisition_obj = AcquisitionObject(acquisition=acquisition, uuid=acq_obj_uuid)
+                            acquisition.add_acquisition_object(acquisition_obj)
+                            # Cycle through remaining metadata for acquisition entity and add attributes
+                            add_metadata_for_subject(rdf_graph_parse, acq_obj, project.graph.namespaces,
+                                                     acquisition_obj)
+
 
 
                 #This skips rdf_type PROV['Activity']
