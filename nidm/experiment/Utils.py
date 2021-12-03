@@ -291,7 +291,7 @@ def read_nidm(nidmDoc):
             prefix nidm: <http://purl.org/nidash/nidm#>  
             select distinct ?uuid
             where {
-                ?uuid a nidm:DataElement .
+                ?uuid a/rdfs:subClassOf* nidm:DataElement .
      			
             }
             '''
