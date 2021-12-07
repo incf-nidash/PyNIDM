@@ -42,8 +42,9 @@ from os import system
 from nidm.experiment import Project,Session,Acquisition,AcquisitionObject,DemographicsObject,AssessmentObject, MRObject
 from nidm.core import BIDS_Constants,Constants
 from prov.model import PROV_LABEL,PROV_TYPE
-from nidm.experiment.Utils import read_nidm
+from nidm.experiment.Utils import read_nidm, write_json_mapping_file
 from nidm.experiment.Query import GetProjectsUUID, GetProjectLocation, GetParticipantIDFromAcquisition
+from nidm.core.Constants import DD
 
 import json
 from pprint import pprint
@@ -152,6 +153,122 @@ def GetImageFromURL(url):
         print("ERROR! Can't open url: %s" % url)
         return -1
 
+def GetDataElementMetadata(nidm_graph,de_uuid):
+    '''
+    This function will query the nidm_graph for the DataElement de_uuid and return all the metadata as a BIDS-compliant
+    participants sidecar file dictionary
+    '''
+
+    # query nidm_graph for Constants.NIIRI[de_uuid] rdf:type PersonalDataElement
+    query = """
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX prov: <http://www.w3.org/ns/prov#>
+        PREFIX niiri: <http://iri.nidash.org/>
+        PREFIX nidm: <http://purl.org/nidash/nidm#>
+        
+        select distinct ?p ?o
+        where {
+            
+            <%s> rdf:type nidm:PersonalDataElement ;
+                ?p ?o .
+        }  
+    """ % Constants.NIIRI[de_uuid]
+
+    # print(query)
+    qres = nidm_graph.query(query)
+
+    # set up a dictionary entry for this column
+    #current_tuple = str(DD(source="participants.tsv", variable=column))
+
+    # temporary dictionary of metadata
+    temp_dict = {}
+    # add info to BIDS-formatted json sidecar file
+    for row in qres:
+        temp_dict[str(row[0])] = str(row[1])
+
+    # set up a dictionary entry for this column
+    current_tuple = str(DD(source="participants.tsv", variable=
+        temp_dict['http://purl.org/nidash/nidm#sourceVariable']))
+
+    de = {}
+    de[current_tuple] = {}
+    # now look for label entry in temp_dict and set up a proper NIDM-style JSON data structure
+    # see Utils.py function map_variables_to_terms for example (column_to_terms[current_tuple])
+    for key,value in temp_dict.items():
+        if key == 'http://purl.org/nidash/nidm#sourceVariable':
+            de[current_tuple]['source_variable'] = value
+        elif key == 'http://purl.org/dc/terms/description':
+            de[current_tuple]['description'] = value
+        elif key == 'http://purl.org/nidash/nidm#isAbout':
+            # here we need to do an additional query to see if there's a label associated with the isAbout value
+            de[current_tuple]['isAbout'] = []
+
+            # check whether there are multiple 'isAbout' entries
+            if type(value) == 'list':
+                # if this is a list we have to loop through the entries and store the url and labels
+                for entry in value:
+                    # query for label for this isAbout URL
+                    query = '''
+
+                                    prefix prov: <http://www.w3.org/ns/prov#>
+                                    prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+                                    prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+                                    
+                                    select distinct ?label
+                                    where {
+                                        <%s> rdf:type prov:Entity ;
+                                            rdfs:label ?label .    
+                                    }      
+                                ''' % entry
+                    #print(query)
+                    qres = nidm_graph.query(query)
+
+                    for row in qres:
+                        de[current_tuple]['isAbout'].append({'@id': value, 'label': row[0]})
+            else:
+                # only 1 isAbout entry
+                # query for label for this isAbout URL
+                query = '''
+
+                        prefix prov: <http://www.w3.org/ns/prov#>
+                        prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+                        prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+                        select distinct ?label
+                        where {
+                            <%s> rdf:type prov:Entity ;
+                                rdfs:label ?label .    
+                        }      
+                    ''' % value
+                # print(query)
+                qres = nidm_graph.query(query)
+                for row in qres:
+                    de[current_tuple]['isAbout'].append({'@id': value, 'label': row[0]})
+
+        elif key == 'http://www.w3.org/2000/01/rdf-schema#label':
+            de[current_tuple]['label'] = value
+        elif key =='http://purl.org/nidash/nidm#valueType':
+            if 'responseOptions' not in de[current_tuple].keys():
+                de[current_tuple]['responseOptions'] = {}
+                de[current_tuple]['responseOptions']['valueType'] = value
+            else:
+                de[current_tuple]['responseOptions']['valueType'] = value
+        elif key == 'http://purl.org/nidash/nidm#levels':
+            if 'responseOptions' not in de[current_tuple].keys():
+                de[current_tuple]['responseOptions'] = {}
+                de[current_tuple]['responseOptions']['levels'] = value
+            else:
+                de[current_tuple]['responseOptions']['levels'] = value
+        elif key ==  'http://uri.interlex.org/ilx_0739289':
+            de[current_tuple]['associatedWith'] = value
+        elif key == Constants.NIDM['minValue']:
+            de[current_tuple]['responseOptions']['minValue'] = value
+        elif key == Constants.NIDM['maxValue']:
+            de[current_tuple]['responseOptions']['maxValue'] = value
+        elif key == Constants.NIDM['url']:
+            de[current_tuple]['url'] = value
+
+    return de
 
 
 def CreateBIDSParticipantFile(nidm_graph,output_file,participant_fields):
@@ -186,6 +303,9 @@ def CreateBIDSParticipantFile(nidm_graph,output_file,participant_fields):
                     #add row to the pandas data frame
                     #data.append(obj)
                     participants.loc[row_index,BIDS_Constants.participants[fields].uri] = obj
+
+                    # find Data Element and add metadata to participants_json dictionary
+
             else:
                 #text matching task, remove basepart of URIs and try to fuzzy match the field in the part_fields parameter string
                 #to the "term" part of a qname URI...this part let's a user simply ask for "age" for example without knowing the
@@ -219,7 +339,7 @@ def CreateBIDSParticipantFile(nidm_graph,output_file,participant_fields):
                             ?pred ?value .
                         FILTER (regex(str(?pred) ,"%s","i" ))
                     }""" % (subj_uri,fields)
-                # print(query)
+                #print(query)
                 qres = nidm_graph.query(query)
 
                 for row in qres:
@@ -233,8 +353,12 @@ def CreateBIDSParticipantFile(nidm_graph,output_file,participant_fields):
                         short_name = path_parts[2]
                     else:
                         short_name = url_parts.fragment
-                    participants_json[short_name] = {}
-                    participants_json[short_name]['TermURL'] = row[0]
+
+                    # find Data Element and add metadata to participants_json dictionary
+                    if 'de' not in locals():
+                        de = GetDataElementMetadata(nidm_graph, short_name)
+                    else:
+                        de.update(GetDataElementMetadata(nidm_graph, short_name))
 
                     participants.loc[row_index,str(short_name)] = str(row[1])
                     #data.append(str(row[1]))
@@ -250,6 +374,10 @@ def CreateBIDSParticipantFile(nidm_graph,output_file,participant_fields):
     #save participants.json file
     with open(output_file + ".json",'w') as f:
         json.dump(participants_json,f,sort_keys=True,indent=2)
+
+
+    # save participant sidecar file
+    write_json_mapping_file(de, join(splitext(output_file)[0] + ".json"), True)
 
     return participants, participants_json
 
@@ -280,7 +408,11 @@ def NIDMProject2BIDSDatasetDescriptor(nidm_graph,output_directory):
 
         for key,value in BIDS_Constants.dataset_description.items():
             if BIDS_Constants.dataset_description[key]._uri == proj_key:
-                project_metadata[key] = project_metadata[proj_key]
+                # added since BIDS validator validates values of certain keys
+                if (key == "Authors") or (key == "Funding") or (key == "ReferencesAndLinks"):
+                    project_metadata[key] = [project_metadata[proj_key]]
+                else:
+                    project_metadata[key] = project_metadata[proj_key]
                 del project_metadata[proj_key]
                 key_found=1
                 continue
@@ -292,6 +424,34 @@ def NIDMProject2BIDSDatasetDescriptor(nidm_graph,output_directory):
         json.dump(project_metadata,f,sort_keys=True,indent=2)
 
     ##############################################################################
+
+def AddMetadataToImageSidecar(graph_entity,graph, output_directory, image_filename):
+    '''
+    This function will query the metadata in graph_entity and compare the entries with mappings in
+    core/BIDS_Constants.py json_keys where we'll be mapping the value (NIDM entry) to key (BIDS key). It
+    will create the appropriate sidecar json file associated with image_filename in output_directory.
+    '''
+
+    # query graph for metadata associated with graph_entity
+    query = '''
+        Select DISTINCT ?p ?o
+        WHERE {
+            <%s> ?p ?o .
+        }
+    ''' %graph_entity
+    qres = graph.query(query)
+
+    # dictionary to store metadata
+    json_dict = {}
+    for row in qres:
+        key = next((k for k in BIDS_Constants.json_keys if BIDS_Constants.json_keys[k] == row[0]), None)
+        if key != None:
+            json_dict[key] = row[1]
+
+    # write json_dict out to appropriate sidecar filename
+    with open(join(output_directory,image_filename + ".json"),"w") as fp:
+        json.dump(json_dict,fp,indent=2)
+
 
 def ProcessFiles(graph,scan_type,output_directory,project_location,args):
     '''
@@ -354,6 +514,7 @@ def ProcessFiles(graph,scan_type,output_directory,project_location,args):
                         print("Trying to copy file from %s" % (location))
                         try:
                             copyfile(location, join(output_directory, sub_dir, bids_ext, basename(filename)))
+
                         except:
                             print("ERROR! Failed to find file %s on filesystem..." % location)
                             if not args.no_downloads:
@@ -367,9 +528,21 @@ def ProcessFiles(graph,scan_type,output_directory,project_location,args):
                                     sys.exc_info()[0], location))
                                     GetImageFromAWS(location=location, output_file=
                                         join(output_directory, sub_dir, bids_ext, basename(filename)),args=args)
+
                 else:
                     # copy temporary file to BIDS directory
                     copyfile(ret, join(output_directory, sub_dir, bids_ext, basename(filename)))
+
+                # if we were able to copy the image file then add the json sidecar file with additional metadata
+                # available in the NIDM file
+                if isfile(join(output_directory, sub_dir, bids_ext, basename(filename))):
+                    # get rest of metadata for this acquisition and store in sidecar file
+                    if "gz" in basename(filename):
+                        image_filename = splitext(splitext(basename(filename))[0])[0]
+                    else:
+                        image_filename = splitext(basename(filename))[0]
+                    AddMetadataToImageSidecar(graph_entity=acq,graph=graph,output_directory=join(output_directory,
+                            sub_dir,bids_ext),image_filename=image_filename)
 
             # if this is a DWI scan then we should copy over the b-value and b-vector files
             if bids_ext == 'dwi':
@@ -529,6 +702,9 @@ def main(argv):
             print("Reading RDF file as %s..." % format)
             #load NIDM graph into NIDM-Exp API objects
             nidm_project = read_nidm(rdf_file)
+            # temporary save nidm_project
+            with open("/Users/dbkeator/Downloads/nidm.ttl", 'w') as f:
+                print(nidm_project.serializeTurtle(), file=f)
             print("RDF file sucessfully read")
             format_found=True
             break

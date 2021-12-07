@@ -101,11 +101,6 @@ def read_nidm(nidmDoc):
     rdf_graph_parse = rdf_graph.parse(nidmDoc,format=util.guess_format(nidmDoc))
 
 
-
-    # add known CDE graphs
-    #rdf_graph_parse = rdf_graph.parse
-
-
     # Query graph for project metadata and create project level objects
     # Get subject URI for project
     proj_id=None
@@ -142,7 +137,6 @@ def read_nidm(nidmDoc):
 
         #Cycle through Project metadata adding to prov graph
         add_metadata_for_subject (rdf_graph_parse,proj_id,project.graph.namespaces,project)
-
 
 
     #Query graph for sessions, instantiate session objects, and add to project._session list
@@ -288,22 +282,47 @@ def read_nidm(nidmDoc):
 
     # Query graph for nidm:DataElements and instantiate a nidm:DataElement class and add them to the project
     query = '''
-            prefix nidm: <http://purl.org/nidash/nidm#>  
-            select distinct ?uuid
-            where {
-                ?uuid a/rdfs:subClassOf* nidm:DataElement .
-     			
-            }
-            '''
+                prefix nidm: <http://purl.org/nidash/nidm#>
+                prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
+                select distinct ?uuid
+                where {
+                    ?uuid a/rdfs:subClassOf* nidm:DataElement .
+
+                }
+                '''
 
     # add all nidm:DataElements in graph
     qres = rdf_graph_parse.query(query)
     for row in qres:
+        print(row)
         # instantiate a data element class assigning it the existing uuid
-        de = DataElement(project=project, uuid=row['uuid'],add_default_type=False)
+        de = DataElement(project=project, uuid=row['uuid'], add_default_type=False)
         # get the rest of the attributes for this data element and store
         add_metadata_for_subject(rdf_graph_parse, row['uuid'], project.graph.namespaces, de)
 
+        # now we need to check if there are labels for data element isAbout entries, if so add them.
+        query2 = '''
+
+                prefix nidm: <http://purl.org/nidash/nidm#>
+                prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+                prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+                prefix prov: <http://www.w3.org/ns/prov#>
+
+                select distinct ?id ?label
+                where {
+                    <%s> nidm:isAbout ?id .
+
+                    ?id rdf:type prov:Entity ;
+                        rdfs:label ?label .  
+                }
+
+            ''' % row['uuid']
+        # print(query2)
+        qres2 = rdf_graph_parse.query(query2)
+
+        # add this tuple to graph
+        for row2 in qres2:
+            project.graph.entity(row2[0], {'rdfs:label': row2[1]})
 
     # check for Derivatives.
     # WIP: Currently FSL, Freesurfer, and ANTS tools add these derivatives as nidm:FSStatsCollection,
@@ -486,7 +505,7 @@ def add_metadata_for_subject (rdf_graph,subject_uri,namespaces,nidm_obj):
                         # add rest of meatadata about the agent
                         add_metadata_for_subject(rdf_graph=rdf_graph, subject_uri=agent_obj.identifier,
                                                  namespaces=namespaces, nidm_obj=generic_agent)
-                    # try and split uri into namespacea and local parts, if fails just use entire URI
+                    # try and split uri into namespace and local parts, if fails just use entire URI
                     try:
                         # create qualified names for objects
                         obj_nm, obj_term = split_uri(r_obj.identifier)
