@@ -10,10 +10,11 @@ htmlcov/*
 
 /build
 /dist
-nidm.egg-info/
+pynidm.egg-info/
 
 .idea/
 .DS_Store
 .project
 .settings
 .idea
+venvs/
