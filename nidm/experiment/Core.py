@@ -325,7 +325,7 @@ class Core(object):
 
         return metadata
 
-    def serializeTurtle(self):
+    def     serializeTurtle(self):
         """
         Serializes graph to Turtle format
         :return: text of serialized graph in Turtle format
