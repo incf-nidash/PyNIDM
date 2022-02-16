@@ -1177,6 +1177,124 @@ def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_
                         column_to_terms[current_tuple]['allowableValues'] = json_map[json_key[0]]['allowableValues']
                         print("allowableValues: %s" % column_to_terms[current_tuple]['allowableValues'])
 
+                    # added to support ReproSchema json format
+                    if 'responseOptions' in json_map[json_key[0]]:
+                        for subkey, subvalye in json_map[json_key[0]]['responseOptions'].items():
+                            if 'valueType' in subkey:
+                                if 'responseOptions' not in column_to_terms[current_tuple].keys():
+                                    column_to_terms[current_tuple]['responseOptions'] = {}
+
+                                column_to_terms[current_tuple]['responseOptions']['valueType'] = \
+                                    json_map[json_key[0]]['responseOptions']['valueType']
+                                print("valueType: %s" % column_to_terms[current_tuple]['responseOptions'][
+                                    'valueType'])
+
+                            elif 'minValue' in subkey:
+                                if 'responseOptions' not in column_to_terms[current_tuple].keys():
+                                    column_to_terms[current_tuple]['responseOptions'] = {}
+
+                                column_to_terms[current_tuple]['responseOptions']['minValue'] = \
+                                    json_map[json_key[0]]['responseOptions']['minValue']
+                                print(
+                                    "minValue: %s" % column_to_terms[current_tuple]['responseOptions']['minValue'])
+
+                            elif 'maxValue' in subkey:
+                                if 'responseOptions' not in column_to_terms[current_tuple].keys():
+                                    column_to_terms[current_tuple]['responseOptions'] = {}
+
+                                column_to_terms[current_tuple]['responseOptions']['maxValue'] = \
+                                    json_map[json_key[0]]['responseOptions']['maxValue']
+                                print(
+                                    "maxValue: %s" % column_to_terms[current_tuple]['responseOptions']['maxValue'])
+                            elif 'choices' in subkey:
+                                if 'responseOptions' not in column_to_terms[current_tuple].keys():
+                                    column_to_terms[current_tuple]['responseOptions'] = {}
+
+                                column_to_terms[current_tuple]['responseOptions']['choices'] = \
+                                    json_map[json_key[0]]['responseOptions']['choices']
+                                print("levels: %s" % column_to_terms[current_tuple]['responseOptions']['choices'])
+                            elif 'hasUnit' in subkey:
+                                if 'responseOptions' not in column_to_terms[current_tuple].keys():
+                                    column_to_terms[current_tuple]['responseOptions'] = {}
+
+                                column_to_terms[current_tuple]['responseOptions']['unitCode'] = \
+                                    json_map[json_key[0]]['responseOptions']['hasUnit']
+                                print("units: %s" % column_to_terms[current_tuple]['responseOptions']['unitCode'])
+                            elif 'unitCode' in subkey:
+                                if 'responseOptions' not in column_to_terms[current_tuple].keys():
+                                    column_to_terms[current_tuple]['responseOptions'] = {}
+
+                                column_to_terms[current_tuple]['responseOptions']['unitCode'] = \
+                                    json_map[json_key[0]]['responseOptions']['unitCode']
+                                print("units: %s" % column_to_terms[current_tuple]['responseOptions']['unitCode'])
+
+                    if 'levels' in json_map[json_key[0]]:
+                        # upgrade 'levels' to 'responseOptions'->'choices'
+                        if 'responseOptions' not in column_to_terms[current_tuple].keys():
+                            column_to_terms[current_tuple]['responseOptions'] = {}
+                        column_to_terms[current_tuple]['responseOptions']['choices'] = json_map[json_key[0]][
+                            'levels']
+                        print("choices: %s" % column_to_terms[current_tuple]['responseOptions']['choices'])
+                    elif 'Levels' in json_map[json_key[0]]:
+                        # upgrade 'levels' to 'responseOptions'->'choices'
+                        if 'responseOptions' not in column_to_terms[current_tuple].keys():
+                            column_to_terms[current_tuple]['responseOptions'] = {}
+                        column_to_terms[current_tuple]['responseOptions']['choices'] = json_map[json_key[0]][
+                            'Levels']
+                        print("levels: %s" % column_to_terms[current_tuple]['responseOptions']['choices'])
+
+                    if 'valueType' in json_map[json_key[0]]:
+                        # upgrade 'valueType' to 'responseOptions'->'valueType
+                        if 'responseOptions' not in column_to_terms[current_tuple].keys():
+                            column_to_terms[current_tuple]['responseOptions'] = {}
+                        column_to_terms[current_tuple]['responseOptions']['valueType'] = \
+                            json_map[json_key[0]]['valueType']
+                        print("valueType: %s" % column_to_terms[current_tuple]['responseOptions']['valueType'])
+
+                    if ('minValue' in json_map[json_key[0]]):
+                        # upgrade 'minValue' to 'responseOptions'->'minValue
+                        if 'responseOptions' not in column_to_terms[current_tuple].keys():
+                            column_to_terms[current_tuple]['responseOptions'] = {}
+                        column_to_terms[current_tuple]['responseOptions']['minValue'] = \
+                            json_map[json_key[0]]['minValue']
+                        print("minValue: %s" % column_to_terms[current_tuple]['responseOptions']['minValue'])
+                    elif ('minimumValue' in json_map[json_key[0]]):
+                        # upgrade 'minValue' to 'responseOptions'->'minValue
+                        if 'responseOptions' not in column_to_terms[current_tuple].keys():
+                            column_to_terms[current_tuple]['responseOptions'] = {}
+                        column_to_terms[current_tuple]['responseOptions']['minValue'] = \
+                            json_map[json_key[0]]['minimumValue']
+                        print("minValue: %s" % column_to_terms[current_tuple]['responseOptions']['minValue'])
+
+                    if 'maxValue' in json_map[json_key[0]]:
+                        # upgrade 'maxValue' to 'responseOptions'->'maxValue
+                        if 'responseOptions' not in column_to_terms[current_tuple].keys():
+                            column_to_terms[current_tuple]['responseOptions'] = {}
+                        column_to_terms[current_tuple]['responseOptions']['maxValue'] = \
+                            json_map[json_key[0]]['maxValue']
+                        print("maxValue: %s" % column_to_terms[current_tuple]['responseOptions']['maxValue'])
+                    elif 'maximumValue' in json_map[json_key[0]]:
+                        # upgrade 'maxValue' to 'responseOptions'->'maxValue
+                        if 'responseOptions' not in column_to_terms[current_tuple].keys():
+                            column_to_terms[current_tuple]['responseOptions'] = {}
+                        column_to_terms[current_tuple]['responseOptions']['maxValue'] = \
+                            json_map[json_key[0]]['maximumValue']
+                        print("maxValue: %s" % column_to_terms[current_tuple]['responseOptions']['maxValue'])
+                    if 'hasUnit' in json_map[json_key[0]]:
+                        # upgrade 'hasUnit' to 'responseOptions'->'unitCode
+                        if 'responseOptions' not in column_to_terms[current_tuple].keys():
+                            column_to_terms[current_tuple]['responseOptions'] = {}
+                        column_to_terms[current_tuple]['responseOptions']['unitCode'] = \
+                            json_map[json_key[0]]['hasUnit']
+                        print("unitCode: %s" % column_to_terms[current_tuple]['responseOptions']['unitCode'])
+                    elif 'Units' in json_map[json_key[0]]:
+                        # upgrade 'Units' to 'responseOptions'->'unitCode
+                        if 'responseOptions' not in column_to_terms[current_tuple].keys():
+                            column_to_terms[current_tuple]['responseOptions'] = {}
+                        column_to_terms[current_tuple]['responseOptions']['unitCode'] = \
+                            json_map[json_key[0]]['Units']
+                        print("unitCode: %s" % column_to_terms[current_tuple]['responseOptions']['unitCode'])
+
                     if "isAbout" in json_map[json_key[0]]:
                         #check if we have a single isAbout or multiple...
                         if isinstance(json_map[json_key[0]]['isAbout'],list):
@@ -1246,115 +1364,8 @@ def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_
                             # write annotations to json file so user can start up again if not doing whole file
                             write_json_mapping_file(column_to_terms,output_file,bids)
 
-
-                    # added to support ReproSchema json format
-                    if 'responseOptions' in json_map[json_key[0]]:
-                        for subkey,subvalye in json_map[json_key[0]]['responseOptions'].items():
-                            if 'valueType' in subkey:
-                                if 'responseOptions' not in column_to_terms[current_tuple].keys():
-                                    column_to_terms[current_tuple]['responseOptions'] = {}
-
-                                column_to_terms[current_tuple]['responseOptions']['valueType'] = \
-                                    json_map[json_key[0]]['responseOptions']['valueType']
-                                print("valueType: %s" % column_to_terms[current_tuple]['responseOptions']['valueType'])
-
-                            elif 'minValue' in subkey:
-                                if 'responseOptions' not in column_to_terms[current_tuple].keys():
-                                    column_to_terms[current_tuple]['responseOptions'] = {}
-
-                                column_to_terms[current_tuple]['responseOptions']['minValue'] = \
-                                    json_map[json_key[0]]['responseOptions']['minValue']
-                                print("minValue: %s" % column_to_terms[current_tuple]['responseOptions']['minValue'])
-
-                            elif 'maxValue' in subkey:
-                                if 'responseOptions' not in column_to_terms[current_tuple].keys():
-                                    column_to_terms[current_tuple]['responseOptions'] = {}
-
-                                column_to_terms[current_tuple]['responseOptions']['maxValue'] = \
-                                    json_map[json_key[0]]['responseOptions']['maxValue']
-                                print("maxValue: %s" % column_to_terms[current_tuple]['responseOptions']['maxValue'])
-                            elif 'choices' in subkey:
-                                if 'responseOptions' not in column_to_terms[current_tuple].keys():
-                                    column_to_terms[current_tuple]['responseOptions'] = {}
-
-                                column_to_terms[current_tuple]['responseOptions']['choices'] = \
-                                    json_map[json_key[0]]['responseOptions']['choices']
-                                print("levels: %s" % column_to_terms[current_tuple]['responseOptions']['choices'])
-                            elif 'hasUnit' in subkey:
-                                if 'responseOptions' not in column_to_terms[current_tuple].keys():
-                                    column_to_terms[current_tuple]['responseOptions'] = {}
-
-                                column_to_terms[current_tuple]['responseOptions']['unitCode'] = \
-                                    json_map[json_key[0]]['responseOptions']['hasUnit']
-                                print("units: %s" % column_to_terms[current_tuple]['responseOptions']['unitCode'])
-                            elif 'unitCode' in subkey:
-                                if 'responseOptions' not in column_to_terms[current_tuple].keys():
-                                    column_to_terms[current_tuple]['responseOptions'] = {}
-
-                                column_to_terms[current_tuple]['responseOptions']['unitCode'] = \
-                                    json_map[json_key[0]]['responseOptions']['unitCode']
-                                print("units: %s" % column_to_terms[current_tuple]['responseOptions']['unitCode'])
-
-                    if 'levels' in json_map[json_key[0]]:
-                        # upgrade 'levels' to 'responseOptions'->'choices'
-                        if 'responseOptions' not in column_to_terms[current_tuple].keys():
-                            column_to_terms[current_tuple]['responseOptions'] = {}
-                        column_to_terms[current_tuple]['responseOptions']['choices'] = json_map[json_key[0]]['levels']
-                        print("choices: %s" %column_to_terms[current_tuple]['responseOptions']['choices'])
-                    elif 'Levels' in json_map[json_key[0]]:
-                        # upgrade 'levels' to 'responseOptions'->'choices'
-                        if 'responseOptions' not in column_to_terms[current_tuple].keys():
-                            column_to_terms[current_tuple]['responseOptions'] ={}
-                        column_to_terms[current_tuple]['responseOptions']['choices'] = json_map[json_key[0]]['Levels']
-                        print("levels: %s" %column_to_terms[current_tuple]['responseOptions']['choices'])
-
-                    if 'valueType' in json_map[json_key[0]]:
-                        # upgrade 'valueType' to 'responseOptions'->'valueType
-                        if 'responseOptions' not in column_to_terms[current_tuple].keys():
-                            column_to_terms[current_tuple]['responseOptions'] = {}
-                        column_to_terms[current_tuple]['responseOptions']['valueType'] = \
-                            json_map[json_key[0]]['valueType']
-                        print("valueType: %s" % column_to_terms[current_tuple]['responseOptions']['valueType'])
-
-                    if ('minValue' in json_map[json_key[0]]):
-                        # upgrade 'minValue' to 'responseOptions'->'minValue
-                        if 'responseOptions' not in column_to_terms[current_tuple].keys():
-                            column_to_terms[current_tuple]['responseOptions'] = {}
-                        column_to_terms[current_tuple]['responseOptions']['minValue'] = \
-                            json_map[json_key[0]]['minValue']
-                        print("minValue: %s" % column_to_terms[current_tuple]['responseOptions']['minValue'])
-                    elif ('minimumValue' in json_map[json_key[0]]):
-                        # upgrade 'minValue' to 'responseOptions'->'minValue
-                        if 'responseOptions' not in column_to_terms[current_tuple].keys():
-                            column_to_terms[current_tuple]['responseOptions'] = {}
-                        column_to_terms[current_tuple]['responseOptions']['minValue'] = \
-                            json_map[json_key[0]]['minimumValue']
-                        print("minValue: %s" % column_to_terms[current_tuple]['responseOptions']['minValue'])
-
-                    if 'maxValue' in json_map[json_key[0]]:
-                        # upgrade 'maxValue' to 'responseOptions'->'maxValue
-                        if 'responseOptions' not in column_to_terms[current_tuple].keys():
-                            column_to_terms[current_tuple]['responseOptions'] = {}
-                        column_to_terms[current_tuple]['responseOptions']['maxValue'] = \
-                            json_map[json_key[0]]['maxValue']
-                        print("maxValue: %s" % column_to_terms[current_tuple]['responseOptions']['maxValue'])
-                    elif 'maximumValue' in json_map[json_key[0]]:
-                        # upgrade 'maxValue' to 'responseOptions'->'maxValue
-                        if 'responseOptions' not in column_to_terms[current_tuple].keys():
-                            column_to_terms[current_tuple]['responseOptions'] = {}
-                        column_to_terms[current_tuple]['responseOptions']['maxValue'] = \
-                            json_map[json_key[0]]['maximumValue']
-                        print("maxValue: %s" % column_to_terms[current_tuple]['responseOptions']['maxValue'])
-                    if 'hasUnit' in json_map[json_key[0]]:
-                        # upgrade 'hasUnit' to 'responseOptions'->'unitCode
-                        if 'responseOptions' not in column_to_terms[current_tuple].keys():
-                            column_to_terms[current_tuple]['responseOptions'] = {}
-                        column_to_terms[current_tuple]['responseOptions']['unitCode'] = \
-                            json_map[json_key[0]]['hasUnit']
-                        print("unitCode: %s" % column_to_terms[current_tuple]['responseOptions']['unitCode'])
-
-                    print("***************************************************************************************")
-                    print("---------------------------------------------------------------------------------------")
+            print("***************************************************************************************")
+            print("---------------------------------------------------------------------------------------")
 
             if (json_map is not None) and (len(json_key)>0):
                 continue
