@@ -1,9 +1,8 @@
-#from nidm.core.provone import ProvONEDocument
+from nidm.core.provone import ProvONEDocument
 from nidm.core import Constants
 from nidm.core.dot import provone_to_dot
 import pytest
 
-pytestmark = pytest.mark.skip(reason="had to comment provone import - was breaking tests from experiment")
 
 @pytest.fixture(scope="module")
 def doc():
@@ -34,34 +33,6 @@ def test_ispartof(doc):
                               rdf_format='ttl'))
 
 
-def test_used(doc):
-    pe1 = doc.processExec('dcterms:identifier:e1_ex1', "2013-08-21 13:37:53",
-                          "2013-08-21 13:37:53")
-    dt1 = doc.data('dcterms:identifier:defparam1', {'rdfs:label': "filename",
-                                                   'prov:value': "DLEM_NEE_onedeg_v1.0nc",
-                                                   'wfms:type': "edu.sci.wfms.basic:File"})
-    doc.used(pe1, dt1)
-
-    # save a turtle file
-    with open("test.ttl", 'w') as f:
-        f.write(doc.serialize(format='rdf',
-                              rdf_format='ttl'))
-
-
-def test_wasderivedfrom(doc):
-
-    dt1 = doc.data('dcterms:identifier:defparam1', {'rdfs:label': "filename",
-                                                   'prov:value': "DLEM_NEE_onedeg_v1.0nc",
-                                                   'wfms:type': "edu.sci.wfms.basic:File"})
-    dt2 = doc.data('dcterms:identifier:defparam2', {'rdfs:label': "filename"})
-    doc.wasDerivedFrom(dt1, dt2)
-
-    # save a turtle file
-    with open("test.ttl", 'w') as f:
-        f.write(doc.serialize(format='rdf',
-                              rdf_format='ttl'))
-
-
 def test_dataonlink(doc):
     dt2 = doc.data('dcterms:identifier:defparam2', {'rdfs:label': "filename"})
     dl1 = doc.dataLink('dcterms:identifier:e1_e2DL')
@@ -72,16 +43,30 @@ def test_dataonlink(doc):
     doc.dataOnLink(dt2, dl1)
 
 
-def test_wasgeneratedby(doc):
-
-    dt2 = doc.data('dcterms:identifier:defparam2', {'rdfs:label': "filename"})
-    pe1 = doc.processExec('dcterms:identifier:e1_ex1', "2013-08-21 13:37:53",
-                          "2013-08-21 13:37:53")
-    doc.wasGeneratedBy(dt2, pe1)
-    # save a turtle file
-    with open("test.ttl", 'w') as f:
-        f.write(doc.serialize(format='rdf',
-                              rdf_format='ttl'))
+# def test_used(doc):
+#     pe1 = doc.processExec('dcterms:identifier:e1_ex1', "2013-08-21 13:37:53",
+#                           "2013-08-21 16:37:53")
+#     dt1 = doc.data('dcterms:identifier:defparam1', {'rdfs:label': "filename",
+#                                                    'prov:value': "DLEM_NEE_onedeg_v1.0nc",
+#                                                    'wfms:type': "edu.sci.wfms.basic:File"})
+#     doc.used(pe1, dt1)
+#
+#     # save a turtle file
+#     with open("test.ttl", 'w') as f:
+#         f.write(doc.serialize(format='rdf',
+#                               rdf_format='ttl'))
+#
+#
+# def test_wasgeneratedby(doc):
+#
+#     dt2 = doc.data('dcterms:identifier:defparam2', {'rdfs:label': "filename"})
+#     pe1 = doc.processExec('dcterms:identifier:e1_ex1', "2013-08-21 13:37:53",
+#                           "2013-08-21 13:37:53")
+#     doc.wasGeneratedBy(dt2, pe1)
+#     # save a turtle file
+#     with open("test.ttl", 'w') as f:
+#         f.write(doc.serialize(format='rdf',
+#                               rdf_format='ttl'))
 
 
 def test_wasassociatedwith(doc):
@@ -116,13 +101,13 @@ def test_dltoinport(doc):
     doc.DLToInPort(dl1, i1)
 
 
-def test_documentserialize(doc):
-    # save a turtle file
-    with open("test.ttl", 'w') as f:
-        f.write(doc.serialize(format='rdf',
-                              rdf_format='ttl'))
-
-
-def test_write_to_dot(doc):
-    dot = provone_to_dot(doc)
-    dot.write_png('provone-test.png')
+# def test_documentserialize(doc):
+#     # save a turtle file
+#     with open("test.ttl", 'w') as f:
+#         f.write(doc.serialize(format='rdf',
+#                               rdf_format='ttl'))
+#
+#
+# def test_write_to_dot(doc):
+#     dot = provone_to_dot(doc)
+#     dot.write_png('provone-test.png')
