@@ -672,7 +672,11 @@ def GetDatatypeSynonyms(nidm_file_list, project_id, datatype):
     project_data_elements = GetProjectDataElements(nidm_file_list, project_id)
     all_synonyms = set([datatype])
     for dti in project_data_elements['data_type_info']:
-        if str(datatype) in [ str(x) for x in [dti['source_variable'], dti['label'], dti['datumType'], dti['measureOf'], URITail(dti['measureOf']), str(dti['isAbout']), URITail(dti['isAbout']), dti['dataElement'], dti['dataElementURI'], dti['prefix']] ]:
+        #modified by DBK 7/25/2022
+        # if str(datatype) in [ str(x) for x in [dti['source_variable'], dti['label'], dti['datumType'], dti['measureOf'], URITail(dti['measureOf']), str(dti['isAbout']), URITail(dti['isAbout']), dti['dataElement'], dti['dataElementURI'], dti['prefix']] ]:
+        if (any(str(datatype) in str(x) for x in
+            [dti['source_variable'], dti['label'], dti['datumType'], dti['measureOf'], URITail(dti['measureOf']),
+             str(dti['isAbout']), URITail(dti['isAbout']), dti['dataElement'], dti['dataElementURI'], dti['prefix']])):
             all_synonyms = all_synonyms.union(set([str(dti['source_variable']), str(dti['label']), str(dti['datumType']), str(dti['measureOf']), URITail(dti['measureOf']), str(dti['isAbout']), str(dti['dataElement']), str(dti['dataElementURI'])] ))
             all_synonyms.remove("")  # remove the empty string in case that is in there
     return all_synonyms
@@ -774,8 +778,6 @@ def CheckSubjectMatchesFilter(nidm_file_list, project_uuid, subject_uuid, filter
     :return:
     '''
 
-    # TODO: I need to fix this here.  When there is a space inside the value the splitter gets more than 3 values
-    # ex: 'projects.subjects.instruments.WISC_IV_VOCAB_SCALED eq \'not a match\''
 
     if filter == None:
         return True
@@ -788,6 +790,17 @@ def CheckSubjectMatchesFilter(nidm_file_list, project_uuid, subject_uuid, filter
     for test in tests:
         found_match = False
         split_array = test.split(' ')
+        # TODO: I need to fix this here.  When there is a space inside the value the splitter gets more than 3 values
+        # ex: 'projects.subjects.instruments.WISC_IV_VOCAB_SCALED eq \'not a match\''
+        # in this case we must have spaces in identifier: 'projects.subjects.instruments.age at scan eq 21
+        # not guaranteed to always be an 'eq' separator.
+        # TODO: Make more robust!
+        #if len(split_array) > 3:
+        #    split_array = test.split('eq')
+        #    compound_sub = split_array[0]
+        #    op = 'eq'
+        #    value = ' '.join(split_array[1:])
+        #else:
         compound_sub = split_array[0]
         op = split_array[1]
         value = ' '.join(split_array[2:])
