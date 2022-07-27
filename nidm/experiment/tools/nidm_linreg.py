@@ -7,7 +7,7 @@
 #  License: Apache License, Version 2.0
 # *******************************************************************************************************
 # *******************************************************************************************************
-# Date: 10-09-21                 Coded by: Ashmita Kumar (ashmita.kumar@gmail.com)
+# Date: 07-26-22                 Coded by: Ashmita Kumar (ashmita.kumar@gmail.com)
 # Filename: nidm_linreg.py
 #
 # Program description:  This program provides a tool to complete a linear regression on nidm files
@@ -51,8 +51,8 @@ try:
     from sklearn.model_selection import cross_val_score
 except:
     print("You do not have the latest version of the sklearn module, which is needed to run this tool.")
-    upgrade_sklearn = input("Can we install/update the sklearn module for you? y/n")
-    if (not (upgrade_sklearn.lower().contains("y"))):
+    upgrade_sklearn = input("Can we install/update the sklearn module for you? y/n ")
+    if (not "y" in (upgrade_sklearn.lower())):
         print("You can use the command 'python -m pip install --upgrade pip sklearn' to meet this dependancy.")
         print("Please re-run the code when this dependancy is met.")
         exit(1)
@@ -68,8 +68,8 @@ try:
     from statsmodels.formula.api import ols
 except:
     print("You do not have the latest version of the statsmodels module, which is needed to run this tool.")
-    upgrade_statsmodels = input("Can we install/update the statsmodels module for you? y/n")
-    if(not(upgrade_statsmodels.lower().contains("y"))):
+    upgrade_statsmodels = input("Can we install/update the statsmodels module for you? y/n ")
+    if(not "y" in (upgrade_statsmodels.lower())):
         print("You can use the command 'python -m pip install --upgrade pip statsmodels' to meet this dependancy.")
         print("Please re-run the code when this dependancy is met.")
         exit(1)
@@ -81,8 +81,8 @@ try:
     from statistics import mean
 except:
     print("You do not have the latest version of the statistics module, which is needed to run this tool.")
-    upgrade_statistics = input("Can we install/update the statistics module for you? y/n")
-    if (not(upgrade_statistics.lower().contains("y"))):
+    upgrade_statistics = input("Can we install/update the statistics module for you? y/n ")
+    if (not "y" in (upgrade_statistics.lower().contains("y"))):
         print("You can use the command 'python -m pip install --upgrade pip statistics' to meet this dependancy.")
         print("Please re-run the code when this dependancy is met.")
         exit(1)
@@ -97,8 +97,8 @@ try:
     from patsy.contrasts import Helmert
 except:
     print("You do not have the latest version of the patsy module, which is needed to run this tool.")
-    upgrade_patsy = input("Can we install/update the patsy module for you? y/n")
-    if (not(upgrade_patsy.lower().contains("y"))):
+    upgrade_patsy = input("Can we install/update the patsy module for you? y/n ")
+    if (not "y" in (upgrade_patsy.lower())):
         print("You can use the command 'python -m pip install --upgrade pip patsy' to meet this dependancy.")
         print("Please re-run the code when this dependancy is met.")
         exit(1)
