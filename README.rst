@@ -37,12 +37,12 @@ macOS
 -----  
 .. code-block:: bash
 
-	$ wget https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -O ~/miniconda.sh
-	$ bash ~/miniconda.sh -b -p $HOME/miniconda
+	$ ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+	$ brew install miniconda --cask
 	$ conda init
 	$ conda update conda
 	$ conda create -n pynidm_py3 python=3
-	$ source activate pynidm_py3
+	$ conda activate pynidm_py3
 	$ cd PyNIDM
  	$ pip install datalad
 	$ pip install neurdflib
