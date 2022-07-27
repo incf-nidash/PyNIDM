@@ -18,6 +18,10 @@ Dependencies
 * OS-X: `brew install graphviz`
 * Datalad (optional): `pip install datalad`
 * Git-Annex (optional): <https://git-annex.branchable.com/>
+* Sklearn: `pip install sklearn`
+* Statsmodels: `pip install statsmodels`
+* Statistics: `pip install statistics`
+* Patsy: `pip install patsy`
 
 Installation
 ============
@@ -33,12 +37,19 @@ macOS
 -----  
 .. code-block:: bash
 
+	$ wget https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -O ~/miniconda.sh
+	$ bash ~/miniconda.sh -b -p $HOME/miniconda
+	$ conda init
+	$ conda update conda
 	$ conda create -n pynidm_py3 python=3
 	$ source activate pynidm_py3
 	$ cd PyNIDM
  	$ pip install datalad
 	$ pip install neurdflib
 	$ pip install -e .
+	$ pip install sklearn
+	$ pip install statsmodels
+	$ pip install statistics
 
 You can try to run a test: `pytest`
 
