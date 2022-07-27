@@ -50,6 +50,12 @@ try:
     from sklearn.linear_model import Lasso
     from sklearn.model_selection import cross_val_score
 except:
+    print("You do not have the latest version of the sklearn module, which is needed to run this tool.")
+    upgrade_sklearn = input("Can we install/update the sklearn module for you? y/n")
+    if (not (upgrade_sklearn.lower().contains("y"))):
+        print("You can use the command 'python -m pip install --upgrade pip sklearn' to meet this dependancy.")
+        print("Please re-run the code when this dependancy is met.")
+        exit(1)
     system('python -m pip install --upgrade pip sklearn')
     from sklearn.linear_model import LinearRegression
     from sklearn import preprocessing
@@ -61,6 +67,12 @@ try:
     import statsmodels.api as sm
     from statsmodels.formula.api import ols
 except:
+    print("You do not have the latest version of the statsmodels module, which is needed to run this tool.")
+    upgrade_statsmodels = input("Can we install/update the statsmodels module for you? y/n")
+    if(not(upgrade_statsmodels.lower().contains("y"))):
+        print("You can use the command 'python -m pip install --upgrade pip statsmodels' to meet this dependancy.")
+        print("Please re-run the code when this dependancy is met.")
+        exit(1)
     system('python -m pip install --upgrade pip statsmodels')
     import statsmodels.api as sm
     from statsmodels.formula.api import ols
@@ -68,6 +80,12 @@ except:
 try:
     from statistics import mean
 except:
+    print("You do not have the latest version of the statistics module, which is needed to run this tool.")
+    upgrade_statistics = input("Can we install/update the statistics module for you? y/n")
+    if (not(upgrade_statistics.lower().contains("y"))):
+        print("You can use the command 'python -m pip install --upgrade pip statistics' to meet this dependancy.")
+        print("Please re-run the code when this dependancy is met.")
+        exit(1)
     system('python -m pip install --upgrade pip statistics')
     from statistics import mean
 
@@ -78,6 +96,12 @@ try:
     from patsy.contrasts import Diff
     from patsy.contrasts import Helmert
 except:
+    print("You do not have the latest version of the patsy module, which is needed to run this tool.")
+    upgrade_patsy = input("Can we install/update the patsy module for you? y/n")
+    if (not(upgrade_patsy.lower().contains("y"))):
+        print("You can use the command 'python -m pip install --upgrade pip patsy' to meet this dependancy.")
+        print("Please re-run the code when this dependancy is met.")
+        exit(1)
     system('python -m pip install --upgrade pip patsy')
     from patsy.contrasts import Treatment
     from patsy.contrasts import ContrastMatrix
