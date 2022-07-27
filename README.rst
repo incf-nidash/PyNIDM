@@ -47,9 +47,6 @@ macOS
  	$ pip install datalad
 	$ pip install neurdflib
 	$ pip install -e .
-	$ pip install sklearn
-	$ pip install statsmodels
-	$ pip install statistics
 
 You can try to run a test: `pytest`
 
