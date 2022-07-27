@@ -18,12 +18,12 @@ from prov.model import ProvAgent
 
 REST_TEST_FILE = './agent.ttl'
 BRAIN_VOL_FILES = ['./cmu_a.nidm.ttl', './caltech.nidm.ttl']
-OPENNEURO_FILES = ['ds000001.nidm.ttl',
+OPENNEURO_FILES = ['ds000002.nidm.ttl',
                    'ds000003.nidm.ttl',
                    'ds000011.nidm.ttl',
                    'ds000017.nidm.ttl',
                    'ds000101.nidm.ttl',
-                   'ds000102.nidm.ttl',
+                   'ds000108.nidm.ttl',
                    'ds000113.nidm.ttl',
                    'ds000114.nidm.ttl',
                    'ds000120.nidm.ttl',
@@ -32,25 +32,21 @@ OPENNEURO_FILES = ['ds000001.nidm.ttl',
                    'ds000171.nidm.ttl',
                    'ds000208.nidm.ttl',
                    'ds000214.nidm.ttl',
-                   'ds000220.nidm.ttl',
-                   'ds000221.nidm.ttl',
+                   'ds000222.nidm.ttl',
                    'ds000224.nidm.ttl',
                    'ds000238.nidm.ttl',
-                   'ds000245.nidm.ttl',
                    'ds000246.nidm.ttl',
                    'ds001021.nidm.ttl',
                    'ds001178.nidm.ttl',
-                   'ds001226.nidm.ttl',
-                   'ds001229.nidm.ttl',
                    'ds001232.nidm.ttl',
-                   'ds001242.nidm.ttl'
+                   'ds001241.nidm.ttl'
                    ]
 
 # OPENNEURO_FILES = ['ds000001.nidm.ttl',
 #                    'ds000003.nidm.ttl']
 #
 
-ALL_FILES = ['./cmu_a.nidm.ttl', './caltech.nidm.ttl', 'ds000168.nidm.ttl']
+ALL_FILES = ['./cmu_a.nidm.ttl', './caltech.nidm.ttl', 'ds000120.nidm.ttl']
 OPENNEURO_PROJECT_URI = None
 OPENNEURO_SUB_URI = None
 

@@ -10,7 +10,7 @@ from uuid import UUID
 
 USE_GITHUB_DATA = True
 BRAIN_VOL_FILES = tuple(['./cmu_a.nidm.ttl', './caltech.nidm.ttl'])
-OPENNEURO_FILES = tuple(['ds000168.nidm.ttl'])
+OPENNEURO_FILES = tuple(['ds000110.nidm.ttl'])
 PROJECT_URI = None
 OPENNEURO_PROJECT_URI = None
 
@@ -38,10 +38,10 @@ def setup():
     projects = Navigate.getProjects(BRAIN_VOL_FILES)
     PROJECT_URI = projects[0]
 
-    if not Path('./ds000168.nidm.ttl').is_file():
+    if not Path('./ds000110.nidm.ttl').is_file():
         urllib.request.urlretrieve (
-            "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/master/datasets.datalad.org/openneuro/ds000168/nidm.ttl",
-            "ds000168.nidm.ttl"
+            "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/master/datasets.datalad.org/openneuro/ds000110/nidm.ttl",
+            "ds000110.nidm.ttl"
         )
 
     projects2 = Navigate.getProjects(OPENNEURO_FILES)
@@ -118,8 +118,9 @@ def test_navigate_get_acquisition_data_by_subject():
                 set_of_keys_returned.add(vt.label)
 
     assert 'age' in set_of_keys_returned
-    assert 'InversionTime' in set_of_keys_returned
+    assert 'sex' in set_of_keys_returned
     assert 'hadAcquisitionModality' in set_of_keys_returned
+    assert 'hadImageUsageType' in set_of_keys_returned
 
 
 def test_navigate_get_sub_uuid_from_id():

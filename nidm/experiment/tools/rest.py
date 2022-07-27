@@ -435,7 +435,10 @@ class RestParser:
                     act_data = Navigate.getActivityData(self.nidm_files, acq)
                     for de in act_data.data:
                         if de.isAbout == "http://uri.interlex.org/ilx_0100400" or de.isAbout == "http://uri.interlex.org/base/ilx_0100400":
-                            ages.add(float(de.value))
+                            if de.value == 'n/a' or de.value =='nan':
+                                ages.add(float("nan"))
+                            else:
+                                ages.add(float(de.value))
                         elif de.isAbout == "http://uri.interlex.org/ilx_0101292" or de.isAbout == "http://uri.interlex.org/base/ilx_0101292"\
                                 or de.isAbout == "http://uri.interlex.org/ilx_0738439" or de.isAbout == \
                                 "https://ndar.nih.gov/api/datadictionary/v2/dataelement/gender":
@@ -458,7 +461,7 @@ class RestParser:
 
         match = re.match(r"^/?statistics/projects/([^/]+)\??$", path)
         id = parse.unquote(str(match.group(1)))
-        self.restLog("Returing project {} stats metadata".format(id), 2)
+        self.restLog("Returning project {} stats metadata".format(id), 2)
 
         meta_data = Query.GetProjectsMetadata(self.nidm_files)
         self.ExpandProjectMetaData(meta_data)
