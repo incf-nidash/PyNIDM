@@ -7,7 +7,7 @@
 #  License: Apache License, Version 2.0
 # *******************************************************************************************************
 # *******************************************************************************************************
-# Date: 10-09-21                 Coded by: Ashmita Kumar (ashmita.kumar@gmail.com)
+# Date: 07-26-22                 Coded by: Ashmita Kumar (ashmita.kumar@gmail.com)
 # Filename: nidm_linreg.py
 #
 # Program description:  This program provides a tool to complete a linear regression on nidm files
@@ -43,47 +43,24 @@ import click
 from nidm.experiment.tools.click_base import cli
 from nidm.experiment.tools.rest import RestParser
 import numpy as np
-try:
-    from sklearn.linear_model import LinearRegression
-    from sklearn import preprocessing
-    from sklearn.linear_model import Ridge
-    from sklearn.linear_model import Lasso
-    from sklearn.model_selection import cross_val_score
-except:
-    system('python -m pip install --upgrade pip sklearn')
-    from sklearn.linear_model import LinearRegression
-    from sklearn import preprocessing
-    from sklearn.linear_model import Ridge
-    from sklearn.linear_model import Lasso
-    from sklearn.model_selection import cross_val_score
+from sklearn.linear_model import LinearRegression
+from sklearn import preprocessing
+from sklearn.linear_model import Ridge
+from sklearn.linear_model import Lasso
+from sklearn.model_selection import cross_val_score
 
-try:
-    import statsmodels.api as sm
-    from statsmodels.formula.api import ols
-except:
-    system('python -m pip install --upgrade pip statsmodels')
-    import statsmodels.api as sm
-    from statsmodels.formula.api import ols
+import statsmodels.api as sm
+from statsmodels.formula.api import ols
 
-try:
-    from statistics import mean
-except:
-    system('python -m pip install --upgrade pip statistics')
-    from statistics import mean
 
-try:
-    from patsy.contrasts import Treatment
-    from patsy.contrasts import ContrastMatrix
-    from patsy.contrasts import Sum
-    from patsy.contrasts import Diff
-    from patsy.contrasts import Helmert
-except:
-    system('python -m pip install --upgrade pip patsy')
-    from patsy.contrasts import Treatment
-    from patsy.contrasts import ContrastMatrix
-    from patsy.contrasts import Sum
-    from patsy.contrasts import Diff
-    from patsy.contrasts import Helmert
+from statistics import mean
+
+from patsy.contrasts import Treatment
+from patsy.contrasts import ContrastMatrix
+from patsy.contrasts import Sum
+from patsy.contrasts import Diff
+from patsy.contrasts import Helmert
+
 
 MAX_ALPHA = 700
 #Defining the parameters of the commands.

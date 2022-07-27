@@ -18,6 +18,10 @@ Dependencies
 * OS-X: `brew install graphviz`
 * Datalad (optional): `pip install datalad`
 * Git-Annex (optional): <https://git-annex.branchable.com/>
+* Sklearn: `pip install sklearn`
+* Statsmodels: `pip install statsmodels`
+* Statistics: `pip install statistics`
+* Patsy: `pip install patsy`
 
 Installation
 ============
@@ -33,8 +37,12 @@ macOS
 -----  
 .. code-block:: bash
 
+	$ ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+	$ brew install miniconda --cask
+	$ conda init
+	$ conda update conda
 	$ conda create -n pynidm_py3 python=3
-	$ source activate pynidm_py3
+	$ conda activate pynidm_py3
 	$ cd PyNIDM
  	$ pip install datalad
 	$ pip install neurdflib
