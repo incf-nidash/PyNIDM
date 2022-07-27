@@ -1156,6 +1156,8 @@ def getDataTypeInfo(source_graph, datatype):
             label = o
         if (re.search(r'source_variable$', str(p)) != None):
             source_variable = o
+        elif (re.search(r'sourceVariable$', str(p)) != None):
+            source_variable = o
         if (re.search(r'description$', str(p)) != None):
             description = o
         if (re.search(r'hasUnit$', str(p), flags=re.IGNORECASE) != None):

@@ -44,7 +44,7 @@ def setup():
     projects = restParser.run(BRAIN_VOL_FILES, '/projects')
     for p in projects:
         proj_info = restParser.run(BRAIN_VOL_FILES, '/projects/{}'.format(p))
-        if 'dctypes:title' in proj_info.keys() and proj_info['dctypes:title'] == 'ABIDE CMU_a Site':
+        if 'dctypes:title' in proj_info.keys() and proj_info['dctypes:title'] == 'ABIDE - CMU_a':
             cmu_test_project_uuid = p
             break
 
