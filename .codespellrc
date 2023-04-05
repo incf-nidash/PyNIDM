@@ -1,3 +1,8 @@
 [codespell]
-skip = .git,*.pdf,*.svg
-# ignore-words-list = 
+skip = .git,*.pdf,*.svg,*.js,*.ttl
+# Commun - abbreviation in publication venue
+# nd - some css within .rst
+# Groth - name
+# splitted - just fine IMHO
+# InPort - name of a thing
+ignore-words-list = commun,nd,groth,splitted,inport
