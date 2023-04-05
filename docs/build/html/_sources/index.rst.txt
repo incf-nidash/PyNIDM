@@ -192,7 +192,7 @@ optional arguments:
   -github [GITHUB [GITHUB ...]]
                         Use -github flag with username token(or pw) for
                         storing locally-defined terms in a "nidm-local-terms"
-                        repository in GitHub. If user doesnt supply a token
+                        repository in GitHub. If user does not supply a token
                         then user will be prompted for username/password.
                         Example: -github username token
 						

@@ -301,7 +301,7 @@ def cluster_number():
     # Beginning of the linear regression
     global X
     #global y
-    #Unsure on how to procede here with interacting variables, since I'm sure dmatrices won't work
+    #Unsure on how to proceed here with interacting variables, since I'm sure dmatrices won't work
 
     """scaler = MinMaxScaler()
 

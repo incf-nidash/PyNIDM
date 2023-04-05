@@ -472,7 +472,7 @@ class RestParser:
             self.restLog("comparng " + str(pid) + " with " + Constants.NIIRI + id, 5)
             self.restLog("comparng " + str(pid) + " with niiri:" + id, 5)
             if pid == id or pid == Constants.NIIRI + id or pid == "niiri:" + id:
-                # stip off prefixes to make it more human readable
+                # strip off prefixes to make it more human readable
                 for key in projects['projects'][pid]:
                     short_key = key
                     possible_prefix = re.sub(':.*', '', short_key)

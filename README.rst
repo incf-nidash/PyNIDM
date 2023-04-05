@@ -176,7 +176,7 @@ concatenate
 -----------
 This function will concatenate NIDM files.  Warning, no merging will be
 done so you may end up with multiple prov:agents with the same subject id
-if you're concatenating NIDM files from multiple vists of the same study.
+if you're concatenating NIDM files from multiple visits of the same study.
 If you want to merge NIDM files on subject ID see pynidm merge
 
 .. code-block:: bash
@@ -412,7 +412,7 @@ Query Parameters
 -----------------
 
 **filter**
- | The filter query parameter is ues when you want to receive data only on subjects that match some criteria.  The format for the fitler value should be of the form:
+ | The filter query parameter is used when you want to receive data only on subjects that match some criteria.  The format for the filter value should be of the form:
  |    *identifier op value [ and identifier op value and ... ]*
  | Identifers should be formatted as "instrument.ID" or "derivatives.ID"  You can use any value for the instrument ID that is shown for an instrument or in the data_elements section of the project details. For the derivative ID, you can use the last component of a derivative field URI (ex. for the URI http://purl.org/nidash/fsl#fsl_000007, the ID would be "fsl_000007") or the exact label shown when viewing derivative data (ex. "Left-Caudate (mm^3)")
  | The *op* can be one of "eq", "gt", "lt"

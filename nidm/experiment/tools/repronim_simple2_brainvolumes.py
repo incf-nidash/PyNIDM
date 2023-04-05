@@ -385,7 +385,7 @@ def main(argv):
 
 #            #csv_row = df.loc[df[id_field]==type(df[id_field][0])(row[1])]
 #            #find row in CSV file with matching subject id to the agent in the NIDM file
-#            #be carefull about data types...simply type-change dataframe subject id column and query to strings.
+#            #be careful about data types...simply type-change dataframe subject id column and query to strings.
 #            #here we're removing the leading 0's from IDs because pandas.read_csv strips those unless you know ahead of
 #            #time which column is the subject id....
 #            csv_row = df.loc[df[id_field].astype('str').str.contains(str(row[1]).lstrip("0"))]
