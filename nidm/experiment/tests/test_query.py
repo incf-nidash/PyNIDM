@@ -153,7 +153,7 @@ def test_GetProjectInstruments():
 The test data file could/should have the following project meta data. Taken from
 https://raw.githubusercontent.com/incf-nidash/nidm/master/nidm/nidm-experiment/terms/nidm-experiment.owl
   
-  - descrption
+  - description
   - fileName
   - license
   - source

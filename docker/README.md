@@ -41,5 +41,5 @@ http://localhost:5000/projects/[Project-UUID]/subjects/[Subject-UUID]
 ```
 
 After the server is started you can continue to modify the files in your
-~/PyNIDM/ttl directory and those changes will immediatly be reflected in the 
+~/PyNIDM/ttl directory and those changes will immediately be reflected in the 
 REST API results.

@@ -21,7 +21,7 @@ class Acquisition(pm.ProvActivity,Core):
     #constructor
     def __init__(self, session, attributes=None, uuid=None, add_default_type=True):
         """
-        Default contructor, creates a session activity and links to project object
+        Default constructor, creates a session activity and links to project object
 
         :param session: a session object
         :param uuid: optional uuid...used mostly for reading in existing NIDM document

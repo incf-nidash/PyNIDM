@@ -22,7 +22,7 @@ class Derivative(pm.ProvActivity,Core):
     #constructor
     def __init__(self, project, attributes=None, uuid=None):
         """
-        Default contructor, creates a derivative activity
+        Default constructor, creates a derivative activity
 
         :param uuid: optional uuid...used mostly for reading in existing NIDM document
         :param attributes: optional dictionary of attributes to add qname:value

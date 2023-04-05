@@ -12,7 +12,7 @@
 # to a BIDS dataset.  The program will query the NIDM-Experiment document for subjects,
 # MRI scans, and associated assessments saving the MRI data to disk in an organization
 # according to the BIDS specification, the demographics metadata to a participants.tsv
-# file, the project-level metdata to a dataset_description.json file, and the
+# file, the project-level metadata to a dataset_description.json file, and the
 # assessments to *.tsv/*.json file pairs in a phenotypes directory.
 #**************************************************************************************
 # Development environment: Python - PyCharm IDE
@@ -642,7 +642,7 @@ def main(argv):
         to a BIDS dataset.  The program will query the NIDM-Experiment document for subjects, \
         MRI scans, and associated assessments saving the MRI data to disk in an organization \
         according to the BIDS specification, metadata to a participants.tsv \
-        file, the project-level metdata to a dataset_description.json file, and the \
+        file, the project-level metadata to a dataset_description.json file, and the \
         assessments to *.tsv/*.json file pairs in a phenotypes directory.', epilog='Example of use: \
         NIDM2BIDSMRI.py -nidm_file NIDM.ttl -part_fields age,gender -bids_dir BIDS')
 
@@ -658,7 +658,7 @@ def main(argv):
     group.add_argument('-no_downloads',dest='no_downloads', action='store_true',required=False, help=
                         "If this flag is set then script won't attempt to download images using datalad"
                         "and AWS S3.  Default behavior is files are downloaded if they don't exist locally.")
-    group.add_argument('-aws_url', dest='aws_url', required=False, help="This tool facilites export of "
+    group.add_argument('-aws_url', dest='aws_url', required=False, help="This tool facilities export of "
         "user-selected information from a NIDM file to a BIDS dataset and may have to fetch images. The NIDM files contain links from"
         "the local filesystem used to convert BIDS to NIDM and possibly DataLad dataset links to the files if the"
         " original BIDS data was a DataLad dataset. Here we support 3 modes of trying to find images: (1) copy from"
@@ -705,7 +705,7 @@ def main(argv):
             # temporary save nidm_project
             with open("/Users/dbkeator/Downloads/nidm.ttl", 'w') as f:
                 print(nidm_project.serializeTurtle(), file=f)
-            print("RDF file sucessfully read")
+            print("RDF file successfully read")
             format_found=True
             break
         except Exception:

@@ -104,7 +104,7 @@ def main(argv):
     else:
         json_map = args.json_map
     # open CSV file and load into
-    # DBK added to accomodate TSV files with tab separator 3/15/21
+    # DBK added to accommodate TSV files with tab separator 3/15/21
     if args.csv_file.endswith(".csv"):
         df = pd.read_csv(args.csv_file)
     elif args.csv_file.endswith(".tsv"):
@@ -231,7 +231,7 @@ def main(argv):
                 # create a new session for this assessment
                 new_session=Session(project=project)
 
-                #NIDM document sesssion uuid
+                #NIDM document session uuid
                 #session_uuid = row[0]
 
                 #temporary list of string-based URIs of session objects from API

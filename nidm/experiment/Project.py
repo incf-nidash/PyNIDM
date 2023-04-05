@@ -28,7 +28,7 @@ class Project(pm.ProvActivity,Core):
     #constructor, adds project
     def __init__(self,attributes=None, empty_graph=False, uuid=None,add_default_type=True):
         """
-        Default contructor, creates document and adds Project activity to graph with optional attributes
+        Default constructor, creates document and adds Project activity to graph with optional attributes
 
         :param attributes: optional dictionary of attributes to add
         :empty_graph: if set to True, creates empty graph with no namespaces besides Prov defaults

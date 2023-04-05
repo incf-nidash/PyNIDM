@@ -329,7 +329,7 @@ def read_nidm(nidmDoc):
     # nidm:FSLStatsCollection, or nidm:ANTSStatsCollection which are subclasses of nidm:Derivatives
     # this should probably be explicitly indicated in the graphs but currently isn't
 
-    # Query graph for any of the above Derivaties
+    # Query graph for any of the above Derivatives
     query = '''
             prefix nidm: <http://purl.org/nidash/nidm#> 
             prefix prov: <http://www.w3.org/ns/prov#> 
@@ -475,7 +475,7 @@ def add_metadata_for_subject (rdf_graph,subject_uri,namespaces,nidm_obj):
                     # check if person exists already in graph, if not create it
                     if agent_obj.identifier not in nidm_obj.graph.get_records():
                         person = nidm_obj.add_person(uuid=agent_obj.identifier,add_default_type=False)
-                        # add rest of meatadata about person
+                        # add rest of metadata about person
                         add_metadata_for_subject(rdf_graph=rdf_graph, subject_uri=agent_obj.identifier,
                                                  namespaces=namespaces, nidm_obj=person)
                     else:
@@ -502,7 +502,7 @@ def add_metadata_for_subject (rdf_graph,subject_uri,namespaces,nidm_obj):
                     if agent_obj.identifier not in nidm_obj.graph.get_records():
                         generic_agent = nidm_obj.graph.agent(identifier=agent_obj.identifier)
 
-                        # add rest of meatadata about the agent
+                        # add rest of metadata about the agent
                         add_metadata_for_subject(rdf_graph=rdf_graph, subject_uri=agent_obj.identifier,
                                                  namespaces=namespaces, nidm_obj=generic_agent)
                     # try and split uri into namespace and local parts, if fails just use entire URI
@@ -530,7 +530,7 @@ def QuerySciCrunchElasticSearch(query_string,type='cde', anscestors=True):
     This function will perform an elastic search in SciCrunch on the [query_string] using API [key] and return the json package.
     :param key: API key from sci crunch
     :param query_string: arbitrary string to search for terms
-    :param type: default is 'CDE'.  Acceptible values are 'cde' or 'pde'.
+    :param type: default is 'CDE'.  Acceptable values are 'cde' or 'pde'.
     :return: json document of results form elastic search
     '''
 
@@ -544,7 +544,7 @@ def QuerySciCrunchElasticSearch(query_string,type='cde', anscestors=True):
     except KeyError:
         print("Please set the environment variable INTERLEX_API_KEY")
         sys.exit(1)
-    #Add check for internet connnection, if not then skip this query...return empty dictionary
+    #Add check for internet connection, if not then skip this query...return empty dictionary
 
 
     headers = {
@@ -879,7 +879,7 @@ def fuzzy_match_terms_from_cogatlas_json(json_struct,query_string):
 def authenticate_github(authed=None,credentials=None):
     '''
     This function will hangle GitHub authentication with or without a token.  If the parameter authed is defined the
-    function will check whether it's an active/valide authentication object.  If not, and username/token is supplied then
+    function will check whether it's an active/valid authentication object.  If not, and username/token is supplied then
     an authentication object will be created.  If username + token is not supplied then the user will be prompted to input
     the information.
     :param authed: Optional authenticaion object from PyGithub
@@ -951,7 +951,7 @@ def redcap_datadictionary_to_json(redcap_dd_file,assessment_name):
     '''
     This function will convert a redcap data dictionary to our json data elements structure
     :param redcap_dd: RedCap data dictionary
-    :return: json data element defintions
+    :return: json data element definitions
     '''
 
     # load redcap data dictionary
@@ -1464,7 +1464,7 @@ def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_
     # write annotations to json file since data element annotations are complete
     write_json_mapping_file(column_to_terms, output_file, bids)
 
-    # get CDEs for data dictonary and NIDM graph entity of data
+    # get CDEs for data dictionary and NIDM graph entity of data
     cde = DD_to_nidm(column_to_terms,dataset_identifier=dataset_identifier)
 
     return [column_to_terms, cde]

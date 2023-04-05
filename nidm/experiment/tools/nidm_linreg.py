@@ -329,7 +329,7 @@ def dataparsing(): #The data is changed to a format that is usable by the linear
             splitted = condensed_data[0][i].split("/")
             condensed_data[0][i] = splitted[len(splitted) - 1]
 
-    """In this section, if there are less than 20 points, the model will be innacurate and there are too few variables for regularization.
+    """In this section, if there are less than 20 points, the model will be inaccurate and there are too few variables for regularization.
     That means that we warn the user that such errors can occur and ask them if they want to proceed.
     The answer is stored in answer. If the user responds with N, it exits the code after writing the error to the output file (if there is one).
     If the user says Y instead, the code runs, but stops before doing the regularization."""
@@ -352,7 +352,7 @@ def dataparsing(): #The data is changed to a format that is usable by the linear
         if (o is not None):
             f = open(o, "a")
             f.write("Your model was " + m)
-            f.write("Due to a lack of data (<20 points), you stopped the model because the results may have been innacurate.")
+            f.write("Due to a lack of data (<20 points), you stopped the model because the results may have been inaccurate.")
             f.close()
         exit(1)
     x = pd.read_csv(opencsv(condensed_data))  # changes the dataframe to a csv to make it easier to work with

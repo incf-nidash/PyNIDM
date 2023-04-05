@@ -9,7 +9,7 @@
 # Date: 8-1-18                 Coded by: David Keator (dbkeator@gmail.com)
 # Filename: nidm_query.py
 #
-# Program description:  This program provides query functionalty for NIDM-Experiment files
+# Program description:  This program provides query functionality for NIDM-Experiment files
 #
 #
 #**************************************************************************************

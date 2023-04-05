@@ -20,9 +20,9 @@ class AcquisitionObject(pm.ProvEntity,Core):
     #constructor
     def __init__(self, acquisition,attributes=None, uuid=None):
         """
-        Default contructor, creates an acquisition object and links to acquisition activity object
+        Default constructor, creates an acquisition object and links to acquisition activity object
 
-        :param acquisition: a Aquisition activity object
+        :param acquisition: a Acquisition activity object
         :param attributes: optional attributes to add to entity
         :param uuid: optional uuid...used mostly for reading in existing NIDM document
         :return: none
