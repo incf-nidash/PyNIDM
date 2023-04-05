@@ -10,7 +10,7 @@ htmlcov/*
 
 /build
 /dist
-nidm.egg-info/
+*.egg-info/
 
 .idea/
 .DS_Store
