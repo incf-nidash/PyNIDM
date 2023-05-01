@@ -101,11 +101,6 @@ def read_nidm(nidmDoc):
     rdf_graph_parse = rdf_graph.parse(nidmDoc,format=util.guess_format(nidmDoc))
 
 
-
-    # add known CDE graphs
-    #rdf_graph_parse = rdf_graph.parse
-
-
     # Query graph for project metadata and create project level objects
     # Get subject URI for project
     proj_id=None
@@ -144,7 +139,6 @@ def read_nidm(nidmDoc):
         add_metadata_for_subject (rdf_graph_parse,proj_id,project.graph.namespaces,project)
 
 
-
     #Query graph for sessions, instantiate session objects, and add to project._session list
     #Get subject URI for sessions
     for s in rdf_graph_parse.subjects(predicate=RDF.type,object=URIRef(Constants.NIDM_SESSION.uri)):
@@ -169,7 +163,7 @@ def read_nidm(nidmDoc):
         for acq in rdf_graph_parse.subjects(predicate=Constants.DCT['isPartOf'],object=s):
             #Split subject URI for session into namespace, uuid
             nm,acq_uuid = split_uri(acq)
-            #print("acquisition uuid: %s" %acq_uuid)
+            # print("acquisition uuid: %s" %acq_uuid)
 
             #query for whether this is an AssessmentAcquisition of other Acquisition, etc.
             for rdf_type in  rdf_graph_parse.objects(subject=acq, predicate=RDF.type):
@@ -216,6 +210,8 @@ def read_nidm(nidmDoc):
                                     #cycle through rest of metadata
                                     add_metadata_for_subject(rdf_graph_parse,assoc_acq,project.graph.namespaces,events_obj)
 
+
+
                         elif (acq_obj, RDF.type, URIRef(Constants.NIDM_MRI_BOLD_EVENTS._uri)) in rdf_graph:
                             #If this is a stimulus response file
                             #elif str(acq_modality) == Constants.NIDM_MRI_BOLD_EVENTS:
@@ -261,6 +257,23 @@ def read_nidm(nidmDoc):
                             acquisition.add_acquisition_object(acquisition_obj)
                             #Cycle through remaining metadata for acquisition entity and add attributes
                             add_metadata_for_subject(rdf_graph_parse,acq_obj,project.graph.namespaces,acquisition_obj)
+                        # if this is a DWI scan then we could have b-value and b-vector files associated
+                        elif ((acq_obj, RDF.type, URIRef(Constants.NIDM_MRI_DWI_BVAL._uri)) in rdf_graph) or \
+                            ((acq_obj, RDF.type, URIRef(Constants.NIDM_MRI_DWI_BVEC._uri)) in rdf_graph):
+                            # If this is a b-values filev
+                            acquisition = Acquisition(session=session, uuid=acq_uuid)
+                            if not session.acquisition_exist(acq_uuid):
+                                session.add_acquisition(acquisition)
+                                # Cycle through remaining metadata for acquisition activity and add attributes
+                                add_metadata_for_subject(rdf_graph_parse, acq, project.graph.namespaces, acquisition)
+
+                            # and add acquisition object
+                            acquisition_obj = AcquisitionObject(acquisition=acquisition, uuid=acq_obj_uuid)
+                            acquisition.add_acquisition_object(acquisition_obj)
+                            # Cycle through remaining metadata for acquisition entity and add attributes
+                            add_metadata_for_subject(rdf_graph_parse, acq_obj, project.graph.namespaces,
+                                                     acquisition_obj)
+
 
 
                 #This skips rdf_type PROV['Activity']
@@ -269,29 +282,54 @@ def read_nidm(nidmDoc):
 
     # Query graph for nidm:DataElements and instantiate a nidm:DataElement class and add them to the project
     query = '''
-            prefix nidm: <http://purl.org/nidash/nidm#>  
-            select distinct ?uuid
-            where {
-                ?uuid a nidm:DataElement .
-     			
-            }
-            '''
+                prefix nidm: <http://purl.org/nidash/nidm#>
+                prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
+                select distinct ?uuid
+                where {
+                    ?uuid a/rdfs:subClassOf* nidm:DataElement .
+
+                }
+                '''
 
     # add all nidm:DataElements in graph
     qres = rdf_graph_parse.query(query)
     for row in qres:
+        print(row)
         # instantiate a data element class assigning it the existing uuid
-        de = DataElement(project=project, uuid=row['uuid'],add_default_type=False)
+        de = DataElement(project=project, uuid=row['uuid'], add_default_type=False)
         # get the rest of the attributes for this data element and store
         add_metadata_for_subject(rdf_graph_parse, row['uuid'], project.graph.namespaces, de)
 
+        # now we need to check if there are labels for data element isAbout entries, if so add them.
+        query2 = '''
+
+                prefix nidm: <http://purl.org/nidash/nidm#>
+                prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+                prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+                prefix prov: <http://www.w3.org/ns/prov#>
+
+                select distinct ?id ?label
+                where {
+                    <%s> nidm:isAbout ?id .
+
+                    ?id rdf:type prov:Entity ;
+                        rdfs:label ?label .  
+                }
+
+            ''' % row['uuid']
+        # print(query2)
+        qres2 = rdf_graph_parse.query(query2)
+
+        # add this tuple to graph
+        for row2 in qres2:
+            project.graph.entity(row2[0], {'rdfs:label': row2[1]})
 
     # check for Derivatives.
     # WIP: Currently FSL, Freesurfer, and ANTS tools add these derivatives as nidm:FSStatsCollection,
     # nidm:FSLStatsCollection, or nidm:ANTSStatsCollection which are subclasses of nidm:Derivatives
     # this should probably be explicitly indicated in the graphs but currently isn't
 
-    # Query graph for any of the above Derivaties
+    # Query graph for any of the above Derivatives
     query = '''
             prefix nidm: <http://purl.org/nidash/nidm#> 
             prefix prov: <http://www.w3.org/ns/prov#> 
@@ -437,7 +475,7 @@ def add_metadata_for_subject (rdf_graph,subject_uri,namespaces,nidm_obj):
                     # check if person exists already in graph, if not create it
                     if agent_obj.identifier not in nidm_obj.graph.get_records():
                         person = nidm_obj.add_person(uuid=agent_obj.identifier,add_default_type=False)
-                        # add rest of meatadata about person
+                        # add rest of metadata about person
                         add_metadata_for_subject(rdf_graph=rdf_graph, subject_uri=agent_obj.identifier,
                                                  namespaces=namespaces, nidm_obj=person)
                     else:
@@ -464,10 +502,10 @@ def add_metadata_for_subject (rdf_graph,subject_uri,namespaces,nidm_obj):
                     if agent_obj.identifier not in nidm_obj.graph.get_records():
                         generic_agent = nidm_obj.graph.agent(identifier=agent_obj.identifier)
 
-                        # add rest of meatadata about the agent
+                        # add rest of metadata about the agent
                         add_metadata_for_subject(rdf_graph=rdf_graph, subject_uri=agent_obj.identifier,
                                                  namespaces=namespaces, nidm_obj=generic_agent)
-                    # try and split uri into namespacea and local parts, if fails just use entire URI
+                    # try and split uri into namespace and local parts, if fails just use entire URI
                     try:
                         # create qualified names for objects
                         obj_nm, obj_term = split_uri(r_obj.identifier)
@@ -492,7 +530,7 @@ def QuerySciCrunchElasticSearch(query_string,type='cde', anscestors=True):
     This function will perform an elastic search in SciCrunch on the [query_string] using API [key] and return the json package.
     :param key: API key from sci crunch
     :param query_string: arbitrary string to search for terms
-    :param type: default is 'CDE'.  Acceptible values are 'cde' or 'pde'.
+    :param type: default is 'CDE'.  Acceptable values are 'cde' or 'pde'.
     :return: json document of results form elastic search
     '''
 
@@ -506,7 +544,7 @@ def QuerySciCrunchElasticSearch(query_string,type='cde', anscestors=True):
     except KeyError:
         print("Please set the environment variable INTERLEX_API_KEY")
         sys.exit(1)
-    #Add check for internet connnection, if not then skip this query...return empty dictionary
+    #Add check for internet connection, if not then skip this query...return empty dictionary
 
 
     headers = {
@@ -841,7 +879,7 @@ def fuzzy_match_terms_from_cogatlas_json(json_struct,query_string):
 def authenticate_github(authed=None,credentials=None):
     '''
     This function will hangle GitHub authentication with or without a token.  If the parameter authed is defined the
-    function will check whether it's an active/valide authentication object.  If not, and username/token is supplied then
+    function will check whether it's an active/valid authentication object.  If not, and username/token is supplied then
     an authentication object will be created.  If username + token is not supplied then the user will be prompted to input
     the information.
     :param authed: Optional authenticaion object from PyGithub
@@ -913,7 +951,7 @@ def redcap_datadictionary_to_json(redcap_dd_file,assessment_name):
     '''
     This function will convert a redcap data dictionary to our json data elements structure
     :param redcap_dd: RedCap data dictionary
-    :return: json data element defintions
+    :return: json data element definitions
     '''
 
     # load redcap data dictionary
@@ -1139,6 +1177,124 @@ def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_
                         column_to_terms[current_tuple]['allowableValues'] = json_map[json_key[0]]['allowableValues']
                         print("allowableValues: %s" % column_to_terms[current_tuple]['allowableValues'])
 
+                    # added to support ReproSchema json format
+                    if 'responseOptions' in json_map[json_key[0]]:
+                        for subkey, subvalye in json_map[json_key[0]]['responseOptions'].items():
+                            if 'valueType' in subkey:
+                                if 'responseOptions' not in column_to_terms[current_tuple].keys():
+                                    column_to_terms[current_tuple]['responseOptions'] = {}
+
+                                column_to_terms[current_tuple]['responseOptions']['valueType'] = \
+                                    json_map[json_key[0]]['responseOptions']['valueType']
+                                print("valueType: %s" % column_to_terms[current_tuple]['responseOptions'][
+                                    'valueType'])
+
+                            elif 'minValue' in subkey:
+                                if 'responseOptions' not in column_to_terms[current_tuple].keys():
+                                    column_to_terms[current_tuple]['responseOptions'] = {}
+
+                                column_to_terms[current_tuple]['responseOptions']['minValue'] = \
+                                    json_map[json_key[0]]['responseOptions']['minValue']
+                                print(
+                                    "minValue: %s" % column_to_terms[current_tuple]['responseOptions']['minValue'])
+
+                            elif 'maxValue' in subkey:
+                                if 'responseOptions' not in column_to_terms[current_tuple].keys():
+                                    column_to_terms[current_tuple]['responseOptions'] = {}
+
+                                column_to_terms[current_tuple]['responseOptions']['maxValue'] = \
+                                    json_map[json_key[0]]['responseOptions']['maxValue']
+                                print(
+                                    "maxValue: %s" % column_to_terms[current_tuple]['responseOptions']['maxValue'])
+                            elif 'choices' in subkey:
+                                if 'responseOptions' not in column_to_terms[current_tuple].keys():
+                                    column_to_terms[current_tuple]['responseOptions'] = {}
+
+                                column_to_terms[current_tuple]['responseOptions']['choices'] = \
+                                    json_map[json_key[0]]['responseOptions']['choices']
+                                print("levels: %s" % column_to_terms[current_tuple]['responseOptions']['choices'])
+                            elif 'hasUnit' in subkey:
+                                if 'responseOptions' not in column_to_terms[current_tuple].keys():
+                                    column_to_terms[current_tuple]['responseOptions'] = {}
+
+                                column_to_terms[current_tuple]['responseOptions']['unitCode'] = \
+                                    json_map[json_key[0]]['responseOptions']['hasUnit']
+                                print("units: %s" % column_to_terms[current_tuple]['responseOptions']['unitCode'])
+                            elif 'unitCode' in subkey:
+                                if 'responseOptions' not in column_to_terms[current_tuple].keys():
+                                    column_to_terms[current_tuple]['responseOptions'] = {}
+
+                                column_to_terms[current_tuple]['responseOptions']['unitCode'] = \
+                                    json_map[json_key[0]]['responseOptions']['unitCode']
+                                print("units: %s" % column_to_terms[current_tuple]['responseOptions']['unitCode'])
+
+                    if 'levels' in json_map[json_key[0]]:
+                        # upgrade 'levels' to 'responseOptions'->'choices'
+                        if 'responseOptions' not in column_to_terms[current_tuple].keys():
+                            column_to_terms[current_tuple]['responseOptions'] = {}
+                        column_to_terms[current_tuple]['responseOptions']['choices'] = json_map[json_key[0]][
+                            'levels']
+                        print("choices: %s" % column_to_terms[current_tuple]['responseOptions']['choices'])
+                    elif 'Levels' in json_map[json_key[0]]:
+                        # upgrade 'levels' to 'responseOptions'->'choices'
+                        if 'responseOptions' not in column_to_terms[current_tuple].keys():
+                            column_to_terms[current_tuple]['responseOptions'] = {}
+                        column_to_terms[current_tuple]['responseOptions']['choices'] = json_map[json_key[0]][
+                            'Levels']
+                        print("levels: %s" % column_to_terms[current_tuple]['responseOptions']['choices'])
+
+                    if 'valueType' in json_map[json_key[0]]:
+                        # upgrade 'valueType' to 'responseOptions'->'valueType
+                        if 'responseOptions' not in column_to_terms[current_tuple].keys():
+                            column_to_terms[current_tuple]['responseOptions'] = {}
+                        column_to_terms[current_tuple]['responseOptions']['valueType'] = \
+                            json_map[json_key[0]]['valueType']
+                        print("valueType: %s" % column_to_terms[current_tuple]['responseOptions']['valueType'])
+
+                    if ('minValue' in json_map[json_key[0]]):
+                        # upgrade 'minValue' to 'responseOptions'->'minValue
+                        if 'responseOptions' not in column_to_terms[current_tuple].keys():
+                            column_to_terms[current_tuple]['responseOptions'] = {}
+                        column_to_terms[current_tuple]['responseOptions']['minValue'] = \
+                            json_map[json_key[0]]['minValue']
+                        print("minValue: %s" % column_to_terms[current_tuple]['responseOptions']['minValue'])
+                    elif ('minimumValue' in json_map[json_key[0]]):
+                        # upgrade 'minValue' to 'responseOptions'->'minValue
+                        if 'responseOptions' not in column_to_terms[current_tuple].keys():
+                            column_to_terms[current_tuple]['responseOptions'] = {}
+                        column_to_terms[current_tuple]['responseOptions']['minValue'] = \
+                            json_map[json_key[0]]['minimumValue']
+                        print("minValue: %s" % column_to_terms[current_tuple]['responseOptions']['minValue'])
+
+                    if 'maxValue' in json_map[json_key[0]]:
+                        # upgrade 'maxValue' to 'responseOptions'->'maxValue
+                        if 'responseOptions' not in column_to_terms[current_tuple].keys():
+                            column_to_terms[current_tuple]['responseOptions'] = {}
+                        column_to_terms[current_tuple]['responseOptions']['maxValue'] = \
+                            json_map[json_key[0]]['maxValue']
+                        print("maxValue: %s" % column_to_terms[current_tuple]['responseOptions']['maxValue'])
+                    elif 'maximumValue' in json_map[json_key[0]]:
+                        # upgrade 'maxValue' to 'responseOptions'->'maxValue
+                        if 'responseOptions' not in column_to_terms[current_tuple].keys():
+                            column_to_terms[current_tuple]['responseOptions'] = {}
+                        column_to_terms[current_tuple]['responseOptions']['maxValue'] = \
+                            json_map[json_key[0]]['maximumValue']
+                        print("maxValue: %s" % column_to_terms[current_tuple]['responseOptions']['maxValue'])
+                    if 'hasUnit' in json_map[json_key[0]]:
+                        # upgrade 'hasUnit' to 'responseOptions'->'unitCode
+                        if 'responseOptions' not in column_to_terms[current_tuple].keys():
+                            column_to_terms[current_tuple]['responseOptions'] = {}
+                        column_to_terms[current_tuple]['responseOptions']['unitCode'] = \
+                            json_map[json_key[0]]['hasUnit']
+                        print("unitCode: %s" % column_to_terms[current_tuple]['responseOptions']['unitCode'])
+                    elif 'Units' in json_map[json_key[0]]:
+                        # upgrade 'Units' to 'responseOptions'->'unitCode
+                        if 'responseOptions' not in column_to_terms[current_tuple].keys():
+                            column_to_terms[current_tuple]['responseOptions'] = {}
+                        column_to_terms[current_tuple]['responseOptions']['unitCode'] = \
+                            json_map[json_key[0]]['Units']
+                        print("unitCode: %s" % column_to_terms[current_tuple]['responseOptions']['unitCode'])
+
                     if "isAbout" in json_map[json_key[0]]:
                         #check if we have a single isAbout or multiple...
                         if isinstance(json_map[json_key[0]]['isAbout'],list):
@@ -1208,115 +1364,8 @@ def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_
                             # write annotations to json file so user can start up again if not doing whole file
                             write_json_mapping_file(column_to_terms,output_file,bids)
 
-
-                    # added to support ReproSchema json format
-                    if 'responseOptions' in json_map[json_key[0]]:
-                        for subkey,subvalye in json_map[json_key[0]]['responseOptions'].items():
-                            if 'valueType' in subkey:
-                                if 'responseOptions' not in column_to_terms[current_tuple].keys():
-                                    column_to_terms[current_tuple]['responseOptions'] = {}
-
-                                column_to_terms[current_tuple]['responseOptions']['valueType'] = \
-                                    json_map[json_key[0]]['responseOptions']['valueType']
-                                print("valueType: %s" % column_to_terms[current_tuple]['responseOptions']['valueType'])
-
-                            elif 'minValue' in subkey:
-                                if 'responseOptions' not in column_to_terms[current_tuple].keys():
-                                    column_to_terms[current_tuple]['responseOptions'] = {}
-
-                                column_to_terms[current_tuple]['responseOptions']['minValue'] = \
-                                    json_map[json_key[0]]['responseOptions']['minValue']
-                                print("minValue: %s" % column_to_terms[current_tuple]['responseOptions']['minValue'])
-
-                            elif 'maxValue' in subkey:
-                                if 'responseOptions' not in column_to_terms[current_tuple].keys():
-                                    column_to_terms[current_tuple]['responseOptions'] = {}
-
-                                column_to_terms[current_tuple]['responseOptions']['maxValue'] = \
-                                    json_map[json_key[0]]['responseOptions']['maxValue']
-                                print("maxValue: %s" % column_to_terms[current_tuple]['responseOptions']['maxValue'])
-                            elif 'choices' in subkey:
-                                if 'responseOptions' not in column_to_terms[current_tuple].keys():
-                                    column_to_terms[current_tuple]['responseOptions'] = {}
-
-                                column_to_terms[current_tuple]['responseOptions']['choices'] = \
-                                    json_map[json_key[0]]['responseOptions']['choices']
-                                print("levels: %s" % column_to_terms[current_tuple]['responseOptions']['choices'])
-                            elif 'hasUnit' in subkey:
-                                if 'responseOptions' not in column_to_terms[current_tuple].keys():
-                                    column_to_terms[current_tuple]['responseOptions'] = {}
-
-                                column_to_terms[current_tuple]['responseOptions']['unitCode'] = \
-                                    json_map[json_key[0]]['responseOptions']['hasUnit']
-                                print("units: %s" % column_to_terms[current_tuple]['responseOptions']['unitCode'])
-                            elif 'unitCode' in subkey:
-                                if 'responseOptions' not in column_to_terms[current_tuple].keys():
-                                    column_to_terms[current_tuple]['responseOptions'] = {}
-
-                                column_to_terms[current_tuple]['responseOptions']['unitCode'] = \
-                                    json_map[json_key[0]]['responseOptions']['unitCode']
-                                print("units: %s" % column_to_terms[current_tuple]['responseOptions']['unitCode'])
-
-                    if 'levels' in json_map[json_key[0]]:
-                        # upgrade 'levels' to 'responseOptions'->'choices'
-                        if 'responseOptions' not in column_to_terms[current_tuple].keys():
-                            column_to_terms[current_tuple]['responseOptions'] = {}
-                        column_to_terms[current_tuple]['responseOptions']['choices'] = json_map[json_key[0]]['levels']
-                        print("choices: %s" %column_to_terms[current_tuple]['responseOptions']['choices'])
-                    elif 'Levels' in json_map[json_key[0]]:
-                        # upgrade 'levels' to 'responseOptions'->'choices'
-                        if 'responseOptions' not in column_to_terms[current_tuple].keys():
-                            column_to_terms[current_tuple]['responseOptions'] ={}
-                        column_to_terms[current_tuple]['responseOptions']['choices'] = json_map[json_key[0]]['Levels']
-                        print("levels: %s" %column_to_terms[current_tuple]['responseOptions']['choices'])
-
-                    if 'valueType' in json_map[json_key[0]]:
-                        # upgrade 'valueType' to 'responseOptions'->'valueType
-                        if 'responseOptions' not in column_to_terms[current_tuple].keys():
-                            column_to_terms[current_tuple]['responseOptions'] = {}
-                        column_to_terms[current_tuple]['responseOptions']['valueType'] = \
-                            json_map[json_key[0]]['valueType']
-                        print("valueType: %s" % column_to_terms[current_tuple]['responseOptions']['valueType'])
-
-                    if ('minValue' in json_map[json_key[0]]):
-                        # upgrade 'minValue' to 'responseOptions'->'minValue
-                        if 'responseOptions' not in column_to_terms[current_tuple].keys():
-                            column_to_terms[current_tuple]['responseOptions'] = {}
-                        column_to_terms[current_tuple]['responseOptions']['minValue'] = \
-                            json_map[json_key[0]]['minValue']
-                        print("minValue: %s" % column_to_terms[current_tuple]['responseOptions']['minValue'])
-                    elif ('minimumValue' in json_map[json_key[0]]):
-                        # upgrade 'minValue' to 'responseOptions'->'minValue
-                        if 'responseOptions' not in column_to_terms[current_tuple].keys():
-                            column_to_terms[current_tuple]['responseOptions'] = {}
-                        column_to_terms[current_tuple]['responseOptions']['minValue'] = \
-                            json_map[json_key[0]]['minimumValue']
-                        print("minValue: %s" % column_to_terms[current_tuple]['responseOptions']['minValue'])
-
-                    if 'maxValue' in json_map[json_key[0]]:
-                        # upgrade 'maxValue' to 'responseOptions'->'maxValue
-                        if 'responseOptions' not in column_to_terms[current_tuple].keys():
-                            column_to_terms[current_tuple]['responseOptions'] = {}
-                        column_to_terms[current_tuple]['responseOptions']['maxValue'] = \
-                            json_map[json_key[0]]['maxValue']
-                        print("maxValue: %s" % column_to_terms[current_tuple]['responseOptions']['maxValue'])
-                    elif 'maximumValue' in json_map[json_key[0]]:
-                        # upgrade 'maxValue' to 'responseOptions'->'maxValue
-                        if 'responseOptions' not in column_to_terms[current_tuple].keys():
-                            column_to_terms[current_tuple]['responseOptions'] = {}
-                        column_to_terms[current_tuple]['responseOptions']['maxValue'] = \
-                            json_map[json_key[0]]['maximumValue']
-                        print("maxValue: %s" % column_to_terms[current_tuple]['responseOptions']['maxValue'])
-                    if 'hasUnit' in json_map[json_key[0]]:
-                        # upgrade 'hasUnit' to 'responseOptions'->'unitCode
-                        if 'responseOptions' not in column_to_terms[current_tuple].keys():
-                            column_to_terms[current_tuple]['responseOptions'] = {}
-                        column_to_terms[current_tuple]['responseOptions']['unitCode'] = \
-                            json_map[json_key[0]]['hasUnit']
-                        print("unitCode: %s" % column_to_terms[current_tuple]['responseOptions']['unitCode'])
-
-                    print("***************************************************************************************")
-                    print("---------------------------------------------------------------------------------------")
+            print("***************************************************************************************")
+            print("---------------------------------------------------------------------------------------")
 
             if (json_map is not None) and (len(json_key)>0):
                 continue
@@ -1415,7 +1464,7 @@ def map_variables_to_terms(df,directory, assessment_name, output_file=None,json_
     # write annotations to json file since data element annotations are complete
     write_json_mapping_file(column_to_terms, output_file, bids)
 
-    # get CDEs for data dictonary and NIDM graph entity of data
+    # get CDEs for data dictionary and NIDM graph entity of data
     cde = DD_to_nidm(column_to_terms,dataset_identifier=dataset_identifier)
 
     return [column_to_terms, cde]

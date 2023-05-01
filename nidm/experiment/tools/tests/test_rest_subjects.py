@@ -14,8 +14,8 @@ from pathlib import Path
 from rdflib import Graph, util, URIRef
 
 BRAIN_VOL_FILES = ['./cmu_a.nidm.ttl', './caltech.nidm.ttl']
-OPENNEURO_FILES = ['ds000168.nidm.ttl']
-ALL_FILES = ['./cmu_a.nidm.ttl', './caltech.nidm.ttl', 'ds000168.nidm.ttl']
+OPENNEURO_FILES = ['ds000120.nidm.ttl']
+ALL_FILES = ['./cmu_a.nidm.ttl', './caltech.nidm.ttl', 'ds000120.nidm.ttl']
 OPENNEURO_PROJECT_URI = None
 OPENNEURO_SUB_URI = None
 
@@ -44,7 +44,7 @@ def setup():
     projects = restParser.run(BRAIN_VOL_FILES, '/projects')
     for p in projects:
         proj_info = restParser.run(BRAIN_VOL_FILES, '/projects/{}'.format(p))
-        if 'dctypes:title' in proj_info.keys() and proj_info['dctypes:title'] == 'ABIDE CMU_a Site':
+        if 'dctypes:title' in proj_info.keys() and proj_info['dctypes:title'] == 'ABIDE - CMU_a':
             cmu_test_project_uuid = p
             break
 
@@ -52,16 +52,18 @@ def setup():
     cmu_test_subject_uuid = subjects['uuid'][0]
 
 
-    if not Path('./ds000168.nidm.ttl').is_file():
+    if not Path('./ds000120.nidm.ttl').is_file():
         urllib.request.urlretrieve (
-            "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/master/datasets.datalad.org/openneuro/ds000168/nidm.ttl",
-            "ds000168.nidm.ttl"
+            "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/master/datasets.datalad.org/openneuro/ds000120/nidm.ttl",
+            "ds000120.nidm.ttl"
         )
 
     projects2 = restParser.run(OPENNEURO_FILES, '/projects')
     for p in projects2:
         proj_info = restParser.run(OPENNEURO_FILES, '/projects/{}'.format(p))
-        if 'dctypes:title' in proj_info.keys() and proj_info['dctypes:title'] == 'Offline Processing in Associative Learning':
+        if 'dctypes:title' in proj_info.keys() and proj_info['dctypes:title'] == \
+                'Developmental changes in brain function underlying the influence of reward processing on ' \
+                'inhibitory control (Slot Reward)':
             OPENNEURO_PROJECT_URI = p
     subjects = restParser.run(OPENNEURO_FILES, '/projects/{}/subjects'.format(OPENNEURO_PROJECT_URI))
     OPENNEURO_SUB_URI = subjects['uuid'][0]

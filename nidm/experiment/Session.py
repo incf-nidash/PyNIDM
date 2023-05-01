@@ -22,7 +22,7 @@ class Session(pm.ProvActivity,Core):
     #constructor
     def __init__(self, project,uuid=None,attributes=None,add_default_type=True):
         """
-        Default contructor, creates a session activity and links to project object
+        Default constructor, creates a session activity and links to project object
 
         :param project: a project object
         :return: none

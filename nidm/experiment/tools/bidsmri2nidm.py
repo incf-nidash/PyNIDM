@@ -69,7 +69,7 @@ def getsha512(filename):
     """
     This function computes the SHA512 sum of a file
     :param filename: path+filename of file to compute SHA512 sum for
-    :return: hexidecimal sha512 sum of file.
+    :return: hexadecimal sha512 sum of file.
     """
     sha512_hash = hashlib.sha512()
     with open(filename,"rb") as f:
@@ -114,12 +114,16 @@ and API Keys.  Then set the environment variable INTERLEX_API_KEY with your key.
     # importlib.reload(sys)
     # sys.setdefaultencoding('utf8')
 
-    project, cde = bidsmri2project(directory,args)
+    project, cde, cde_pheno = bidsmri2project(directory,args)
 
     #  convert to rdflib Graph and add CDEs
     rdf_graph = Graph()
     rdf_graph.parse(source=StringIO(project.serializeTurtle()),format='turtle')
     rdf_graph = rdf_graph + cde
+
+    # add rest of phenotype CDEs
+    for entry in cde_pheno:
+        rdf_graph = rdf_graph + entry
 
     logging.info("Writing NIDM file....")
 
@@ -566,7 +570,7 @@ def bidsmri2project(directory, args):
         project.add_attributes({Constants.PROV['Location']:"file:/" + directory})
 
 
-    # add various attributes if they exist in BIDS dataset
+    # add various attributes if they exist in BIDS dataset description file
     for key in dataset:
         # if key from dataset_description file is mapped to term in BIDS_Constants.py then add to NIDM object
         if key in BIDS_Constants.dataset_description:
@@ -595,7 +599,7 @@ def bidsmri2project(directory, args):
     bids_layout = bids.BIDSLayout(directory)
 
 
-    # create empty dictinary for sessions where key is subject id and used later to link scans to same session as demographics
+    # create empty dictionary for sessions where key is subject id and used later to link scans to same session as demographics
     session={}
     participant={}
     # Parse participants.tsv file in BIDS directory and create study and acquisition objects
@@ -603,10 +607,10 @@ def bidsmri2project(directory, args):
         with open(os.path.join(directory,'participants.tsv')) as csvfile:
             participants_data = csv.DictReader(csvfile, delimiter='\t')
 
-            # logic to map variables to terms.
-            # first iterate over variables in dataframe and check which ones are already mapped as BIDS constants and which are not.  For those that are not
-            # we want to use the variable-term mapping functions to help the user do the mapping
-            # iterate over columns
+            # logic to create data dictionaries for variables and/or use them if they already exist.
+            # first iterate over variables in dataframe and check which ones are already mapped as BIDS constants
+            # and which are not.  For those that are not
+            # we want to use the variable-term mapping functions to help the user create data dictionaries
             mapping_list=[]
             column_to_terms={}
             for field in participants_data.fieldnames:
@@ -618,45 +622,54 @@ def bidsmri2project(directory, args):
 
 
 
-            #if user didn't supply a json mapping file but we're doing some variable-term mapping create an empty one for column_to_terms to use
+            # if user didn't supply a json data dictionary file but we're doing some variable-term mapping create an empty one
+            # for column_to_terms to use
             if args.json_map == False:
-                #defaults to participants.json because here we're mapping the participants.tsv file variables to terms
+
+                # defaults to participants.json because here we're mapping the participants.tsv file variables to terms
                 # if participants.json file doesn't exist then run without json mapping file
                 if not os.path.isfile(os.path.join(directory,'participants.json')):
-                    #maps variables in CSV file to terms
+                    # temporary data frame of variables we need to create data dictionaries for
                     temp=DataFrame(columns=mapping_list)
+                    # create data dictionary without concept mapping
                     if args.no_concepts:
                         column_to_terms,cde = map_variables_to_terms(directory=directory,assessment_name='participants.tsv',
                             df=temp,output_file=os.path.join(directory,'participants.json'),bids=True,associate_concepts=False,
                             dataset_identifier = dataset_doi)
+                    # create data dictionary with concept mapping
                     else:
                         column_to_terms,cde = map_variables_to_terms(directory=directory,assessment_name='participants.tsv',
                             df=temp,output_file=os.path.join(directory,'participants.json'),bids=True,
                             dataset_identifier = dataset_doi)
                 else:
-                    #maps variables in CSV file to terms
+                    # temporary data frame of variables we need to create data dictionaries for
                     temp=DataFrame(columns=mapping_list)
+                    # create data dictionary without concept mapping
                     if args.no_concepts:
                         column_to_terms,cde = map_variables_to_terms(directory=directory, assessment_name='participants.tsv', df=temp,
                             output_file=os.path.join(directory,'participants.json'),json_source=os.path.join(directory,'participants.json'),
                             bids=True,associate_concepts=False, dataset_identifier = dataset_doi)
+                    # create data dictionary with concept mapping
                     else:
                         column_to_terms,cde = map_variables_to_terms(directory=directory, assessment_name='participants.tsv', df=temp,
                             output_file=os.path.join(directory,'participants.json'),json_source=os.path.join(directory,'participants.json'),
                             bids=True,dataset_identifier = dataset_doi)
+            # if user supplied a JSON data dictionary then use it
             else:
-                #maps variables in CSV file to terms
+                # temporary data frame of variables we need to create data dictionaries for
                 temp=DataFrame(columns=mapping_list)
+                # create data dictionary without concept mapping
                 if args.no_concepts:
                     column_to_terms, cde = map_variables_to_terms(directory=directory, assessment_name='participants.tsv', df=temp,
                         output_file=os.path.join(directory,'participants.json'),json_source=args.json_map,bids=True,
                         associate_concepts=False, dataset_identifier = dataset_doi)
+                # create data dictionary with concept mapping
                 else:
                     column_to_terms, cde = map_variables_to_terms(directory=directory, assessment_name='participants.tsv', df=temp,
                         output_file=os.path.join(directory,'participants.json'),json_source=args.json_map,bids=True,
                         dataset_identifier = dataset_doi)
 
-
+            # iterate over rows in participants.tsv file and create NIDM objects for sessions and acquisitions
             for row in participants_data:
                 #create session object for subject to be used for participant metadata and image data
                 #parse subject id from "sub-XXXX" string
@@ -667,18 +680,20 @@ def bidsmri2project(directory, args):
                 else:
                     subjid = temp[0]
                 logging.info(subjid)
+
+                # add session and keep track if it for later using subjid
                 session[subjid] = Session(project)
-
-                #add acquisition object
+                # add acquisition activity
                 acq = AssessmentAcquisition(session=session[subjid])
-
+                # add acquisition entity
                 acq_entity = AssessmentObject(acquisition=acq)
+                # create participant dictionary indexed by subjid to get agen UUIDs for later use
                 participant[subjid] = {}
+                # add agent for this participant to the graph
                 participant[subjid]['person'] = acq.add_person(attributes=({Constants.NIDM_SUBJECTID:row['participant_id']}))
 
                 # add nfo:filename entry to assessment entity to reflect provenance of where this data came from
                 acq_entity.add_attributes({Constants.NIDM_FILENAME:getRelPathToBIDS(os.path.join(directory,'participants.tsv'),directory)})
-                #acq_entity.add_attributes({Constants.NIDM_FILENAME:os.path.join(directory,'participants.tsv')})
 
                 #add qualified association of participant with acquisition activity
                 acq.add_qualified_association(person=participant[subjid]['person'],role=Constants.NIDM_PARTICIPANT)
@@ -690,7 +705,8 @@ def bidsmri2project(directory, args):
                 if num_sources == 0:
                     acq_entity.add_attributes({Constants.PROV['Location']:"file:/" + os.path.join(directory,'participants.tsv')})
 
-                 # if there's a JSON sidecar file then create an entity and associate it with all the assessment entities
+                # if there's a participant.json sidecar file then create an entity and
+                # associate it with all the assessment entities
                 if os.path.isfile(os.path.join(directory,'participants.json')):
                     json_sidecar = AcquisitionObject(acquisition=acq)
                     json_sidecar.add_attributes({PROV_TYPE:QualifiedName(Namespace("bids",Constants.BIDS),"sidecar_file"), Constants.NIDM_FILENAME:
@@ -712,20 +728,15 @@ def bidsmri2project(directory, args):
                 for key,value in row.items():
                     if not value:
                         continue
-                    #for variables in participants.tsv file who have term mappings in BIDS_Constants.py use those, add to json_map so we don't have to map these if user
-                    #supplied arguments to map variables
+                    # for variables in participants.tsv file who have term mappings in BIDS_Constants.py use those,
+                    # add to json_map so we don't have to map these if user
+                    # supplied arguments to map variables
                     if key in BIDS_Constants.participants:
                         # WIP
-                        # Here we are adding to CDE graph data elements for BIDS Constants that remain fixed for each BIDS-compliant dataset
-
+                        # Here we are adding to CDE graph data elements for BIDS Constants that remain fixed for
+                        # each BIDS-compliant dataset
                         if not (BIDS_Constants.participants[key] == Constants.NIDM_SUBJECTID):
 
-
-                            # create a namespace with the URL for fixed BIDS_Constants term
-                            # item_ns = Namespace(str(Constants.BIDS.namespace.uri))
-                            # add prefix to namespace which is the BIDS fixed variable name
-                            # cde.bind(prefix="bids", namespace=item_ns)
-                            # ID for BIDS variables is always the same bids:[bids variable]
                             cde_id = Constants.BIDS[key]
                             # add the data element to the CDE graph
                             cde.add((cde_id,RDF.type, Constants.NIDM['DataElement']))
@@ -740,26 +751,18 @@ def bidsmri2project(directory, args):
 
                             acq_entity.add_attributes({cde_id:Literal(value)})
 
-                        # if this was the participant_id, we already handled it above creating agent / qualified association
-                        # if not (BIDS_Constants.participants[key] == Constants.NIDM_SUBJECTID):
-                        #    acq_entity.add_attributes({BIDS_Constants.participants[key]:value})
-
-
-                    # else if user added -mapvars flag to command line then we'll use the variable-> term mapping procedures to help user map variables to terms (also used
-                    # in CSV2NIDM.py)
+                    # else variable in participants.tsv isn't a BIDS constant CDE it's a user-defined variable
+                    # so we need to add the variable data dictionary as a PersonalDataElement to NIDM graph using
+                    # the cde graph returned from map_variables_to_terms functions above
                     else:
 
-                        # WIP: trying to add new support for CDEs...
+                        # here we're adding the assessment data for a particular row in the participants.tsv value
+                        # to the acquisition entity (acq_entity) using the UUIDs in the cde graph to identify the
+                        # data element we're storing assessment data for.
                         add_attributes_with_cde(prov_object=acq_entity,cde=cde,row_variable=key,value=value)
-                        # if key in column_to_terms:
-                        #    acq_entity.add_attributes({QualifiedName(provNamespace(Core.safe_string(None,string=str(key)), column_to_terms[key]["url"]), ""):value})
-                        # else:
-
-                        #    acq_entity.add_attributes({Constants.BIDS[key.replace(" ", "_")]:value})
 
 
     # create acquisition objects for each scan for each subject
-
     # loop through all subjects in dataset
     for subject_id in bids_layout.get_subjects():
         logging.info("Converting subject: %s" %subject_id)
@@ -773,11 +776,6 @@ def bidsmri2project(directory, args):
         # sessions (i.e. the participants.tsv file goes into an AssessmentAcquisition and linked to a unique
         # sessions and the imaging acquisitions go into MRAcquisitions and has a unique session)
         imaging_sessions = bids_layout.get_sessions(subject=subject_id)
-        # if session_dirs has entries then get any metadata about session and store in session activity
-
-        # bids_layout.get(subject=subject_id,type='session',extensions='.tsv')
-        # bids_layout.get(subject=subject_id,type='scans',extensions='.tsv')
-        # bids_layout.get(extensions='.tsv',return_type='obj')
 
         # loop through each session if there is a sessions directory
         if len(imaging_sessions) > 0:
@@ -792,24 +790,26 @@ def bidsmri2project(directory, args):
 
 
 
-        # Added temporarily to support phenotype files
-        # for each *.tsv / *.json file pair in the phenotypes directory
-        # WIP: ADD VARIABLE -> TERM MAPPING HERE
-        for tsv_file in glob.glob(os.path.join(directory,"phenotype","*.tsv")):
-            # for now, open the TSV file, extract the row for this subject, store it in an acquisition object and link to
-            # the associated JSON data dictionary file
-            with open(tsv_file) as phenofile:
-                pheno_data = csv.DictReader(phenofile, delimiter='\t')
-                mapping_list=[]
-                column_to_terms={}
-                for field in pheno_data.fieldnames:
-                    # column is not in BIDS_Constants
-                    if not (field in BIDS_Constants.participants):
-                        # add column to list for column_to_terms mapping
-                        mapping_list.append(field)
+    # Added temporarily to support phenotype files
+    # for each *.tsv / *.json file pair in the phenotypes directory
+    # WIP: ADD VARIABLE -> TERM MAPPING HERE
+    cde_pheno = []
+    for tsv_file in glob.glob(os.path.join(directory,"phenotype","*.tsv")):
+        # for now, open the TSV file, extract the row for this subject, store it in an acquisition object and link to
+        # the associated JSON data dictionary file
+        with open(tsv_file) as phenofile:
+            pheno_data = csv.DictReader(phenofile, delimiter='\t')
+            mapping_list=[]
+            column_to_terms={}
+            for field in pheno_data.fieldnames:
+                # column is not in BIDS_Constants
+                if not (field in BIDS_Constants.participants):
+                    # add column to list for column_to_terms mapping
+                    mapping_list.append(field)
 
 
-                #if user didn't supply a json mapping file but we're doing some variable-term mapping create an empty one for column_to_terms to use
+            # if user didn't supply a json data dictionary file
+            # create an empty one for column_to_terms to use
             if args.json_map == False:
                 #defaults to participants.json because here we're mapping the participants.tsv file variables to terms
                 # if participants.json file doesn't exist then run without json mapping file
@@ -817,86 +817,82 @@ def bidsmri2project(directory, args):
                     #maps variables in CSV file to terms
                     temp=DataFrame(columns=mapping_list)
                     if args.no_concepts:
-                        column_to_terms,cde = map_variables_to_terms(directory=directory,assessment_name=tsv_file,
+                        column_to_terms_pheno,cde_tmp = map_variables_to_terms(directory=directory,assessment_name=tsv_file,
                             df=temp,output_file=os.path.splitext(tsv_file)[0] + ".json",bids=True,associate_concepts=False)
                     else:
-                        column_to_terms,cde = map_variables_to_terms(directory=directory,assessment_name=tsv_file,
+                        column_to_terms_pheno,cde_tmp = map_variables_to_terms(directory=directory,assessment_name=tsv_file,
                             df=temp,output_file=os.path.splitext(tsv_file)[0] + ".json",bids=True)
                 else:
                     #maps variables in CSV file to terms
                     temp=DataFrame(columns=mapping_list)
                     if args.no_concepts:
-                        column_to_terms,cde = map_variables_to_terms(directory=directory, assessment_name=tsv_file, df=temp,
+                        column_to_terms_pheno,cde_tmp = map_variables_to_terms(directory=directory, assessment_name=tsv_file, df=temp,
                             output_file=os.path.splitext(tsv_file)[0] + ".json",json_source=os.path.splitext(tsv_file)[0] + ".json",bids=True,associate_concepts=False)
                     else:
-                        column_to_terms,cde = map_variables_to_terms(directory=directory, assessment_name=tsv_file, df=temp,
+                        column_to_terms_pheno,cde_tmp = map_variables_to_terms(directory=directory, assessment_name=tsv_file, df=temp,
                             output_file=os.path.splitext(tsv_file)[0] + ".json",json_source=os.path.splitext(tsv_file)[0] + ".json",bids=True)
+            # else user did supply a json data dictionary so use it
             else:
                 #maps variables in CSV file to terms
                 temp=DataFrame(columns=mapping_list)
                 if args.no_concepts:
-                    column_to_terms, cde = map_variables_to_terms(directory=directory, assessment_name=tsv_file, df=temp,
+                    column_to_terms_pheno, cde_tmp = map_variables_to_terms(directory=directory, assessment_name=tsv_file, df=temp,
                         output_file=os.path.splitext(tsv_file)[0] + ".json",json_source=args.json_map,bids=True,associate_concepts=False)
                 else:
-                    column_to_terms, cde = map_variables_to_terms(directory=directory, assessment_name=tsv_file, df=temp,
+                    column_to_terms_pheno, cde_tmp = map_variables_to_terms(directory=directory, assessment_name=tsv_file, df=temp,
                         output_file=os.path.splitext(tsv_file)[0] + ".json",json_source=args.json_map,bids=True)
 
-                for row in pheno_data:
-                    subjid = row['participant_id'].split("-")
-                    if not subjid[1] == subject_id:
+            for row in pheno_data:
+                subjid = row['participant_id'].split("-")
+                # add acquisition object
+                acq = AssessmentAcquisition(session=session[subjid[1]])
+                # add qualified association with person
+                acq.add_qualified_association(person=participant[subjid[1]]['person'],role=Constants.NIDM_PARTICIPANT)
+                # add acquisition enttity and associate it with the acquisition activity
+                acq_entity = AssessmentObject(acquisition=acq)
+
+
+
+                for key,value in row.items():
+                    if not value:
                         continue
-                    else:
-                        # add acquisition object
-                        acq = AssessmentAcquisition(session=session[subjid[1]])
-                        # add qualified association with person
-                        acq.add_qualified_association(person=participant[subject_id]['person'],role=Constants.NIDM_PARTICIPANT)
+                    # we're using participant_id in NIDM in agent so don't add to assessment as a triple.
+                    # BIDS phenotype files seem to have an index column with no column header variable name so skip those
+                    if ((not key == "participant_id") and (key != "")):
+                        add_attributes_with_cde(prov_object=acq_entity,cde=cde_tmp,row_variable=key,value=value)
 
-                        acq_entity = AssessmentObject(acquisition=acq)
+                # link TSV file
+                acq_entity.add_attributes({Constants.NIDM_FILENAME:getRelPathToBIDS(tsv_file,directory)})
 
-
-
-                        for key,value in row.items():
-                            if not value:
-                                continue
-                            # we're using participant_id in NIDM in agent so don't add to assessment as a triple.
-                            # BIDS phenotype files seem to have an index column with no column header variable name so skip those
-                            if ((not key == "participant_id") and (key != "")):
-                                # for now we're using a placeholder namespace for BIDS and simply the variable names as the concept IDs..
-                                acq_entity.add_attributes({Constants.BIDS[key]:value})
-                            else:
-                                add_attributes_with_cde(prov_object=acq_entity,cde=cde,row_variable=key,value=value)
-                        # link TSV file
-                        acq_entity.add_attributes({Constants.NIDM_FILENAME:getRelPathToBIDS(tsv_file,directory)})
-                        #acq_entity.add_attributes({Constants.NIDM_FILENAME:tsv_file})
-
-                        # if there are git annex sources for participants.tsv file then add them
-                        num_sources=addGitAnnexSources(obj=acq_entity.get_uuid(),bids_root=directory)
-                        # else just add the local path to the dataset
-                        if num_sources == 0:
-                            acq_entity.add_attributes({Constants.PROV['Location']:"file:/" + tsv_file})
+                # if there are git annex sources for participants.tsv file then add them
+                num_sources=addGitAnnexSources(obj=acq_entity.get_uuid(),bids_root=directory)
+                # else just add the local path to the dataset
+                if num_sources == 0:
+                    acq_entity.add_attributes({Constants.PROV['Location']:"file:/" + tsv_file})
 
 
-                        # link associated JSON file if it exists
-                        data_dict = os.path.join(directory,"phenotype",os.path.splitext(os.path.basename(tsv_file))[0]+ ".json")
-                        if os.path.isfile(data_dict):
-                            # if file exists, create a new entity and associate it with the appropriate activity  and a used relationship
-                            # with the TSV-related entity
-                            json_entity = AcquisitionObject(acquisition=acq)
-                            json_entity.add_attributes({PROV_TYPE:Constants.BIDS["sidecar_file"], Constants.NIDM_FILENAME:
-                                getRelPathToBIDS(data_dict,directory)})
+                # link associated JSON file if it exists
+                data_dict = os.path.join(directory,"phenotype",os.path.splitext(os.path.basename(tsv_file))[0]+ ".json")
+                if os.path.isfile(data_dict):
+                    # if file exists, create a new entity and associate it with the appropriate activity  and a used relationship
+                    # with the TSV-related entity
+                    json_entity = AcquisitionObject(acquisition=acq)
+                    json_entity.add_attributes({PROV_TYPE:Constants.BIDS["sidecar_file"], Constants.NIDM_FILENAME:
+                        getRelPathToBIDS(data_dict,directory)})
 
-                            # add Git Annex Sources
-                            # if there are git annex sources for participants.tsv file then add them
-                            num_sources=addGitAnnexSources(obj=json_entity.get_uuid(),filepath=data_dict,bids_root=directory)
-                            # else just add the local path to the dataset
-                            if num_sources == 0:
-                                json_entity.add_attributes({Constants.PROV['Location']:"file:/" + data_dict})
+                    # add Git Annex Sources
+                    # if there are git annex sources for participants.tsv file then add them
+                    num_sources=addGitAnnexSources(obj=json_entity.get_uuid(),filepath=data_dict,bids_root=directory)
+                    # else just add the local path to the dataset
+                    if num_sources == 0:
+                        json_entity.add_attributes({Constants.PROV['Location']:"file:/" + data_dict})
 
-                            #connect json_entity with acq_entity
-                            acq_entity.add_attributes({Constants.PROV["wasInfluencedBy"]:json_entity.get_uuid()})
+                    #connect json_entity with acq_entity
+                    acq_entity.add_attributes({Constants.PROV["wasInfluencedBy"]:json_entity.get_uuid()})
+            # append cde_tmp to cde_pheno list for later inclusion in NIDM graph
+            cde_pheno.append(cde_tmp)
 
-
-    return project, cde
+    return project, cde, cde_pheno
 
 
 if __name__ == "__main__":

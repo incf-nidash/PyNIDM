@@ -40,7 +40,7 @@ def setup():
     projects = Query.GetProjectsUUID(ABIDE_FILES)
     for p in projects:
         proj_info = nidm.experiment.Navigate.GetProjectAttributes(ABIDE_FILES, p)
-        if 'dctypes:title' in proj_info.keys() and proj_info['dctypes:title'] == 'ABIDE CMU_a Site':
+        if 'dctypes:title' in proj_info.keys() and proj_info['dctypes:title'] == 'ABIDE - CMU_a':
             cmu_test_project_uuid = p
             break
     subjects = Query.GetParticipantIDs(ABIDE_FILES)
@@ -153,7 +153,7 @@ def test_GetProjectInstruments():
 The test data file could/should have the following project meta data. Taken from
 https://raw.githubusercontent.com/incf-nidash/nidm/master/nidm/nidm-experiment/terms/nidm-experiment.owl
   
-  - descrption
+  - description
   - fileName
   - license
   - source
@@ -275,7 +275,7 @@ def test_GetProjectsMetadata():
         p3 = None
         for project_id in parsed['projects']:
             if project_id != p1 and project_id != p2:
-                if parsed['projects'][project_id][str(Constants.NIDM_PROJECT_NAME)] == "ABIDE CMU_a Site":
+                if parsed['projects'][project_id][str(Constants.NIDM_PROJECT_NAME)] == "ABIDE - CMU_a":
                     p3 = project_id
                     break
         assert p3 != None

@@ -1,7 +1,7 @@
 .. image:: Logo.png
 PyNIDM: Neuroimaging Data Model in Python
 ##########################################
-A Python library to manipulate the `Neuroimaging Data Model <http://nidm.nidash.org>`_. 
+A Python library to manipulate the `Neuroimaging Data Model <http://nidm.nidash.org>`_.
 
 
 |PyNIDM Testing| |Docs|
@@ -17,7 +17,10 @@ Dependencies
 * Fedora: `dnf install graphviz`
 * OS-X: `brew install graphviz`
 * Datalad (optional): `pip install datalad`
-* `Git-Annex <https://git-annex.branchable.com/>`_ (optional): 
+* Sklearn: `pip install scikit-learn`
+* Statsmodels: `pip install statsmodels`
+* Statistics: `pip install statistics`
+* Patsy: `pip install patsy`
 
 Installation
 ============
@@ -33,8 +36,12 @@ macOS
 -----  
 .. code-block:: bash
 
+	$ ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+	$ brew install miniconda --cask
+	$ conda init
+	$ conda update conda
 	$ conda create -n pynidm_py3 python=3
-	$ source activate pynidm_py3
+	$ conda activate pynidm_py3
 	$ cd PyNIDM
  	$ pip install datalad
 	$ pip install neurdflib
@@ -45,7 +52,7 @@ You can try to run a test: `pytest`
 
 Contributing to the Software
 =============================
-This software is open source and community developed.  As such, we encourage anyone and everyone intersted in semantic web and neuroimaging to contribute.  To begin contributing code to the repository, please fork the main repo into your user space and use the pull request GitHub feature to submit code for review.  Please provide a reasonably detailed description of what was changed and why in the pull request.
+This software is open source and community developed.  As such, we encourage anyone and everyone interested in semantic web and neuroimaging to contribute.  To begin contributing code to the repository, please fork the main repo into your user space and use the pull request GitHub feature to submit code for review.  Please provide a reasonably detailed description of what was changed and why in the pull request.
 
 Reporting Issues or Problems
 ============================
@@ -168,7 +175,7 @@ concatenate
 -----------
 This function will concatenate NIDM files.  Warning, no merging will be
 done so you may end up with multiple prov:agents with the same subject id
-if you're concatenating NIDM files from multiple vists of the same study.
+if you're concatenating NIDM files from multiple visits of the same study.
 If you want to merge NIDM files on subject ID see pynidm merge
 
 .. code-block:: bash
@@ -302,7 +309,7 @@ Now that we have selected the variables, we can perform a linear regression. In 
 The command to use for this particular data is:
 pynidm linear-regression -nl /simple2_NIDM_examples/datasets.datalad.org/abide/RawDataBIDS/CMU_a/nidm.ttl,/simple2_NIDM_examples/datasets.datalad.org/abide/RawDataBIDS/CMU_b/nidm.ttl -model "fs_000008 = DX_GROUP + PIQ_tca9ck + http://uri.interlex.org/ilx_0100400" -contrast "DX_GROUP" -r L1
 
--nl specifies the file(s) to pull data from, while -model is the model to perform a linear regression model on. In this case, the variables are fs_000008 (the dependent variable, supratentorial brain volume), DX_GROUP (diagnostic group), PIQ_tca9ck (PIQ), and http://uri.interlex.org/ilx_0100400 (age at scan). The -contrast paramter says to contrast the data using DX_GROUP, and then do a L1 regularization to prevent overfitting. 
+-nl specifies the file(s) to pull data from, while -model is the model to perform a linear regression model on. In this case, the variables are fs_000008 (the dependent variable, supratentorial brain volume), DX_GROUP (diagnostic group), PIQ_tca9ck (PIQ), and http://uri.interlex.org/ilx_0100400 (age at scan). The -contrast parameter says to contrast the data using DX_GROUP, and then do a L1 regularization to prevent overfitting. 
 
 Details on the REST API URI format and usage can be found below.
 
@@ -313,7 +320,7 @@ Introduction
 ============
 
 There are two main ways to interact with NIDM data using the PyNIDM REST API. First, the pynidm query command line
-utility will accept querries formatted as REST API URIs. Second, the rest-server.py script can be used to run a
+utility will accept queries formatted as REST API URIs. Second, the rest-server.py script can be used to run a
 HTTP server to accept and process requests. This script can either be run directly or using a docker container
 defined in the docker directory of the project.
 
@@ -374,14 +381,14 @@ Operations
 
 **/projects/{project_id}**
  | See some details for a project. This will include the list of subject IDs and data elements used in the project
- | Supported query parameters: fitler
+ | Supported query parameters: filter
 
 **/projects/{project_id}/subjects**
  | Get the list of subjects in a project
  | Supported query parameters: filter
 
 **/projects/{project_id}/subjects/{subject_id}**
- | Get the details for a particular subject. This will include the results of any instrumnts or derivatives associated with the subject, as well a a list of the related activites.
+ | Get the details for a particular subject. This will include the results of any instrumnts or derivatives associated with the subject, as well a a list of the related activities.
  | Supported query parameters: none
 
 **/projects/{project_id}/subjects/{subject_id}/instruments/{instrument_id}**
@@ -404,9 +411,9 @@ Query Parameters
 -----------------
 
 **filter**
- | The filter query parameter is ues when you want to receive data only on subjects that match some criteria.  The format for the fitler value should be of the form:
+ | The filter query parameter is used when you want to receive data only on subjects that match some criteria.  The format for the filter value should be of the form:
  |    *identifier op value [ and identifier op value and ... ]*
- | Identifers should be formatted as "instrument.ID" or "derivatives.ID"  You can use any value for the instrument ID that is shown for an instrument or in the data_elements section of the project details. For the derivative ID, you can use the last component of a derivative field URI (ex. for the URI http://purl.org/nidash/fsl#fsl_000007, the ID would be "fsl_000007") or the exact label shown when viewing derivative data (ex. "Left-Caudate (mm^3)")
+ | Identifiers should be formatted as "instrument.ID" or "derivatives.ID"  You can use any value for the instrument ID that is shown for an instrument or in the data_elements section of the project details. For the derivative ID, you can use the last component of a derivative field URI (ex. for the URI http://purl.org/nidash/fsl#fsl_000007, the ID would be "fsl_000007") or the exact label shown when viewing derivative data (ex. "Left-Caudate (mm^3)")
  | The *op* can be one of "eq", "gt", "lt"
 
  | **Example filters:**
@@ -433,7 +440,7 @@ output formatted as JSON.
 Examples
 --------
 
-**Get the UUID for all the projects at this locaiton:**
+**Get the UUID for all the projects at this location:**
 
 .. code-block:: bash
 
@@ -566,7 +573,7 @@ Example response:
   fsl_000001  standard_deviation  2.22465e+06
   ----------  ------------------  -----------
 
-**Get details on a subject. Use -j for a JSON formatted resonse:**
+**Get details on a subject. Use -j for a JSON formatted response:**
 
 .. code-block:: HTML
 

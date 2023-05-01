@@ -104,7 +104,7 @@ def main(argv):
     else:
         json_map = args.json_map
     # open CSV file and load into
-    # DBK added to accomodate TSV files with tab separator 3/15/21
+    # DBK added to accommodate TSV files with tab separator 3/15/21
     if args.csv_file.endswith(".csv"):
         df = pd.read_csv(args.csv_file)
     elif args.csv_file.endswith(".tsv"):
@@ -217,7 +217,7 @@ def main(argv):
 
             #csv_row = df.loc[df[id_field]==type(df[id_field][0])(row[1])]
             #find row in CSV file with matching subject id to the agent in the NIDM file
-            #be carefull about data types...simply type-change dataframe subject id column and query to strings.
+            #be careful about data types...simply type-change dataframe subject id column and query to strings.
             #here we're removing the leading 0's from IDs because pandas.read_csv strips those unless you know ahead of
             #time which column is the subject id....
             csv_row = df.loc[df[id_field].astype('str').str.contains(str(row[1]).lstrip("0"))]
@@ -231,7 +231,7 @@ def main(argv):
                 # create a new session for this assessment
                 new_session=Session(project=project)
 
-                #NIDM document sesssion uuid
+                #NIDM document session uuid
                 #session_uuid = row[0]
 
                 #temporary list of string-based URIs of session objects from API

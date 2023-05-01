@@ -7,7 +7,7 @@
 #  License: Apache License, Version 2.0
 # *******************************************************************************************************
 # *******************************************************************************************************
-# Date: 10-09-21                 Coded by: Ashmita Kumar (ashmita.kumar@gmail.com)
+# Date: 07-26-22                 Coded by: Ashmita Kumar (ashmita.kumar@gmail.com)
 # Filename: nidm_linreg.py
 #
 # Program description:  This program provides a tool to complete a linear regression on nidm files
@@ -43,47 +43,24 @@ import click
 from nidm.experiment.tools.click_base import cli
 from nidm.experiment.tools.rest import RestParser
 import numpy as np
-try:
-    from sklearn.linear_model import LinearRegression
-    from sklearn import preprocessing
-    from sklearn.linear_model import Ridge
-    from sklearn.linear_model import Lasso
-    from sklearn.model_selection import cross_val_score
-except:
-    system('python -m pip install --upgrade pip sklearn')
-    from sklearn.linear_model import LinearRegression
-    from sklearn import preprocessing
-    from sklearn.linear_model import Ridge
-    from sklearn.linear_model import Lasso
-    from sklearn.model_selection import cross_val_score
+from sklearn.linear_model import LinearRegression
+from sklearn import preprocessing
+from sklearn.linear_model import Ridge
+from sklearn.linear_model import Lasso
+from sklearn.model_selection import cross_val_score
 
-try:
-    import statsmodels.api as sm
-    from statsmodels.formula.api import ols
-except:
-    system('python -m pip install --upgrade pip statsmodels')
-    import statsmodels.api as sm
-    from statsmodels.formula.api import ols
+import statsmodels.api as sm
+from statsmodels.formula.api import ols
 
-try:
-    from statistics import mean
-except:
-    system('python -m pip install --upgrade pip statistics')
-    from statistics import mean
 
-try:
-    from patsy.contrasts import Treatment
-    from patsy.contrasts import ContrastMatrix
-    from patsy.contrasts import Sum
-    from patsy.contrasts import Diff
-    from patsy.contrasts import Helmert
-except:
-    system('python -m pip install --upgrade pip patsy')
-    from patsy.contrasts import Treatment
-    from patsy.contrasts import ContrastMatrix
-    from patsy.contrasts import Sum
-    from patsy.contrasts import Diff
-    from patsy.contrasts import Helmert
+from statistics import mean
+
+from patsy.contrasts import Treatment
+from patsy.contrasts import ContrastMatrix
+from patsy.contrasts import Sum
+from patsy.contrasts import Diff
+from patsy.contrasts import Helmert
+
 
 MAX_ALPHA = 700
 #Defining the parameters of the commands.
@@ -352,7 +329,7 @@ def dataparsing(): #The data is changed to a format that is usable by the linear
             splitted = condensed_data[0][i].split("/")
             condensed_data[0][i] = splitted[len(splitted) - 1]
 
-    """In this section, if there are less than 20 points, the model will be innacurate and there are too few variables for regularization.
+    """In this section, if there are less than 20 points, the model will be inaccurate and there are too few variables for regularization.
     That means that we warn the user that such errors can occur and ask them if they want to proceed.
     The answer is stored in answer. If the user responds with N, it exits the code after writing the error to the output file (if there is one).
     If the user says Y instead, the code runs, but stops before doing the regularization."""
@@ -375,7 +352,7 @@ def dataparsing(): #The data is changed to a format that is usable by the linear
         if (o is not None):
             f = open(o, "a")
             f.write("Your model was " + m)
-            f.write("Due to a lack of data (<20 points), you stopped the model because the results may have been innacurate.")
+            f.write("Due to a lack of data (<20 points), you stopped the model because the results may have been inaccurate.")
             f.close()
         exit(1)
     x = pd.read_csv(opencsv(condensed_data))  # changes the dataframe to a csv to make it easier to work with

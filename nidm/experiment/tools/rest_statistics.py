@@ -14,7 +14,7 @@ USE_JOBLIB_CACHE = False
 def GetProjectsComputedMetadata(nidm_file_list):
     '''
      :param nidm_file_list: List of one or more NIDM files to query across for list of Projects
-    :return: Dictionay or projects, each project having a dictionary of project stats
+    :return: Dictionary or projects, each project having a dictionary of project stats
              including age_max, age_min, gender list, and handedness list.
     '''
 

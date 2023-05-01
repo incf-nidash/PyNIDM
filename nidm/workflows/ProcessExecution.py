@@ -17,7 +17,7 @@ class ProcessExecution(pm.ProvActivity, Core):
     """
     def __init__(self, parentDoc=None, attributes=None):
         """
-        Default contructor, creates document and adds Process activity to graph
+        Default constructor, creates document and adds Process activity to graph
         with optional attributes
         
         :param parentDoc: optional ProvDocument
