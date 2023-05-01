@@ -18,3 +18,4 @@ htmlcov/*
 .settings
 .idea
 test.ttl
+docs/build/
