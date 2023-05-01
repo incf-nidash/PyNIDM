@@ -1,9 +1,4 @@
-import os
-import sys
 import prov.model as pm
-import rdflib as rdf
-
-# sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from ..core import Constants
 from ..experiment import Core
 from ..experiment.Core import getUUID

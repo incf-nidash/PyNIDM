@@ -13,3 +13,21 @@ from .PETAcquisition import PETAcquisition
 from .PETObject import PETObject
 from .Project import Project
 from .Session import Session
+
+__all__ = [
+    "Acquisition",
+    "AcquisitionObject",
+    "AssessmentAcquisition",
+    "AssessmentObject",
+    "Core",
+    "DataElement",
+    "DemographicsObject",
+    "Derivative",
+    "DerivativeObject",
+    "MRAcquisition",
+    "MRObject",
+    "PETAcquisition",
+    "PETObject",
+    "Project",
+    "Session",
+]

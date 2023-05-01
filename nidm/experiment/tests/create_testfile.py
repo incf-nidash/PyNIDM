@@ -1,5 +1,3 @@
-import os
-import sys
 from nidm.core import Constants
 from nidm.experiment import (
     AssessmentAcquisition,
@@ -13,7 +11,7 @@ from nidm.experiment import (
 
 
 # dj TODO: adding more tests; I only put the Dave's pipeline to a function
-def main(argv):
+def main():
     # create new nidm-experiment document with project
     kwargs = {
         Constants.NIDM_PROJECT_NAME: "Test Project name",
@@ -86,4 +84,4 @@ def main(argv):
 
 
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    main()

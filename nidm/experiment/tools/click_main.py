@@ -1,5 +1,4 @@
-import click
-from nidm.experiment.tools import (
+from nidm.experiment.tools import (  # noqa: F401
     nidm_concat,
     nidm_convert,
     nidm_linreg,
@@ -9,3 +8,5 @@ from nidm.experiment.tools import (
     nidm_visualize,
 )
 from nidm.experiment.tools.click_base import cli
+
+__all__ = ["cli"]

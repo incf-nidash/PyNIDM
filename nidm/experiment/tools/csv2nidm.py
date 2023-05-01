@@ -30,17 +30,12 @@
 # **************************************************************************************
 
 from argparse import ArgumentParser
-import csv
 from io import StringIO
-import json
 import logging
 import os
-from os.path import basename, dirname, join, splitext
+from os.path import basename, dirname, join
 from shutil import copy2
-import sys
-import tempfile
 from nidm.core import Constants
-from nidm.core.Constants import DD
 from nidm.experiment import AssessmentAcquisition, AssessmentObject, Project, Session
 from nidm.experiment.Query import GetParticipantIDs
 from nidm.experiment.Utils import (
@@ -51,7 +46,7 @@ from nidm.experiment.Utils import (
     redcap_datadictionary_to_json,
 )
 import pandas as pd
-from rdflib import RDF, Graph, Literal, URIRef
+from rdflib import Graph
 
 # def createDialogBox(search_results):
 # class NewListbox(tk.Listbox):
@@ -214,11 +209,11 @@ def main():
         #    f.write(project.serializeTurtle())
 
         # get list of session objects
-        session_objs = project.get_sessions()
+        project.get_sessions()
 
         # look at column_to_terms dictionary for NIDM URL for subject id  (Constants.NIDM_SUBJECTID)
         id_field = None
-        for key, value in column_to_terms.items():
+        for key, _ in column_to_terms.items():
             if "isAbout" in column_to_terms[key]:
                 for isabout_key, isabout_value in column_to_terms[key][
                     "isAbout"
@@ -257,13 +252,13 @@ def main():
             else:
                 df = pd.read_csv(args.csv_file, dtype={id_field: str}, sep="\t")
 
-        ###use RDFLib here for temporary graph making query easier
+        # ## use RDFLib here for temporary graph making query easier
         # rdf_graph = Graph()
         # rdf_graph.parse(source=StringIO(project.serializeTurtle()),format='turtle')
 
         # print("Querying for existing participants in NIDM graph....")
 
-        ###find subject ids and sessions in NIDM document
+        # ## find subject ids and sessions in NIDM document
         # query = """SELECT DISTINCT ?session ?nidm_subj_id ?agent
         #            WHERE {
         #                ?activity prov:wasAssociatedWith ?agent ;
@@ -271,10 +266,9 @@ def main():
         #                ?agent rdf:type prov:Agent ;
         #                    ndar:src_subject_id ?nidm_subj_id .
         #            }"""
-        ###print(query)
         # qres = rdf_graph.query(query)
 
-        for index, row in qres.iterrows():
+        for _, row in qres.iterrows():
             logging.info("participant in NIDM file %s \t %s" % (row[0], row[1]))
             # find row in CSV file with subject id matching agent from NIDM file
 
@@ -373,7 +367,7 @@ def main():
 
         # look at column_to_terms dictionary for NIDM URL for subject id  (Constants.NIDM_SUBJECTID)
         id_field = None
-        for key, value in column_to_terms.items():
+        for key, _ in column_to_terms.items():
             # using isAbout concept association to associate subject identifier variable from csv with a known term
             # for subject IDs
             if "isAbout" in column_to_terms[key]:
@@ -417,7 +411,7 @@ def main():
                 df = pd.read_csv(args.csv_file, dtype={id_field: str}, sep="\t")
 
         # iterate over rows and store in NIDM file
-        for csv_index, csv_row in df.iterrows():
+        for _, csv_row in df.iterrows():
             # create a session object
             session = Session(project)
 

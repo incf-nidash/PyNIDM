@@ -4,11 +4,13 @@ import json
 import logging
 import os
 import sys
-from urllib.parse import urlparse, urlsplit
 from urllib.request import urlopen
 from uuid import UUID
+from cognitiveatlas.api import get_concept, get_disorder
+from datalad.support.annexrepo import AnnexRepo
 from github import Github, GithubException
 from numpy import base_repr
+import ontquery as oq
 import pandas as pd
 import prov.model as pm
 from prov.model import Identifier
@@ -25,7 +27,7 @@ from .Acquisition import Acquisition
 from .AcquisitionObject import AcquisitionObject
 from .AssessmentAcquisition import AssessmentAcquisition
 from .AssessmentObject import AssessmentObject
-from .Core import Core, getUUID
+from .Core import getUUID
 from .DataElement import DataElement
 from .Derivative import Derivative
 from .DerivativeObject import DerivativeObject
@@ -35,28 +37,12 @@ from .PETAcquisition import PETAcquisition
 from .PETObject import PETObject
 from .Project import Project
 from .Session import Session
-
-# NIDM imports
 from ..core import Constants
 from ..core.Constants import DD
 
 logger = logging.getLogger(__name__)
 
-import random
-import re
-import string
-
-# cognitive atlas
-from cognitiveatlas.api import get_concept, get_disorder
-from datalad.support.annexrepo import AnnexRepo
-
-# Interlex stuff
-import ontquery as oq
-
 # datalad / git-annex sources
-
-
-
 
 # set if we're running in production or testing mode
 # INTERLEX_MODE = 'test'
@@ -73,9 +59,9 @@ else:
     exit(1)
 
 
-def safe_string(string):
+def safe_string(s):
     return (
-        string.strip()
+        s.strip()
         .replace(" ", "_")
         .replace("-", "_")
         .replace(",", "_")
@@ -96,9 +82,6 @@ def read_nidm(nidmDoc):
     :return: NIDM Project
 
     """
-
-    from ..experiment.Project import Project
-    from ..experiment.Session import Session
 
     # read RDF file into temporary graph
     rdf_graph = Graph()
@@ -469,16 +452,16 @@ def read_nidm(nidmDoc):
             select distinct ?uuid ?parent_act
             where {
                 {?uuid a nidm:Derivative ;
-            	    prov:wasGeneratedBy ?parent_act .}
-     		    UNION
-     		    {?uuid a nidm:FSStatsCollection ;
-            	    prov:wasGeneratedBy ?parent_act .}
-     		    UNION
-     		    {?uuid a nidm:FSLStatsCollection ;
-            	    prov:wasGeneratedBy ?parent_act .}
-     		    UNION
-     		    {?uuid a nidm:ANTSStatsCollection ;
-            	    prov:wasGeneratedBy ?parent_act .}
+                    prov:wasGeneratedBy ?parent_act .}
+                    UNION
+                    {?uuid a nidm:FSStatsCollection ;
+                    prov:wasGeneratedBy ?parent_act .}
+                    UNION
+                    {?uuid a nidm:FSLStatsCollection ;
+                    prov:wasGeneratedBy ?parent_act .}
+                    UNION
+                    {?uuid a nidm:ANTSStatsCollection ;
+                    prov:wasGeneratedBy ?parent_act .}
             }
 
         """
@@ -606,7 +589,7 @@ def add_metadata_for_subject(rdf_graph, subject_uri, namespaces, nidm_obj):
                             nidm_obj.add_attributes(
                                 {predicate: pm.QualifiedName(found_uri, obj_term)}
                             )
-                except:
+                except Exception:
                     nidm_obj.add_attributes(
                         {
                             predicate: pm.QualifiedName(
@@ -711,14 +694,16 @@ def add_metadata_for_subject(rdf_graph, subject_uri, namespaces, nidm_obj):
                                 role=pm.QualifiedName(found_uri, obj_term),
                             )
 
-                    except:
+                    except Exception:
                         nidm_obj.add_qualified_association(
                             person=generic_agent,
                             role=pm.QualifiedName(Namespace(r_obj.identifier), ""),
                         )
 
 
-def QuerySciCrunchElasticSearch(query_string, type="cde", anscestors=True):
+def QuerySciCrunchElasticSearch(
+    query_string, type="cde", anscestors=True  # noqa: A002
+):
     """
     This function will perform an elastic search in SciCrunch on the [query_string] using API [key] and return the json package.
     :param key: API key from sci crunch
@@ -808,7 +793,7 @@ def QuerySciCrunchElasticSearch(query_string, type="cde", anscestors=True):
     return json.loads(response.text)
 
 
-def GetNIDMTermsFromSciCrunch(query_string, type="cde", ancestor=True):
+def GetNIDMTermsFromSciCrunch(query_string, type="cde", ancestor=True):  # noqa: A002
     """
     Helper function which issues elastic search query of SciCrunch using QuerySciCrunchElasticSearch function and returns terms list
     with label, definition, and preferred URLs in dictionary
@@ -822,7 +807,7 @@ def GetNIDMTermsFromSciCrunch(query_string, type="cde", ancestor=True):
     json_data = QuerySciCrunchElasticSearch(query_string, type, ancestor)
     results = {}
     # check if query was successful
-    if json_data["timed_out"] != True:
+    if json_data["timed_out"] is not True:
         # example printing term label, definition, and preferred URL
         for term in json_data["hits"]["hits"]:
             # find preferred URL
@@ -854,7 +839,7 @@ def InitializeInterlexRemote():
     ilx_cli = InterLexRemote(apiEndpoint=INTERLEX_ENDPOINT)
     try:
         ilx_cli.setup(instrumented=oq.OntTerm)
-    except Exception as e:
+    except Exception:
         print("error initializing InterLex connection...")
         print("you will not be able to add new personal data elements.")
         print(
@@ -869,8 +854,8 @@ def AddPDEToInterlex(
     label,
     definition,
     units,
-    min,
-    max,
+    min,  # noqa: A002
+    max,  # noqa: A002
     datatype,
     isabout=None,
     categorymappings=None,
@@ -965,7 +950,6 @@ def AddConceptToInterlex(ilx_obj, label, definition):
     # Interlex uris for predicates, tmp_ prefix dor beta endpoing, ilx_ for production
     # prefix = 'ilx'
     # for beta testing
-    prefix = INTERLEX_PREFIX
     tmp = ilx_obj.add_pde(label=label, definition=definition)
     return tmp
 
@@ -1022,7 +1006,7 @@ def load_nidm_owl_files():
     #        "stato_import.ttl"
     # ]
 
-    ##load each import
+    # # load each import
     # for resource in imports:
     #    temp_graph = Graph()
     #    try:
@@ -1166,11 +1150,10 @@ def authenticate_github(authed=None, credentials=None):
         authed = g.get_user()
         try:
             # check we're logged in by checking that we can access the public repos list
-            repo = authed.public_repos
+            authed.public_repos
             logging.info("Github authentication successful")
-            new_term = False
             break
-        except GithubException as e:
+        except GithubException:
             logging.info("error logging into your github account, please try again...")
             indx = indx + 1
 
@@ -1195,7 +1178,7 @@ def getSubjIDColumn(column_to_terms, df):
 
     # look at column_to_terms dictionary for NIDM URL for subject id  (Constants.NIDM_SUBJECTID)
     id_field = None
-    for key, value in column_to_terms.items():
+    for key, _ in column_to_terms.items():
         if Constants.NIDM_SUBJECTID._str == column_to_terms[key]["label"]:
             id_field = key
 
@@ -1223,7 +1206,7 @@ def redcap_datadictionary_to_json(redcap_dd_file, assessment_name):
     json_map = {}
 
     # cycle through rows and store variable data elements
-    for index, row in redcap_dd.iterrows():
+    for _, row in redcap_dd.iterrows():
         current_tuple = str(
             DD(source=assessment_name, variable=row["Variable / Field Name"])
         )
@@ -1349,7 +1332,7 @@ def map_variables_to_terms(
             else:
                 print("ERROR: Can't open json mapping file: %s" % (json_source))
                 exit()
-        except:
+        except Exception:
             # if not then it's a json structure already
             json_map = json_source
             # added check to make sure json_map is valid dictionary
@@ -1368,7 +1351,7 @@ def map_variables_to_terms(
     # initialize InterLex connection
     try:
         ilx_obj = InitializeInterlexRemote()
-    except Exception as e:
+    except Exception:
         print("ERROR: initializing InterLex connection...")
         print("You will not be able to add or query for concepts.")
         ilx_obj = None
@@ -1376,7 +1359,7 @@ def map_variables_to_terms(
     if owl_file == "nidm":
         try:
             nidm_owl_graph = load_nidm_owl_files()
-        except Exception as e:
+        except Exception:
             print()
             print("ERROR: initializing internet connection to NIDM OWL files...")
             print("You will not be able to select terms from NIDM OWL files.")
@@ -1524,7 +1507,7 @@ def map_variables_to_terms(
 
                     # added to support ReproSchema json format
                     if "responseOptions" in json_map[json_key[0]]:
-                        for subkey, subvalye in json_map[json_key[0]][
+                        for subkey, _ in json_map[json_key[0]][
                             "responseOptions"
                         ].items():
                             if "valueType" in subkey:
@@ -2048,7 +2031,7 @@ def map_variables_to_terms(
 
             # now store the url from Interlex for new personal data element in column_to_terms annotation
             column_to_terms[current_tuple]["url"] = ilx_output.iri
-        except Exception as e:
+        except Exception:
             print("WARNING: WIP: Data element not submitted to InterLex.  ")
     # write annotations to json file since data element annotations are complete
     write_json_mapping_file(column_to_terms, output_file, bids)
@@ -2067,7 +2050,7 @@ def write_json_mapping_file(source_variable_annotations, output_file, bids=False
 
         new_dict = {}
         # remove 'responseOptions' and move 'choices' to 'levels' key
-        for key, value in temp_dict.items():
+        for key, _ in temp_dict.items():
             new_dict[key] = {}
             for subkey, subvalue in temp_dict[key].items():
                 if subkey == "responseOptions":
@@ -2157,7 +2140,7 @@ def find_concept_interactive(
             )
             search_result = {}
             first_nidm_term = True
-            for key, subdict in nidmterms_concepts_query.items():
+            for key, _ in nidmterms_concepts_query.items():
                 if nidmterms_concepts_query[key]["score"] > min_match_score:
                     if first_nidm_term:
                         print()
@@ -2197,7 +2180,7 @@ def find_concept_interactive(
                     print("InterLex:")
                     print()
                     # print("Search Results: ")
-                    for key, value in ilx_result.items():
+                    for key, _ in ilx_result.items():
                         print(
                             "%d: Label: %s \t Definition: %s \t Preferred URL: %s "
                             % (
@@ -2223,7 +2206,7 @@ def find_concept_interactive(
                     cogatlas_concepts.json, search_term
                 )
                 first_cogatlas_concept = True
-                for key, subdict in cogatlas_concepts_query.items():
+                for key, _ in cogatlas_concepts_query.items():
                     if cogatlas_concepts_query[key]["score"] > min_match_score + 20:
                         if first_cogatlas_concept:
                             print()
@@ -2253,7 +2236,7 @@ def find_concept_interactive(
                         ]["url"]
                         search_result[str(option)] = key
                         option = option + 1
-            except:
+            except Exception:
                 pass
 
             # Cognitive Atlas Disorders Search
@@ -2261,7 +2244,7 @@ def find_concept_interactive(
                 cogatlas_disorders_query = fuzzy_match_terms_from_cogatlas_json(
                     cogatlas_disorders.json, search_term
                 )
-                for key, subdict in cogatlas_disorders_query.items():
+                for key, _ in cogatlas_disorders_query.items():
                     if cogatlas_disorders_query[key]["score"] > min_match_score + 20:
                         print(
                             "%d: Label: %s \t Definition:   %s "
@@ -2285,7 +2268,7 @@ def find_concept_interactive(
                         ]["url"]
                         search_result[str(option)] = key
                         option = option + 1
-            except:
+            except Exception:
                 pass
 
             # if user supplied an OWL file to search in for terms
@@ -2298,7 +2281,7 @@ def find_concept_interactive(
                 )
 
                 first_nidm_term = True
-                for key, subdict in nidm_constants_query.items():
+                for key, _ in nidm_constants_query.items():
                     if nidm_constants_query[key]["score"] > min_match_score:
                         if first_nidm_term:
                             print()
@@ -2343,11 +2326,11 @@ def find_concept_interactive(
         # Add option to change query string
         print('%d: Change query string from: "%s"' % (option, search_term))
 
-        ########DEFINE NEW CONCEPT COMMENTED OUT RIGHT NOW####################################
-        ## Add option to define your own term
+        # ####### DEFINE NEW CONCEPT COMMENTED OUT RIGHT NOW ##################
+        # # Add option to define your own term
         # option = option + 1
         # print("%d: Define my own concept for this variable" % option)
-        ########DEFINE NEW CONCEPT COMMENTED OUT RIGHT NOW####################################
+        # ####### DEFINE NEW CONCEPT COMMENTED OUT RIGHT NOW ##################
         # Add option to define your own term
         option = option + 1
         print("%d: No concept needed for this variable" % option)
@@ -2377,7 +2360,7 @@ def find_concept_interactive(
                 "---------------------------------------------------------------------------------------"
             )
 
-        ########DEFINE NEW CONCEPT COMMENTED OUT RIGHT NOW####################################
+        # ####### DEFINE NEW CONCEPT COMMENTED OUT RIGHT NOW ##################
         # elif int(selection) == (option - 1):
         #    new_concept = define_new_concept(source_variable,ilx_obj)
         # add new concept to InterLex and retrieve URL for isAbout
@@ -2387,7 +2370,7 @@ def find_concept_interactive(
         #    source_variable_annotations[current_tuple]['isAbout'] = new_concept.iri + '#'
         #    go_loop = False
         # if user says no concept mapping needed then just exit this loop
-        ########DEFINE NEW CONCEPT COMMENTED OUT RIGHT NOW####################################
+        # ####### DEFINE NEW CONCEPT COMMENTED OUT RIGHT NOW ##################
         elif int(selection) == (option):
             # don't need to continue while loop because we've decided not to associate a concept with this variable.
             go_loop = False
@@ -2514,7 +2497,7 @@ def annotate_data_element(source_variable, current_tuple, source_variable_annota
             )
             # check if user supplied a number else repeat question
             try:
-                val = int(num_categories)
+                int(num_categories)
                 break
             except ValueError:
                 print("That's not an integer, please try again!")
@@ -2589,9 +2572,6 @@ def annotate_data_element(source_variable, current_tuple, source_variable_annota
         source_variable_annotations[current_tuple]["responseOptions"]["minValue"] = "NA"
         source_variable_annotations[current_tuple]["responseOptions"]["maxValue"] = "NA"
         source_variable_annotations[current_tuple]["responseOptions"]["unitCode"] = "NA"
-
-    # set term variable name as column from CSV file we're currently interrogating
-    term_variable_name = source_variable
 
     # store term info in dictionary
     # check if responseOptions is a key, if not create it
@@ -2728,7 +2708,7 @@ def DD_to_nidm(dd_struct, dataset_identifier=None):
 
         # add the DataElement RDF type in the source namespace
         key_tuple = eval(key)
-        for subkey, item in key_tuple._asdict().items():
+        for subkey, _ in key_tuple._asdict().items():
             if subkey == "variable":
                 # item_ns = Namespace(dd_struct[str(key_tuple)]["url"]+"/")
                 # g.bind(prefix=safe_string(item), namespace=item_ns)
@@ -2922,28 +2902,28 @@ def addGitAnnexSources(obj, bids_root, filepath=None):
             obj.add_attributes({Constants.PROV["Location"]: URIRef(source)})
 
         return len(sources)
-    except Exception as e:
+    except Exception:
         # if "No annex found at" not in str(e):
         #    print("Warning, error with AnnexRepo (Utils.py, addGitAnnexSources): %s" %str(e))
         return 0
 
 
-def tupleKeysToSimpleKeys(dict):
+def tupleKeysToSimpleKeys(dictionary):
     """
     This function will change the keys in the supplied dictionary from tuple keys (e.g. from ..core.Constants import DD)
     to simple keys where key is variable name
-    :param dict: dictionary created from map_variables_to_terms
+    :param dictionary: dictionary created from map_variables_to_terms
     :return: new dictionary with simple keys
     """
 
     new_dict = {}
 
-    for key in dict:
+    for key in dictionary:
         key_tuple = eval(key)
         for subkey, item in key_tuple._asdict().items():
             if subkey == "variable":
                 new_dict[item] = {}
-                for varkeys, varvalues in dict[str(key_tuple)].items():
+                for varkeys, varvalues in dictionary[str(key_tuple)].items():
                     new_dict[item][varkeys] = varvalues
 
     return new_dict
@@ -2961,7 +2941,7 @@ def validate_uuid(uuid_string):
     """
 
     try:
-        val = UUID(uuid_string)
+        UUID(uuid_string)
     except ValueError:
         # If it's a value error, then the string
         # is not a valid hex code for a UUID.

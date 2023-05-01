@@ -655,5 +655,3 @@ http://stat.ethz.ch/R-manual/R-patched/library/stats/html/Poisson.html"""@en ;
                                                                                             "Philippe Rocca-Serra"^^xsd:string ;
 
                                                <http://purl.obolibrary.org/obo/IAO_0000115> "A relationship (data property) between an entity and its value."@en .
-
-

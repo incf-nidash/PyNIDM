@@ -42,7 +42,7 @@ scans = {
 }
 # JSON file keys
 json_keys = {
-    ##Image terms
+    # Image terms
     "run": Constants.NIDM_ACQUISITION_ENTITY,
     "ImageType": Constants.DICOM["ImageType"],
     "ManufacturerModelName": Constants.DICOM["ManufacturerModelName"],
@@ -108,7 +108,7 @@ json_keys = {
     "NumberDiscardedVolumesByUser": Constants.NIDM["NumberDiscardedVolumesByUser"],
     "DelayTime": Constants.NIDM["DelayTime"],
     "PulseSequenceType": Constants.DICOM["PulseSequenceName"],
-    ###Task Stuff
+    # Task Stuff
     "TaskName": Constants.NIDM_MRI_FUNCTION_TASK
     # "CogAtlasID" :
     # "CogPOID" :

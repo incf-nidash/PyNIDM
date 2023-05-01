@@ -1,23 +1,8 @@
-import os
 from pathlib import Path
 import pprint
-import re
 import urllib
-from nidm.core import Constants
-from nidm.experiment import (
-    Acquisition,
-    AcquisitionObject,
-    AssessmentAcquisition,
-    AssessmentObject,
-    Project,
-    Query,
-    Session,
-)
-from nidm.experiment.CDE import getCDEs
 from nidm.experiment.tools.rest import RestParser
 import pytest
-import rdflib
-from rdflib import Graph, URIRef, util
 
 BRAIN_VOL_FILES = ["./cmu_a.nidm.ttl", "./caltech.nidm.ttl"]
 OPENNEURO_FILES = ["ds000120.nidm.ttl"]

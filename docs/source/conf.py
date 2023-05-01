@@ -53,7 +53,7 @@ master_doc = "index"
 
 # General information about the project.
 project = "PyNIDM"
-copyright = "2018, dbkeator@uci.edu, camille.maumet@inria.fr, satrajit.ghosh@gmail.com, djarecka@gmail.com"
+copyright = "2018, dbkeator@uci.edu, camille.maumet@inria.fr, satrajit.ghosh@gmail.com, djarecka@gmail.com"  # noqa: A001
 author = "dbkeator@uci.edu, camille.maumet@inria.fr, satrajit.ghosh@gmail.com, djarecka@gmail.com"
 
 # The version info for the project you're documenting, acts as replacement for

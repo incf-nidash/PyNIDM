@@ -1,31 +1,10 @@
-from io import BytesIO, TextIOWrapper
-import json
 import os
-from os.path import join, sep
 from pathlib import Path
-import re
-import subprocess
-from subprocess import PIPE
-import sys
-import tempfile
 import urllib
 import click
-from nidm.core import Constants
-from nidm.experiment import (
-    Acquisition,
-    AcquisitionObject,
-    AssessmentAcquisition,
-    AssessmentObject,
-    Project,
-    Query,
-    Session,
-)
 from nidm.experiment.tools.nidm_linreg import linear_regression
-from nidm.experiment.tools.rest import RestParser
 from nidm.experiment.tools.tests.test_rest_statistics import BRAIN_VOL_FILES
 import pytest
-import rdflib
-from rdflib import Graph, URIRef, util
 
 
 @pytest.fixture(scope="module", autouse="True")
@@ -86,15 +65,11 @@ def call_click_command(cmd, *args, **kwargs):
     # call the command
     try:
         cmd(opts_list + args_list)
-    except:
+    except Exception:
         pass
 
 
 def test_simple_model():
-    # run linear regression tool with simple model and evaluate output
-    dirname = os.path.dirname(__file__)
-    linreg_dirname = join(sep + join(*(dirname.split(sep)[:-1])))
-
     arguments = dict(
         nidm_file_list=",".join(BRAIN_VOL_FILES),
         ml="fs_000008 = DX_GROUP + http://uri.interlex.org/ilx_0100400",

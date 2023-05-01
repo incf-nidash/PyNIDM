@@ -16,7 +16,6 @@ from sklearn.metrics import (
     davies_bouldin_score,
     silhouette_score,
 )
-from sklearn.preprocessing import LabelEncoder, MinMaxScaler
 
 
 @cli.command()
@@ -73,8 +72,6 @@ def k_means(nidm_file_list, output_file, var, k_range, optimal_cluster_method):
 
 def data_aggregation():  # all data from all the files is collected
     """This function provides query support for NIDM graphs."""
-    # query result list
-    results = []
     # if there is a CDE file list, seed the CDE cache
     if v:  # ex: age,sex,DX_GROUP
         print(
@@ -131,20 +128,23 @@ def data_aggregation():  # all data from all the files is collected
             ):  # here, we remove any leading or trailing spaces
                 var_list[i] = var_list[i].strip()
             # set the dependent variable to the one dependent variable in the model
-            global vars  # used in dataparsing()
-            vars = ""
+            global variables  # used in dataparsing()
+            variables = ""
             for i in range(len(var_list) - 1, -1, -1):
                 if (
-                    not "*" in var_list[i]
+                    "*" not in var_list[i]
                 ):  # removing the star term from the columns we're about to pull from data
-                    vars = vars + var_list[i] + ","
+                    variables = variables + var_list[i] + ","
                 else:
                     print(
                         "Interacting variables are not present in clustering models. They will be removed."
                     )
-            vars = vars[0 : len(vars) - 1]
+            variables = variables[0 : len(variables) - 1]
             uri = (
-                "/projects/" + project[0].toPython().split("/")[-1] + "?fields=" + vars
+                "/projects/"
+                + project[0].toPython().split("/")[-1]
+                + "?fields="
+                + variables
             )
             # get fields output from each file and concatenate
             df_list_holder[count].append(pd.DataFrame(restParser.run([nidm_file], uri)))
@@ -159,7 +159,7 @@ def data_aggregation():  # all data from all the files is collected
                 csv.reader(open(temp.name + ".csv"))
             )  # makes the csv a 2D list to make it easier to call the contents of certain cells
 
-            var_list = vars.split(",")  # makes a list of the independent variables
+            var_list = variables.split(",")  # makes a list of the independent variables
             numcols = (len(data) - 1) // (
                 len(var_list)
             )  # Finds the number of columns in the original dataframe
@@ -167,7 +167,7 @@ def data_aggregation():  # all data from all the files is collected
             condensed_data_holder[count] = [
                 [0] * (len(var_list))
             ]  # makes an array 1 row by the number of necessary columns
-            for i in range(
+            for _ in range(
                 numcols
             ):  # makes the 2D array big enough to store all of the necessary values in the edited dataset
                 condensed_data_holder[count].append([0] * (len(var_list)))

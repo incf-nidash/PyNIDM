@@ -1,12 +1,6 @@
 import json
-import os
 from os.path import join
-from pathlib import Path
-import re
 import tempfile
-import urllib
-from uuid import UUID
-from nidm.core import Constants
 from nidm.experiment.Utils import map_variables_to_terms
 import pandas as pd
 import pytest
@@ -307,7 +301,7 @@ def test_map_vars_to_terms_reproschema():
 
     # now check the JSON mapping file created by map_variables_to_terms which should match Reproschema format
     with open(join(tempfile.gettempdir(), "nidm_annotations.json")) as fp:
-        reproschema_json = json.load(fp)
+        json.load(fp)
 
     assert "DD(source='test', variable='age')" in column_to_terms.keys()
     assert "DD(source='test', variable='sex')" in column_to_terms.keys()

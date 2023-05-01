@@ -31,16 +31,9 @@
 # **************************************************************************************
 
 from argparse import ArgumentParser
-from io import StringIO
-import os
-from os.path import basename, splitext
-import subprocess
-import sys
-import tempfile
-from graphviz import Source
+import os.path
 from nidm.experiment.Utils import read_nidm
 from rdflib import Graph, util
-from rdflib.tools import rdf2dot
 
 
 def main():
@@ -136,7 +129,7 @@ def main():
         for nidm_file in args.nidm_files:
             project = read_nidm(nidm_file)
             # serialize to jsonld
-            with open(splitext(nidm_file)[0] + ".json", "w") as f:
+            with open(os.path.splitext(nidm_file)[0] + ".json", "w") as f:
                 f.write(project.serializeJSONLD())
 
 

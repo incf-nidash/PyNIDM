@@ -2,16 +2,9 @@ import os
 from pathlib import Path
 import re
 import urllib
+import uuid
 from nidm.core import Constants
-from nidm.experiment import (
-    Acquisition,
-    AcquisitionObject,
-    AssessmentAcquisition,
-    AssessmentObject,
-    Project,
-    Query,
-    Session,
-)
+from nidm.experiment import Acquisition, AssessmentObject, Project, Query, Session
 from nidm.experiment.CDE import getCDEs
 from nidm.experiment.tools.rest import RestParser
 import pytest
@@ -231,22 +224,18 @@ def test_uri_subject_list_with_fields():
 
     assert type(result["fields"]) == dict
     all_fields = []
-    for uuid in result["fields"]:
-        assert type(result["fields"]) == dict
-        for sub in result["fields"]:
-            assert type(result["fields"][sub]) == dict
-            for activity in result["fields"][sub]:
-                all_fields.append(result["fields"][sub][activity].label)
-                if result["fields"][sub][activity].value != "n/a":
-                    assert float(result["fields"][sub][activity].value) > 0
-                    assert float(result["fields"][sub][activity].value) < 125
+    for sub in result["fields"]:
+        assert type(result["fields"][sub]) == dict
+        for activity in result["fields"][sub]:
+            all_fields.append(result["fields"][sub][activity].label)
+            if result["fields"][sub][activity].value != "n/a":
+                assert float(result["fields"][sub][activity].value) > 0
+                assert float(result["fields"][sub][activity].value) < 125
     assert "age" in all_fields
     assert "MagneticFieldStrength" in all_fields
 
 
 def test_uri_project_list():
-    import uuid
-
     kwargs = {
         Constants.NIDM_PROJECT_NAME: "FBIRN_PhaseII",
         Constants.NIDM_PROJECT_IDENTIFIER: 9610,
@@ -274,8 +263,8 @@ def test_uri_project_list():
 
     project_uuids = []
 
-    for uuid in result:
-        project_uuids.append(uuid)
+    for uuid_ in result:
+        project_uuids.append(uuid_)
 
     assert type(result) == list
     assert len(project_uuids) >= 2
@@ -370,7 +359,7 @@ def test_get_software_agents():
 
     count = 0
     for a in agents:
-        for s, o, p in rdf_graph.triples((a, isa, Constants.PROV["Agent"])):
+        for _ in rdf_graph.triples((a, isa, Constants.PROV["Agent"])):
             count += 1
 
     assert count == len(agents)
@@ -395,9 +384,7 @@ def test_brain_vols():
 
 
 def test_GetParticipantDetails():
-    import time
-
-    start = time.time()
+    # start = time.time()
 
     restParser = RestParser()
     if cmu_test_project_uuid:
@@ -405,9 +392,8 @@ def test_GetParticipantDetails():
     else:
         projects = restParser.run(BRAIN_VOL_FILES, "/projects")
         project = projects[0]
-    import time
 
-    start = time.time()
+    # start = time.time()
     subjects = restParser.run(BRAIN_VOL_FILES, "/projects/{}/subjects".format(project))
     subject = subjects["uuid"][0]
 
@@ -421,8 +407,8 @@ def test_GetParticipantDetails():
     assert "instruments" in details
     assert "derivatives" in details
 
-    end = time.time()
-    runtime = end - start
+    # end = time.time()
+    # runtime = end - start
     # assert (runtime <  4)
 
 
@@ -446,11 +432,13 @@ def test_CheckSubjectMatchesFilter():
                 break
 
     # find an actual stat and build a matching filter to make sure our matcher passes it
-    filter = "derivatives.{} eq {}".format(dt, val)
-    assert Query.CheckSubjectMatchesFilter(BRAIN_VOL_FILES, project, subject, filter)
+    filter_str = "derivatives.{} eq {}".format(dt, val)
+    assert Query.CheckSubjectMatchesFilter(
+        BRAIN_VOL_FILES, project, subject, filter_str
+    )
 
     instruments = Query.GetParticipantInstrumentData(BRAIN_VOL_FILES, project, subject)
-    for i, inst in instruments.items():
+    for _, inst in instruments.items():
         if "AGE_AT_SCAN" in inst:
             age = inst["AGE_AT_SCAN"]
 
@@ -470,7 +458,7 @@ def test_CheckSubjectMatchesFilter():
                     subject,
                     "instruments.AGE_AT_SCAN lt {}".format(younger),
                 )
-                == False
+                is False
             )
             assert (
                 Query.CheckSubjectMatchesFilter(
@@ -479,7 +467,7 @@ def test_CheckSubjectMatchesFilter():
                     subject,
                     "instruments.AGE_AT_SCAN gt {}".format(younger),
                 )
-                == True
+                is True
             )
             assert Query.CheckSubjectMatchesFilter(
                 BRAIN_VOL_FILES,
@@ -494,7 +482,7 @@ def test_CheckSubjectMatchesFilter():
                     subject,
                     "instruments.AGE_AT_SCAN gt {}".format(older),
                 )
-                == False
+                is False
             )
         # TODO deal with spaces in identifiers and CheckSubjectMatchesFilter
         elif "age at scan" in inst:
@@ -503,7 +491,7 @@ def test_CheckSubjectMatchesFilter():
             older = str(float(age) + 1)
             younger = str(float(age) - 1)
 
-            assert inst["age at scan"] != None
+            assert inst["age at scan"] is not None
 
             # assert Query.CheckSubjectMatchesFilter( BRAIN_VOL_FILES, project, subject, "instruments.age at scan eq {}".format( str(age) ) )
             # assert (Query.CheckSubjectMatchesFilter( BRAIN_VOL_FILES, project, subject, "instruments.age at scan lt {}".format( younger ) ) == False)
@@ -564,7 +552,7 @@ def test_OpenGraph():
 
     # if you call OpenGraph with something that is already a graph, it should send it back
     g2 = Query.OpenGraph(g)
-    assert isinstance(g, rdflib.graph.Graph)
+    assert isinstance(g2, rdflib.graph.Graph)
 
 
 def test_CDEs():
@@ -576,9 +564,11 @@ def test_CDEs():
 
         dir_parts.append("core")
         dir_parts.append("cde_dir")
-        dir = "/".join(dir_parts)
+        dirpath = "/".join(dir_parts)
 
-        graph = getCDEs(["{}/ants_cde.ttl".format(dir), "{}/fs_cde.ttl".format(dir)])
+        graph = getCDEs(
+            ["{}/ants_cde.ttl".format(dirpath), "{}/fs_cde.ttl".format(dirpath)]
+        )
 
         units = graph.objects(
             subject=Constants.FREESURFER["fs_000002"],
@@ -607,21 +597,20 @@ def assess_one_col_output(txt_output):
         print(lines)
     assert re.search("UUID", lines[0]) or re.search("uuid", lines[0])
     # assert re.search('^-+$', lines[1])
-    found_uuid = False
-    ###added by DBK to deal with varying line numbers for uuids depending on the rest query type
+    # added by DBK to deal with varying line numbers for uuids depending on the rest query type
     for line in lines:
         if is_uuid(line.strip('"')):
-            assert True
             return line.strip('"')
     # if we didn't find a line with a uuid then we simply flag a false assertion and return the first line of output
     # cause it doesn't really matter at this point the assertion already failed
-    assert False
+    raise AssertionError
     return lines[0]
 
 
 def is_uuid(uuid):
     return (
-        re.search("^[0-9a-z]+-[0-9a-z]+-[0-9a-z]+-[0-9a-z]+-[0-9a-z]+$", uuid) != None
+        re.search("^[0-9a-z]+-[0-9a-z]+-[0-9a-z]+-[0-9a-z]+-[0-9a-z]+$", uuid)
+        is not None
     )
 
 
@@ -689,8 +678,8 @@ def test_cli_rest_routes():
         sections[0].strip().splitlines()[1:-1]
     )  # first and last lines should be -----
     summary = dict()
-    for l in summary_lines:
-        summary[l.split()[0]] = l.split()[1]
+    for ln in summary_lines:
+        summary[ln.split()[0]] = ln.split()[1]
     inst_uuid = summary["instruments"].split(",")[0]
     deriv_uuid = summary["derivatives"].split(",")[0]
     assert is_uuid(inst_uuid)
@@ -820,8 +809,6 @@ def test_project_fields_not_found():
 
 # ATC - fail
 def test_GetProjectsComputedMetadata():
-    files = []
-
     rest = RestParser()
     rest.nidm_files = tuple(BRAIN_VOL_FILES)
     meta_data = Query.GetProjectsMetadata(BRAIN_VOL_FILES)

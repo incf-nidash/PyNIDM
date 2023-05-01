@@ -28,7 +28,6 @@
 
 from argparse import ArgumentParser, RawTextHelpFormatter
 import csv
-import getopt
 import glob
 
 #  Python program to find SHA256 hash string of a file
@@ -38,15 +37,12 @@ import json
 import logging
 import os
 from os.path import isfile, join
-import sys
 import bids
 from nidm.core import BIDS_Constants, Constants
 from nidm.experiment import (
-    Acquisition,
     AcquisitionObject,
     AssessmentAcquisition,
     AssessmentObject,
-    DemographicsObject,
     MRAcquisition,
     MRObject,
     Project,
@@ -58,7 +54,7 @@ from nidm.experiment.Utils import (
     map_variables_to_terms,
 )
 from pandas import DataFrame
-from prov.model import PROV_LABEL, PROV_TYPE, Namespace, ProvInfluence, QualifiedName
+from prov.model import PROV_TYPE, Namespace, QualifiedName
 from rdflib import RDF, Graph, Literal, URIRef
 
 
@@ -272,8 +268,8 @@ def addimagingsessions(
         acq = MRAcquisition(session)
 
         # check whether participant (i.e. agent) for this subject already exists (i.e. if participants.tsv file exists) else create one
-        if (not subject_id in participant) and (
-            not subject_id.lstrip("0") in participant
+        if (subject_id not in participant) and (
+            subject_id.lstrip("0") not in participant
         ):
             participant[subject_id] = {}
             participant[subject_id]["person"] = acq.add_person(
@@ -1029,7 +1025,7 @@ def bidsmri2project(directory, args):
 
             # if user didn't supply a json data dictionary file but we're doing some variable-term mapping create an empty one
             # for column_to_terms to use
-            if args.json_map == False:
+            if args.json_map is False:
                 # defaults to participants.json because here we're mapping the participants.tsv file variables to terms
                 # if participants.json file doesn't exist then run without json mapping file
                 if not os.path.isfile(os.path.join(directory, "participants.json")):
@@ -1339,7 +1335,7 @@ def bidsmri2project(directory, args):
 
             # if user didn't supply a json data dictionary file
             # create an empty one for column_to_terms to use
-            if args.json_map == False:
+            if args.json_map is False:
                 # defaults to participants.json because here we're mapping the participants.tsv file variables to terms
                 # if participants.json file doesn't exist then run without json mapping file
                 if not os.path.isfile(os.path.splitext(tsv_file)[0] + ".json"):

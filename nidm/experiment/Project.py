@@ -1,16 +1,5 @@
-import json
-import os
-import sys
 import prov.model as pm
-import rdflib as rdf
-from rdflib import RDF, Graph, URIRef, term, util
-from rdflib.namespace import split_uri
-import validators
-
-# sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from ..core import Constants
-
-# import NIDMExperimentCore
 from ..experiment.Core import Core, getUUID
 
 
@@ -77,19 +66,6 @@ class Project(pm.ProvActivity, Core):
 
         if add_default_type:
             self.add_attributes({pm.PROV_TYPE: Constants.NIDM_PROJECT})
-
-    @property
-    def sessions(self):
-        return self._sessions
-
-    # added for derivatives and data elements
-    @property
-    def derivatives(self):
-        return self._derivatives
-
-    @property
-    def dataelements(self):
-        return self._dataelements
 
     def add_sessions(self, session):
         """

@@ -31,12 +31,8 @@
 # **************************************************************************************
 # **************************************************************************************
 
-from argparse import ArgumentParser
-import csv
-from json import dumps, loads
-import logging
+from json import dumps
 import os
-import sys
 import click
 from click_option_group import RequiredMutuallyExclusiveOptionGroup, optgroup
 from nidm.experiment.CDE import getCDEs
@@ -53,7 +49,6 @@ from nidm.experiment.Query import (
 from nidm.experiment.tools.click_base import cli
 from nidm.experiment.tools.rest import RestParser
 import pandas as pd
-from rdflib import Graph, util
 
 
 @cli.command()
@@ -167,9 +162,6 @@ def query(
     """
     This function provides query support for NIDM graphs.
     """
-    # query result list
-    results = []
-
     # if there is a CDE file list, seed the CDE cache
     if cde_file_list:
         getCDEs(cde_file_list.split(","))

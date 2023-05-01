@@ -1,23 +1,8 @@
-import json
 import os
 from pathlib import Path
-import re
 import urllib
-from nidm.core import Constants
-from nidm.experiment import (
-    Acquisition,
-    AcquisitionObject,
-    AssessmentAcquisition,
-    AssessmentObject,
-    Project,
-    Query,
-    Session,
-)
 from nidm.experiment.tools.rest import RestParser
-from prov.model import ProvAgent
 import pytest
-import rdflib
-from rdflib import Graph, URIRef, util
 
 REST_TEST_FILE = "./agent.ttl"
 BRAIN_VOL_FILES = ["./cmu_a.nidm.ttl", "./caltech.nidm.ttl"]

@@ -1,10 +1,8 @@
-from copy import copy, deepcopy
+from copy import deepcopy
 import functools
 import json
 import logging
 import operator
-import os
-import pprint
 import re
 from tempfile import gettempdir
 from urllib import parse
@@ -16,12 +14,11 @@ import nidm.experiment.Navigate
 from nidm.experiment.Utils import validate_uuid
 import nidm.experiment.tools.rest_statistics
 from numpy import mean, median, std
+import simplejson
 from tabulate import tabulate
 
 memory = Memory(gettempdir(), verbose=0)
 USE_JOBLIB_CACHE = False
-
-import simplejson
 
 
 def convertListtoDict(lst):
@@ -74,7 +71,9 @@ class RestParser:
             return tabulate(table, headers=headers)
         return result
 
-    def dictFormat(self, result, headers=[""]):
+    def dictFormat(self, result, headers=None):
+        if headers is None:
+            headers = [""]
         if self.output_format == self.CLI_FORMAT:
             table = []
             appendicies = []
@@ -116,7 +115,11 @@ class RestParser:
             return self.format(result)
 
     def objectTableFormat(self, result, headers=None):
-        def flatten(obj, maxDepth=10, table=[], rowInProgress=[], depth=0):
+        def flatten(obj, maxDepth=10, table=None, rowInProgress=None, depth=0):
+            if table is None:
+                table = []
+            if rowInProgress is None:
+                rowInProgress = []
             for key in obj:
                 newrow = deepcopy(rowInProgress)
                 if depth < maxDepth and type(obj[key]) == dict:
@@ -132,7 +135,7 @@ class RestParser:
 
             return table
 
-        if headers == None:
+        if headers is None:
             headers = [""]
 
         return tabulate(flatten(result), headers=headers)
@@ -176,7 +179,7 @@ class RestParser:
 
             toptable = []
             for key in result:
-                if not key in ["subjects", "data_elements", "field_values"]:
+                if key not in ["subjects", "data_elements", "field_values"]:
                     toptable.append([key, simplejson.dumps(result[key])])
 
             if "field_values" in result and len(result["field_values"]) > 0:
@@ -321,7 +324,7 @@ class RestParser:
             special_keys = ["instruments", "derivatives", "activity"]
             toptable = []
             for key in result:
-                if not key in special_keys:
+                if key not in special_keys:
                     toptable.append([key, result[key]])
 
             for key in special_keys:
@@ -346,7 +349,7 @@ class RestParser:
             special_keys = ["instruments", "derivatives", "activity"]
             toptable = []
             for key in result:
-                if not key in special_keys:
+                if key not in special_keys:
                     toptable.append([key, result[key]])
 
             for key in special_keys:
@@ -429,7 +432,7 @@ class RestParser:
                     [],
                 )
 
-                files = self.nidm_files
+                # files = self.nidm_files
                 all_subjects = Query.GetParticipantUUIDsForProject(
                     self.nidm_files, proj, self.query["filter"]
                 )  # nidm_file_list= files, project_id=proj['uuid'], filter=self.query['filter']):
@@ -534,18 +537,18 @@ class RestParser:
         path = (urlparse(self.command)).path
 
         match = re.match(r"^/?statistics/projects/([^/]+)\??$", path)
-        id = parse.unquote(str(match.group(1)))
-        self.restLog("Returning project {} stats metadata".format(id), 2)
+        id_ = parse.unquote(str(match.group(1)))
+        self.restLog("Returning project {} stats metadata".format(id_), 2)
 
         meta_data = Query.GetProjectsMetadata(self.nidm_files)
         self.ExpandProjectMetaData(meta_data)
         projects = Query.compressForJSONResponse(meta_data)
 
         for pid in projects["projects"].keys():
-            self.restLog("comparng " + str(pid) + " with " + str(id), 5)
-            self.restLog("comparng " + str(pid) + " with " + Constants.NIIRI + id, 5)
-            self.restLog("comparng " + str(pid) + " with niiri:" + id, 5)
-            if pid == id or pid == Constants.NIIRI + id or pid == "niiri:" + id:
+            self.restLog("comparng " + str(pid) + " with " + str(id_), 5)
+            self.restLog("comparng " + str(pid) + " with " + Constants.NIIRI + id_, 5)
+            self.restLog("comparng " + str(pid) + " with niiri:" + id_, 5)
+            if pid == id_ or pid == Constants.NIIRI + id_ or pid == "niiri:" + id_:
                 # strip off prefixes to make it more human readable
                 for key in projects["projects"][pid]:
                     short_key = key
@@ -556,9 +559,9 @@ class RestParser:
 
         # now get any fields they requested
         for field in self.query["fields"]:
-            if subjects == None:
+            if subjects is None:
                 subjects = Query.GetParticipantUUIDsForProject(
-                    tuple(self.nidm_files), project_id=id, filter=self.query["filter"]
+                    tuple(self.nidm_files), project_id=id_, filter=self.query["filter"]
                 )
                 result["subjects"] = subjects["uuid"]
             bits = field.split(".")
@@ -567,7 +570,7 @@ class RestParser:
                     bits[0]
                 )  # should be either instruments or derivatives for now.
                 self.addFieldStats(
-                    result, id, subjects["uuid"], bits[1], stat_type
+                    result, id_, subjects["uuid"], bits[1], stat_type
                 )  # bits[1] will be the ID
 
         return self.dictFormat(result)
@@ -592,7 +595,7 @@ class RestParser:
         else:
             return uri[uri.rfind("/") + 1 :]
 
-    def addFieldStats(self, result, project, subjects, field, type):
+    def addFieldStats(self, result, project, subjects, field, type):  # noqa: A002
         """
         Geneerates basic stats on a group of subjects and adds it to the result
         :param result:
@@ -640,17 +643,17 @@ class RestParser:
 
     def projectSummary(self):
         match = re.match(r"^/?projects/([^/]+)$", self.command)
-        id = parse.unquote(str(match.group(1)))
-        self.restLog("Returning project {} summary".format(id), 2)
+        pid = parse.unquote(str(match.group(1)))
+        self.restLog("Returning project {} summary".format(pid), 2)
 
         result = nidm.experiment.Navigate.GetProjectAttributes(
-            self.nidm_files, project_id=id
+            self.nidm_files, project_id=pid
         )
         result["subjects"] = Query.GetParticipantUUIDsForProject(
-            self.nidm_files, project_id=id, filter=self.query["filter"]
+            self.nidm_files, project_id=pid, filter=self.query["filter"]
         )
         result["data_elements"] = Query.GetProjectDataElements(
-            self.nidm_files, project_id=id
+            self.nidm_files, project_id=pid
         )
 
         # if we got fields, drill into each subject and pull out the field data
@@ -662,7 +665,7 @@ class RestParser:
             field_synonyms = functools.reduce(
                 operator.iconcat,
                 [
-                    Query.GetDatatypeSynonyms(self.nidm_files, id, x)
+                    Query.GetDatatypeSynonyms(self.nidm_files, pid, x)
                     for x in self.query["fields"]
                 ],
                 [],
@@ -785,17 +788,17 @@ class RestParser:
     def subjectSummary(self):
         match = re.match(r"^/?subjects/([^/]+)/?$", self.command)
         self.restLog("Returning info about subject {}".format(match.group(1)), 2)
-        id = match.group(1)
+        sid = match.group(1)
 
         # if we were passed in a sub_id rather than a UUID, lookup the associated UUID. (we might get multiple!)
-        if validate_uuid(id):
-            sub_ids = id
+        if validate_uuid(sid):
+            sub_ids = sid
         else:
-            sub_ids = Navigate.getSubjectUUIDsfromID(self.nidm_files, id)
+            sub_ids = Navigate.getSubjectUUIDsfromID(self.nidm_files, sid)
             if len(sub_ids) == 1:
                 sub_ids = sub_ids[0]
 
-        activities = Navigate.getActivities(self.nidm_files, id)
+        activities = Navigate.getActivities(self.nidm_files, sid)
         activityData = []
         for a in activities:
             data = Navigate.getActivityData(self.nidm_files, a)
@@ -957,7 +960,9 @@ class RestParser:
         if verbosity_of_message <= self.verbosity_level:
             print(message)
 
-    def format(self, result, headers=[""]):
+    def format(self, result, headers=None):
+        if headers is None:
+            headers = [""]
         if self.output_format == RestParser.JSON_FORMAT:
             json_str = simplejson.dumps(result, indent=2)
             return json_str

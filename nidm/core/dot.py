@@ -19,7 +19,6 @@ except ImportError:
     from cgi import escape
 
 from datetime import datetime
-from prov.dot import DOT_PROV_STYLE
 from prov.model import (
     PROV_ACTIVITY,
     PROV_AGENT,
@@ -47,7 +46,28 @@ from prov.model import (
 )
 import pydot
 import six
-from .Constants import *
+from .Constants import (
+    PROVONE_ATTRIBUTE_QNAMES,
+    PROVONE_CLTODESTP,
+    PROVONE_DATA,
+    PROVONE_DATALINK,
+    PROVONE_DATAONLINK,
+    PROVONE_DLTOINPORT,
+    PROVONE_DLTOOUTPORT,
+    PROVONE_HASINPORT,
+    PROVONE_HASOUTPORT,
+    PROVONE_HASSUBPROCESS,
+    PROVONE_INPORTTODL,
+    PROVONE_INPUTPORT,
+    PROVONE_ISPARTOF,
+    PROVONE_OUTPORTTODL,
+    PROVONE_OUTPUTPORT,
+    PROVONE_PROCESS,
+    PROVONE_PROCESSEXEC,
+    PROVONE_SEQCTRLLINK,
+    PROVONE_SOURCEPTOCL,
+    PROVONE_USER,
+)
 
 __author__ = "Sanu Ann Abraham"
 __email__ = "sanuann@mit.edu"
@@ -381,8 +401,8 @@ def provone_to_dot(
                 relations.append(rec)
 
         if not bundle.is_bundle():
-            for bundle in bundle.bundles:
-                _add_bundle(bundle)
+            for b in bundle.bundles:
+                _add_bundle(b)
 
         for rec in relations:
             args = rec.args

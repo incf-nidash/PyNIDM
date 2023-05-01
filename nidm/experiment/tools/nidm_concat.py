@@ -30,20 +30,9 @@
 # **************************************************************************************
 # **************************************************************************************
 
-from argparse import ArgumentParser
-from io import StringIO
-import os
-from os.path import basename, splitext
-import subprocess
-import sys
-import tempfile
 import click
-from graphviz import Source
 from nidm.experiment.Query import GetMergedGraph
-from nidm.experiment.Utils import read_nidm
 from nidm.experiment.tools.click_base import cli
-from rdflib import Graph, util
-from rdflib.tools import rdf2dot
 
 
 # adding click argument parsing

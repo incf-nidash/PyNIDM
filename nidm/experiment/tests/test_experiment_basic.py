@@ -1,16 +1,9 @@
 from io import StringIO
 import json
-import os
-from os import remove
-import pdb
-import sys
 from nidm.core import Constants
-from nidm.experiment import Acquisition, AcquisitionObject, Project, Session
-from nidm.experiment.Utils import read_nidm
+from nidm.experiment import Project, Session
 import prov
-import pytest
 import rdflib
-from rdflib import Graph
 
 
 def test_1(tmpdir):
@@ -171,7 +164,7 @@ def test_project_att():
 def test_session_noparameters():
     # creating project without parameters and a session to the project
     proj = Project()
-    sess = Session(proj)
+    Session(proj)
 
     # checking if we created ProvDocument
     assert type(proj.bundle) is Constants.NIDMDocument

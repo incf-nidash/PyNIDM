@@ -43,22 +43,16 @@
 
 from argparse import ArgumentParser
 from io import StringIO
-import json
-import os
-from os.path import basename, dirname, join, splitext
-import sys
-from urllib.parse import urlparse
+from os.path import dirname, join
 from nidm.core import Constants
-from nidm.experiment import AssessmentAcquisition, AssessmentObject, Project, Session
 from nidm.experiment.Core import Core, getUUID
 from nidm.experiment.Utils import getSubjIDColumn, map_variables_to_terms, read_nidm
 import numpy as np
 import pandas as pd
-import prov as pm
 from prov.model import Namespace as provNamespace
 from prov.model import PROV_ATTR_USED_ENTITY, PROV_ROLE
-from prov.model import ProvDocument, QualifiedName
-from rdflib import RDF, Graph, URIRef
+from prov.model import QualifiedName
+from rdflib import Graph
 
 
 def column_index(df, query_cols):
@@ -102,7 +96,7 @@ def add_brainvolume_data(
     if nidm_graph is None:
         first_row = True
         # iterate over rows and store in NIDM file
-        for csv_index, csv_row in df.iterrows():
+        for _, csv_row in df.iterrows():
             # store other data from row with columns_to_term mappings
             for row_variable, row_data in csv_row.iteritems():
                 # check if row_variable is subject id, if so check whether we have an agent for this participant
@@ -550,7 +544,7 @@ def add_brainvolume_data(
             #        first_row=False
 
 
-def main(argv):
+def main():
     parser = ArgumentParser(
         description="""This program will load in a CSV file made during simple-2
                 brain volumes experiment which has the following organization:
@@ -784,4 +778,4 @@ def main(argv):
 
 
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    main()

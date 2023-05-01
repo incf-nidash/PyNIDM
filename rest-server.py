@@ -14,7 +14,7 @@ def getTTLFiles():
 
 
 class NIDMRest(Resource):
-    def get(self, all):
+    def get(self, all):  # noqa: A002
         query_bits = []
         for a in request.args.keys():
             query_bits.append("{}={}".format(a, request.args.get(a)))

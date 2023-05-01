@@ -1,12 +1,10 @@
-import json
-from os import environ, path, remove
+from os import path, remove
 from pathlib import Path
 import tempfile
 import urllib.request
 from nidm.core import Constants
 from nidm.experiment import (
     Acquisition,
-    AcquisitionObject,
     AssessmentAcquisition,
     AssessmentObject,
     Project,
@@ -15,12 +13,8 @@ from nidm.experiment import (
 )
 from nidm.experiment.CDE import download_cde_files
 import nidm.experiment.Navigate
-from nidm.experiment.tools.rest_statistics import GetProjectsComputedMetadata
 import prov.model as pm
-from prov.model import Namespace as provNamespace
-from prov.model import ProvDocument, QualifiedName
 import pytest
-from rdflib import Namespace, URIRef
 
 ABIDE_FILES = ("cmu_a.nidm.ttl",)
 
@@ -157,7 +151,7 @@ def test_GetProjectInstruments():
             pm.Namespace("nidm", Constants.NIDM), "NorthAmericanAdultReadingTest"
         )
     }
-    acq_obj = AssessmentObject(acq, attributes=kwargs)
+    AssessmentObject(acq, attributes=kwargs)
 
     acq2 = AssessmentAcquisition(session)
 
@@ -166,7 +160,7 @@ def test_GetProjectInstruments():
             pm.Namespace("nidm", Constants.NIDM), "PositiveAndNegativeSyndromeScale"
         )
     }
-    acq_obj2 = AssessmentObject(acq2, attributes=kwargs)
+    AssessmentObject(acq2, attributes=kwargs)
 
     # save a turtle file
     with open("test_gpi.ttl", "w") as f:
@@ -226,8 +220,6 @@ def saveProject(file_name, project):
 
 
 def makeProjectTestFile(filename):
-    DCTYPES = Namespace("http://purl.org/dc/dcmitype/")
-
     kwargs = {
         Constants.NIDM_PROJECT_NAME: "FBIRN_PhaseII",  # this is the "title"
         Constants.NIDM_PROJECT_IDENTIFIER: 9610,
@@ -253,8 +245,6 @@ def makeProjectTestFile(filename):
 
 
 def makeProjectTestFile2(filename):
-    DCTYPES = Namespace("http://purl.org/dc/dcmitype/")
-
     kwargs = {
         Constants.NIDM_PROJECT_NAME: "TEST B",  # this is the "title"
         Constants.NIDM_PROJECT_IDENTIFIER: 1234,
@@ -323,7 +313,7 @@ def test_GetProjectsMetadata():
                 ):
                     p3 = project_id
                     break
-        assert p3 != None
+        assert p3 is not None
 
 
 #
@@ -427,7 +417,7 @@ def test_custom_data_types():
     valuetype1 = Query.getDataTypeInfo(
         Query.OpenGraph(SPECIAL_TEST_FILES[0]), "no-real-value"
     )
-    assert valuetype1 == False
+    assert valuetype1 is False
 
     valuetype2 = Query.getDataTypeInfo(
         Query.OpenGraph(SPECIAL_TEST_FILES[0]), Constants.NIIRI["age_e3hrcc"]

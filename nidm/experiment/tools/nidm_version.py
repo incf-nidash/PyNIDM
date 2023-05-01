@@ -1,6 +1,3 @@
-import os
-import sys
-import click
 from nidm.experiment.tools.click_base import cli
 from nidm.version import __version__
 

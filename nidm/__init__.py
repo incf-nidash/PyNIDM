@@ -1,6 +1,3 @@
-from __future__ import absolute_import, division, print_function
-import __main__
-
 __version__ = "3.9.7"
 
 try:

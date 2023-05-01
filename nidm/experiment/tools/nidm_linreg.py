@@ -1,8 +1,5 @@
 # coding=utf-8
 # !/usr/bin/env python
-
-import csv
-
 # *******************************************************************************************************
 # *******************************************************************************************************
 #  nidm_linreg.py
@@ -33,8 +30,9 @@ import csv
 #
 # *******************************************************************************************************
 # *******************************************************************************************************
+
+import csv
 import os
-from os import system
 from statistics import mean
 import sys
 import tempfile
@@ -107,7 +105,7 @@ def linear_regression(nidm_file_list, output_file, ml, ctr, regularization):
     r = regularization
     data_aggregation()  # collects data
     dataparsing()  # converts it to proper format
-    l = linreg()  # performs linear regression
+    linreg()  # performs linear regression
     contrasting()  # performs contrast
     regularizing()  # performs regularization
 
@@ -116,8 +114,6 @@ def data_aggregation():  # all data from all the files is collected
     """
     This function provides query support for NIDM graphs.
     """
-    # query result list
-    results = []
     # if there is a CDE file list, seed the CDE cache
     if m:  # ex: fs_00343 ~ age + sex + group
         print(
@@ -245,7 +241,7 @@ def data_aggregation():  # all data from all the files is collected
             condensed_data_holder[count] = [
                 [0] * (len(independentvariables) + 1)
             ]  # makes an array 1 row by the number of necessary columns
-            for i in range(
+            for _ in range(
                 numcols
             ):  # makes the 2D array big enough to store all of the necessary values in the edited dataset
                 condensed_data_holder[count].append(
@@ -586,7 +582,6 @@ def linreg():  # actual linear regression
         # The linear regression
         regressor = LinearRegression()
         regressor.fit(X, y)
-        regression = regressor.fit(X, y)
         # Data about the linear regression, starting without contrast
         X2 = sm.add_constant(X)
         statistics = sm.OLS(y, X2)
@@ -654,7 +649,7 @@ def contrasting():
         print(
             "\n\nTreatment (Dummy) Coding: Dummy coding compares each level of the categorical variable to a base reference level. The base reference level is the value of the intercept."
         )
-        ctrst = Treatment(reference=0).code_without_intercept(levels)
+        Treatment(reference=0).code_without_intercept(levels)
         mod = ols(
             dep_var
             + " ~ "
@@ -703,7 +698,7 @@ def contrasting():
                 c = self._simple_contrast(levels)
                 return ContrastMatrix(c, _name_levels("Simp.", levels[:-1]))
 
-        ctrst = Simple().code_without_intercept(levels)
+        Simple().code_without_intercept(levels)
         mod = ols(
             dep_var
             + " ~ "
@@ -728,7 +723,7 @@ def contrasting():
             f.close()
 
         # With contrast (sum/deviation coding)
-        ctrst = Sum().code_without_intercept(levels)
+        Sum().code_without_intercept(levels)
         mod = ols(
             dep_var
             + " ~ "
@@ -753,7 +748,7 @@ def contrasting():
             f.close()
 
         # With contrast (backward difference coding)
-        ctrst = Diff().code_without_intercept(levels)
+        Diff().code_without_intercept(levels)
         mod = ols(
             dep_var
             + " ~ "
@@ -778,7 +773,7 @@ def contrasting():
             f.close()
 
         # With contrast (Helmert coding)
-        ctrst = Helmert().code_without_intercept(levels)
+        Helmert().code_without_intercept(levels)
         mod = ols(
             dep_var
             + " ~ "

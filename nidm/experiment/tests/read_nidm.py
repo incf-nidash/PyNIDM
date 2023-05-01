@@ -1,14 +1,8 @@
 from argparse import ArgumentParser
-import json
-import os
-from os.path import dirname, join, splitext
-import sys
-from nidm.core import Constants
-from nidm.experiment import Project, Session
 from nidm.experiment.Utils import read_nidm
 
 
-def main(argv):
+def main():
     parser = ArgumentParser()
     # parse command line arguments
     parser.add_argument(
@@ -49,4 +43,4 @@ def main(argv):
 
 
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    main()

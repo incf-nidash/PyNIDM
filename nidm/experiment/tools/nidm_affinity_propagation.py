@@ -6,16 +6,11 @@ import matplotlib.pyplot as plt
 from nidm.experiment.Query import GetProjectsUUID
 from nidm.experiment.tools.click_base import cli
 from nidm.experiment.tools.rest import RestParser
-import numpy as np
 import pandas as pd
-from patsy.highlevel import dmatrices
 import seaborn as sns
 from sklearn import metrics, preprocessing
-from sklearn.cluster import AffinityPropagation, KMeans
-from sklearn.decomposition import PCA
-from sklearn.metrics import adjusted_rand_score, silhouette_score
-from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import LabelEncoder, MinMaxScaler
+from sklearn.cluster import AffinityPropagation
+from sklearn.preprocessing import MinMaxScaler
 
 
 @cli.command()
@@ -52,8 +47,6 @@ def full_ap(nidm_file_list, output_file, variables):
 
 def data_aggregation():  # all data from all the files is collected
     """This function provides query support for NIDM graphs."""
-    # query result list
-    results = []
     # if there is a CDE file list, seed the CDE cache
     if v:  # ex: fs_00343 ~ age + sex + group
         print(
@@ -98,8 +91,8 @@ def data_aggregation():  # all data from all the files is collected
                 len(model_list)
             ):  # here, we remove any leading or trailing spaces
                 model_list[i] = model_list[i].strip()
-            global vars  # used in dataparsing()
-            vars = ""
+            global variables  # used in dataparsing()
+            variables = ""
             for i in range(len(model_list) - 1, -1, -1):
                 full_model_variable_list.append(
                     model_list[i]
@@ -109,10 +102,13 @@ def data_aggregation():  # all data from all the files is collected
                 ):  # removing the star term from the columns we're about to pull from data
                     model_list.pop(i)
                 else:
-                    vars = vars + model_list[i] + ","
-            vars = vars[0 : len(vars) - 1]
+                    variables = variables + model_list[i] + ","
+            variables = variables[0 : len(variables) - 1]
             uri = (
-                "/projects/" + project[0].toPython().split("/")[-1] + "?fields=" + vars
+                "/projects/"
+                + project[0].toPython().split("/")[-1]
+                + "?fields="
+                + variables
             )
             # get fields output from each file and concatenate
             df_list_holder[count].append(pd.DataFrame(restParser.run([nidm_file], uri)))
@@ -132,7 +128,7 @@ def data_aggregation():  # all data from all the files is collected
             condensed_data_holder[count] = [
                 [0] * (len(model_list))
             ]  # makes an array 1 row by the number of necessary columns
-            for i in range(
+            for _ in range(
                 numcols
             ):  # makes the 2D array big enough to store all of the necessary values in the edited dataset
                 condensed_data_holder[count].append([0] * (len(model_list)))
@@ -242,9 +238,9 @@ def data_aggregation():  # all data from all the files is collected
                     condensed_data_holder[count][0][i] = condensed_data_holder[count][
                         0
                     ][i].replace(" ", "_")
-            for i in range(len(vars)):
-                if " " in vars[i]:
-                    vars[i] = vars[i].replace(" ", "_")
+            for i in range(len(variables)):
+                if " " in variables[i]:
+                    variables[i] = variables[i].replace(" ", "_")
             count = count + 1
             if len(not_found_list) > 0:
                 print(

@@ -7,7 +7,7 @@
     Added Python provtoolbox  support
     10/3/17 Modified Namespace to be QualifiedName for provtoolbox support...left most of the NIDM-Results Namespaces the same
 @author: Sanu Ann Abraham <sanuann@mit.edu>
-	05/04/2018 Added python ProvONE support
+        05/04/2018 Added python ProvONE support
 """
 from collections import namedtuple
 from prov.constants import PROV_ATTRIBUTE_LITERALS, PROV_ATTRIBUTE_QNAMES, PROV_N_MAP
@@ -604,7 +604,7 @@ PROVONE_ATTRIBUTES_ID_MAP = dict(
 )
 
 
-####ADDED BY DBK to make searching NIDM-Experiment Terms easier...temporary, should be done in the OWL file#####
+# ADDED BY DBK to make searching NIDM-Experiment Terms easier...temporary, should be done in the OWL file #
 nidm_experiment_terms = [
     NIDM_PROJECT,
     NIDM_PROJECT_IDENTIFIER,

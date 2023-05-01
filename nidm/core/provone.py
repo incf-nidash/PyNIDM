@@ -57,7 +57,6 @@ from .Constants import (
     PROVONE_ATTR_PLAN,
     PROVONE_ATTR_PROCESS,
     PROVONE_ATTR_PROCESSEXEC,
-    PROVONE_ATTR_RELATED_PREXEC,
     PROVONE_ATTR_SEQCTRLLINK,
     PROVONE_ATTR_USED_DATA,
     PROVONE_ATTR_USED_PREXEC,
@@ -76,7 +75,6 @@ from .Constants import (
     PROVONE_INPORTTODL,
     PROVONE_INPUTPORT,
     PROVONE_ISPARTOF,
-    PROVONE_MEMBERSHIP,
     PROVONE_N_MAP,
     PROVONE_OUTPORTTODL,
     PROVONE_OUTPUTPORT,
@@ -882,7 +880,7 @@ class ProvONEDocument(ProvDocument):
             other_attributes,
         )
 
-    def serialize(self, destination=None, format="json", **args):
+    def serialize(self, destination=None, format="json", **args):  # noqa: A002
         """
         Serialize the :py:class:`ProvDocument` to the destination.
 

@@ -30,21 +30,11 @@
 # **************************************************************************************
 # **************************************************************************************
 
-from argparse import ArgumentParser
-from io import StringIO
-import os
-from os.path import basename, splitext
-import subprocess
-import sys
-import tempfile
 import click
-from graphviz import Source
 from nidm.core import Constants
 from nidm.experiment.Query import GetParticipantIDs
-from nidm.experiment.Utils import read_nidm
 from nidm.experiment.tools.click_base import cli
 from rdflib import Graph, util
-from rdflib.tools import rdf2dot
 
 
 # adding click argument parsing
@@ -92,7 +82,7 @@ def merge(nidm_file_list, s, out_file):
                 graph.parse(nidm_file, format=util.guess_format(nidm_file))
 
                 # get list of second file subject IDs
-                subj = GetParticipantIDs([nidm_file])
+                GetParticipantIDs([nidm_file])
 
                 # for each UUID / subject ID look in graph and see if you can find the same ID.  If so get the UUID of
                 # that prov:agent and change all the UUIDs in nidm_file to match then concatenate the two graphs.

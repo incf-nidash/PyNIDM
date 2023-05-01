@@ -35,16 +35,12 @@
 # **************************************************************************************
 
 from argparse import ArgumentParser
-import csv
-import getopt
-import glob
 from io import StringIO
 import json
 import os
 from os import mkdir, system
 from os.path import basename, isdir, isfile, join, splitext
-from pprint import pprint
-from shutil import copyfile, move
+from shutil import copyfile
 import sys
 import tempfile
 import urllib.parse
@@ -52,15 +48,6 @@ import urllib.request as ur
 import datalad.api as dl
 from nidm.core import BIDS_Constants, Constants
 from nidm.core.Constants import DD
-from nidm.experiment import (
-    Acquisition,
-    AcquisitionObject,
-    AssessmentObject,
-    DemographicsObject,
-    MRObject,
-    Project,
-    Session,
-)
 from nidm.experiment.Query import (
     GetParticipantIDFromAcquisition,
     GetProjectLocation,
@@ -68,8 +55,7 @@ from nidm.experiment.Query import (
 )
 from nidm.experiment.Utils import read_nidm, write_json_mapping_file
 import pandas as pd
-from prov.model import PROV_LABEL, PROV_TYPE
-from rdflib import RDF, Graph, URIRef
+from rdflib import Graph, URIRef
 import validators
 
 
@@ -116,7 +102,7 @@ def GetImageFromAWS(location, output_file, args):
                 print("Copying temporary file to final location....")
                 copyfile(join(temp_dir.name, basename(location)), output_file)
                 return True
-            except:
+            except Exception:
                 print("Couldn't get dataset from AWS either...")
                 return None
     # if user supplied a URL base, add dataset, subject, and file information to it and try to download the image
@@ -144,7 +130,7 @@ def GetImageFromAWS(location, output_file, args):
                 print("Copying temporary file to final location....")
                 copyfile(join(temp_dir.name, basename(location)), output_file)
                 return True
-            except:
+            except Exception:
                 print("Couldn't get dataset from AWS either...")
                 return None
 
@@ -165,7 +151,7 @@ def GetImageFromURL(url):
         temp.write(opener.read())
         temp.close()
         return temp.name
-    except:
+    except Exception:
         print("ERROR! Can't open url: %s" % url)
         return -1
 
@@ -335,7 +321,7 @@ def CreateBIDSParticipantFile(nidm_graph, output_file, participant_fields):
             # if field identifier isn't a proper URI then do a fuzzy search on the graph, else an explicit search for the URL
             if validators.url(fields):
                 # then this is a valid URI so simply query nidm_project document for it
-                for subj, obj in nidm_graph.subject_objects(
+                for _, obj in nidm_graph.subject_objects(
                     predicate=URIRef(BIDS_Constants.participants[fields].uri)
                 ):
                     # add row to the pandas data frame
@@ -370,9 +356,9 @@ def CreateBIDSParticipantFile(nidm_graph, output_file, participant_fields):
                 SELECT DISTINCT ?pred ?value
                     WHERE {
                         ?asses_activity prov:qualifiedAssociation ?_blank .
-    					?_blank rdf:type prov:Association ;
-	                		prov:agent <%s> ;
-                   			prov:hadRole sio:Subject .
+                                        ?_blank rdf:type prov:Association ;
+                                        prov:agent <%s> ;
+                                        prov:hadRole sio:Subject .
 
                         ?entities prov:wasGeneratedBy ?asses_activity ;
                             rdf:type onli:assessment-instrument ;
@@ -441,12 +427,12 @@ def NIDMProject2BIDSDatasetDescriptor(nidm_graph, output_directory):
     # make copy of project_metadata
     project_metadata_tmp = dict(project_metadata)
     # iterate over the temporary dictionary and delete items from the original
-    for proj_key, value in project_metadata_tmp.items():
+    for proj_key, _ in project_metadata_tmp.items():
         key_found = 0
         # print("proj_key = %s " % proj_key)
         # print("project_metadata[proj_key] = %s" %project_metadata[proj_key])
 
-        for key, value in BIDS_Constants.dataset_description.items():
+        for key, _ in BIDS_Constants.dataset_description.items():
             if BIDS_Constants.dataset_description[key]._uri == proj_key:
                 # added since BIDS validator validates values of certain keys
                 if (
@@ -500,7 +486,7 @@ def AddMetadataToImageSidecar(graph_entity, graph, output_directory, image_filen
             ),
             None,
         )
-        if key != None:
+        if key is not None:
             json_dict[key] = row[1]
 
     # write json_dict out to appropriate sidecar filename
@@ -591,7 +577,7 @@ def ProcessFiles(graph, scan_type, output_directory, project_location, args):
                                 ),
                             )
 
-                        except:
+                        except Exception:
                             print(
                                 "ERROR! Failed to find file %s on filesystem..."
                                 % location
@@ -606,7 +592,7 @@ def ProcessFiles(graph, scan_type, output_directory, project_location, args):
                                         recursive=True, jobs=1
                                     )
 
-                                except:
+                                except Exception:
                                     print(
                                         "ERROR! Datalad returned error: %s for dataset %s."
                                         % (sys.exc_info()[0], location)
@@ -693,7 +679,7 @@ def ProcessFiles(graph, scan_type, output_directory, project_location, args):
                                         basename(location),
                                     ),
                                 )
-                            except:
+                            except Exception:
                                 print(
                                     "ERROR! Failed to find file %s on filesystem..."
                                     % location
@@ -708,7 +694,7 @@ def ProcessFiles(graph, scan_type, output_directory, project_location, args):
                                             recursive=True, jobs=1
                                         )
 
-                                    except:
+                                    except Exception:
                                         print(
                                             "ERROR! Datalad returned error: %s for dataset %s."
                                             % (sys.exc_info()[0], location)
@@ -768,7 +754,7 @@ def ProcessFiles(graph, scan_type, output_directory, project_location, args):
                                         basename(location),
                                     ),
                                 )
-                            except:
+                            except Exception:
                                 print(
                                     "ERROR! Failed to find file %s on filesystem..."
                                     % location
@@ -783,7 +769,7 @@ def ProcessFiles(graph, scan_type, output_directory, project_location, args):
                                             recursive=True, jobs=1
                                         )
 
-                                    except:
+                                    except Exception:
                                         print(
                                             "ERROR! Datalad returned error: %s for dataset %s."
                                             % (sys.exc_info()[0], location)
@@ -800,7 +786,7 @@ def ProcessFiles(graph, scan_type, output_directory, project_location, args):
                                         )
 
 
-def main(argv):
+def main():
     parser = ArgumentParser(
         description="This program will convert a NIDM-Experiment RDF document \
         to a BIDS dataset.  The program will query the NIDM-Experiment document for subjects, \
@@ -909,9 +895,9 @@ def main(argv):
     # try to read RDF file
     print("Guessing RDF file format...")
     format_found = False
-    for format in "turtle", "xml", "n3", "trix", "rdfa":
+    for fmt in "turtle", "xml", "n3", "trix", "rdfa":
         try:
-            print("Reading RDF file as %s..." % format)
+            print("Reading RDF file as %s..." % fmt)
             # load NIDM graph into NIDM-Exp API objects
             nidm_project = read_nidm(rdf_file)
             # temporary save nidm_project
@@ -921,7 +907,7 @@ def main(argv):
             format_found = True
             break
         except Exception:
-            print("File: %s appears to be an invalid %s RDF file" % (rdf_file, format))
+            print("File: %s appears to be an invalid %s RDF file" % (rdf_file, fmt))
 
     if not format_found:
         print(
@@ -967,7 +953,7 @@ def main(argv):
         )
 
     # creating BIDS hierarchy with requested scans
-    if args.anat == True:
+    if args.anat is True:
         ProcessFiles(
             graph=rdf_graph_parse,
             scan_type=Constants.NIDM_MRI_ANATOMIC_SCAN.uri,
@@ -976,7 +962,7 @@ def main(argv):
             args=args,
         )
 
-    if args.func == True:
+    if args.func is True:
         ProcessFiles(
             graph=rdf_graph_parse,
             scan_type=Constants.NIDM_MRI_FUNCTION_SCAN.uri,
@@ -984,7 +970,7 @@ def main(argv):
             project_location=project_location,
             args=args,
         )
-    if args.dwi == True:
+    if args.dwi is True:
         ProcessFiles(
             graph=rdf_graph_parse,
             scan_type=Constants.NIDM_MRI_DIFFUSION_TENSOR.uri,
@@ -995,4 +981,4 @@ def main(argv):
 
 
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    main()

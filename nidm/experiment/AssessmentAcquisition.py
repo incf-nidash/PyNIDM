@@ -1,12 +1,6 @@
-import os
-import sys
 import prov.model as pm
-
-# sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-import rdflib as rdf
 from ..core import Constants
 from ..experiment import Acquisition
-from ..experiment.Core import getUUID
 
 
 class AssessmentAcquisition(Acquisition):

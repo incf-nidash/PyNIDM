@@ -1,5 +1,4 @@
 # from nidm.core.provone import ProvONEDocument
-from nidm.core import Constants
 from nidm.core.dot import provone_to_dot
 import pytest
 
@@ -11,6 +10,8 @@ pytestmark = pytest.mark.skip(
 @pytest.fixture(scope="module")
 def doc():
     # Create new provone document with namespaces
+    from nidm.core.provone import ProvONEDocument
+
     d1 = ProvONEDocument()
     d1.add_namespace("dcterms", "http://purl.org/dc/terms/")
     d1.add_namespace("wfms", "http://www.wfms.org/registry/")

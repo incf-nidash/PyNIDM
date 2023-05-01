@@ -1,13 +1,9 @@
 from argparse import ArgumentParser
-import os
-import pdb
 from pprint import pprint
-import sys
 from nidm.experiment import Utils
-import pytest
 
 
-def main(argv):
+def main():
     parser = ArgumentParser(
         description="This program will query SciCrunch term labels for query_string using key and print out the return JSON packet."
     )
@@ -48,7 +44,7 @@ def main(argv):
     print("\n\n-------------------------------------------")
     print("Example uber elastic search:")
     results = Utils.GetNIDMTermsFromSciCrunch(args.key, args.query_string)
-    for key, value in results.items():
+    for key, _ in results.items():
         print(
             "Label: %s \t Definition: %s \t Preferred URL: %s "
             % (
@@ -60,9 +56,9 @@ def main(argv):
 
 
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    main()
 
 
 # very simple test, just checking if main does not give any error
 def test_main():
-    main(sys.argv[1:])
+    main()

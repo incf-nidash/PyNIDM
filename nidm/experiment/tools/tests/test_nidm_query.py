@@ -1,7 +1,4 @@
-import subprocess
-import click
 from click.testing import CliRunner
-import pytest
 from ..nidm_query import query
 
 

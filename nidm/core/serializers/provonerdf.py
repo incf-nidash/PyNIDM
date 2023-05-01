@@ -29,7 +29,6 @@ from prov.constants import (
     PROV_DERIVATION,
     PROV_END,
     PROV_GENERATION,
-    PROV_ID_ATTRIBUTES_MAP,
     PROV_INVALIDATION,
     PROV_LOCATION,
     PROV_MENTION,
@@ -258,7 +257,7 @@ class ProvONERDFSerializer(Serializer):
                     record.attributes
                 )
                 formal_qualifiers = False
-                for attrid, (attr, value) in enumerate(list(record.formal_attributes)):
+                for attrid, (_, value) in enumerate(list(record.formal_attributes)):
                     if (identifier is not None and value is not None) or (
                         identifier is None and value is not None and attrid > 1
                     ):
@@ -284,10 +283,7 @@ class ProvONERDFSerializer(Serializer):
                             if identifier is None and subj is not None:
                                 try:
                                     obj_val = record.formal_attributes[1][1]
-                                    obj_attr = URIRef(
-                                        record.formal_attributes[1][0].uri
-                                    )
-                                    # TODO: Why is obj_attr above not used anywhere?
+                                    URIRef(record.formal_attributes[1][0].uri)
                                 except IndexError:
                                     obj_val = None
                                 if obj_val and (
@@ -478,7 +474,7 @@ class ProvONERDFSerializer(Serializer):
         PROV_CLS_MAP = {}
         formal_attributes = {}
         unique_sets = {}
-        for key, val in PROV_BASE_CLS.items():
+        for key, _ in PROV_BASE_CLS.items():
             PROV_CLS_MAP[key.uri] = PROV_BASE_CLS[key]
         relation_mapper = {
             URIRef(PROV["alternateOf"].uri): "alternate",
@@ -511,11 +507,14 @@ class ProvONERDFSerializer(Serializer):
         }
         other_attributes = {}
         for stmt in graph.triples((None, RDF.type, None)):
-            id = six.text_type(stmt[0])
+            id_ = six.text_type(stmt[0])
             obj = six.text_type(stmt[2])
             if obj in PROV_CLS_MAP:
-                if not isinstance(stmt[0], BNode) and self.valid_identifier(id) is None:
-                    prefix, iri, _ = graph.namespace_manager.compute_qname(id)
+                if (
+                    not isinstance(stmt[0], BNode)
+                    and self.valid_identifier(id_) is None
+                ):
+                    prefix, iri, _ = graph.namespace_manager.compute_qname(id_)
                     self.document.add_namespace(prefix, iri)
                 try:
                     prov_obj = PROV_CLS_MAP[obj]
@@ -528,7 +527,7 @@ class ProvONERDFSerializer(Serializer):
                     or pm.PROV["PrimarySource"].uri in stmt[2]
                 )
                 if (
-                    id not in ids
+                    id_ not in ids
                     and prov_obj
                     and (
                         prov_obj.uri == obj
@@ -536,12 +535,12 @@ class ProvONERDFSerializer(Serializer):
                         or isinstance(stmt[0], BNode)
                     )
                 ):
-                    ids[id] = prov_obj
+                    ids[id_] = prov_obj
                     klass = pm.PROV_REC_CLS[prov_obj]
-                    formal_attributes[id] = OrderedDict(
+                    formal_attributes[id_] = OrderedDict(
                         [(key, None) for key in klass.FORMAL_ATTRIBUTES]
                     )
-                    unique_sets[id] = OrderedDict(
+                    unique_sets[id_] = OrderedDict(
                         [(key, []) for key in klass.FORMAL_ATTRIBUTES]
                     )
                     add_attr = False or (
@@ -549,32 +548,32 @@ class ProvONERDFSerializer(Serializer):
                         and prov_obj.uri != obj
                     )
                 if add_attr:
-                    if id not in other_attributes:
-                        other_attributes[id] = []
+                    if id_ not in other_attributes:
+                        other_attributes[id_] = []
                     obj_formatted = self.decode_rdf_representation(stmt[2], graph)
-                    other_attributes[id].append((pm.PROV["type"], obj_formatted))
+                    other_attributes[id_].append((pm.PROV["type"], obj_formatted))
             else:
-                if id not in other_attributes:
-                    other_attributes[id] = []
+                if id_ not in other_attributes:
+                    other_attributes[id_] = []
                 obj = self.decode_rdf_representation(stmt[2], graph)
-                other_attributes[id].append((pm.PROV["type"], obj))
-        for id, pred, obj in graph:
-            id = six.text_type(id)
-            if id not in other_attributes:
-                other_attributes[id] = []
+                other_attributes[id_].append((pm.PROV["type"], obj))
+        for id_, pred, obj in graph:
+            id_ = six.text_type(id_)
+            if id_ not in other_attributes:
+                other_attributes[id_] = []
             if pred == RDF.type:
                 continue
             if pred in relation_mapper:
                 if "alternateOf" in pred:
-                    getattr(bundle, relation_mapper[pred])(obj, id)
+                    getattr(bundle, relation_mapper[pred])(obj, id_)
                 elif "mentionOf" in pred:
                     mentionBundle = None
                     for stmt in graph.triples(
-                        (URIRef(id), URIRef(pm.PROV["asInBundle"].uri), None)
+                        (URIRef(id_), URIRef(pm.PROV["asInBundle"].uri), None)
                     ):
                         mentionBundle = stmt[2]
                     getattr(bundle, relation_mapper[pred])(
-                        id, six.text_type(obj), mentionBundle
+                        id_, six.text_type(obj), mentionBundle
                     )
                 elif "actedOnBehalfOf" in pred or "wasAssociatedWith" in pred:
                     qualifier = (
@@ -584,83 +583,83 @@ class ProvONERDFSerializer(Serializer):
                     )
                     qualifier_bnode = None
                     for stmt in graph.triples(
-                        (URIRef(id), URIRef(pm.PROV[qualifier].uri), None)
+                        (URIRef(id_), URIRef(pm.PROV[qualifier].uri), None)
                     ):
                         qualifier_bnode = stmt[2]
                     if qualifier_bnode is None:
-                        getattr(bundle, relation_mapper[pred])(id, six.text_type(obj))
+                        getattr(bundle, relation_mapper[pred])(id_, six.text_type(obj))
                     else:
                         fakeys = list(
                             formal_attributes[six.text_type(qualifier_bnode)].keys()
                         )
                         formal_attributes[six.text_type(qualifier_bnode)][
                             fakeys[0]
-                        ] = id
+                        ] = id_
                         formal_attributes[six.text_type(qualifier_bnode)][
                             fakeys[1]
                         ] = six.text_type(obj)
                 else:
-                    getattr(bundle, relation_mapper[pred])(id, six.text_type(obj))
-            elif id in ids:
+                    getattr(bundle, relation_mapper[pred])(id_, six.text_type(obj))
+            elif id_ in ids:
                 obj1 = self.decode_rdf_representation(obj, graph)
                 if obj is not None and obj1 is None:
                     raise ValueError(("Error transforming", obj))
                 pred_new = pred
                 if pred in predicate_mapper:
                     pred_new = predicate_mapper[pred]
-                if ids[id] == PROV_COMMUNICATION and "activity" in six.text_type(
+                if ids[id_] == PROV_COMMUNICATION and "activity" in six.text_type(
                     pred_new
                 ):
                     pred_new = PROV_ATTR_INFORMANT
-                if ids[id] == PROV_DELEGATION and "agent" in six.text_type(pred_new):
+                if ids[id_] == PROV_DELEGATION and "agent" in six.text_type(pred_new):
                     pred_new = PROV_ATTR_RESPONSIBLE
-                if ids[id] in [PROV_END, PROV_START] and "entity" in six.text_type(
+                if ids[id_] in [PROV_END, PROV_START] and "entity" in six.text_type(
                     pred_new
                 ):
                     pred_new = PROV_ATTR_TRIGGER
-                if ids[id] in [PROV_END] and "activity" in six.text_type(pred_new):
+                if ids[id_] in [PROV_END] and "activity" in six.text_type(pred_new):
                     pred_new = PROV_ATTR_ENDER
-                if ids[id] in [PROV_START] and "activity" in six.text_type(pred_new):
+                if ids[id_] in [PROV_START] and "activity" in six.text_type(pred_new):
                     pred_new = PROV_ATTR_STARTER
-                if ids[id] == PROV_DERIVATION and "entity" in six.text_type(pred_new):
+                if ids[id_] == PROV_DERIVATION and "entity" in six.text_type(pred_new):
                     pred_new = PROV_ATTR_USED_ENTITY
                 if six.text_type(pred_new) in [
-                    val.uri for val in formal_attributes[id]
+                    val.uri for val in formal_attributes[id_]
                 ]:
                     qname_key = self.valid_identifier(pred_new)
-                    formal_attributes[id][qname_key] = obj1
-                    unique_sets[id][qname_key].append(obj1)
-                    if len(unique_sets[id][qname_key]) > 1:
-                        formal_attributes[id][qname_key] = None
+                    formal_attributes[id_][qname_key] = obj1
+                    unique_sets[id_][qname_key].append(obj1)
+                    if len(unique_sets[id_][qname_key]) > 1:
+                        formal_attributes[id_][qname_key] = None
                 else:
                     if "qualified" not in six.text_type(
                         pred_new
                     ) and "asInBundle" not in six.text_type(pred_new):
-                        other_attributes[id].append((six.text_type(pred_new), obj1))
+                        other_attributes[id_].append((six.text_type(pred_new), obj1))
             local_key = six.text_type(obj)
             if local_key in ids:
                 if "qualified" in pred:
                     formal_attributes[local_key][
                         list(formal_attributes[local_key].keys())[0]
-                    ] = id
-        for id in ids:
+                    ] = id_
+        for id_ in ids:
             attrs = None
-            if id in other_attributes:
-                attrs = other_attributes[id]
+            if id_ in other_attributes:
+                attrs = other_attributes[id_]
             items_to_walk = []
-            for qname, values in unique_sets[id].items():
+            for qname, values in unique_sets[id_].items():
                 if values and len(values) > 1:
                     items_to_walk.append((qname, values))
             if items_to_walk:
                 for subset in list(walk(items_to_walk)):
                     for key, value in subset.items():
-                        formal_attributes[id][key] = value
-                    bundle.new_record(ids[id], id, formal_attributes[id], attrs)
+                        formal_attributes[id_][key] = value
+                    bundle.new_record(ids[id_], id_, formal_attributes[id_], attrs)
             else:
-                bundle.new_record(ids[id], id, formal_attributes[id], attrs)
-            ids[id] = None
+                bundle.new_record(ids[id_], id_, formal_attributes[id_], attrs)
+            ids[id_] = None
             if attrs is not None:
-                other_attributes[id] = []
+                other_attributes[id_] = []
         for key, val in other_attributes.items():
             if val:
                 ids[key].add_attributes(val)

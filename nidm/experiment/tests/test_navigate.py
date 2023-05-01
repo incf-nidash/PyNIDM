@@ -2,8 +2,6 @@ import os
 from pathlib import Path
 import re
 import urllib
-from uuid import UUID
-from nidm.core import Constants
 from nidm.experiment import Navigate
 import pytest
 
@@ -59,7 +57,7 @@ def test_navigate_get_sessions():
 
 def test_navigate_get_acquisitions_for_session():
     sessions = Navigate.getSessions(BRAIN_VOL_FILES, PROJECT_URI)
-    for s in sessions:
+    for _ in sessions:
         acquisitions = Navigate.getAcquisitions(BRAIN_VOL_FILES, sessions[0])
         assert len(acquisitions) > 0
         # for a in acquisitions:
@@ -73,7 +71,7 @@ def test_navigate_get_subjects_for_acquisition():
         acquisitions = Navigate.getAcquisitions(BRAIN_VOL_FILES, s)
         for acq in acquisitions:
             sub = Navigate.getSubject(BRAIN_VOL_FILES, acq)
-            assert sub != None
+            assert sub is not None
             subjects.add(sub)
     assert len(subjects) > 5
 
