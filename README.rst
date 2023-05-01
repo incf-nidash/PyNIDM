@@ -18,7 +18,7 @@ Dependencies
 * OS-X: `brew install graphviz`
 * Datalad (optional): `pip install datalad`
 * Git-Annex (optional): <https://git-annex.branchable.com/>
-* Sklearn: `pip install sklearn`
+* Sklearn: `pip install scikit-learn`
 * Statsmodels: `pip install statsmodels`
 * Statistics: `pip install statistics`
 * Patsy: `pip install patsy`
