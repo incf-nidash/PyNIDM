@@ -1,9 +1,12 @@
-import os, sys
-#sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+import os
+import sys
+import prov.model as pm
+
+# sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import rdflib as rdf
 from ..core import Constants
 from ..experiment import AcquisitionObject
-import prov.model as pm
+
 
 class AssessmentObject(AcquisitionObject):
     """Class for NIDM-Experimenent generic AssessmentAcquisitionObject-Level Objects.
@@ -16,8 +19,16 @@ class AssessmentObject(AcquisitionObject):
     @copyright: University of California, Irvine 2017
 
     """
-    #constructor
-    def __init__(self, acquisition,assessment_type=None,attributes=None, uuid=None, add_default_type=True):
+
+    # constructor
+    def __init__(
+        self,
+        acquisition,
+        assessment_type=None,
+        attributes=None,
+        uuid=None,
+        add_default_type=True,
+    ):
         """
         Default constructor, creates an acquisition object and links to acquisition activity object
 
@@ -28,9 +39,9 @@ class AssessmentObject(AcquisitionObject):
         :return: none
 
         """
-        #execute default parent class constructor
-          #execute default parent class constructor
-        super(AssessmentObject,self).__init__(acquisition,attributes, uuid)
+        # execute default parent class constructor
+        # execute default parent class constructor
+        super(AssessmentObject, self).__init__(acquisition, attributes, uuid)
 
         if add_default_type:
             self.add_attributes({pm.PROV_TYPE: Constants.NIDM_ASSESSMENT_ENTITY})
@@ -38,9 +49,8 @@ class AssessmentObject(AcquisitionObject):
 
         if assessment_type is not None:
             self.add_attributes({pm.PROV_TYPE: assessment_type})
-        #carry graph object around
+        # carry graph object around
         self.graph = acquisition.graph
-
 
     def __str__(self):
         return "NIDM-Experiment Generic Assessment Object Class"

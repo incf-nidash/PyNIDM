@@ -1,16 +1,15 @@
-from pathlib import Path
-import pytest
 import os
-import urllib
+from pathlib import Path
 import re
-from  nidm.experiment import Navigate
-from nidm.core import Constants
+import urllib
 from uuid import UUID
-
+from nidm.core import Constants
+from nidm.experiment import Navigate
+import pytest
 
 USE_GITHUB_DATA = True
-BRAIN_VOL_FILES = tuple(['./cmu_a.nidm.ttl', './caltech.nidm.ttl'])
-OPENNEURO_FILES = tuple(['ds000110.nidm.ttl'])
+BRAIN_VOL_FILES = tuple(["./cmu_a.nidm.ttl", "./caltech.nidm.ttl"])
+OPENNEURO_FILES = tuple(["ds000110.nidm.ttl"])
 PROJECT_URI = None
 OPENNEURO_PROJECT_URI = None
 
@@ -23,25 +22,25 @@ def setup():
         if Path(f).is_file():
             os.remove(f)
 
-    if not Path('./cmu_a.nidm.ttl').is_file():
-        urllib.request.urlretrieve (
+    if not Path("./cmu_a.nidm.ttl").is_file():
+        urllib.request.urlretrieve(
             "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/master/datasets.datalad.org/abide/RawDataBIDS/CMU_a/nidm.ttl",
-            "cmu_a.nidm.ttl"
+            "cmu_a.nidm.ttl",
         )
 
-    if not Path('./caltech.nidm.ttl').is_file():
-        urllib.request.urlretrieve (
+    if not Path("./caltech.nidm.ttl").is_file():
+        urllib.request.urlretrieve(
             "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/master/datasets.datalad.org/abide/RawDataBIDS/Caltech/nidm.ttl",
-            "caltech.nidm.ttl"
+            "caltech.nidm.ttl",
         )
 
     projects = Navigate.getProjects(BRAIN_VOL_FILES)
     PROJECT_URI = projects[0]
 
-    if not Path('./ds000110.nidm.ttl').is_file():
-        urllib.request.urlretrieve (
+    if not Path("./ds000110.nidm.ttl").is_file():
+        urllib.request.urlretrieve(
             "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/master/datasets.datalad.org/openneuro/ds000110/nidm.ttl",
-            "ds000110.nidm.ttl"
+            "ds000110.nidm.ttl",
         )
 
     projects2 = Navigate.getProjects(OPENNEURO_FILES)
@@ -66,6 +65,7 @@ def test_navigate_get_acquisitions_for_session():
         # for a in acquisitions:
         #     print (str(a))
 
+
 def test_navigate_get_subjects_for_acquisition():
     subjects = set([])
     sessions = Navigate.getSessions(BRAIN_VOL_FILES, PROJECT_URI)
@@ -76,7 +76,6 @@ def test_navigate_get_subjects_for_acquisition():
             assert sub != None
             subjects.add(sub)
     assert len(subjects) > 5
-
 
 
 def test_navigate_get_acquisition_data_by_session():
@@ -95,10 +94,10 @@ def test_navigate_get_acquisition_data_by_session():
             for vt in ad.data:
                 set_of_keys_returned.add(vt.label)
 
-    print (set_of_keys_returned)
+    print(set_of_keys_returned)
 
-    assert 'age' in set_of_keys_returned
-    assert 'hadAcquisitionModality' in set_of_keys_returned
+    assert "age" in set_of_keys_returned
+    assert "hadAcquisitionModality" in set_of_keys_returned
 
 
 def test_navigate_get_acquisition_data_by_subject():
@@ -108,7 +107,9 @@ def test_navigate_get_acquisition_data_by_subject():
     subjects = Navigate.getSubjects(OPENNEURO_FILES, OPENNEURO_PROJECT_URI)
     assert len(subjects) > 0
     for s in subjects:
-        activities = Navigate.getActivities(nidm_file_tuples=OPENNEURO_FILES, subject_id=s)
+        activities = Navigate.getActivities(
+            nidm_file_tuples=OPENNEURO_FILES, subject_id=s
+        )
         assert len(activities) > 0
         for a in activities:
             set_of_activities.add(str(a))
@@ -117,13 +118,17 @@ def test_navigate_get_acquisition_data_by_subject():
             for vt in ad.data:
                 set_of_keys_returned.add(vt.label)
 
-    assert 'age' in set_of_keys_returned
-    assert 'sex' in set_of_keys_returned
-    assert 'hadAcquisitionModality' in set_of_keys_returned
-    assert 'hadImageUsageType' in set_of_keys_returned
+    assert "age" in set_of_keys_returned
+    assert "sex" in set_of_keys_returned
+    assert "hadAcquisitionModality" in set_of_keys_returned
+    assert "hadImageUsageType" in set_of_keys_returned
 
 
 def test_navigate_get_sub_uuid_from_id():
-    uuids = Navigate.getSubjectUUIDsfromID(nidm_file_tuples=BRAIN_VOL_FILES, sub_id='50653')
+    uuids = Navigate.getSubjectUUIDsfromID(
+        nidm_file_tuples=BRAIN_VOL_FILES, sub_id="50653"
+    )
     assert len(uuids) == 1
-    assert re.match("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}", uuids[0])  # check that it's a UUID
+    assert re.match(
+        "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}", uuids[0]
+    )  # check that it's a UUID

@@ -106,4 +106,3 @@ niiri:c067401a-0bea-11ea-8e05-003ee1ce9545 a nidm:Session,
 niiri:c067e01a-0bea-11ea-8e05-003ee1ce9545 a prov:Agent,
         prov:Person ;
     foaf:givenName "George"^^xsd:string .
-

@@ -1,21 +1,24 @@
-import os, sys
-#sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-import rdflib as rdf
-from ..experiment import Acquisition
-from ..core import Constants
-from ..experiment.Core import getUUID
+import os
+import sys
 import prov.model as pm
+
+# sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+import rdflib as rdf
+from ..core import Constants
+from ..experiment import Acquisition
+from ..experiment.Core import getUUID
+
 
 class AssessmentAcquisition(Acquisition):
     """
-        Default constructor, creates a session activity and links to project object
+    Default constructor, creates a session activity and links to project object
 
-        :param session: a session object
+    :param session: a session object
 
     """
 
-    #constructor
-    def __init__(self, session,attributes=None, uuid=None, add_default_type=True):
+    # constructor
+    def __init__(self, session, attributes=None, uuid=None, add_default_type=True):
         """
         Default constructor, creates an acquisition object and links to acquisition activity object
 
@@ -25,18 +28,17 @@ class AssessmentAcquisition(Acquisition):
         :return: none
 
         """
-        #execute default parent class constructor
-          #execute default parent class constructor
-        super(AssessmentAcquisition,self).__init__(session,attributes,uuid)
-        #acquisition.graph._add_record(self)
+        # execute default parent class constructor
+        # execute default parent class constructor
+        super(AssessmentAcquisition, self).__init__(session, attributes, uuid)
+        # acquisition.graph._add_record(self)
 
         if add_default_type:
             self.add_attributes({pm.PROV_TYPE: Constants.NIDM_ACQUISITION_ACTIVITY})
             self.add_attributes({pm.PROV_TYPE: Constants.NIDM_ASSESSMENT_ACQUISITION})
 
-        #carry graph object around
+        # carry graph object around
         self.graph = session.graph
-
 
     def __str__(self):
         return "NIDM-Experiment Assessment Acquisition Class"

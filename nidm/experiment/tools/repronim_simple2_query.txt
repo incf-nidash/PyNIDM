@@ -6,11 +6,11 @@
         PREFIX dct: <http://purl.org/dc/terms/>
         PREFIX ncicb: <http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#>
         PREFIX ndar: <https://ndar.nih.gov/api/datadictionary/v2/dataelement/>
-        PREFIX sio: <http://semanticscience.org/ontology/sio.owl#> 
+        PREFIX sio: <http://semanticscience.org/ontology/sio.owl#>
         PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
         PREFIX onli: <http://neurolog.unice.fr/ontoneurolog/v3.0/instrument.owl#>
-        
-        SELECT DISTINCT  ?ID ?Age ?Gender ?FIQ ?PIQ ?VIQ ?RootPath ?Filename 
+
+        SELECT DISTINCT  ?ID ?Age ?Gender ?FIQ ?PIQ ?VIQ ?RootPath ?Filename
         WHERE {
           {
                 ?entity rdf:type  nidm:AcquisitionObject ;
@@ -33,6 +33,6 @@
                 bind(IF(?Gender ="1"^^xsd:string, "Male"^^xsd:string,"Female"^^xsd:string) as ?Gender) .
 
             }
-            FILTER(xsd:float(?Age)>=5 && xsd:float(?Age) <=20) 
-           
+            FILTER(xsd:float(?Age)>=5 && xsd:float(?Age) <=20)
+
         }

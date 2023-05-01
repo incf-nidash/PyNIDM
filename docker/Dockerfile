@@ -35,4 +35,3 @@ RUN git config --global user.name "docker user" && git config --global user.emai
 ENV TMPDIR=/opt/project/cache
 
 COPY . .
-

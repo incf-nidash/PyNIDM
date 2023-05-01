@@ -279,19 +279,19 @@ Options:
   -nl, --nidm_file_list TEXT      A comma-separated list of NIDM files with
                                   full path  [required]
   -r, --regularization TEXT       Parameter, if set, will return the results of
-  				  the linear regression with L1 or L2 regularization 
-				  depending on the type specified, and the weight 
+  				  the linear regression with L1 or L2 regularization
+				  depending on the type specified, and the weight
 				  with the maximum likelihood solution. This will
 				  prevent overfitting. (Ex: -r L1)
   -model, --ml TEXT 		  An equation representing the linear
   				  regression. The dependent variable comes
 				  first, followed by "=" or "~", followed by
 				  the independent variables separated by "+"
-				  (Ex: -model "fs_003343 = age*sex + sex + 
+				  (Ex: -model "fs_003343 = age*sex + sex +
 				  age + group + age*group + bmi") [required]
   -contstant, --ctr TEXT       	  Parameter, if set, will return differences in
   				  variable relationships by group. One or
-				  multiple parameters can be used (multiple 
+				  multiple parameters can be used (multiple
 				  parameters should be separated by a comma-
 				  separated list) (Ex: -contrast group,age)
   -o, --output_file TEXT          Optional output file (TXT) to store results
@@ -316,7 +316,7 @@ Now that we have selected the variables, we can perform a linear regression. In 
 The command to use for this particular data is:
 pynidm linear-regression -nl /simple2_NIDM_examples/datasets.datalad.org/abide/RawDataBIDS/CMU_a/nidm.ttl,/simple2_NIDM_examples/datasets.datalad.org/abide/RawDataBIDS/CMU_b/nidm.ttl -model "fs_000008 = DX_GROUP + PIQ_tca9ck + http://uri.interlex.org/ilx_0100400" -contrast "DX_GROUP" -r L1
 
--nl specifies the file(s) to pull data from, while -model is the model to perform a linear regression model on. In this case, the variables are fs_000008 (the dependent variable, supratentorial brain volume), DX_GROUP (diagnostic group), PIQ_tca9ck (PIQ), and http://uri.interlex.org/ilx_0100400 (age at scan). The -contrast parameter says to contrast the data using DX_GROUP, and then do a L1 regularization to prevent overfitting. 
+-nl specifies the file(s) to pull data from, while -model is the model to perform a linear regression model on. In this case, the variables are fs_000008 (the dependent variable, supratentorial brain volume), DX_GROUP (diagnostic group), PIQ_tca9ck (PIQ), and http://uri.interlex.org/ilx_0100400 (age at scan). The -contrast parameter says to contrast the data using DX_GROUP, and then do a L1 regularization to prevent overfitting.
 
 
 Details on the REST API URI format and usage can be found below.

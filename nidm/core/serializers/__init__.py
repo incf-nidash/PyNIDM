@@ -1,14 +1,10 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
+from __future__ import absolute_import, division, print_function, unicode_literals
 from prov import Error
 
-__author__ = 'Trung Dong Huynh'
-__email__ = 'trungdong@donggiang.com'
+__author__ = "Trung Dong Huynh"
+__email__ = "trungdong@donggiang.com"
 
-__all__ = [
-    'get'
-]
+__all__ = ["get"]
 
 
 class Serializer(object):
@@ -42,6 +38,7 @@ class Serializer(object):
 
 class DoNotExist(Error):
     """Exception for the case a serializer is not available."""
+
     pass
 
 
@@ -54,16 +51,16 @@ class Registry:
     @staticmethod
     def load_serializers():
         """Loads all available serializers into the registry."""
+        from nidm.core.serializers.provonerdf import ProvONERDFSerializer
         from prov.serializers.provjson import ProvJSONSerializer
         from prov.serializers.provn import ProvNSerializer
         from prov.serializers.provxml import ProvXMLSerializer
-        from nidm.core.serializers.provonerdf import ProvONERDFSerializer
 
         Registry.serializers = {
-            'json': ProvJSONSerializer,
-            'rdf': ProvONERDFSerializer,
-            'provn': ProvNSerializer,
-            'xml': ProvXMLSerializer
+            "json": ProvJSONSerializer,
+            "rdf": ProvONERDFSerializer,
+            "provn": ProvNSerializer,
+            "xml": ProvXMLSerializer,
         }
 
 
@@ -77,8 +74,4 @@ def get(format_name):
     try:
         return Registry.serializers[format_name]
     except KeyError:
-        raise DoNotExist(
-            'No serializer available for the format "%s"' % format_name
-        )
-
-
+        raise DoNotExist('No serializer available for the format "%s"' % format_name)
