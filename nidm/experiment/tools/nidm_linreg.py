@@ -278,8 +278,8 @@ def data_aggregation(): #all data from all the files is collected
                     condensed_data_holder[count][0][i] = condensed_data_holder[count][0][i].replace(" ", "_")
             for i in range(len(independentvariables)):
                 if "/" in independentvariables[i]:
-                    splitted = independentvariables[i].split("/")
-                    independentvariables[i] = splitted[len(splitted)-1]
+                    split = independentvariables[i].split("/")
+                    independentvariables[i] = split[len(split)-1]
                 if " " in independentvariables[i]:
                     independentvariables[i] = independentvariables[i].replace(" ", "_")
             if " " in dep_var:
@@ -326,8 +326,8 @@ def dataparsing(): #The data is changed to a format that is usable by the linear
         condensed_data = condensed_data + condensed_data_holder[i]
     for i in range(len(condensed_data[0])):
         if "/" in condensed_data[0][i]: #change any URLs to just the last part so contrasting works.
-            splitted = condensed_data[0][i].split("/")
-            condensed_data[0][i] = splitted[len(splitted) - 1]
+            split = condensed_data[0][i].split("/")
+            condensed_data[0][i] = split[len(split) - 1]
 
     """In this section, if there are less than 20 points, the model will be inaccurate and there are too few variables for regularization.
     That means that we warn the user that such errors can occur and ask them if they want to proceed.
@@ -480,18 +480,18 @@ def contrasting():
             if " " in contrastvars[i]:
                 contrastvars[i]=contrastvars[i].replace(" ","_")
             if "/" in contrastvars[i]: #to account for URLs
-                splitted = contrastvars[i].split("/")
-                contrastvars[i] = splitted[len(splitted) - 1]
+                split = contrastvars[i].split("/")
+                contrastvars[i] = split[len(split) - 1]
         else:
-            splitted = c.split("/") #to account for URLs
-            c = splitted[len(splitted) - 1]
+            split = c.split("/") #to account for URLs
+            c = split[len(split) - 1]
 
         ind_vars_no_contrast_var = ''
         index = 1
         for i in range(len(full_model_variable_list)):
             if "/" in full_model_variable_list[i]:
-                splitted = full_model_variable_list[i].split("/")
-                full_model_variable_list[i] = splitted[len(splitted) - 1]
+                split = full_model_variable_list[i].split("/")
+                full_model_variable_list[i] = split[len(split) - 1]
             if " " in full_model_variable_list[i]:
                 full_model_variable_list[i]=full_model_variable_list[i].replace(" ","_")
         for var in full_model_variable_list:

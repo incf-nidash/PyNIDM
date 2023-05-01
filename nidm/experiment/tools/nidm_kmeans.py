@@ -198,8 +198,8 @@ def data_aggregation():  # all data from all the files is collected
                     condensed_data_holder[count][0][i] = condensed_data_holder[count][0][i].replace(" ", "_")
             for i in range(len(var_list)):
                 if "/" in var_list[i]:
-                    splitted = var_list[i].split("/")
-                    var_list[i] = splitted[len(splitted) - 1]
+                    split = var_list[i].split("/")
+                    var_list[i] = split[len(split) - 1]
                 if " " in var_list[i]:
                     var_list[i] = var_list[i].replace(" ", "_")
             count = count + 1
