@@ -73,7 +73,7 @@ import tempfile
 
 
 
-def main(argv):
+def main():
     parser = ArgumentParser(description='This program will load in a CSV file and iterate over the header \
      variable names performing an elastic search of https://scicrunch.org/ for NIDM-ReproNim \
      tagged terms that fuzzy match the variable names.  The user will then interactively pick \
@@ -387,4 +387,4 @@ def main(argv):
 
 
 if __name__ == "__main__":
-   main(sys.argv[1:])
+   main()

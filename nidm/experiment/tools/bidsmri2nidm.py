@@ -79,7 +79,7 @@ def getsha512(filename):
     return sha512_hash.hexdigest()
 
 
-def main(argv):
+def main():
     parser = ArgumentParser(description=
 """This program will represent a BIDS MRI dataset as a NIDM RDF document and provide user with opportunity to annotate
 the dataset (i.e. create sidecar files) and associate selected variables with broader concepts to make datasets more
@@ -896,4 +896,4 @@ def bidsmri2project(directory, args):
 
 
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    main()
