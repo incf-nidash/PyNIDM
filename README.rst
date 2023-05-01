@@ -16,11 +16,6 @@ Dependencies
 * `Graphviz <http://graphviz.org>`_ (native package):
 * Fedora: `dnf install graphviz`
 * OS-X: `brew install graphviz`
-* Datalad (optional): `pip install datalad`
-* Sklearn: `pip install scikit-learn`
-* Statsmodels: `pip install statsmodels`
-* Statistics: `pip install statistics`
-* Patsy: `pip install patsy`
 
 Installation
 ============

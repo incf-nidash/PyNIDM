@@ -1,6 +1,7 @@
 from __future__ import absolute_import, division, print_function
-from .version import __version__
 import __main__
+
+__version__ = "3.9.7"
 
 try:
     import etelemetry

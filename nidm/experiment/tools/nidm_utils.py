@@ -41,7 +41,7 @@ import subprocess
 from graphviz import Source
 import tempfile
 
-def main(argv):
+def main():
 
     parser = ArgumentParser(description='This program contains various NIDM-Experiment utilities')
     sub = parser.add_subparsers(dest='command')
@@ -120,4 +120,4 @@ def main(argv):
 
 
 if __name__ == "__main__":
-   main(sys.argv[1:])
+   main()
