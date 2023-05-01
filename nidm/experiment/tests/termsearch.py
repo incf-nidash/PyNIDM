@@ -46,7 +46,7 @@ def main(argv):
 if __name__ == "__main__":
    main(sys.argv[1:])
 
-# very simple test, just checking if main doesnt give any error
+# very simple test, just checking if main does not give any error
 def test_main():
     main(sys.argv[1:])
 

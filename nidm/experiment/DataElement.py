@@ -20,7 +20,7 @@ class DataElement(pm.ProvEntity,Core):
     #constructor
     def __init__(self, project, attributes=None, uuid=None, add_default_type=True):
         """
-        Default contructor, creates an acquisition object and links to acquisition activity object
+        Default constructor, creates an acquisition object and links to acquisition activity object
 
         :param project: NIDM project to add data element entity to.\
         :param attributes: optional attributes to add to entity

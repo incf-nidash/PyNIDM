@@ -287,7 +287,7 @@ def test_uri_projects_subjects_id():
         all_keys += i.keys()
     assert 'age' in all_keys
 
-    # current test data doesn't ahve derivatives!
+    # current test data doesn't have derivatives!
     # assert len(result['derivatives']) > 0
 
 

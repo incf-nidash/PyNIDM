@@ -19,7 +19,7 @@ from sklearn import preprocessing
 @click.option("--var","-variables", required=True,
                  help="This parameter is for the variables the user would like to complete the k-means algorithm on.\nThe way this looks in the command is python3 nidm_kmeans.py -nl MTdemog_aseg_v2.ttl -v \"fs_003343,age*sex,sex,age,group,age*group,bmi\"")
 @click.option("--k_range", "-k", required=True,
-              help="The maxiumum number of clusters to try. The algorithm will go from 2 to this number to determine the optimal number of clusters.")
+              help="The maximum number of clusters to try. The algorithm will go from 2 to this number to determine the optimal number of clusters.")
 @click.option("--optimal_cluster_method", "-m", required=True,
               help="The criterion used to select the optimal partitioning (either Silhouette Score, AIC, or BIC).")
 @click.option("--output_file", "-o", required=False,
@@ -301,7 +301,7 @@ def cluster_number():
     # Beginning of the linear regression
     global X
     #global y
-    #Unsure on how to procede here with interacting variables, since I'm sure dmatrices won't work
+    #Unsure on how to proceed here with interacting variables, since I'm sure dmatrices won't work
 
     """scaler = MinMaxScaler()
 

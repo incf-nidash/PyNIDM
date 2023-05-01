@@ -69,7 +69,7 @@ def getsha512(filename):
     """
     This function computes the SHA512 sum of a file
     :param filename: path+filename of file to compute SHA512 sum for
-    :return: hexidecimal sha512 sum of file.
+    :return: hexadecimal sha512 sum of file.
     """
     sha512_hash = hashlib.sha512()
     with open(filename,"rb") as f:
@@ -599,7 +599,7 @@ def bidsmri2project(directory, args):
     bids_layout = bids.BIDSLayout(directory)
 
 
-    # create empty dictinary for sessions where key is subject id and used later to link scans to same session as demographics
+    # create empty dictionary for sessions where key is subject id and used later to link scans to same session as demographics
     session={}
     participant={}
     # Parse participants.tsv file in BIDS directory and create study and acquisition objects

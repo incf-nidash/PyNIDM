@@ -8,7 +8,7 @@ import prov.model as pm
 
 class AssessmentAcquisition(Acquisition):
     """
-        Default contructor, creates a session activity and links to project object
+        Default constructor, creates a session activity and links to project object
 
         :param session: a session object
 
@@ -17,7 +17,7 @@ class AssessmentAcquisition(Acquisition):
     #constructor
     def __init__(self, session,attributes=None, uuid=None, add_default_type=True):
         """
-        Default contructor, creates an acquisition object and links to acquisition activity object
+        Default constructor, creates an acquisition object and links to acquisition activity object
 
         :param session: a session object
         :param attributes: optional attributes to add to entity

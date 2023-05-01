@@ -18,7 +18,7 @@ class ProcessSpecification(pm.ProvEntity, Core):
 
     def __init__(self, parentdoc=None, attributes=None):
         """
-        Default contructor, creates document and adds Process activity to graph
+        Default constructor, creates document and adds Process activity to graph
         with optional attributes
         
         :param parentDoc: optional ProvDocument

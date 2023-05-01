@@ -106,7 +106,7 @@ for name, namespace in namespaces.items():
 	q_graph.bind(name, namespace)
 
 # DBK Added - Empty graph using provtoolbox used to compute qnames
-# dj: chnaged to a new class
+# dj: changed to a new class
 class NIDMDocument(ProvDocument):
 	def __init__(self, namespaces=None):
 		if namespaces is not None:
@@ -630,7 +630,7 @@ NIDM_REST_GENDER = 'gender'
 NIDM_REST_AGE = 'age'
 
 
-# cannonical CDE file locations
+# canonical CDE file locations
 CDE_FILE_LOCATIONS = [
 	"https://raw.githubusercontent.com/ReproNim/fsl_seg_to_nidm/master/fsl_seg_to_nidm/mapping_data/fsl_cde.ttl",
 	"https://raw.githubusercontent.com/ReproNim/ants_seg_to_nidm/master/ants_seg_to_nidm/mapping_data/ants_cde.ttl",

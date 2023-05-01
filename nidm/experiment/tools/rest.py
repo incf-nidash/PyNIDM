@@ -363,7 +363,7 @@ class RestParser:
 
 
         # if we got fields, drill into each subject and pull out the field data
-        # subject details -> derivitives / instrument -> values -> element
+        # subject details -> derivatives / instrument -> values -> element
         if 'fields' in self.query and len(self.query['fields']) > 0:
             subjects_set = set()
             dataelements_set = set()
@@ -396,7 +396,7 @@ class RestParser:
                 for sub in subjects_set:
                     summary_result["subjects"]["uuid"].append(sub)
                     summary_result["subjects"]["subject id"].append("")
-                summary_result['data_elements'] = {"uuid": [], "lable":[]}
+                summary_result['data_elements'] = {"uuid": [], "label":[]}
                 for de in dataelements_set:
                     summary_result['data_elements']["uuid"] = de[0]
                     summary_result['data_elements']["label"] = de[1]
@@ -472,7 +472,7 @@ class RestParser:
             self.restLog("comparng " + str(pid) + " with " + Constants.NIIRI + id, 5)
             self.restLog("comparng " + str(pid) + " with niiri:" + id, 5)
             if pid == id or pid == Constants.NIIRI + id or pid == "niiri:" + id:
-                # stip off prefixes to make it more human readable
+                # strip off prefixes to make it more human readable
                 for key in projects['projects'][pid]:
                     short_key = key
                     possible_prefix = re.sub(':.*', '', short_key)
@@ -480,7 +480,7 @@ class RestParser:
                         short_key = re.sub('^.*:', '', short_key)
                     result[short_key] = projects['projects'][pid][key]
 
-        # now get any fields they reqested
+        # now get any fields they requested
         for field in self.query['fields']:
             if subjects == None:
                 subjects = Query.GetParticipantUUIDsForProject(tuple(self.nidm_files), project_id=id, filter=self.query['filter'])
@@ -547,7 +547,7 @@ class RestParser:
 
         match = re.match(r"^/?projects/([^/]+)$", self.command)
         id = parse.unquote(str(match.group(1)))
-        self.restLog("Returing project {} summary".format(id), 2)
+        self.restLog("Returning project {} summary".format(id), 2)
 
         result = nidm.experiment.Navigate.GetProjectAttributes(self.nidm_files, project_id=id)
         result['subjects'] = Query.GetParticipantUUIDsForProject(self.nidm_files, project_id=id, filter=self.query['filter'])
@@ -555,7 +555,7 @@ class RestParser:
 
 
         # if we got fields, drill into each subject and pull out the field data
-        # subject details -> derivitives / instrument -> values -> element
+        # subject details -> derivatives / instrument -> values -> element
         if 'fields' in self.query and len(self.query['fields']) > 0:
             self.restLog("Using fields {}".format(self.query['fields']), 2)
             result['field_values'] = []
@@ -610,9 +610,9 @@ class RestParser:
         '''
         result = {}
         # if we got fields, drill into each subject and pull out the field data
-        # subject details -> derivitives / instrument -> values -> element
+        # subject details -> derivatives / instrument -> values -> element
         if 'fields' in self.query and len(self.query['fields']) > 0:
-            # get all the synonyms for all the fields - we can seach for them all at once
+            # get all the synonyms for all the fields - we can search for them all at once
             field_synonyms = functools.reduce( operator.iconcat, [ Query.GetDatatypeSynonyms(self.nidm_files, project, x) for x in self.query['fields'] ], [])
 
             # print (field_synonyms)

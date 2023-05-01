@@ -20,7 +20,7 @@ class DerivativeObject(pm.ProvEntity,Core):
     #constructor
     def __init__(self, derivative,attributes=None, uuid=None):
         """
-        Default contructor, creates an derivative object and links to derivative activity object
+        Default constructor, creates an derivative object and links to derivative activity object
 
         :param derivative: a Derivative activity object
         :param attributes: optional attributes to add to entity
