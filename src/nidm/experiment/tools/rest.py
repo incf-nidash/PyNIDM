@@ -9,7 +9,6 @@ from urllib import parse
 from urllib.parse import parse_qs, urlparse
 from joblib import Memory
 from numpy import mean, median, std
-import simplejson
 from tabulate import tabulate
 from nidm.core import Constants
 from nidm.experiment import Navigate, Query
@@ -180,7 +179,7 @@ class RestParser:
             toptable = []
             for key in result:
                 if key not in ["subjects", "data_elements", "field_values"]:
-                    toptable.append([key, simplejson.dumps(result[key])])
+                    toptable.append([key, json.dumps(result[key])])
 
             if "field_values" in result and len(result["field_values"]) > 0:
                 fh_header = [
@@ -964,7 +963,7 @@ class RestParser:
         if headers is None:
             headers = [""]
         if self.output_format == RestParser.JSON_FORMAT:
-            json_str = simplejson.dumps(result, indent=2)
+            json_str = json.dumps(result, indent=2)
             return json_str
 
         elif self.output_format == RestParser.CLI_FORMAT:
