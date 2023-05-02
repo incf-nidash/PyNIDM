@@ -14,7 +14,6 @@ from prov.constants import PROV_ATTRIBUTE_LITERALS, PROV_ATTRIBUTE_QNAMES, PROV_
 from prov.model import Namespace as provNamespace
 from prov.model import ProvDocument, QualifiedName
 from rdflib import Graph, Namespace
-import six
 
 DD = namedtuple("DD", ["source", "variable"])
 
@@ -589,9 +588,7 @@ PROVONE_ATTRIBUTE_QNAMES = {
 PROVONE_ATTRIBUTES = (
     PROVONE_ATTRIBUTE_QNAMES | PROV_ATTRIBUTE_QNAMES | PROV_ATTRIBUTE_LITERALS
 )
-PROVONE_RECORD_ATTRIBUTES = list(
-    (attr, six.text_type(attr)) for attr in PROVONE_ATTRIBUTES
-)
+PROVONE_RECORD_ATTRIBUTES = list((attr, str(attr)) for attr in PROVONE_ATTRIBUTES)
 
 PROV_RECORD_IDS_MAP = dict(
     (PROV_N_MAP[rec_type_id], rec_type_id) for rec_type_id in PROV_N_MAP

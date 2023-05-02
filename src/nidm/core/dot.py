@@ -45,7 +45,6 @@ from prov.model import (
     sorted_attributes,
 )
 import pydot
-import six
 from .Constants import (
     PROVONE_ATTRIBUTE_QNAMES,
     PROVONE_CLTODESTP,
@@ -227,9 +226,9 @@ ANNOTATION_END_ROW = "    </TABLE>>"
 def htlm_link_if_uri(value):
     try:
         uri = value.uri
-        return '<a href="%s">%s</a>' % (uri, six.text_type(value))
+        return '<a href="%s">%s</a>' % (uri, str(value))
     except AttributeError:
-        return six.text_type(value)
+        return str(value)
 
 
 def provone_to_dot(
@@ -284,12 +283,12 @@ def provone_to_dot(
                 ANNOTATION_ROW_TEMPLATE
                 % (
                     attr.uri,
-                    escape(six.text_type(attr)),
+                    escape(str(attr)),
                     ' href="%s"' % value.uri if isinstance(value, Identifier) else "",
                     escape(
-                        six.text_type(value)
+                        str(value)
                         if not isinstance(value, datetime)
-                        else six.text_type(value.isoformat())
+                        else str(value.isoformat())
                     ),
                 )
                 for attr, value in attributes
@@ -309,7 +308,7 @@ def provone_to_dot(
             )
             if use_labels:
                 if bundle.label == bundle.identifier:
-                    bundle_label = '"%s"' % six.text_type(bundle.label)
+                    bundle_label = '"%s"' % str(bundle.label)
                 else:
                     # Fancier label if both are different. The label will be
                     # the main node text, whereas the identifier will be a
@@ -320,12 +319,12 @@ def provone_to_dot(
                         "%s</font>>"
                     )
                     bundle_label = bundle_label % (
-                        six.text_type(bundle.label),
-                        six.text_type(bundle.identifier),
+                        str(bundle.label),
+                        str(bundle.identifier),
                     )
-                subdot.set_label('"%s"' % six.text_type(bundle_label))
+                subdot.set_label('"%s"' % str(bundle_label))
             else:
-                subdot.set_label('"%s"' % six.text_type(bundle.identifier))
+                subdot.set_label('"%s"' % str(bundle.identifier))
             _bundle_to_dot(subdot, bundle)
             dot.add_subgraph(subdot)
             return subdot
@@ -335,7 +334,7 @@ def provone_to_dot(
             node_id = "n%d" % count[0]
             if use_labels:
                 if record.label == record.identifier:
-                    node_label = '"%s"' % six.text_type(record.label)
+                    node_label = '"%s"' % str(record.label)
                 else:
                     # Fancier label if both are different. The label will be
                     # the main node text, whereas the identifier will be a
@@ -346,11 +345,11 @@ def provone_to_dot(
                         "%s</font>>"
                     )
                     node_label = node_label % (
-                        six.text_type(record.label),
-                        six.text_type(record.identifier),
+                        str(record.label),
+                        str(record.identifier),
                     )
             else:
-                node_label = '"%s"' % six.text_type(record.identifier)
+                node_label = '"%s"' % str(record.identifier)
 
             uri = record.identifier.uri
             print("record type: ", record.get_type())
@@ -367,7 +366,7 @@ def provone_to_dot(
         def _add_generic_node(qname):
             count[0] += 1
             node_id = "n%d" % count[0]
-            node_label = '"%s"' % six.text_type(qname)
+            node_label = '"%s"' % str(qname)
 
             uri = qname.uri
             style = DOT_PROVONE_STYLE[0]

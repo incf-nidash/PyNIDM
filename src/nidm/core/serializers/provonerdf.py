@@ -43,7 +43,6 @@ from rdflib.namespace import RDF, RDFS, XSD
 from rdflib.term import BNode
 from rdflib.term import Literal as RDFLiteral
 from rdflib.term import URIRef
-import six
 from nidm.core.Constants import PROVONE, PROVONE_ID_ATTRIBUTES_MAP
 from nidm.core.provone import PROVONE_N_MAP
 from nidm.core.serializers import Serializer
@@ -72,14 +71,10 @@ class AnonymousIDGenerator:
 LITERAL_XSDTYPE_MAP = {
     float: XSD["double"],
     int: XSD["int"],
-    six.text_type: XSD["string"],
+    str: XSD["string"],
     # boolean, string values are supported natively by PROV-RDF
     # datetime values are converted separately
 }
-
-# Add long on Python 2
-if six.integer_types[-1] not in LITERAL_XSDTYPE_MAP:
-    LITERAL_XSDTYPE_MAP[six.integer_types[-1]] = XSD["long"]
 
 
 def attr2rdf(attr):
@@ -113,34 +108,19 @@ class ProvONERDFSerializer(Serializer):
         newargs = kwargs.copy()
         newargs["format"] = rdf_format
 
-        if six.PY2:
-            buf = io.BytesIO()
-            try:
-                container.serialize(buf, **newargs)
-                buf.seek(0, 0)
-                # Right now this is a bytestream. If the object to stream to is
-                # a text object is must be decoded. We assume utf-8 here which
-                # should be fine for almost every case.
-                if isinstance(stream, io.TextIOBase):
-                    stream.write(buf.read().decode("utf-8"))
-                else:
-                    stream.write(buf.read())
-            finally:
-                buf.close()
-        else:
-            buf = io.BytesIO()
-            try:
-                container.serialize(buf, **newargs)
-                buf.seek(0, 0)
-                # Right now this is a bytestream. If the object to stream to is
-                # a text object is must be decoded. We assume utf-8 here which
-                # should be fine for almost every case.
-                if isinstance(stream, io.TextIOBase):
-                    stream.write(buf.read().decode("utf-8"))
-                else:
-                    stream.write(buf.read())
-            finally:
-                buf.close()
+        buf = io.BytesIO()
+        try:
+            container.serialize(buf, **newargs)
+            buf.seek(0, 0)
+            # Right now this is a bytestream. If the object to stream to is
+            # a text object is must be decoded. We assume utf-8 here which
+            # should be fine for almost every case.
+            if isinstance(stream, io.TextIOBase):
+                stream.write(buf.read().decode("utf-8"))
+            else:
+                stream.write(buf.read())
+        finally:
+            buf.close()
 
     def deserialize(self, stream, rdf_format="trig", **kwargs):
         """
@@ -245,7 +225,7 @@ class ProvONERDFSerializer(Serializer):
         for record in bundle._records:
             rec_type = record.get_type()
             if hasattr(record, "identifier") and record.identifier:
-                identifier = URIRef(six.text_type(real_or_anon_id(record)))
+                identifier = URIRef(str(real_or_anon_id(record)))
                 container.add((identifier, RDF.type, URIRef(rec_type.uri)))
             else:
                 identifier = None
@@ -427,7 +407,7 @@ class ProvONERDFSerializer(Serializer):
                     if value is None:
                         continue
                     if isinstance(value, pm.ProvRecord):
-                        obj = URIRef(six.text_type(real_or_anon_id(value)))
+                        obj = URIRef(str(real_or_anon_id(value)))
                     else:
                         #  Assuming this is a datetime value
                         obj = self.encode_rdf_representation(value)
@@ -457,13 +437,13 @@ class ProvONERDFSerializer(Serializer):
 
     def decode_document(self, content, document):
         for prefix, url in content.namespaces():
-            document.add_namespace(prefix, six.text_type(url))
+            document.add_namespace(prefix, str(url))
         if hasattr(content, "contexts"):
             for graph in content.contexts():
                 if isinstance(graph.identifier, BNode):
                     self.decode_container(graph, document)
                 else:
-                    bundle_id = six.text_type(graph.identifier)
+                    bundle_id = str(graph.identifier)
                     bundle = document.bundle(bundle_id)
                     self.decode_container(graph, bundle)
         else:
@@ -507,8 +487,8 @@ class ProvONERDFSerializer(Serializer):
         }
         other_attributes = {}
         for stmt in graph.triples((None, RDF.type, None)):
-            id_ = six.text_type(stmt[0])
-            obj = six.text_type(stmt[2])
+            id_ = str(stmt[0])
+            obj = str(stmt[2])
             if obj in PROV_CLS_MAP:
                 if (
                     not isinstance(stmt[0], BNode)
@@ -558,7 +538,7 @@ class ProvONERDFSerializer(Serializer):
                 obj = self.decode_rdf_representation(stmt[2], graph)
                 other_attributes[id_].append((pm.PROV["type"], obj))
         for id_, pred, obj in graph:
-            id_ = six.text_type(id_)
+            id_ = str(id_)
             if id_ not in other_attributes:
                 other_attributes[id_] = []
             if pred == RDF.type:
@@ -572,9 +552,7 @@ class ProvONERDFSerializer(Serializer):
                         (URIRef(id_), URIRef(pm.PROV["asInBundle"].uri), None)
                     ):
                         mentionBundle = stmt[2]
-                    getattr(bundle, relation_mapper[pred])(
-                        id_, six.text_type(obj), mentionBundle
-                    )
+                    getattr(bundle, relation_mapper[pred])(id_, str(obj), mentionBundle)
                 elif "actedOnBehalfOf" in pred or "wasAssociatedWith" in pred:
                     qualifier = (
                         "qualified"
@@ -587,19 +565,13 @@ class ProvONERDFSerializer(Serializer):
                     ):
                         qualifier_bnode = stmt[2]
                     if qualifier_bnode is None:
-                        getattr(bundle, relation_mapper[pred])(id_, six.text_type(obj))
+                        getattr(bundle, relation_mapper[pred])(id_, str(obj))
                     else:
-                        fakeys = list(
-                            formal_attributes[six.text_type(qualifier_bnode)].keys()
-                        )
-                        formal_attributes[six.text_type(qualifier_bnode)][
-                            fakeys[0]
-                        ] = id_
-                        formal_attributes[six.text_type(qualifier_bnode)][
-                            fakeys[1]
-                        ] = six.text_type(obj)
+                        fakeys = list(formal_attributes[str(qualifier_bnode)].keys())
+                        formal_attributes[str(qualifier_bnode)][fakeys[0]] = id_
+                        formal_attributes[str(qualifier_bnode)][fakeys[1]] = str(obj)
                 else:
-                    getattr(bundle, relation_mapper[pred])(id_, six.text_type(obj))
+                    getattr(bundle, relation_mapper[pred])(id_, str(obj))
             elif id_ in ids:
                 obj1 = self.decode_rdf_representation(obj, graph)
                 if obj is not None and obj1 is None:
@@ -607,36 +579,30 @@ class ProvONERDFSerializer(Serializer):
                 pred_new = pred
                 if pred in predicate_mapper:
                     pred_new = predicate_mapper[pred]
-                if ids[id_] == PROV_COMMUNICATION and "activity" in six.text_type(
-                    pred_new
-                ):
+                if ids[id_] == PROV_COMMUNICATION and "activity" in str(pred_new):
                     pred_new = PROV_ATTR_INFORMANT
-                if ids[id_] == PROV_DELEGATION and "agent" in six.text_type(pred_new):
+                if ids[id_] == PROV_DELEGATION and "agent" in str(pred_new):
                     pred_new = PROV_ATTR_RESPONSIBLE
-                if ids[id_] in [PROV_END, PROV_START] and "entity" in six.text_type(
-                    pred_new
-                ):
+                if ids[id_] in [PROV_END, PROV_START] and "entity" in str(pred_new):
                     pred_new = PROV_ATTR_TRIGGER
-                if ids[id_] in [PROV_END] and "activity" in six.text_type(pred_new):
+                if ids[id_] in [PROV_END] and "activity" in str(pred_new):
                     pred_new = PROV_ATTR_ENDER
-                if ids[id_] in [PROV_START] and "activity" in six.text_type(pred_new):
+                if ids[id_] in [PROV_START] and "activity" in str(pred_new):
                     pred_new = PROV_ATTR_STARTER
-                if ids[id_] == PROV_DERIVATION and "entity" in six.text_type(pred_new):
+                if ids[id_] == PROV_DERIVATION and "entity" in str(pred_new):
                     pred_new = PROV_ATTR_USED_ENTITY
-                if six.text_type(pred_new) in [
-                    val.uri for val in formal_attributes[id_]
-                ]:
+                if str(pred_new) in [val.uri for val in formal_attributes[id_]]:
                     qname_key = self.valid_identifier(pred_new)
                     formal_attributes[id_][qname_key] = obj1
                     unique_sets[id_][qname_key].append(obj1)
                     if len(unique_sets[id_][qname_key]) > 1:
                         formal_attributes[id_][qname_key] = None
                 else:
-                    if "qualified" not in six.text_type(
+                    if "qualified" not in str(pred_new) and "asInBundle" not in str(
                         pred_new
-                    ) and "asInBundle" not in six.text_type(pred_new):
-                        other_attributes[id_].append((six.text_type(pred_new), obj1))
-            local_key = six.text_type(obj)
+                    ):
+                        other_attributes[id_].append((str(pred_new), obj1))
+            local_key = str(obj)
             if local_key in ids:
                 if "qualified" in pred:
                     formal_attributes[local_key][
@@ -699,15 +665,12 @@ def walk(children, level=0, path=None, usename=True):
 
 
 def literal_rdf_representation(literal):
-    value = six.text_type(literal.value) if literal.value else literal
+    value = str(literal.value) if literal.value else literal
     if literal.langtag:
         #  a language tag can only go with prov:InternationalizedString
         return RDFLiteral(value, lang=str(literal.langtag))
     else:
         datatype = literal.datatype
         if "base64Binary" in datatype.uri:
-            if six.PY2:
-                value = base64.standard_b64encode(value)
-            else:
-                value = literal.value.encode()
+            value = literal.value.encode()
         return RDFLiteral(value, datatype=datatype.uri)

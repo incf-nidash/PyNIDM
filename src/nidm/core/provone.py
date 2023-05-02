@@ -10,6 +10,7 @@ import logging
 import os
 import shutil
 import tempfile
+from urllib.parse import urlparse
 from prov.constants import (
     PROV_ASSOCIATION,
     PROV_ATTR_COLLECTION,
@@ -41,7 +42,6 @@ from prov.model import (
     ProvUsage,
     _ensure_datetime,
 )
-from six.moves.urllib.parse import urlparse
 import nidm.core.serializers
 from .Constants import (
     PROVONE_ATTR_CHILD_PREXEC,
