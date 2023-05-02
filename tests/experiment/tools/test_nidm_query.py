@@ -1,5 +1,5 @@
 from click.testing import CliRunner
-from ..nidm_query import query
+from nidm.experiment.tools.nidm_query import query
 
 
 def test_query_failing():

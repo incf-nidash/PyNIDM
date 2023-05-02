@@ -1,4 +1,4 @@
-# from .. import ProcessSpecification, ProcessExecution
+# from nidm.workflows import ProcessSpecification, ProcessExecution
 #
 #
 # def test_processspec(tmpdir):
