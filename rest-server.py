@@ -1,9 +1,9 @@
 import glob
+import json
 from flask import Flask, request
 from flask_cors import CORS
 from flask_restful import Api, Resource
 from nidm.experiment.tools.rest import RestParser
-import simplejson
 
 
 def getTTLFiles():
@@ -29,7 +29,7 @@ class NIDMRest(Resource):
             output_format=RestParser.OBJECT_FORMAT, verbosity_level=5
         )
 
-        json_str = simplejson.dumps(
+        json_str = json.dumps(
             restParser.run(files, "{}?{}".format(all, query)), indent=2
         )
         response = app.response_class(
