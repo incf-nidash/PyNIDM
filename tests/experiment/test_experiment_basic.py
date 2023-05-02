@@ -1,13 +1,15 @@
 from io import StringIO
 import json
+from pathlib import Path
 import prov
+import pytest
 import rdflib
 from nidm.core import Constants
 from nidm.experiment import Project, Session
 
 
-def test_1(tmpdir):
-    tmpdir.chdir()
+def test_1(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    monkeypatch.chdir(tmp_path)
 
     project = Project()
 
@@ -16,8 +18,8 @@ def test_1(tmpdir):
         f.write(project.serializeTurtle())
 
 
-def test_2(tmpdir):
-    tmpdir.chdir()
+def test_2(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    monkeypatch.chdir(tmp_path)
 
     kwargs = {
         Constants.NIDM_PROJECT_NAME: "FBIRN_PhaseII",
@@ -30,8 +32,8 @@ def test_2(tmpdir):
         f.write(project.serializeTurtle())
 
 
-def test_sessions_1(tmpdir):
-    tmpdir.chdir()
+def test_sessions_1(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    monkeypatch.chdir(tmp_path)
 
     project = Project()
     assert project.sessions == []
@@ -46,8 +48,8 @@ def test_sessions_1(tmpdir):
     assert session2.label == project.sessions[1].label
 
 
-def test_sessions_2(tmpdir):
-    tmpdir.chdir()
+def test_sessions_2(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    monkeypatch.chdir(tmp_path)
 
     project = Project()
     assert project.sessions == []
@@ -56,8 +58,8 @@ def test_sessions_2(tmpdir):
     assert project.sessions[0].label == session1.label
 
 
-def test_sessions_3(tmpdir):
-    tmpdir.chdir()
+def test_sessions_3(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    monkeypatch.chdir(tmp_path)
 
     project1 = Project()
     project2 = Project()
