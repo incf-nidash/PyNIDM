@@ -242,9 +242,10 @@ def addbidsignore(directory, filename_to_add):
         with open(os.path.join(directory, ".bidsignore"), "w") as text_file:
             text_file.write("%s\n" % filename_to_add)
     else:
-        if filename_to_add not in open(os.path.join(directory, ".bidsignore")).read():
-            with open(os.path.join(directory, ".bidsignore"), "a") as text_file:
-                text_file.write("%s\n" % filename_to_add)
+        with open(os.path.join(directory, ".bidsignore")) as fp:
+            if filename_to_add not in fp.read():
+                with open(os.path.join(directory, ".bidsignore"), "a") as text_file:
+                    text_file.write("%s\n" % filename_to_add)
 
 
 def addimagingsessions(

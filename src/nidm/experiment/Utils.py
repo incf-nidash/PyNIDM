@@ -966,8 +966,8 @@ def load_nidm_terms_concepts():
     concept_url = "https://raw.githubusercontent.com/NIDM-Terms/terms/master/terms/NIDM_Concepts.jsonld"
 
     try:
-        response = urlopen(concept_url)
-        concept_graph = json.loads(response.read().decode("utf-8"))
+        with urlopen(concept_url) as response:
+            concept_graph = json.loads(response.read().decode("utf-8"))
     except Exception:
         logging.info("Error opening %s used concepts file..continuing" % concept_url)
         return None

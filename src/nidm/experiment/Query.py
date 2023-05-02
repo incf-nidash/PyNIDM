@@ -1407,8 +1407,8 @@ def OpenGraph(file):
     # If we have a Blazegraph instance, load the data then do the rest
     if "BLAZEGRAPH_URL" in environ.keys():
         try:
-            f = open(file)
-            data = f.read()
+            with open(file) as f:
+                data = f.read()
             logging.debug("Sending {} to blazegraph".format(file))
             requests.post(
                 url=environ["BLAZEGRAPH_URL"],
@@ -1429,11 +1429,13 @@ def OpenGraph(file):
 
     pickle_file = "{}/rdf_graph.{}.pickle".format(tempfile.gettempdir(), digest)
     if path.isfile(pickle_file):
-        return pickle.load(open(pickle_file, "rb"))
+        with open(pickle_file, "rb") as fp:
+            return pickle.load(fp)
 
     rdf_graph = Graph()
     rdf_graph.parse(file, format=util.guess_format(file))
-    pickle.dump(rdf_graph, open(pickle_file, "wb"))
+    with open(pickle_file, "wb") as fp:
+        pickle.dump(rdf_graph, fp)
 
     # new graph, so to be safe clear out all cached entries
     memory.clear(warn=False)
@@ -1512,7 +1514,8 @@ def getCDEs(file_list=None):
     cache_file_name = tempfile.gettempdir() + "/cde_graph.{}.pickle".format(h)
 
     if path.isfile(cache_file_name):
-        rdf_graph = pickle.load(open(cache_file_name, "rb"))
+        with open(cache_file_name, "rb") as fp:
+            rdf_graph = pickle.load(fp)
         getCDEs.cache = rdf_graph
         return rdf_graph
 
@@ -1543,9 +1546,8 @@ def getCDEs(file_list=None):
             cde_graph = OpenGraph(fname)
             rdf_graph = rdf_graph + cde_graph
 
-    cache_file = open(cache_file_name, "wb")
-    pickle.dump(rdf_graph, cache_file)
-    cache_file.close()
+    with open(cache_file_name, "wb") as cache_file:
+        pickle.dump(rdf_graph, cache_file)
 
     getCDEs.cache = rdf_graph
     return rdf_graph

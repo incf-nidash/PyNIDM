@@ -56,9 +56,8 @@ def data_aggregation():  # all data from all the files is collected
 
         print("Your command was: " + command)
         if o is not None:
-            f = open(o, "w")
-            f.write("Your command was " + command)
-            f.close()
+            with open(o, "w") as f:
+                f.write("Your command was " + command)
         verbosity = 0
         restParser = RestParser(verbosity_level=int(verbosity))
         restParser.setOutputFormat(RestParser.OBJECT_FORMAT)
@@ -118,9 +117,10 @@ def data_aggregation():  # all data from all the files is collected
             ) as temp:  # turns the dataframe into a temporary csv
                 df.to_csv(temp.name + ".csv")
                 temp.close()
-            data = list(
-                csv.reader(open(temp.name + ".csv"))
-            )  # makes the csv a 2D list to make it easier to call the contents of certain cells
+            with open(temp.name + ".csv") as fp:
+                data = list(
+                    csv.reader(fp)
+                )  # makes the csv a 2D list to make it easier to call the contents of certain cells
             numcols = (len(data) - 1) // (
                 len(model_list)
             )  # Finds the number of columns in the original dataframe
@@ -255,20 +255,18 @@ def data_aggregation():  # all data from all the files is collected
                     + ". The model cannot run because this will skew the data. Try checking your spelling or use nidm_query.py to see other possible variables."
                 )
                 if o is not None:
-                    f = open(o, "a")
-                    f.write("Your variables were " + v)
-                    f.write(
-                        "The following variables were not found in "
-                        + nidm_file
-                        + ". The model cannot run because this will skew the data. Try checking your spelling or use nidm_query.py to see other possible variables."
-                    )
-                    f.close()
+                    with open(o, "a") as f:
+                        f.write("Your variables were " + v)
+                        f.write(
+                            "The following variables were not found in "
+                            + nidm_file
+                            + ". The model cannot run because this will skew the data. Try checking your spelling or use nidm_query.py to see other possible variables."
+                        )
                 for i in range(0, len(not_found_list)):
                     print(str(i + 1) + ". " + not_found_list[i])
                     if o is not None:
-                        f = open(o, "a")
-                        f.write(str(i + 1) + ". " + not_found_list[i])
-                        f.close()
+                        with open(o, "a") as f:
+                            f.write(str(i + 1) + ". " + not_found_list[i])
                 for j in range(len(not_found_list) - 1, 0, -1):
                     not_found_list.pop(j)
                 not_found_count = not_found_count + 1
@@ -340,13 +338,12 @@ def dataparsing():  # The data is changed to a format that is usable by the line
     )
     print()
     if o is not None:
-        f = open(o, "a")
-        f.write(df_final.to_string(header=True, index=True))
-        f.write(
-            "\n\n***********************************************************************************************************"
-        )
-        f.write("\n\nModel Results: ")
-        f.close()
+        with open(o, "a") as f:
+            f.write(df_final.to_string(header=True, index=True))
+            f.write(
+                "\n\n***********************************************************************************************************"
+            )
+            f.write("\n\nModel Results: ")
 
 
 def ac():
@@ -386,8 +383,8 @@ def ac():
     plt.show()
 
     if o is not None:
-        f = open(o, "a")
-        f.close()
+        with open(o, "a"):
+            pass
 
 
 def opencsv(data):
