@@ -1,3 +1,10 @@
+"""
+NIDM-Experiment Python API
+--------------------------
+
+Python API to create, query, read, and write NIDM-Experiment documents.
+"""
+
 from .Acquisition import Acquisition
 from .AcquisitionObject import AcquisitionObject
 from .AssessmentAcquisition import AssessmentAcquisition
