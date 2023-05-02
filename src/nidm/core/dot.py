@@ -11,7 +11,6 @@ References:
 
 .. moduleauthor:: Sanu Ann Abraham <sanuann@mit.edu>
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
 
 try:
     from html import escape

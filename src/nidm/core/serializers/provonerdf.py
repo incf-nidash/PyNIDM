@@ -1,6 +1,5 @@
 """PROVONE-RDF serializers for ProvONEDocument
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
 import base64
 from collections import OrderedDict
 import datetime
