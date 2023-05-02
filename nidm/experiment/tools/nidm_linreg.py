@@ -34,7 +34,6 @@
 import csv
 import os
 from statistics import mean
-import sys
 import tempfile
 import click
 from nidm.experiment.Query import GetProjectsUUID
@@ -589,18 +588,13 @@ def linreg():  # actual linear regression
         print(finalstats.summary())
         if o is not None:
             # concatenate data frames
-            """f = open(o,"a")
-            f.write(full_model)
-            f.write("\n*************************************************************************************\n")
-            f.write(finalstats.summary())
-            f.close()"""
-            sys.stdout = open(o, "a")
-            print(full_model)
-            print(
-                "\n*************************************************************************************\n"
-            )
-            print(finalstats.summary())
-            sys.stdout.close()
+            with open(o, "a") as fp:
+                print(full_model, file=fp)
+                print(
+                    "\n*************************************************************************************\n",
+                    file=fp,
+                )
+                print(finalstats.summary(), file=fp)
         return finalstats
 
 

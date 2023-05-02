@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 import urllib
 import click
+from click.testing import CliRunner
 from nidm.experiment.tools.nidm_linreg import linear_regression
 from nidm.experiment.tools.tests.test_rest_statistics import BRAIN_VOL_FILES
 import pytest
@@ -31,7 +32,7 @@ def call_click_command(cmd, *args, **kwargs):
 
     :param cmd: click cli command function to call
     :param args: arguments to pass to the function
-    :param kwargs: keywrod arguments to pass to the function
+    :param kwargs: keyword arguments to pass to the function
     :return: None
     """
 
@@ -55,7 +56,7 @@ def call_click_command(cmd, *args, **kwargs):
     for arg in (a for a in cmd.params if isinstance(a, click.Argument)):
         if arg.name not in arg_values:
             raise click.BadParameter(
-                "Missing required positional" "parameter '{}'".format(arg.name)
+                "Missing required positional parameter '{}'".format(arg.name)
             )
 
     # build parameter lists
@@ -63,10 +64,7 @@ def call_click_command(cmd, *args, **kwargs):
     args_list = [str(v) for n, v in arg_values.items() if n not in opts]
 
     # call the command
-    try:
-        cmd(opts_list + args_list)
-    except Exception:
-        pass
+    CliRunner().invoke(cmd, opts_list + args_list)
 
 
 def test_simple_model():
