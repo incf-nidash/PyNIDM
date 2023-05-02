@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 import re
+import sys
 import urllib
 import uuid
 import pytest
@@ -10,6 +11,11 @@ from nidm.core import Constants
 from nidm.experiment import Acquisition, AssessmentObject, Project, Query, Session
 from nidm.experiment.CDE import getCDEs
 from nidm.experiment.tools.rest import RestParser
+
+if sys.version_info >= (3, 9):
+    from importlib.resources import as_file, files
+else:
+    from importlib_resources import as_file, files
 
 REST_TEST_FILE = "./agent.ttl"
 BRAIN_VOL_FILES = ["./cmu_a.nidm.ttl", "./caltech.nidm.ttl"]
@@ -557,18 +563,10 @@ def test_OpenGraph():
 
 def test_CDEs():
     def testrun():
-        path = os.path.abspath(__file__)
-
-        dir_parts = path.split("/")
-        dir_parts = dir_parts[:-4]
-
-        dir_parts.append("core")
-        dir_parts.append("cde_dir")
-        dirpath = "/".join(dir_parts)
-
-        graph = getCDEs(
-            ["{}/ants_cde.ttl".format(dirpath), "{}/fs_cde.ttl".format(dirpath)]
-        )
+        with as_file(files("nidm") / "core" / "cde_dir") as dirpath:
+            graph = getCDEs(
+                [str(dirpath / "ants_cde.ttl"), str(dirpath / "fs_cde.ttl")]
+            )
 
         units = graph.objects(
             subject=Constants.FREESURFER["fs_000002"],

@@ -5,7 +5,7 @@ import click
 from click.testing import CliRunner
 import pytest
 from nidm.experiment.tools.nidm_linreg import linear_regression
-from nidm.experiment.tools.tests.test_rest_statistics import BRAIN_VOL_FILES
+from .test_rest_statistics import BRAIN_VOL_FILES
 
 
 @pytest.fixture(scope="module", autouse="True")
