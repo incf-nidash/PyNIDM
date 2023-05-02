@@ -3342,4 +3342,3 @@ ants:ants_000299 a ants:DataElement ;
     ants:unit "mm^2" .
 
 ants:DataElement rdfs:subClassOf nidm:DataElement .
-

@@ -11,4 +11,3 @@ RUN wget -O- http://neuro.debian.net/lists/bionic.us-nh.full | tee /etc/apt/sour
 RUN apt-get install -y git-annex-standalone
 
 RUN datalad install ///abide2/RawData/NYU_1
-

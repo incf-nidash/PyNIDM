@@ -1,23 +1,22 @@
-import nidm.experiment.Navigate
-from nidm.experiment import Project, Session, AssessmentAcquisition, AssessmentObject, Acquisition, AcquisitionObject, \
-    Query
-from nidm.core import Constants
-from rdflib import Namespace, URIRef
-import prov.model as pm
-from os import remove, path, environ
-import tempfile
-import pytest
-from nidm.experiment.CDE import download_cde_files
-from nidm.experiment.tools.rest_statistics import GetProjectsComputedMetadata
-
-
-from prov.model import ProvDocument, QualifiedName
-from prov.model import Namespace as provNamespace
-import json
-import urllib.request
+from os import path, remove
 from pathlib import Path
+import tempfile
+import urllib.request
+from nidm.core import Constants
+from nidm.experiment import (
+    Acquisition,
+    AssessmentAcquisition,
+    AssessmentObject,
+    Project,
+    Query,
+    Session,
+)
+from nidm.experiment.CDE import download_cde_files
+import nidm.experiment.Navigate
+import prov.model as pm
+import pytest
 
-ABIDE_FILES = ('cmu_a.nidm.ttl',)
+ABIDE_FILES = ("cmu_a.nidm.ttl",)
 
 cmu_test_project_uuid = None
 cmu_test_subject_uuid = None
@@ -33,6 +32,7 @@ cmu_test_subject_uuid = None
 #               project = Project(uuid="_654321",attributes=kwargs)
 USE_GITHUB_DATA = True
 
+
 @pytest.fixture(scope="module", autouse="True")
 def setup():
     global cmu_test_project_uuid, cmu_test_subject_uuid
@@ -40,119 +40,148 @@ def setup():
     projects = Query.GetProjectsUUID(ABIDE_FILES)
     for p in projects:
         proj_info = nidm.experiment.Navigate.GetProjectAttributes(ABIDE_FILES, p)
-        if 'dctypes:title' in proj_info.keys() and proj_info['dctypes:title'] == 'ABIDE - CMU_a':
+        if (
+            "dctypes:title" in proj_info.keys()
+            and proj_info["dctypes:title"] == "ABIDE - CMU_a"
+        ):
             cmu_test_project_uuid = p
             break
     subjects = Query.GetParticipantIDs(ABIDE_FILES)
-    cmu_test_subject_uuid = subjects['uuid'][0]
+    cmu_test_subject_uuid = subjects["uuid"][0]
 
 
 def test_GetProjectMetadata():
+    kwargs = {
+        Constants.NIDM_PROJECT_NAME: "FBIRN_PhaseII",
+        Constants.NIDM_PROJECT_IDENTIFIER: 9610,
+        Constants.NIDM_PROJECT_DESCRIPTION: "Test investigation",
+    }
+    project = Project(uuid="_123456", attributes=kwargs)
 
-    kwargs={Constants.NIDM_PROJECT_NAME:"FBIRN_PhaseII",Constants.NIDM_PROJECT_IDENTIFIER:9610,Constants.NIDM_PROJECT_DESCRIPTION:"Test investigation"}
-    project = Project(uuid="_123456",attributes=kwargs)
-
-
-    #save a turtle file
-    with open("test_gpm.ttl",'w') as f:
+    # save a turtle file
+    with open("test_gpm.ttl", "w") as f:
         f.write(project.serializeTurtle())
 
-    kwargs={Constants.NIDM_PROJECT_NAME:"FBIRN_PhaseIII",Constants.NIDM_PROJECT_IDENTIFIER:1200,Constants.NIDM_PROJECT_DESCRIPTION:"Test investigation2"}
-    project = Project(uuid="_654321",attributes=kwargs)
+    kwargs = {
+        Constants.NIDM_PROJECT_NAME: "FBIRN_PhaseIII",
+        Constants.NIDM_PROJECT_IDENTIFIER: 1200,
+        Constants.NIDM_PROJECT_DESCRIPTION: "Test investigation2",
+    }
+    project = Project(uuid="_654321", attributes=kwargs)
 
-
-    #save a turtle file
-    with open("test2_gpm.ttl",'w') as f:
+    # save a turtle file
+    with open("test2_gpm.ttl", "w") as f:
         f.write(project.serializeTurtle())
 
+    # WIP test = Query.GetProjectMetadata(["test.ttl", "test2.ttl"])
 
-    #WIP test = Query.GetProjectMetadata(["test.ttl", "test2.ttl"])
-
-    #assert URIRef(Constants.NIDM + "_654321") in test
-    #assert URIRef(Constants.NIDM + "_123456") in test
-    #assert URIRef(Constants.NIDM_PROJECT_IDENTIFIER + "1200") in test
-    #assert URIRef(Constants.NIDM_PROJECT_IDENTIFIER + "9610") in test
-    #assert URIRef((Constants.NIDM_PROJECT_NAME + "FBIRN_PhaseII")) in test
-    #assert URIRef((Constants.NIDM_PROJECT_NAME + "FBIRN_PhaseIII")) in test
-    #assert URIRef((Constants.NIDM_PROJECT_DESCRIPTION + "Test investigation")) in test
-    #assert URIRef((Constants.NIDM_PROJECT_DESCRIPTION + "Test investigation2")) in test
+    # assert URIRef(Constants.NIDM + "_654321") in test
+    # assert URIRef(Constants.NIDM + "_123456") in test
+    # assert URIRef(Constants.NIDM_PROJECT_IDENTIFIER + "1200") in test
+    # assert URIRef(Constants.NIDM_PROJECT_IDENTIFIER + "9610") in test
+    # assert URIRef((Constants.NIDM_PROJECT_NAME + "FBIRN_PhaseII")) in test
+    # assert URIRef((Constants.NIDM_PROJECT_NAME + "FBIRN_PhaseIII")) in test
+    # assert URIRef((Constants.NIDM_PROJECT_DESCRIPTION + "Test investigation")) in test
+    # assert URIRef((Constants.NIDM_PROJECT_DESCRIPTION + "Test investigation2")) in test
 
     remove("test_gpm.ttl")
     remove("test2_gpm.ttl")
 
 
 def test_GetProjects():
+    kwargs = {
+        Constants.NIDM_PROJECT_NAME: "FBIRN_PhaseII",
+        Constants.NIDM_PROJECT_IDENTIFIER: 9610,
+        Constants.NIDM_PROJECT_DESCRIPTION: "Test investigation",
+    }
+    project = Project(uuid="_123456", attributes=kwargs)
 
-    kwargs={Constants.NIDM_PROJECT_NAME:"FBIRN_PhaseII",Constants.NIDM_PROJECT_IDENTIFIER:9610,Constants.NIDM_PROJECT_DESCRIPTION:"Test investigation"}
-    project = Project(uuid="_123456",attributes=kwargs)
-
-
-    #save a turtle file
-    with open("test_gp.ttl",'w') as f:
+    # save a turtle file
+    with open("test_gp.ttl", "w") as f:
         f.write(project.serializeTurtle())
 
     project_list = Query.GetProjectsUUID(["test_gp.ttl"])
 
     remove("test_gp.ttl")
-    assert Constants.NIIRI + "_123456" in [ str(x) for x in project_list]
+    assert Constants.NIIRI + "_123456" in [str(x) for x in project_list]
+
 
 def test_GetParticipantIDs():
+    kwargs = {
+        Constants.NIDM_PROJECT_NAME: "FBIRN_PhaseII",
+        Constants.NIDM_PROJECT_IDENTIFIER: 9610,
+        Constants.NIDM_PROJECT_DESCRIPTION: "Test investigation",
+    }
+    project = Project(uuid="_123456", attributes=kwargs)
+    session = Session(uuid="_13579", project=project)
+    acq = Acquisition(uuid="_15793", session=session)
+    acq2 = Acquisition(uuid="_15795", session=session)
 
-    kwargs={Constants.NIDM_PROJECT_NAME:"FBIRN_PhaseII",Constants.NIDM_PROJECT_IDENTIFIER:9610,Constants.NIDM_PROJECT_DESCRIPTION:"Test investigation"}
-    project = Project(uuid="_123456",attributes=kwargs)
-    session = Session(uuid="_13579",project=project)
-    acq = Acquisition(uuid="_15793",session=session)
-    acq2 = Acquisition(uuid="_15795",session=session)
+    person = acq.add_person(attributes=({Constants.NIDM_SUBJECTID: "9999"}))
+    acq.add_qualified_association(person=person, role=Constants.NIDM_PARTICIPANT)
 
-    person=acq.add_person(attributes=({Constants.NIDM_SUBJECTID:"9999"}))
-    acq.add_qualified_association(person=person,role=Constants.NIDM_PARTICIPANT)
+    person2 = acq2.add_person(attributes=({Constants.NIDM_SUBJECTID: "8888"}))
+    acq2.add_qualified_association(person=person2, role=Constants.NIDM_PARTICIPANT)
 
-    person2=acq2.add_person(attributes=({Constants.NIDM_SUBJECTID:"8888"}))
-    acq2.add_qualified_association(person=person2,role=Constants.NIDM_PARTICIPANT)
-
-    #save a turtle file
-    with open("test_3.ttl",'w') as f:
+    # save a turtle file
+    with open("test_3.ttl", "w") as f:
         f.write(project.serializeTurtle())
 
     participant_list = Query.GetParticipantIDs(["test_3.ttl"])
 
     remove("test_3.ttl")
-    assert (participant_list['ID'].str.contains('9999').any())
-    assert (participant_list['ID'].str.contains('8888').any())
+    assert participant_list["ID"].str.contains("9999").any()
+    assert participant_list["ID"].str.contains("8888").any()
+
 
 def test_GetProjectInstruments():
-    kwargs = {Constants.NIDM_PROJECT_NAME: "FBIRN_PhaseII", Constants.NIDM_PROJECT_IDENTIFIER: 9610,
-              Constants.NIDM_PROJECT_DESCRIPTION: "Test investigation"}
+    kwargs = {
+        Constants.NIDM_PROJECT_NAME: "FBIRN_PhaseII",
+        Constants.NIDM_PROJECT_IDENTIFIER: 9610,
+        Constants.NIDM_PROJECT_DESCRIPTION: "Test investigation",
+    }
     proj_uuid = "_123456gpi"
     project = Project(uuid=proj_uuid, attributes=kwargs)
 
     session = Session(project)
     acq = AssessmentAcquisition(session)
 
-    kwargs={pm.PROV_TYPE:pm.QualifiedName(pm.Namespace("nidm",Constants.NIDM),"NorthAmericanAdultReadingTest")}
-    acq_obj = AssessmentObject(acq,attributes=kwargs)
+    kwargs = {
+        pm.PROV_TYPE: pm.QualifiedName(
+            pm.Namespace("nidm", Constants.NIDM), "NorthAmericanAdultReadingTest"
+        )
+    }
+    AssessmentObject(acq, attributes=kwargs)
 
     acq2 = AssessmentAcquisition(session)
 
-    kwargs={pm.PROV_TYPE:pm.QualifiedName(pm.Namespace("nidm",Constants.NIDM),"PositiveAndNegativeSyndromeScale")}
-    acq_obj2 = AssessmentObject(acq2,attributes=kwargs)
+    kwargs = {
+        pm.PROV_TYPE: pm.QualifiedName(
+            pm.Namespace("nidm", Constants.NIDM), "PositiveAndNegativeSyndromeScale"
+        )
+    }
+    AssessmentObject(acq2, attributes=kwargs)
 
-    #save a turtle file
-    with open("test_gpi.ttl",'w') as f:
+    # save a turtle file
+    with open("test_gpi.ttl", "w") as f:
         f.write(project.serializeTurtle())
 
     assessment_list = Query.GetProjectInstruments(["test_gpi.ttl"], proj_uuid)
 
     remove("test_gpi.ttl")
 
-    assert Constants.NIDM + "NorthAmericanAdultReadingTest" in [str(x) for x in assessment_list['assessment_type'].to_list()]
-    assert Constants.NIDM + "PositiveAndNegativeSyndromeScale" in [str(x) for x in assessment_list['assessment_type'].to_list()]
+    assert Constants.NIDM + "NorthAmericanAdultReadingTest" in [
+        str(x) for x in assessment_list["assessment_type"].to_list()
+    ]
+    assert Constants.NIDM + "PositiveAndNegativeSyndromeScale" in [
+        str(x) for x in assessment_list["assessment_type"].to_list()
+    ]
 
 
-'''
+"""
 The test data file could/should have the following project meta data. Taken from
 https://raw.githubusercontent.com/incf-nidash/nidm/master/nidm/nidm-experiment/terms/nidm-experiment.owl
-  
+
   - description
   - fileName
   - license
@@ -171,79 +200,82 @@ https://raw.githubusercontent.com/incf-nidash/nidm/master/nidm/nidm-experiment/t
   - AppliedFilter
   - SolutionFlowSpeed
   - RecordingLocation
-   
-Returns the 
-  
-'''
+
+Returns the
+
+"""
+
+
 def saveTestFile(file_name, data):
     project = Project(uuid="_123_" + file_name, attributes=data)
 
     return saveProject(file_name, project)
 
+
 def saveProject(file_name, project):
     # save a turtle file
-    with open(file_name, 'w') as f:
+    with open(file_name, "w") as f:
         f.write(project.serializeTurtle())
     return "nidm:_123_{}".format(file_name)
 
 
 def makeProjectTestFile(filename):
-    DCTYPES = Namespace("http://purl.org/dc/dcmitype/")
-
-    kwargs = {Constants.NIDM_PROJECT_NAME: "FBIRN_PhaseII", # this is the "title"
-              Constants.NIDM_PROJECT_IDENTIFIER: 9610,
-              Constants.NIDM_PROJECT_DESCRIPTION: "Test investigation",
-              Constants.NIDM_FILENAME: "testfile.ttl",
-              Constants.NIDM_PROJECT_LICENSE: "MIT Licence",
-              Constants.NIDM_PROJECT_SOURCE: "Educational Source",
-              Constants.NIDM_HAD_NUMERICAL_VALUE: "numval???",
-              Constants.NIDM_BATH_SOLUTION: "bath",
-              Constants.NIDM_CELL_TYPE: "ctype",
-              Constants.NIDM_CHANNEL_NUMBER: "5",
-              Constants.NIDM_ELECTRODE_IMPEDANCE: ".01",
-              Constants.NIDM_GROUP_LABEL: "group 123",
-              Constants.NIDM_HOLLOW_ELECTRODE_SOLUTION: "water",
-              Constants.NIDM_HAD_IMAGE_CONTRACT_TYPE: "off",
-              Constants.NIDM_HAD_IMAGE_USAGE_TYPE: "abcd",
-              Constants.NIDM_NUBMER_OF_CHANNELS: "11",
-              Constants.NIDM_APPLIED_FILTER: "on",
-              Constants.NIDM_SOLUTION_FLOW_SPEED: "2.8",
-              Constants.NIDM_RECORDING_LOCATION: "lab"
-              }
+    kwargs = {
+        Constants.NIDM_PROJECT_NAME: "FBIRN_PhaseII",  # this is the "title"
+        Constants.NIDM_PROJECT_IDENTIFIER: 9610,
+        Constants.NIDM_PROJECT_DESCRIPTION: "Test investigation",
+        Constants.NIDM_FILENAME: "testfile.ttl",
+        Constants.NIDM_PROJECT_LICENSE: "MIT Licence",
+        Constants.NIDM_PROJECT_SOURCE: "Educational Source",
+        Constants.NIDM_HAD_NUMERICAL_VALUE: "numval???",
+        Constants.NIDM_BATH_SOLUTION: "bath",
+        Constants.NIDM_CELL_TYPE: "ctype",
+        Constants.NIDM_CHANNEL_NUMBER: "5",
+        Constants.NIDM_ELECTRODE_IMPEDANCE: ".01",
+        Constants.NIDM_GROUP_LABEL: "group 123",
+        Constants.NIDM_HOLLOW_ELECTRODE_SOLUTION: "water",
+        Constants.NIDM_HAD_IMAGE_CONTRACT_TYPE: "off",
+        Constants.NIDM_HAD_IMAGE_USAGE_TYPE: "abcd",
+        Constants.NIDM_NUBMER_OF_CHANNELS: "11",
+        Constants.NIDM_APPLIED_FILTER: "on",
+        Constants.NIDM_SOLUTION_FLOW_SPEED: "2.8",
+        Constants.NIDM_RECORDING_LOCATION: "lab",
+    }
     return saveTestFile(filename, kwargs)
 
-def makeProjectTestFile2(filename):
-    DCTYPES = Namespace("http://purl.org/dc/dcmitype/")
 
-    kwargs = {Constants.NIDM_PROJECT_NAME: "TEST B", # this is the "title"
-              Constants.NIDM_PROJECT_IDENTIFIER: 1234,
-              Constants.NIDM_PROJECT_DESCRIPTION: "More Scans",
-              Constants.NIDM_FILENAME: "testfile2.ttl",
-              Constants.NIDM_PROJECT_LICENSE: "Creative Commons",
-              Constants.NIDM_PROJECT_SOURCE: "Other",
-              Constants.NIDM_HAD_NUMERICAL_VALUE: "numval???",
-              Constants.NIDM_BATH_SOLUTION: "bath",
-              Constants.NIDM_CELL_TYPE: "ctype",
-              Constants.NIDM_CHANNEL_NUMBER: "5",
-              Constants.NIDM_ELECTRODE_IMPEDANCE: ".01",
-              Constants.NIDM_GROUP_LABEL: "group 123",
-              Constants.NIDM_HOLLOW_ELECTRODE_SOLUTION: "water",
-              Constants.NIDM_HAD_IMAGE_CONTRACT_TYPE: "off",
-              Constants.NIDM_HAD_IMAGE_USAGE_TYPE: "abcd",
-              Constants.NIDM_NUBMER_OF_CHANNELS: "11",
-              Constants.NIDM_APPLIED_FILTER: "on",
-              Constants.NIDM_SOLUTION_FLOW_SPEED: "2.8",
-              Constants.NIDM_RECORDING_LOCATION: "lab"
-              }
+def makeProjectTestFile2(filename):
+    kwargs = {
+        Constants.NIDM_PROJECT_NAME: "TEST B",  # this is the "title"
+        Constants.NIDM_PROJECT_IDENTIFIER: 1234,
+        Constants.NIDM_PROJECT_DESCRIPTION: "More Scans",
+        Constants.NIDM_FILENAME: "testfile2.ttl",
+        Constants.NIDM_PROJECT_LICENSE: "Creative Commons",
+        Constants.NIDM_PROJECT_SOURCE: "Other",
+        Constants.NIDM_HAD_NUMERICAL_VALUE: "numval???",
+        Constants.NIDM_BATH_SOLUTION: "bath",
+        Constants.NIDM_CELL_TYPE: "ctype",
+        Constants.NIDM_CHANNEL_NUMBER: "5",
+        Constants.NIDM_ELECTRODE_IMPEDANCE: ".01",
+        Constants.NIDM_GROUP_LABEL: "group 123",
+        Constants.NIDM_HOLLOW_ELECTRODE_SOLUTION: "water",
+        Constants.NIDM_HAD_IMAGE_CONTRACT_TYPE: "off",
+        Constants.NIDM_HAD_IMAGE_USAGE_TYPE: "abcd",
+        Constants.NIDM_NUBMER_OF_CHANNELS: "11",
+        Constants.NIDM_APPLIED_FILTER: "on",
+        Constants.NIDM_SOLUTION_FLOW_SPEED: "2.8",
+        Constants.NIDM_RECORDING_LOCATION: "lab",
+    }
     project = Project(uuid="_123_" + filename, attributes=kwargs)
     s1 = Session(project)
 
     a1 = AssessmentAcquisition(session=s1)
-      # = s1.add_acquisition("a1", attributes={"http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#Age" : 22})
+    # = s1.add_acquisition("a1", attributes={"http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#Age" : 22})
 
-    p1 = a1.add_person("p1", attributes={Constants.NIDM_GIVEN_NAME:"George", Constants.NIDM_AGE: 22})
+    p1 = a1.add_person(
+        "p1", attributes={Constants.NIDM_GIVEN_NAME: "George", Constants.NIDM_AGE: 22}
+    )
     a1.add_qualified_association(person=p1, role=Constants.NIDM_PARTICIPANT)
-
 
     return saveProject(filename, project)
 
@@ -253,13 +285,13 @@ def test_GetProjectsMetadata():
     p2 = makeProjectTestFile2("testfile2.ttl")
     files = ["testfile.ttl", "testfile2.ttl"]
 
-    if USE_GITHUB_DATA and not Path('./cmu_a.nidm.ttl').is_file():
+    if USE_GITHUB_DATA and not Path("./cmu_a.nidm.ttl").is_file():
         urllib.request.urlretrieve(
             "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/master/datasets.datalad.org/abide/RawDataBIDS/CMU_a/nidm.ttl",
-            "cmu_a.nidm.ttl"
+            "cmu_a.nidm.ttl",
         )
         files.append("cmu_a.nidm.ttl")
-    elif Path('./cmu_a.nidm.ttl').is_file():
+    elif Path("./cmu_a.nidm.ttl").is_file():
         files.append("cmu_a.nidm.ttl")
 
     parsed = Query.GetProjectsMetadata(files)
@@ -273,12 +305,15 @@ def test_GetProjectsMetadata():
     if USE_GITHUB_DATA:
         # find the project ID from the CMU file
         p3 = None
-        for project_id in parsed['projects']:
+        for project_id in parsed["projects"]:
             if project_id != p1 and project_id != p2:
-                if parsed['projects'][project_id][str(Constants.NIDM_PROJECT_NAME)] == "ABIDE - CMU_a":
+                if (
+                    parsed["projects"][project_id][str(Constants.NIDM_PROJECT_NAME)]
+                    == "ABIDE - CMU_a"
+                ):
                     p3 = project_id
                     break
-        assert p3 != None
+        assert p3 is not None
 
 
 #
@@ -312,8 +347,10 @@ def test_GetProjectsMetadata():
 
 
 def test_prefix_helpers():
-
-    assert Query.expandNIDMAbbreviation("ndar:src_subject_id") == "https://ndar.nih.gov/api/datadictionary/v2/dataelement/src_subject_id"
+    assert (
+        Query.expandNIDMAbbreviation("ndar:src_subject_id")
+        == "https://ndar.nih.gov/api/datadictionary/v2/dataelement/src_subject_id"
+    )
 
     assert Query.matchPrefix("http://purl.org/nidash/nidm#abc") == "nidm:abc"
     assert Query.matchPrefix("http://www.w3.org/ns/prov#123") == "prov:123"
@@ -322,38 +359,42 @@ def test_prefix_helpers():
 
 
 def test_getProjectAcquisitionObjects():
-    if not Path('./cmu_a.nidm.ttl').is_file():
-        urllib.request.urlretrieve (
+    if not Path("./cmu_a.nidm.ttl").is_file():
+        urllib.request.urlretrieve(
             "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/master/datasets.datalad.org/abide/RawDataBIDS/CMU_a/nidm.ttl",
-            "cmu_a.nidm.ttl"
+            "cmu_a.nidm.ttl",
         )
-    files = ['cmu_a.nidm.ttl']
+    files = ["cmu_a.nidm.ttl"]
 
     project_list = Query.GetProjectsUUID(files)
     project_uuid = str(project_list[0])
-    objects = Query.getProjectAcquisitionObjects(files,project_uuid)
+    objects = Query.getProjectAcquisitionObjects(files, project_uuid)
 
-    assert isinstance(objects,list)
+    assert isinstance(objects, list)
 
 
 def test_GetProjectAttributes():
     global cmu_test_project_uuid
-    if not Path('./cmu_a.nidm.ttl').is_file():
-        urllib.request.urlretrieve (
+    if not Path("./cmu_a.nidm.ttl").is_file():
+        urllib.request.urlretrieve(
             "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/master/datasets.datalad.org/abide/RawDataBIDS/CMU_a/nidm.ttl",
-            "cmu_a.nidm.ttl"
+            "cmu_a.nidm.ttl",
         )
     files = ABIDE_FILES
 
     project_uuid = cmu_test_project_uuid
-    project_attributes = nidm.experiment.Navigate.GetProjectAttributes(files, project_uuid)
-    assert ('prov:Location' in project_attributes) or ('Location' in project_attributes)
-    assert ('dctypes:title' in project_attributes) or ('title' in project_attributes)
-    assert ('http://www.w3.org/1999/02/22-rdf-syntax-ns#type' in project_attributes) or ('type' in project_attributes)
-    assert ('AcquisitionModality') in project_attributes
-    assert ('ImageContrastType') in project_attributes
-    assert ('Task') in project_attributes
-    assert ('ImageUsageType') in project_attributes
+    project_attributes = nidm.experiment.Navigate.GetProjectAttributes(
+        files, project_uuid
+    )
+    assert ("prov:Location" in project_attributes) or ("Location" in project_attributes)
+    assert ("dctypes:title" in project_attributes) or ("title" in project_attributes)
+    assert (
+        "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" in project_attributes
+    ) or ("type" in project_attributes)
+    assert ("AcquisitionModality") in project_attributes
+    assert ("ImageContrastType") in project_attributes
+    assert ("Task") in project_attributes
+    assert ("ImageUsageType") in project_attributes
 
 
 def test_download_cde_files():
@@ -361,24 +402,33 @@ def test_download_cde_files():
     assert cde_dir == tempfile.gettempdir()
     fcount = 0
     for url in Constants.CDE_FILE_LOCATIONS:
-        fname = url.split('/')[-1]
-        assert path.isfile("{}/{}".format(cde_dir, fname) )
+        fname = url.split("/")[-1]
+        assert path.isfile("{}/{}".format(cde_dir, fname))
         fcount += 1
     assert fcount > 0
 
-@pytest.mark.skip(reason="We don't have an easily accessible file for this test so skipping it until better test samples are available.")
+
+@pytest.mark.skip(
+    reason="We don't have an easily accessible file for this test so skipping it until better test samples are available."
+)
 def test_custom_data_types():
-    SPECIAL_TEST_FILES = ['/opt/project/ttl/MTdemog_aseg.ttl']
+    SPECIAL_TEST_FILES = ["/opt/project/ttl/MTdemog_aseg.ttl"]
 
-    valuetype1 = Query.getDataTypeInfo(Query.OpenGraph(SPECIAL_TEST_FILES[0]), 'no-real-value')
-    assert (valuetype1 == False)
+    valuetype1 = Query.getDataTypeInfo(
+        Query.OpenGraph(SPECIAL_TEST_FILES[0]), "no-real-value"
+    )
+    assert valuetype1 is False
 
-    valuetype2 = Query.getDataTypeInfo(Query.OpenGraph(SPECIAL_TEST_FILES[0]), Constants.NIIRI['age_e3hrcc'])
-    assert (str(valuetype2['label']) == 'age')
-    assert (str(valuetype2['description']) == "Age of participant at scan")
-    assert (str(valuetype2['isAbout']) == str(Constants.NIIRI['24d78sq']))
+    valuetype2 = Query.getDataTypeInfo(
+        Query.OpenGraph(SPECIAL_TEST_FILES[0]), Constants.NIIRI["age_e3hrcc"]
+    )
+    assert str(valuetype2["label"]) == "age"
+    assert str(valuetype2["description"]) == "Age of participant at scan"
+    assert str(valuetype2["isAbout"]) == str(Constants.NIIRI["24d78sq"])
 
-    valuetype3 = Query.getDataTypeInfo(Query.OpenGraph(SPECIAL_TEST_FILES[0]), 'age_e3hrcc')
-    assert (str(valuetype3['label']) == 'age')
-    assert (str(valuetype3['description']) == "Age of participant at scan")
-    assert (str(valuetype3['isAbout']) == str(Constants.NIIRI['24d78sq']))
+    valuetype3 = Query.getDataTypeInfo(
+        Query.OpenGraph(SPECIAL_TEST_FILES[0]), "age_e3hrcc"
+    )
+    assert str(valuetype3["label"]) == "age"
+    assert str(valuetype3["description"]) == "Age of participant at scan"
+    assert str(valuetype3["isAbout"]) == str(Constants.NIIRI["24d78sq"])

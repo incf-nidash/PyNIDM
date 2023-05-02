@@ -113,4 +113,3 @@ niiri:_ses1 a nidm:Session,
 niiri:_ses2 a nidm:Session,
         prov:Activity ;
     dct:isPartOf niiri:p2 .
-

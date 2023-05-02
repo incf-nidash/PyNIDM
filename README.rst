@@ -28,7 +28,7 @@ Creating a conda environment and installing the library (tested with OSX)
 =========================================================================
 
 macOS
------  
+-----
 .. code-block:: bash
 
 	$ ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
@@ -75,10 +75,10 @@ This program will convert a BIDS MRI dataset to a NIDM-Experiment RDF document. 
 
    This program will represent a BIDS MRI dataset as a NIDM RDF document and provide user with opportunity to annotate
    the dataset (i.e. create sidecar files) and associate selected variables with broader concepts to make datasets more
-   FAIR. 
+   FAIR.
 
    Note, you must obtain an API key to Interlex by signing up for an account at scicrunch.org then going to My Account
-   and API Keys.  Then set the environment variable INTERLEX_API_KEY with your key. 
+   and API Keys.  Then set the environment variable INTERLEX_API_KEY with your key.
 
    optional arguments:
      -h, --help            show this help message and exit
@@ -183,7 +183,7 @@ If you want to merge NIDM files on subject ID see pynidm merge
     -o, --out_file TEXT         File to write concatenated NIDM files
                               [required]
     --help                      Show this message and exit.
-  
+
 visualize
 ---------
 This command will produce a visualization(pdf) of the supplied NIDM files
@@ -197,7 +197,7 @@ named the same as the input files and stored in the same directories.
     -nl, --nidm_file_list TEXT  A comma separated list of NIDM files with full
                               path  [required]
     --help                      Show this message and exit.
-  
+
 merge
 -----
 This function will merge NIDM files.  See command line parameters for
@@ -268,25 +268,25 @@ Options:
   -nl, --nidm_file_list TEXT      A comma-separated list of NIDM files with
                                   full path  [required]
   -r, --regularization TEXT       Parameter, if set, will return the results of
-  				  the linear regression with L1 or L2 regularization 
-				  depending on the type specified, and the weight 
+  				  the linear regression with L1 or L2 regularization
+				  depending on the type specified, and the weight
 				  with the maximum likelihood solution. This will
 				  prevent overfitting. (Ex: -r L1)
   -model, --ml TEXT 		  An equation representing the linear
   				  regression. The dependent variable comes
 				  first, followed by "=" or "~", followed by
 				  the independent variables separated by "+"
-				  (Ex: -model "fs_003343 = age*sex + sex + 
+				  (Ex: -model "fs_003343 = age*sex + sex +
 				  age + group + age*group + bmi") [required]
   -contstant, --ctr TEXT       	  Parameter, if set, will return differences in
   				  variable relationships by group. One or
-				  multiple parameters can be used (multiple 
+				  multiple parameters can be used (multiple
 				  parameters should be separated by a comma-
 				  separated list) (Ex: -contrast group,age)
   -o, --output_file TEXT          Optional output file (TXT) to store results
                                   of query
   --help                          Show this message and exit.
-  
+
 To use the linear regression algorithm successfully, structure, syntax, and querying is important. Here is how to maximize the usefulness of the tool:
 
 
@@ -304,7 +304,7 @@ Now that we have selected the variables, we can perform a linear regression. In 
 The command to use for this particular data is:
 pynidm linear-regression -nl /simple2_NIDM_examples/datasets.datalad.org/abide/RawDataBIDS/CMU_a/nidm.ttl,/simple2_NIDM_examples/datasets.datalad.org/abide/RawDataBIDS/CMU_b/nidm.ttl -model "fs_000008 = DX_GROUP + PIQ_tca9ck + http://uri.interlex.org/ilx_0100400" -contrast "DX_GROUP" -r L1
 
--nl specifies the file(s) to pull data from, while -model is the model to perform a linear regression model on. In this case, the variables are fs_000008 (the dependent variable, supratentorial brain volume), DX_GROUP (diagnostic group), PIQ_tca9ck (PIQ), and http://uri.interlex.org/ilx_0100400 (age at scan). The -contrast parameter says to contrast the data using DX_GROUP, and then do a L1 regularization to prevent overfitting. 
+-nl specifies the file(s) to pull data from, while -model is the model to perform a linear regression model on. In this case, the variables are fs_000008 (the dependent variable, supratentorial brain volume), DX_GROUP (diagnostic group), PIQ_tca9ck (PIQ), and http://uri.interlex.org/ilx_0100400 (age at scan). The -contrast parameter says to contrast the data using DX_GROUP, and then do a L1 regularization to prevent overfitting.
 
 Details on the REST API URI format and usage can be found below.
 
@@ -645,4 +645,3 @@ Additional NIDM-related Tools
 * Freesurfer stats -> NIDM <https://github.com/repronim/segstats_jsonld>
 * FSL structural segmentation -> NIDM <https://github.com/ReproNim/fsl_seg_to_nidm>
 * ANTS structural segmentation -> NIDM <https://github.com/ReproNim/ants_seg_to_nidm>
-

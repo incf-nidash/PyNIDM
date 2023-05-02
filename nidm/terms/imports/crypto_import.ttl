@@ -19,7 +19,7 @@
 ###  http://purl.org/dc/terms/format
 
 crypto:sha512 rdf:type owl:DatatypeProperty ;
-           
+
            obo:IAO_0000115 "Secure Hash Algorithm 512." ;
-           
+
            rdfs:comment "SHA stands for Secure Hash Algorithm. Hash algorithms compute a fixed-length digital representation (known as a message digest) of an input data sequence (the message) of any length." .

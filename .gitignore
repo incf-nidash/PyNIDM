@@ -11,6 +11,7 @@ htmlcov/*
 /build
 /dist
 *.egg-info/
+/.tox
 
 .idea/
 .DS_Store

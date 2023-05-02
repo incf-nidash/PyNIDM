@@ -9,6 +9,6 @@ Use Apache Jena:
 
 ## Run one test example:
 
-pytest -k CMU_GetProjectsComputedMetadata 
+pytest -k CMU_GetProjectsComputedMetadata
 
 -

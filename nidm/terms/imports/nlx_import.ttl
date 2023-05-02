@@ -39,21 +39,21 @@ obo:IAO_0000115 rdf:type owl:AnnotationProperty .
 ###  http://ontology.neuinfo.org/NIF/DigitalEntities/NIF-Investigation.owl#birnlex_2100
 
 nlx:birnlex_2100 rdf:type owl:Class ;
-              
+
               rdfs:label "Magnetic resonance imaging scanner"^^xsd:string ;
-              
+
               rdfs:subClassOf nlx:birnlex_2094 ;
-              
+
               obo_annot:createdDate "2006-05-15"^^xsd:string ;
-              
+
               obo_annot:modifiedDate "2006-10-11"^^xsd:string ;
-              
+
               obo_annot:synonym "MRI scanner"^^xsd:string ;
-              
+
               core:prefLabel "Magnetic resonance imaging scanner"^^xsd:string ;
-              
+
               birn_annot:hasBirnlexCurator "http://ontology.neuinfo.org/NIF/Backend/BIRNLex_annotation_properties.owl#BIRN_OTF"^^xsd:string ;
-              
+
               birn_annot:hasCurationStatus "http://ontology.neuinfo.org/NIF/Backend/BIRNLex_annotation_properties.owl#uncurated"^^xsd:string .
 
 
@@ -61,56 +61,56 @@ nlx:birnlex_2100 rdf:type owl:Class ;
 ###  http://ontology.neuinfo.org/NIF/DigitalEntities/NIF-Investigation.owl#birnlex_2094
 
 nlx:birnlex_2094 rdf:type owl:Class ;
-              
-              rdfs:label "Imaging instrument"^^xsd:string ;
-                           
-              obo_annot:createdDate "2006-05-15"^^xsd:string ;
-              
-              obo_annot:modifiedDate "2006-10-11"^^xsd:string ;
-              
-              core:prefLabel "Imaging instrument"^^xsd:string ;
-              
-              birn_annot:hasBirnlexCurator "http://ontology.neuinfo.org/NIF/Backend/BIRNLex_annotation_properties.owl#BIRN_OTF"^^xsd:string ;
-              
-              birn_annot:hasCurationStatus "http://ontology.neuinfo.org/NIF/Backend/BIRNLex_annotation_properties.owl#uncurated"^^xsd:string .   
 
-           
+              rdfs:label "Imaging instrument"^^xsd:string ;
+
+              obo_annot:createdDate "2006-05-15"^^xsd:string ;
+
+              obo_annot:modifiedDate "2006-10-11"^^xsd:string ;
+
+              core:prefLabel "Imaging instrument"^^xsd:string ;
+
+              birn_annot:hasBirnlexCurator "http://ontology.neuinfo.org/NIF/Backend/BIRNLex_annotation_properties.owl#BIRN_OTF"^^xsd:string ;
+
+              birn_annot:hasCurationStatus "http://ontology.neuinfo.org/NIF/Backend/BIRNLex_annotation_properties.owl#uncurated"^^xsd:string .
+
+
 
 ###  http://uri.interlex.org/base/ixl_0050000
 
 nlx:ixl_0050000 rdf:type owl:Class ;
-                
+
                 rdfs:label "Positron emission tomography scanner"^^xsd:string ;
-                
+
                 rdfs:subClassOf nlx:birnlex_2094 ;
-                
+
                 obo_annot:createdDate "2016-02-12"^^xsd:string ;
-                
+
                 core:definition "A Positron emission tomography scanner is a device used in a nuclear medicine to observe metabolic processes in the body."^^xsd:string ;
-                
+
                 obo_annot:synonym "PET scanner"^^xsd:string ;
-                
+
                 core:prefLabel "Positron emission tomography scanner"^^xsd:string ;
-                
+
                 obo_annot:definingCitationURI "https://en.wikipedia.org/wiki/Positron_emission_tomography"^^xsd:string .
 
 
 
 ###  http://uri.interlex.org/base/ixl_0050001
 nlx:ixl_0050001 rdf:type owl:Class ;
-                
+
                 rdfs:label "Single-photon emission computed tomography scanner"^^xsd:string ;
-                
+
                 rdfs:subClassOf nlx:birnlex_2094 ;
-                
+
                 obo_annot:createdDate "2016-02-12"^^xsd:string ;
-                
+
                 core:definition "A Single-photon emission computed tomography scanner is a device used in nuclear medicine tomographic imaging to measure perfusion in the body using gamma rays."^^xsd:string ;
-                
+
                 obo_annot:synonym "SPECT scanner"^^xsd:string ;
-                
+
                 core:prefLabel "Single-photon emission computed tomography scanner"^^xsd:string ;
-                
+
                 obo_annot:definingCitationURI "https://en.wikipedia.org/wiki/Single-photon_emission_computed_tomography"^^xsd:string .
 
 
@@ -119,19 +119,19 @@ nlx:ixl_0050001 rdf:type owl:Class ;
 ###  http://uri.interlex.org/base/ixl_0050003
 
 nlx:ixl_0050003 rdf:type owl:Class ;
-                
+
                 rdfs:label "Electroencephalography machine"^^xsd:string ;
-                
+
                 rdfs:subClassOf nlx:birnlex_2094 ;
-                
+
                 obo_annot:createdDate "2016-02-12"^^xsd:string ;
-                
+
                 core:definition "A Electroencephalography machine is a device used in electrophysiology to record electrical activity of the brain.."^^xsd:string ;
-                
+
                 obo_annot:synonym "EEG machine"^^xsd:string ;
-                
+
                 core:prefLabel "Electroencephalography machine"^^xsd:string ;
-                
+
                 obo_annot:definingCitationURI "https://en.wikipedia.org/wiki/Electroencephalography"^^xsd:string .
 
 
@@ -139,17 +139,17 @@ nlx:ixl_0050003 rdf:type owl:Class ;
 ###  http://ontology.neuinfo.org/NIF/DigitalEntities/NIF-Investigation.owl#birnlex_XXX_MEG_machine
 
 nlx:ixl_0050002 rdf:type owl:Class ;
-                
+
                 rdfs:label "Magnetoencephalography machine"^^xsd:string ;
-                
+
                 rdfs:subClassOf nlx:birnlex_2094 ;
-                
+
                 obo_annot:createdDate "2016-02-12"^^xsd:string ;
-                
+
                 core:definition "A Magnetoencephalography machine is a device used in functional neuroimaging for mapping brain activity by recording magnetic fields produced by electrical currents occurring naturally in the brain, using very sensitive magnetometers.."^^xsd:string ;
-                
+
                 obo_annot:synonym "MEG machine"^^xsd:string ;
-                
+
                 core:prefLabel "Magnetoencephalography machine"^^xsd:string ;
-                
+
                 obo_annot:definingCitationURI "https://en.wikipedia.org/wiki/Magnetoencephalography"^^xsd:string .
