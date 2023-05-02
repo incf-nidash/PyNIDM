@@ -1,6 +1,6 @@
 import prov.model as pm
+from .Core import Core, getUUID
 from ..core import Constants
-from ..experiment.Core import Core, getUUID
 
 
 class Project(pm.ProvActivity, Core):

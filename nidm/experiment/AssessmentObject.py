@@ -1,6 +1,6 @@
 import prov.model as pm
+from .AcquisitionObject import AcquisitionObject
 from ..core import Constants
-from ..experiment import AcquisitionObject
 
 
 class AssessmentObject(AcquisitionObject):

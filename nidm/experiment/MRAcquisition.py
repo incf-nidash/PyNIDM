@@ -1,6 +1,6 @@
 import prov.model as pm
+from .Acquisition import Acquisition
 from ..core import Constants
-from ..experiment import Acquisition
 
 
 class MRAcquisition(Acquisition):
