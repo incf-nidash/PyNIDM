@@ -1,3 +1,5 @@
+from pathlib import Path
+import pytest
 from nidm.core import Constants
 from nidm.experiment import (
     AssessmentAcquisition,
@@ -102,5 +104,6 @@ if __name__ == "__main__":
 
 
 # very simple test, just checking if main does not give any error
-def test_main():
+def test_main(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    monkeypatch.chdir(tmp_path)
     main()

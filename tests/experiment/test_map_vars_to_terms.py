@@ -1,15 +1,20 @@
+from dataclasses import dataclass
 import json
-from os.path import join
-import tempfile
+from pathlib import Path
 import pandas as pd
 import pytest
 from nidm.experiment.Utils import map_variables_to_terms
 
 
-@pytest.fixture(scope="module", autouse="True")
-def setup():
-    global DATA, REPROSCHEMA_JSON_MAP, BIDS_SIDECAR
+@dataclass
+class Setup:
+    data: pd.DataFrame
+    reproschema_json_map: dict
+    bids_sidecar: dict
 
+
+@pytest.fixture(scope="module")
+def setup() -> Setup:
     temp = {
         "participant_id": [
             "100",
@@ -27,9 +32,9 @@ def setup():
         "sex": ["m", "m", "f", "m", "f", "f", "f", "f", "m", "m"],
     }
 
-    DATA = pd.DataFrame(temp)
+    data = pd.DataFrame(temp)
 
-    REPROSCHEMA_JSON_MAP = json.loads(
+    reproschema_json_map = json.loads(
         """
         {
             "DD(source='participants.tsv', variable='participant_id')": {
@@ -89,7 +94,7 @@ def setup():
         }"""
     )
 
-    BIDS_SIDECAR = json.loads(
+    bids_sidecar = json.loads(
         """
         {
             "age": {
@@ -128,23 +133,26 @@ def setup():
                 ]
             }
         }
-
         """
     )
 
+    return Setup(
+        data=data,
+        reproschema_json_map=reproschema_json_map,
+        bids_sidecar=bids_sidecar,
+    )
 
-def test_map_vars_to_terms_BIDS():
+
+def test_map_vars_to_terms_BIDS(setup: Setup, tmp_path: Path) -> None:
     """
     This function will test the Utils.py "map_vars_to_terms" function with a BIDS-formatted
     JSON sidecar file
     """
 
-    global DATA, BIDS_SIDECAR
-
     column_to_terms, cde = map_variables_to_terms(
-        df=DATA,
-        json_source=BIDS_SIDECAR,
-        directory=tempfile.gettempdir(),
+        df=setup.data,
+        json_source=setup.bids_sidecar,
+        directory=str(tmp_path),
         assessment_name="test",
         bids=True,
     )
@@ -197,7 +205,7 @@ def test_map_vars_to_terms_BIDS():
     )
 
     # now check the JSON sidecar file created by map_variables_to_terms which should match BIDS format
-    with open(join(tempfile.gettempdir(), "nidm_annotations.json")) as fp:
+    with open(tmp_path / "nidm_annotations.json") as fp:
         bids_sidecar = json.load(fp)
 
     assert "age" in bids_sidecar.keys()
@@ -237,18 +245,16 @@ def test_map_vars_to_terms_BIDS():
     assert len(results) == 20
 
 
-def test_map_vars_to_terms_reproschema():
+def test_map_vars_to_terms_reproschema(setup: Setup, tmp_path: Path) -> None:
     """
     This function will test the Utils.py "map_vars_to_terms" function with a reproschema-formatted
     JSON sidecar file
     """
 
-    global DATA, REPROSCHEMA_JSON_MAP
-
     column_to_terms, cde = map_variables_to_terms(
-        df=DATA,
-        json_source=REPROSCHEMA_JSON_MAP,
-        directory=tempfile.gettempdir(),
+        df=setup.data,
+        json_source=setup.reproschema_json_map,
+        directory=str(tmp_path),
         assessment_name="test",
     )
 
@@ -300,7 +306,7 @@ def test_map_vars_to_terms_reproschema():
     )
 
     # now check the JSON mapping file created by map_variables_to_terms which should match Reproschema format
-    with open(join(tempfile.gettempdir(), "nidm_annotations.json")) as fp:
+    with open(tmp_path / "nidm_annotations_annotations.json") as fp:
         json.load(fp)
 
     assert "DD(source='test', variable='age')" in column_to_terms.keys()

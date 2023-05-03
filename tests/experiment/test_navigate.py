@@ -1,93 +1,99 @@
-import os
-from pathlib import Path
+from dataclasses import dataclass
 import re
-import urllib
+import urllib.request
 import pytest
 from nidm.experiment import Navigate
 
-USE_GITHUB_DATA = True
-BRAIN_VOL_FILES = tuple(["./cmu_a.nidm.ttl", "./caltech.nidm.ttl"])
-OPENNEURO_FILES = tuple(["ds000110.nidm.ttl"])
-PROJECT_URI = None
-OPENNEURO_PROJECT_URI = None
+BRAIN_VOL_FILES = ["cmu_a.nidm.ttl", "caltech.nidm.ttl"]
+OPENNEURO_FILES = ["ds000110.nidm.ttl"]
 
 
-@pytest.fixture(scope="module", autouse="True")
-def setup():
-    global cmu_test_project_uuid, PROJECT_URI, OPENNEURO_PROJECT_URI
-
-    for f in BRAIN_VOL_FILES:
-        if Path(f).is_file():
-            os.remove(f)
-
-    if not Path("./cmu_a.nidm.ttl").is_file():
-        urllib.request.urlretrieve(
-            "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/master/datasets.datalad.org/abide/RawDataBIDS/CMU_a/nidm.ttl",
-            "cmu_a.nidm.ttl",
-        )
-
-    if not Path("./caltech.nidm.ttl").is_file():
-        urllib.request.urlretrieve(
-            "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/master/datasets.datalad.org/abide/RawDataBIDS/Caltech/nidm.ttl",
-            "caltech.nidm.ttl",
-        )
-
-    projects = Navigate.getProjects(BRAIN_VOL_FILES)
-    PROJECT_URI = projects[0]
-
-    if not Path("./ds000110.nidm.ttl").is_file():
-        urllib.request.urlretrieve(
-            "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/master/datasets.datalad.org/openneuro/ds000110/nidm.ttl",
-            "ds000110.nidm.ttl",
-        )
-
-    projects2 = Navigate.getProjects(OPENNEURO_FILES)
-    OPENNEURO_PROJECT_URI = projects2[0]
+@dataclass
+class Setup:
+    brain_vol_files: list[str]
+    openneuro_files: list[str]
+    project_uri: str
+    openneuro_project_uri: str
 
 
-def test_navigate_get_projects():
-    projects = Navigate.getProjects(BRAIN_VOL_FILES)
+@pytest.fixture(scope="module")
+def setup(tmp_path_factory: pytest.TempPathFactory) -> Setup:
+    tmp_path = tmp_path_factory.mktemp("setup")
+
+    urllib.request.urlretrieve(
+        "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/master/datasets.datalad.org/abide/RawDataBIDS/CMU_a/nidm.ttl",
+        tmp_path / "cmu_a.nidm.ttl",
+    )
+
+    urllib.request.urlretrieve(
+        "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/master/datasets.datalad.org/abide/RawDataBIDS/Caltech/nidm.ttl",
+        tmp_path / "caltech.nidm.ttl",
+    )
+
+    brain_vol_files = [str(tmp_path / fname) for fname in BRAIN_VOL_FILES]
+
+    projects = Navigate.getProjects(brain_vol_files)
+    project_uri = projects[0]
+
+    urllib.request.urlretrieve(
+        "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/master/datasets.datalad.org/openneuro/ds000110/nidm.ttl",
+        tmp_path / "ds000110.nidm.ttl",
+    )
+
+    openneuro_files = [str(tmp_path / fname) for fname in OPENNEURO_FILES]
+
+    projects2 = Navigate.getProjects(openneuro_files)
+    openneuro_project_uri = projects2[0]
+
+    return Setup(
+        brain_vol_files=brain_vol_files,
+        openneuro_files=openneuro_files,
+        project_uri=project_uri,
+        openneuro_project_uri=openneuro_project_uri,
+    )
+
+
+def test_navigate_get_projects(setup: Setup) -> None:
+    projects = Navigate.getProjects(setup.brain_vol_files)
     assert len(projects) == 2
 
 
-def test_navigate_get_sessions():
-    sessions = Navigate.getSessions(BRAIN_VOL_FILES, PROJECT_URI)
+def test_navigate_get_sessions(setup: Setup) -> None:
+    sessions = Navigate.getSessions(setup.brain_vol_files, setup.project_uri)
     assert len(sessions) > 0
 
 
-def test_navigate_get_acquisitions_for_session():
-    sessions = Navigate.getSessions(BRAIN_VOL_FILES, PROJECT_URI)
+def test_navigate_get_acquisitions_for_session(setup: Setup) -> None:
+    sessions = Navigate.getSessions(setup.brain_vol_files, setup.project_uri)
     for _ in sessions:
-        acquisitions = Navigate.getAcquisitions(BRAIN_VOL_FILES, sessions[0])
+        acquisitions = Navigate.getAcquisitions(setup.brain_vol_files, sessions[0])
         assert len(acquisitions) > 0
-        # for a in acquisitions:
-        #     print (str(a))
 
 
-def test_navigate_get_subjects_for_acquisition():
-    subjects = set([])
-    sessions = Navigate.getSessions(BRAIN_VOL_FILES, PROJECT_URI)
+def test_navigate_get_subjects_for_acquisition(setup: Setup) -> None:
+    subjects = set()
+    sessions = Navigate.getSessions(setup.brain_vol_files, setup.project_uri)
     for s in sessions:
-        acquisitions = Navigate.getAcquisitions(BRAIN_VOL_FILES, s)
+        acquisitions = Navigate.getAcquisitions(setup.brain_vol_files, s)
         for acq in acquisitions:
-            sub = Navigate.getSubject(BRAIN_VOL_FILES, acq)
+            sub = Navigate.getSubject(setup.brain_vol_files, acq)
             assert sub is not None
             subjects.add(sub)
     assert len(subjects) > 5
 
 
-def test_navigate_get_acquisition_data_by_session():
-    set_of_keys_returned = set([])
-    set_of_activities = set([])
+def test_navigate_get_acquisition_data_by_session(setup: Setup) -> None:
+    set_of_keys_returned = set()
+    set_of_activities = set()
 
-    sessions = Navigate.getSessions(OPENNEURO_FILES, OPENNEURO_PROJECT_URI)
+    sessions = Navigate.getSessions(setup.openneuro_files, setup.openneuro_project_uri)
     assert len(sessions) > 0
     for s in sessions:
-        acquisitions = Navigate.getAcquisitions(OPENNEURO_FILES, s)
+        acquisitions = Navigate.getAcquisitions(setup.openneuro_files, s)
         assert len(acquisitions) > 0
         for a in acquisitions:
             set_of_activities.add(str(a))
-            ad = Navigate.getActivityData(OPENNEURO_FILES, a)
+            ad = Navigate.getActivityData(setup.openneuro_files, a)
             assert len(ad.data) > 5
             for vt in ad.data:
                 set_of_keys_returned.add(vt.label)
@@ -98,20 +104,20 @@ def test_navigate_get_acquisition_data_by_session():
     assert "hadAcquisitionModality" in set_of_keys_returned
 
 
-def test_navigate_get_acquisition_data_by_subject():
-    set_of_keys_returned = set([])
-    set_of_activities = set([])
+def test_navigate_get_acquisition_data_by_subject(setup: Setup) -> None:
+    set_of_keys_returned = set()
+    set_of_activities = set()
 
-    subjects = Navigate.getSubjects(OPENNEURO_FILES, OPENNEURO_PROJECT_URI)
+    subjects = Navigate.getSubjects(setup.openneuro_files, setup.openneuro_project_uri)
     assert len(subjects) > 0
     for s in subjects:
         activities = Navigate.getActivities(
-            nidm_file_tuples=OPENNEURO_FILES, subject_id=s
+            nidm_file_tuples=tuple(setup.openneuro_files), subject_id=s
         )
         assert len(activities) > 0
         for a in activities:
             set_of_activities.add(str(a))
-            ad = Navigate.getActivityData(OPENNEURO_FILES, a)
+            ad = Navigate.getActivityData(setup.openneuro_files, a)
             assert len(ad.data) > 5
             for vt in ad.data:
                 set_of_keys_returned.add(vt.label)
@@ -122,9 +128,9 @@ def test_navigate_get_acquisition_data_by_subject():
     assert "hadImageUsageType" in set_of_keys_returned
 
 
-def test_navigate_get_sub_uuid_from_id():
+def test_navigate_get_sub_uuid_from_id(setup: Setup) -> None:
     uuids = Navigate.getSubjectUUIDsfromID(
-        nidm_file_tuples=BRAIN_VOL_FILES, sub_id="50653"
+        nidm_file_tuples=setup.brain_vol_files, sub_id="50653"
     )
     assert len(uuids) == 1
     assert re.match(

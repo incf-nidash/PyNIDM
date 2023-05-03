@@ -1,10 +1,9 @@
-from pathlib import Path
-import urllib
+from dataclasses import dataclass
+import urllib.request
 import pytest
 from nidm.experiment.tools.rest import RestParser
 
-REST_TEST_FILE = "./agent.ttl"
-BRAIN_VOL_FILES = ["./cmu_a.nidm.ttl", "./caltech.nidm.ttl"]
+BRAIN_VOL_FILES = ["cmu_a.nidm.ttl", "caltech.nidm.ttl"]
 OPENNEURO_FILES = [
     "ds000002.nidm.ttl",
     "ds000003.nidm.ttl",
@@ -34,46 +33,42 @@ OPENNEURO_FILES = [
 #                    'ds000003.nidm.ttl']
 #
 
-ALL_FILES = ["./cmu_a.nidm.ttl", "./caltech.nidm.ttl", "ds000120.nidm.ttl"]
-OPENNEURO_PROJECT_URI = None
-OPENNEURO_SUB_URI = None
 
-test_person_uuid = ""
-test_p2_subject_uuids = []
-cmu_test_project_uuid = None
-cmu_test_subject_uuid = None
+@dataclass
+class Setup:
+    brain_vol_files: list[str]
+    openneuro_files: list[str]
 
 
-@pytest.fixture(scope="module", autouse="True")
-def setup():
-    global cmu_test_project_uuid, cmu_test_subject_uuid, OPENNEURO_PROJECT_URI, OPENNEURO_SUB_URI
-
+@pytest.fixture(scope="module")
+def setup(tmp_path_factory: pytest.TempPathFactory) -> Setup:
+    tmp_path = tmp_path_factory.mktemp("setup")
     for fname in OPENNEURO_FILES:
         dataset = fname.split(".")[0]
-        if not Path("./{}".format(fname)).is_file():
-            urllib.request.urlretrieve(
-                "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/master/datasets.datalad.org/openneuro/{}/nidm.ttl".format(
-                    dataset
-                ),
-                fname,
-            )
-
-    if not Path("./cmu_a.nidm.ttl").is_file():
         urllib.request.urlretrieve(
-            "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/master/datasets.datalad.org/abide/RawDataBIDS/CMU_a/nidm.ttl",
-            "cmu_a.nidm.ttl",
+            f"https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/master/datasets.datalad.org/openneuro/{dataset}/nidm.ttl",
+            tmp_path / fname,
         )
 
-    if not Path("./caltech.nidm.ttl").is_file():
-        urllib.request.urlretrieve(
-            "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/master/datasets.datalad.org/abide/RawDataBIDS/Caltech/nidm.ttl",
-            "caltech.nidm.ttl",
-        )
+    urllib.request.urlretrieve(
+        "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/master/datasets.datalad.org/abide/RawDataBIDS/CMU_a/nidm.ttl",
+        tmp_path / "cmu_a.nidm.ttl",
+    )
+
+    urllib.request.urlretrieve(
+        "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/master/datasets.datalad.org/abide/RawDataBIDS/Caltech/nidm.ttl",
+        tmp_path / "caltech.nidm.ttl",
+    )
+
+    return Setup(
+        brain_vol_files=[str(tmp_path / fname) for fname in BRAIN_VOL_FILES],
+        openneuro_files=[str(tmp_path / fname) for fname in OPENNEURO_FILES],
+    )
 
 
-def test_dataelement_list():
+def test_dataelement_list(setup: Setup) -> None:
     rest_parser = RestParser(output_format=RestParser.OBJECT_FORMAT)
-    result = rest_parser.run(OPENNEURO_FILES, "/dataelements")
+    result = rest_parser.run(setup.openneuro_files, "/dataelements")
 
     assert type(result) == dict
     assert "data_elements" in result
@@ -98,18 +93,18 @@ def test_dataelement_list():
         ]
 
     # now check for derivatives
-    result = rest_parser.run(BRAIN_VOL_FILES, "/dataelements")
+    result = rest_parser.run(setup.brain_vol_files, "/dataelements")
     assert type(result) == dict
     assert (
         "Left-WM-hypointensities Volume_mm3 (mm^3)" in result["data_elements"]["label"]
     )
 
 
-def test_dataelement_details():
+def test_dataelement_details(setup: Setup) -> None:
     rest_parser = RestParser(output_format=RestParser.OBJECT_FORMAT)
-    # result = rest_parser.run(OPENNEURO_FILES, '/dataelements')
+    # result = rest_parser.run(setup.openneuro_files, '/dataelements')
     #
-    # dti = rest_parser.run(OPENNEURO_FILES, '/dataelements/{}'.format(result["data_elements"]["label"][0]))
+    # dti = rest_parser.run(setup.openneuro_files, '/dataelements/{}'.format(result["data_elements"]["label"][0]))
     #
     # assert "label" in dti
     # assert "description" in dti
@@ -118,24 +113,22 @@ def test_dataelement_details():
     #
     # # make sure the text formatter doesn't fail horribly
     # rest_parser.setOutputFormat(RestParser.CLI_FORMAT)
-    # txt = rest_parser.run(OPENNEURO_FILES, '/dataelements/{}'.format(result["data_elements"]["label"][0]))
+    # txt = rest_parser.run(setup.openneuro_files, '/dataelements/{}'.format(result["data_elements"]["label"][0]))
     #
 
     dti = rest_parser.run(
-        OPENNEURO_FILES, "/dataelements/Left-WM-hypointensities Volume_mm3 (mm^3)"
+        setup.openneuro_files, "/dataelements/Left-WM-hypointensities Volume_mm3 (mm^3)"
     )
     print(dti)
 
 
-def test_dataelement_details_in_projects_field():
+def test_dataelement_details_in_projects_field(setup: Setup) -> None:
     rest_parser = RestParser(output_format=RestParser.OBJECT_FORMAT)
-    # result = rest_parser.run(OPENNEURO_FILES, '/dataelements')
-    # dti = rest_parser.run(OPENNEURO_FILES, '/dataelements/{}'.format(result["data_elements"]["label"][0]))
+    # result = rest_parser.run(setup.openneuro_files, '/dataelements')
+    # dti = rest_parser.run(setup.openneuro_files, '/dataelements/{}'.format(result["data_elements"]["label"][0]))
     # assert len(dti['inProjects']) >= 1
 
     # find a data element that we are using for at least one subject
     data_element_label = "Right-non-WM-hypointensities normMax (MR)"
-    dti = rest_parser.run(
-        BRAIN_VOL_FILES, "/dataelements/{}".format(data_element_label)
-    )
+    dti = rest_parser.run(setup.brain_vol_files, f"/dataelements/{data_element_label}")
     assert len(dti["inProjects"]) >= 1

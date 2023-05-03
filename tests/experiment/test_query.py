@@ -1,6 +1,7 @@
-from os import path, remove
+from dataclasses import dataclass
 from pathlib import Path
 import tempfile
+from typing import Optional
 import urllib.request
 import prov.model as pm
 import pytest
@@ -18,11 +19,8 @@ import nidm.experiment.Navigate
 
 ABIDE_FILES = ("cmu_a.nidm.ttl",)
 
-cmu_test_project_uuid = None
-cmu_test_subject_uuid = None
 
-
-# when set to true, this will test example NIDM files downloaded from
+# We will test example NIDM files downloaded from
 # the GitHub dbkeator/simple2_NIDM_examples repo
 #
 # DBK: this is a bit unsafe as the TTL files in the github repo above can change and the UUID will change since they are randomly
@@ -30,27 +28,43 @@ cmu_test_subject_uuid = None
 # UUID in the test file:
 # For example:  kwargs={Constants.NIDM_PROJECT_NAME:"FBIRN_PhaseIII",Constants.NIDM_PROJECT_IDENTIFIER:1200,Constants.NIDM_PROJECT_DESCRIPTION:"Test investigation2"}
 #               project = Project(uuid="_654321",attributes=kwargs)
-USE_GITHUB_DATA = True
+
+
+@dataclass
+class Setup:
+    abide_files: list[str]
+    cmu_test_project_uuid: str
 
 
 @pytest.fixture(scope="module", autouse="True")
-def setup():
-    global cmu_test_project_uuid, cmu_test_subject_uuid
+def setup(tmp_path_factory: pytest.TempPathFactory) -> Setup:
+    tmp_path = tmp_path_factory.mktemp("setup")
 
-    projects = Query.GetProjectsUUID(ABIDE_FILES)
+    urllib.request.urlretrieve(
+        "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/master/datasets.datalad.org/abide/RawDataBIDS/CMU_a/nidm.ttl",
+        tmp_path / "cmu_a.nidm.ttl",
+    )
+
+    abide_files = [str(tmp_path / fname) for fname in ABIDE_FILES]
+
+    projects = Query.GetProjectsUUID(abide_files)
+    cmu_test_project_uuid: Optional[str] = None
     for p in projects:
-        proj_info = nidm.experiment.Navigate.GetProjectAttributes(ABIDE_FILES, p)
+        proj_info = nidm.experiment.Navigate.GetProjectAttributes(abide_files, p)
         if (
             "dctypes:title" in proj_info.keys()
             and proj_info["dctypes:title"] == "ABIDE - CMU_a"
         ):
             cmu_test_project_uuid = p
             break
-    subjects = Query.GetParticipantIDs(ABIDE_FILES)
-    cmu_test_subject_uuid = subjects["uuid"][0]
+    assert cmu_test_project_uuid is not None
+    return Setup(
+        abide_files=abide_files,
+        cmu_test_project_uuid=cmu_test_project_uuid,
+    )
 
 
-def test_GetProjectMetadata():
+def test_GetProjectMetadata(tmp_path: Path) -> None:
     kwargs = {
         Constants.NIDM_PROJECT_NAME: "FBIRN_PhaseII",
         Constants.NIDM_PROJECT_IDENTIFIER: 9610,
@@ -59,7 +73,7 @@ def test_GetProjectMetadata():
     project = Project(uuid="_123456", attributes=kwargs)
 
     # save a turtle file
-    with open("test_gpm.ttl", "w") as f:
+    with open(tmp_path / "test_gpm.ttl", "w") as f:
         f.write(project.serializeTurtle())
 
     kwargs = {
@@ -70,7 +84,7 @@ def test_GetProjectMetadata():
     project = Project(uuid="_654321", attributes=kwargs)
 
     # save a turtle file
-    with open("test2_gpm.ttl", "w") as f:
+    with open(tmp_path / "test2_gpm.ttl", "w") as f:
         f.write(project.serializeTurtle())
 
     # WIP test = Query.GetProjectMetadata(["test.ttl", "test2.ttl"])
@@ -84,11 +98,8 @@ def test_GetProjectMetadata():
     # assert URIRef((Constants.NIDM_PROJECT_DESCRIPTION + "Test investigation")) in test
     # assert URIRef((Constants.NIDM_PROJECT_DESCRIPTION + "Test investigation2")) in test
 
-    remove("test_gpm.ttl")
-    remove("test2_gpm.ttl")
 
-
-def test_GetProjects():
+def test_GetProjects(tmp_path: Path) -> None:
     kwargs = {
         Constants.NIDM_PROJECT_NAME: "FBIRN_PhaseII",
         Constants.NIDM_PROJECT_IDENTIFIER: 9610,
@@ -97,16 +108,15 @@ def test_GetProjects():
     project = Project(uuid="_123456", attributes=kwargs)
 
     # save a turtle file
-    with open("test_gp.ttl", "w") as f:
+    with open(tmp_path / "test_gp.ttl", "w") as f:
         f.write(project.serializeTurtle())
 
-    project_list = Query.GetProjectsUUID(["test_gp.ttl"])
+    project_list = Query.GetProjectsUUID([str(tmp_path / "test_gp.ttl")])
 
-    remove("test_gp.ttl")
     assert Constants.NIIRI + "_123456" in [str(x) for x in project_list]
 
 
-def test_GetParticipantIDs():
+def test_GetParticipantIDs(tmp_path: Path) -> None:
     kwargs = {
         Constants.NIDM_PROJECT_NAME: "FBIRN_PhaseII",
         Constants.NIDM_PROJECT_IDENTIFIER: 9610,
@@ -124,17 +134,16 @@ def test_GetParticipantIDs():
     acq2.add_qualified_association(person=person2, role=Constants.NIDM_PARTICIPANT)
 
     # save a turtle file
-    with open("test_3.ttl", "w") as f:
+    with open(tmp_path / "test_3.ttl", "w") as f:
         f.write(project.serializeTurtle())
 
-    participant_list = Query.GetParticipantIDs(["test_3.ttl"])
+    participant_list = Query.GetParticipantIDs([str(tmp_path / "test_3.ttl")])
 
-    remove("test_3.ttl")
     assert participant_list["ID"].str.contains("9999").any()
     assert participant_list["ID"].str.contains("8888").any()
 
 
-def test_GetProjectInstruments():
+def test_GetProjectInstruments(tmp_path: Path) -> None:
     kwargs = {
         Constants.NIDM_PROJECT_NAME: "FBIRN_PhaseII",
         Constants.NIDM_PROJECT_IDENTIFIER: 9610,
@@ -163,12 +172,12 @@ def test_GetProjectInstruments():
     AssessmentObject(acq2, attributes=kwargs)
 
     # save a turtle file
-    with open("test_gpi.ttl", "w") as f:
+    with open(tmp_path / "test_gpi.ttl", "w") as f:
         f.write(project.serializeTurtle())
 
-    assessment_list = Query.GetProjectInstruments(["test_gpi.ttl"], proj_uuid)
-
-    remove("test_gpi.ttl")
+    assessment_list = Query.GetProjectInstruments(
+        [str(tmp_path / "test_gpi.ttl")], proj_uuid
+    )
 
     assert Constants.NIDM + "NorthAmericanAdultReadingTest" in [
         str(x) for x in assessment_list["assessment_type"].to_list()
@@ -280,19 +289,14 @@ def makeProjectTestFile2(filename):
     return saveProject(filename, project)
 
 
-def test_GetProjectsMetadata():
-    p1 = makeProjectTestFile("testfile.ttl")
-    p2 = makeProjectTestFile2("testfile2.ttl")
-    files = ["testfile.ttl", "testfile2.ttl"]
-
-    if USE_GITHUB_DATA and not Path("./cmu_a.nidm.ttl").is_file():
-        urllib.request.urlretrieve(
-            "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/master/datasets.datalad.org/abide/RawDataBIDS/CMU_a/nidm.ttl",
-            "cmu_a.nidm.ttl",
-        )
-        files.append("cmu_a.nidm.ttl")
-    elif Path("./cmu_a.nidm.ttl").is_file():
-        files.append("cmu_a.nidm.ttl")
+def test_GetProjectsMetadata(setup: Setup, tmp_path: Path) -> None:
+    p1 = makeProjectTestFile(str(tmp_path / "testfile.ttl"))
+    p2 = makeProjectTestFile2(str(tmp_path / "testfile2.ttl"))
+    files = [
+        str(tmp_path / "testfile.ttl"),
+        str(tmp_path / "testfile2.ttl"),
+        *setup.abide_files,
+    ]
 
     parsed = Query.GetProjectsMetadata(files)
 
@@ -302,48 +306,17 @@ def test_GetProjectsMetadata():
     # we shouldn't have the computed metadata in this result
     # assert parsed['projects'][p1].get (Query.matchPrefix(str(Constants.NIDM_NUMBER_OF_SUBJECTS)), -1) == -1
 
-    if USE_GITHUB_DATA:
-        # find the project ID from the CMU file
-        p3 = None
-        for project_id in parsed["projects"]:
-            if project_id != p1 and project_id != p2:
-                if (
-                    parsed["projects"][project_id][str(Constants.NIDM_PROJECT_NAME)]
-                    == "ABIDE - CMU_a"
-                ):
-                    p3 = project_id
-                    break
-        assert p3 is not None
-
-
-#
-# moved to test_rest.py
-#
-# def test_GetProjectsComputedMetadata():
-#
-#     p1 = makeProjectTestFile("testfile.ttl")
-#     p2 = makeProjectTestFile2("testfile2.ttl")
-#     files = ["testfile.ttl", "testfile2.ttl"]
-#
-#     if USE_GITHUB_DATA:
-#         if not Path('./cmu_a.nidm.ttl').is_file():
-#             urllib.request.urlretrieve (
-#                 "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/master/datasets.datalad.org/abide/RawDataBIDS/CMU_a/nidm.ttl",
-#                 "cmu_a.nidm.ttl"
-#             )
-#         files.append("cmu_a.nidm.ttl")
-#
-#     parsed = Query.GetProjectsComputedMetadata(files)
-#
-#     if USE_GITHUB_DATA:
-#         for project_id in parsed['projects']:
-#             if project_id != p1 and project_id != p2:
-#                 p3 = project_id
-#         assert parsed['projects'][p3][str(Constants.NIDM_PROJECT_NAME)] == "ABIDE CMU_a Site"
-#         assert parsed['projects'][p3][Query.matchPrefix(str(Constants.NIDM_NUMBER_OF_SUBJECTS))] == 14
-#         assert parsed['projects'][p3]["age_min"] == 21.0
-#         assert parsed['projects'][p3]["age_max"] == 33.0
-#         assert parsed['projects'][p3][str(Constants.NIDM_GENDER)] == ['1', '2']
+    # find the project ID from the CMU file
+    p3 = None
+    for project_id in parsed["projects"]:
+        if project_id != p1 and project_id != p2:
+            if (
+                parsed["projects"][project_id][str(Constants.NIDM_PROJECT_NAME)]
+                == "ABIDE - CMU_a"
+            ):
+                p3 = project_id
+                break
+    assert p3 is not None
 
 
 def test_prefix_helpers():
@@ -358,13 +331,8 @@ def test_prefix_helpers():
     assert Query.matchPrefix("http://purl.org/nidash/fsl#xyz", short=True) == "fsl"
 
 
-def test_getProjectAcquisitionObjects():
-    if not Path("./cmu_a.nidm.ttl").is_file():
-        urllib.request.urlretrieve(
-            "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/master/datasets.datalad.org/abide/RawDataBIDS/CMU_a/nidm.ttl",
-            "cmu_a.nidm.ttl",
-        )
-    files = ["cmu_a.nidm.ttl"]
+def test_getProjectAcquisitionObjects(setup: Setup) -> None:
+    files = setup.abide_files
 
     project_list = Query.GetProjectsUUID(files)
     project_uuid = str(project_list[0])
@@ -373,16 +341,10 @@ def test_getProjectAcquisitionObjects():
     assert isinstance(objects, list)
 
 
-def test_GetProjectAttributes():
-    global cmu_test_project_uuid
-    if not Path("./cmu_a.nidm.ttl").is_file():
-        urllib.request.urlretrieve(
-            "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/master/datasets.datalad.org/abide/RawDataBIDS/CMU_a/nidm.ttl",
-            "cmu_a.nidm.ttl",
-        )
-    files = ABIDE_FILES
+def test_GetProjectAttributes(setup: Setup) -> None:
+    files = setup.abide_files
 
-    project_uuid = cmu_test_project_uuid
+    project_uuid = setup.cmu_test_project_uuid
     project_attributes = nidm.experiment.Navigate.GetProjectAttributes(
         files, project_uuid
     )
@@ -403,7 +365,7 @@ def test_download_cde_files():
     fcount = 0
     for url in Constants.CDE_FILE_LOCATIONS:
         fname = url.split("/")[-1]
-        assert path.isfile("{}/{}".format(cde_dir, fname))
+        assert Path(cde_dir, fname).is_file()
         fcount += 1
     assert fcount > 0
 
