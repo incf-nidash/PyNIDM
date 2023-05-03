@@ -145,12 +145,11 @@ def GetImageFromURL(url):
     # try to open the url and get the pointed to file
     try:
         # open url and get file
-        opener = ur.urlopen(url)
-        # write temporary file to disk and use for stats
-        temp = tempfile.NamedTemporaryFile(delete=False)
-        temp.write(opener.read())
-        temp.close()
-        return temp.name
+        with ur.urlopen(url) as opener:
+            # write temporary file to disk and use for stats
+            with tempfile.NamedTemporaryFile(delete=False) as temp:
+                temp.write(opener.read())
+                return temp.name
     except Exception:
         print("ERROR! Can't open url: %s" % url)
         return -1

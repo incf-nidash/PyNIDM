@@ -125,9 +125,8 @@ def data_aggregation():  # all data from all the files is collected
             command = command + "-r " + r + " "
         print("Your command was: " + command)
         if o is not None:
-            f = open(o, "w")
-            f.write("Your command was " + command)
-            f.close()
+            with open(o, "w") as f:
+                f.write("Your command was " + command)
         verbosity = 0
         restParser = RestParser(verbosity_level=int(verbosity))
         restParser.setOutputFormat(RestParser.OBJECT_FORMAT)
@@ -194,16 +193,15 @@ def data_aggregation():  # all data from all the files is collected
                         + '" from either the right or the left side of the equation.\n\n'
                     )
                     if o is not None:
-                        f = open(o, "a")
-                        f.write(
-                            "\n\nAn independent variable cannot be the same as the dependent variable. This prevents the model from running accurately."
-                        )
-                        f.write(
-                            'Please try a different model removing "'
-                            + dep_var
-                            + '" from either the right or the left side of the equation.'
-                        )
-                        f.close()
+                        with open(o, "a") as f:
+                            f.write(
+                                "\n\nAn independent variable cannot be the same as the dependent variable. This prevents the model from running accurately."
+                            )
+                            f.write(
+                                'Please try a different model removing "'
+                                + dep_var
+                                + '" from either the right or the left side of the equation.'
+                            )
                     exit(1)
                 else:
                     ind_vars = ind_vars + model_list[i] + ","
@@ -225,9 +223,10 @@ def data_aggregation():  # all data from all the files is collected
             ) as temp:  # turns the dataframe into a temporary csv
                 df.to_csv(temp.name + ".csv")
                 temp.close()
-            data = list(
-                csv.reader(open(temp.name + ".csv"))
-            )  # makes the csv a 2D list to make it easier to call the contents of certain cells
+            with open(temp.name + ".csv") as fp:
+                data = list(
+                    csv.reader(fp)
+                )  # makes the csv a 2D list to make it easier to call the contents of certain cells
 
             global independentvariables  # used in linreg
             independentvariables = ind_vars.split(
@@ -390,20 +389,18 @@ def data_aggregation():  # all data from all the files is collected
                     + ". The model cannot run because this will skew the data. Try checking your spelling or use nidm_query.py to see other possible variables."
                 )
                 if o is not None:
-                    f = open(o, "a")
-                    f.write("Your model was " + m)
-                    f.write(
-                        "The following variables were not found in "
-                        + nidm_file
-                        + ". The model cannot run because this will skew the data. Try checking your spelling or use nidm_query.py to see other possible variables."
-                    )
-                    f.close()
+                    with open(o, "a") as f:
+                        f.write("Your model was " + m)
+                        f.write(
+                            "The following variables were not found in "
+                            + nidm_file
+                            + ". The model cannot run because this will skew the data. Try checking your spelling or use nidm_query.py to see other possible variables."
+                        )
                 for i in range(0, len(not_found_list)):
                     print(str(i + 1) + ". " + not_found_list[i])
                     if o is not None:
-                        f = open(o, "a")
-                        f.write(str(i + 1) + ". " + not_found_list[i])
-                        f.close()
+                        with open(o, "a") as f:
+                            f.write(str(i + 1) + ". " + not_found_list[i])
                 for j in range(len(not_found_list) - 1, 0, -1):
                     not_found_list.pop(j)
                 not_found_count = not_found_count + 1
@@ -446,21 +443,19 @@ def dataparsing():  # The data is changed to a format that is usable by the line
         warnings.filterwarnings("ignore")
         answer = input("Continue anyways? Y or N: ")
         if o is not None:
-            f = open(o, "a")
-            f.write("Your model was " + m)
-            f.write(
-                "\n\nThere was a lack of data (<20 points) in your model, which may result in inaccuracies. In addition, a regularization cannot and will not be performed.\n"
-            )
-            f.close()
+            with open(o, "a") as f:
+                f.write("Your model was " + m)
+                f.write(
+                    "\n\nThere was a lack of data (<20 points) in your model, which may result in inaccuracies. In addition, a regularization cannot and will not be performed.\n"
+                )
     if "n" in answer.lower():
         print("\nModel halted.")
         if o is not None:
-            f = open(o, "a")
-            f.write("Your model was " + m)
-            f.write(
-                "Due to a lack of data (<20 points), you stopped the model because the results may have been inaccurate."
-            )
-            f.close()
+            with open(o, "a") as f:
+                f.write("Your model was " + m)
+                f.write(
+                    "Due to a lack of data (<20 points), you stopped the model because the results may have been inaccurate."
+                )
         exit(1)
     x = pd.read_csv(
         opencsv(condensed_data)
@@ -514,13 +509,12 @@ def dataparsing():  # The data is changed to a format that is usable by the line
     )
     print()
     if o is not None:
-        f = open(o, "a")
-        f.write(df_final.to_string(header=True, index=True))
-        f.write(
-            "\n\n***********************************************************************************************************"
-        )
-        f.write("\n\nModel Results: ")
-        f.close()
+        with open(o, "a") as f:
+            f.write(df_final.to_string(header=True, index=True))
+            f.write(
+                "\n\n***********************************************************************************************************"
+            )
+            f.write("\n\nModel Results: ")
 
 
 def linreg():  # actual linear regression
@@ -658,18 +652,17 @@ def contrasting():
         print(res.summary())
         if o is not None:
             # concatenate data frames
-            f = open(o, "a")
-            f.write("\n" + full_model)
-            f.write(
-                "\n\n***********************************************************************************************************"
-            )
+            with open(o, "a") as f:
+                f.write("\n" + full_model)
+                f.write(
+                    "\n\n***********************************************************************************************************"
+                )
 
-            f.write(
-                "\n\n\n\nTreatment (Dummy) Coding: Dummy coding compares each level of the categorical variable to a base reference level. The base reference level is the value of the intercept."
-            )
-            f.write("With contrast (treatment coding)")
-            f.write(res.summary().as_text())
-            f.close()
+                f.write(
+                    "\n\n\n\nTreatment (Dummy) Coding: Dummy coding compares each level of the categorical variable to a base reference level. The base reference level is the value of the intercept."
+                )
+                f.write("With contrast (treatment coding)")
+                f.write(res.summary().as_text())
 
         # Defining the Simple class
         def _name_levels(prefix, levels):
@@ -709,12 +702,11 @@ def contrasting():
         print(res.summary())
         if o is not None:
             # concatenate data frames
-            f = open(o, "a")
-            f.write(
-                "\n\n\nSimple Coding: Like Treatment Coding, Simple Coding compares each level to a fixed reference level. However, with simple coding, the intercept is the grand mean of all the levels of the factors."
-            )
-            f.write(res.summary().as_text())
-            f.close()
+            with open(o, "a") as f:
+                f.write(
+                    "\n\n\nSimple Coding: Like Treatment Coding, Simple Coding compares each level to a fixed reference level. However, with simple coding, the intercept is the grand mean of all the levels of the factors."
+                )
+                f.write(res.summary().as_text())
 
         # With contrast (sum/deviation coding)
         Sum().code_without_intercept(levels)
@@ -734,12 +726,11 @@ def contrasting():
         print(res.summary())
         if o is not None:
             # concatenate data frames
-            f = open(o, "a")
-            f.write(
-                "\n\n\nSum (Deviation) Coding: Sum coding compares the mean of the dependent variable for a given level to the overall mean of the dependent variable over all the levels."
-            )
-            f.write(res.summary().as_text())
-            f.close()
+            with open(o, "a") as f:
+                f.write(
+                    "\n\n\nSum (Deviation) Coding: Sum coding compares the mean of the dependent variable for a given level to the overall mean of the dependent variable over all the levels."
+                )
+                f.write(res.summary().as_text())
 
         # With contrast (backward difference coding)
         Diff().code_without_intercept(levels)
@@ -759,12 +750,11 @@ def contrasting():
         print(res.summary())
         if o is not None:
             # concatenate data frames
-            f = open(o, "a")
-            f.write(
-                "\n\n\nBackward Difference Coding: In backward difference coding, the mean of the dependent variable for a level is compared with the mean of the dependent variable for the prior level."
-            )
-            f.write(res.summary().as_text())
-            f.close()
+            with open(o, "a") as f:
+                f.write(
+                    "\n\n\nBackward Difference Coding: In backward difference coding, the mean of the dependent variable for a level is compared with the mean of the dependent variable for the prior level."
+                )
+                f.write(res.summary().as_text())
 
         # With contrast (Helmert coding)
         Helmert().code_without_intercept(levels)
@@ -784,12 +774,11 @@ def contrasting():
         print(res.summary())
         if o is not None:
             # concatenate data frames
-            f = open(o, "a")
-            f.write(
-                "\n\n\nHelmert Coding: Our version of Helmert coding is sometimes referred to as Reverse Helmert Coding. The mean of the dependent variable for a level is compared to the mean of the dependent variable over all previous levels. Hence, the name ‘reverse’ being sometimes applied to differentiate from forward Helmert coding."
-            )
-            f.write(res.summary().as_text())
-            f.close()
+            with open(o, "a") as f:
+                f.write(
+                    "\n\n\nHelmert Coding: Our version of Helmert coding is sometimes referred to as Reverse Helmert Coding. The mean of the dependent variable for a level is compared to the mean of the dependent variable over all previous levels. Hence, the name ‘reverse’ being sometimes applied to differentiate from forward Helmert coding."
+                )
+                f.write(res.summary().as_text())
 
 
 def regularizing():
@@ -824,27 +813,24 @@ def regularizing():
         print("\nCoefficients:")
         if o is not None:
             # concatenate data frames
-            f = open(o, "a")
-            f.write("\n\nLasso regression model:")
-            f.write(
-                "\nAlpha with maximum likelihood (range: 1 to %d) = %f"
-                % (MAX_ALPHA, max_cross_val_alpha)
-            )
-            f.write("\nCurrent Model Score = %f" % (lassoModelChosen.score(X, y)))
-            f.write("\n\nCoefficients:")
-            f.close()
+            with open(o, "a") as f:
+                f.write("\n\nLasso regression model:")
+                f.write(
+                    "\nAlpha with maximum likelihood (range: 1 to %d) = %f"
+                    % (MAX_ALPHA, max_cross_val_alpha)
+                )
+                f.write("\nCurrent Model Score = %f" % (lassoModelChosen.score(X, y)))
+                f.write("\n\nCoefficients:")
         for var in full_model_variable_list:
             print("%s \t %f" % (var, lassoModelChosen.coef_[index]))
             if o is not None:
                 with open(o, "a") as f:
                     f.write("\n%s \t %f" % (var, lassoModelChosen.coef_[index]))
-                f.close()
             index = index + 1
         print("Intercept: %f" % (lassoModelChosen.intercept_))
         if o is not None:
             with open(o, "a") as f:
                 f.write("\nIntercept: %f" % (lassoModelChosen.intercept_))
-                f.close()
         print()
 
     if r == ("L2" or "Ridge" or "l2" or "Ridge") and not (
@@ -884,15 +870,14 @@ def regularizing():
                 numpy_conversion = True
         if o is not None:
             # concatenate data frames
-            f = open(o, "a")
-            f.write("\n\nRidge regression model:")
-            f.write(
-                "\nAlpha with maximum likelihood (range: 1 to %d) = %f"
-                % (MAX_ALPHA, max_cross_val_alpha)
-            )
-            f.write("\nCurrent Model Score = %f" % (ridgeModelChosen.score(X, y)))
-            f.write("\n\nCoefficients:")
-            f.close()
+            with open(o, "a") as f:
+                f.write("\n\nRidge regression model:")
+                f.write(
+                    "\nAlpha with maximum likelihood (range: 1 to %d) = %f"
+                    % (MAX_ALPHA, max_cross_val_alpha)
+                )
+                f.write("\nCurrent Model Score = %f" % (ridgeModelChosen.score(X, y)))
+                f.write("\n\nCoefficients:")
         print("\nCoefficients:")
         if numpy_conversion:
             coeff_list = ridgeModelChosen.coef_[index].tolist()
@@ -907,7 +892,6 @@ def regularizing():
             if o is not None:
                 with open(o, "a") as f:
                     f.write("\nIntercept: %f" % (ridgeModelChosen.intercept_))
-                f.close()
             print()
         else:
             for var in full_model_variable_list:
@@ -920,7 +904,6 @@ def regularizing():
             if o is not None:
                 with open(o, "a") as f:
                     f.write("\nIntercept: %f" % (ridgeModelChosen.intercept_))
-                f.close()
             print()
 
 
