@@ -12,12 +12,8 @@ References:
 .. moduleauthor:: Sanu Ann Abraham <sanuann@mit.edu>
 """
 
-try:
-    from html import escape
-except ImportError:
-    from cgi import escape
-
 from datetime import datetime
+from html import escape
 from prov.model import (
     PROV_ACTIVITY,
     PROV_AGENT,
