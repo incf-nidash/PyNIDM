@@ -68,9 +68,7 @@ def data_aggregation():  # all data from all the files is collected
     """This function provides query support for NIDM graphs."""
     # if there is a CDE file list, seed the CDE cache
     if v:  # ex: age,sex,DX_GROUP
-        print(
-            "***********************************************************************************************************"
-        )
+        print("*" * 107)
         command = (
             "pynidm k-means -nl "
             + n
@@ -282,9 +280,7 @@ def data_aggregation():  # all data from all the files is collected
                     var_list[i] = var_list[i].replace(" ", "_")
             count = count + 1
             if len(not_found_list) > 0:
-                print(
-                    "***********************************************************************************************************"
-                )
+                print("*" * 107)
                 print()
                 print("Your variables were " + v)
                 print()
@@ -382,16 +378,12 @@ def dataparsing():  # The data is changed to a format that is usable by the line
     df_final.head()  # shows the final dataset with all the encoding
     print(df_final)  # prints the final dataset
     print()
-    print(
-        "***********************************************************************************************************"
-    )
+    print("*" * 107)
     print()
     if o is not None:
         with open(o, "a") as f:
             f.write(df_final.to_string(header=True, index=True))
-            f.write(
-                "\n\n***********************************************************************************************************"
-            )
+            f.write("\n\n" + ("*" * 107))
             f.write("\n\nModel Results: ")
 
 

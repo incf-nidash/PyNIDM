@@ -1,35 +1,35 @@
 # coding=utf-8
 # !/usr/bin/env python
-# *******************************************************************************************************
-# *******************************************************************************************************
+# *****************************************************************************
+# *****************************************************************************
 #  nidm_linreg.py
 #  License: Apache License, Version 2.0
-# *******************************************************************************************************
-# *******************************************************************************************************
+# *****************************************************************************
+# *****************************************************************************
 # Date: 07-26-22                 Coded by: Ashmita Kumar (ashmita.kumar@gmail.com)
 # Filename: nidm_linreg.py
 #
 # Program description:  This program provides a tool to complete a linear regression on nidm files
 #
 #
-# *******************************************************************************************************
+# *****************************************************************************
 # Development environment: Python - PyCharm IDE
 #
-# *******************************************************************************************************
+# *****************************************************************************
 # System requirements:  Python 3.X
 # Libraries: os, sys, tempfile, pandas, click, nidm, csv, sklearn, numpy, statsmodel.api, patsy.contrasts
-# *******************************************************************************************************
+# *****************************************************************************
 # Start date: 6-15-20
 # Update history:
 # DATE            MODIFICATION				Who
 #
 #
-# *******************************************************************************************************
+# *****************************************************************************
 # Programmer comments:
 #
 #
-# *******************************************************************************************************
-# *******************************************************************************************************
+# *****************************************************************************
+# *****************************************************************************
 
 import csv
 import os
@@ -115,9 +115,7 @@ def data_aggregation():  # all data from all the files is collected
     """
     # if there is a CDE file list, seed the CDE cache
     if m:  # ex: fs_00343 ~ age + sex + group
-        print(
-            "***********************************************************************************************************"
-        )
+        print("*" * 107)
         command = "pynidm linear-regression -nl " + n + ' -model "' + m + '" '
         if c:
             command = command + '-contrast "' + c + '" '
@@ -377,9 +375,7 @@ def data_aggregation():  # all data from all the files is collected
                 dep_var = dep_var.replace(" ", "_")
             count = count + 1
             if len(not_found_list) > 0:
-                print(
-                    "***********************************************************************************************************"
-                )
+                print("*" * 107)
                 print()
                 print("Your model was " + m)
                 print()
@@ -504,16 +500,12 @@ def dataparsing():  # The data is changed to a format that is usable by the line
     df_final.head()  # shows the final dataset with all the encoding
     print(df_final)  # prints the final dataset
     print()
-    print(
-        "***********************************************************************************************************"
-    )
+    print("*" * 107)
     print()
     if o is not None:
         with open(o, "a") as f:
             f.write(df_final.to_string(header=True, index=True))
-            f.write(
-                "\n\n***********************************************************************************************************"
-            )
+            f.write("\n\n" + ("*" * 107))
             f.write("\n\nModel Results: ")
 
 
@@ -531,9 +523,7 @@ def linreg():  # actual linear regression
     full_model = "".join(model_string)
     print(full_model)  # prints model
     print()
-    print(
-        "***********************************************************************************************************"
-    )
+    print("*" * 107)
     print()
     index = 0
     global levels  # also used in contrasting()
@@ -584,10 +574,7 @@ def linreg():  # actual linear regression
             # concatenate data frames
             with open(o, "a") as fp:
                 print(full_model, file=fp)
-                print(
-                    "\n*************************************************************************************\n",
-                    file=fp,
-                )
+                print("\n" + ("*" * 85) + "\n", file=fp)
                 print(finalstats.summary(), file=fp)
         return finalstats
 
@@ -654,10 +641,7 @@ def contrasting():
             # concatenate data frames
             with open(o, "a") as f:
                 f.write("\n" + full_model)
-                f.write(
-                    "\n\n***********************************************************************************************************"
-                )
-
+                f.write("\n\n" + ("*" * 107))
                 f.write(
                     "\n\n\n\nTreatment (Dummy) Coding: Dummy coding compares each level of the categorical variable to a base reference level. The base reference level is the value of the intercept."
                 )
