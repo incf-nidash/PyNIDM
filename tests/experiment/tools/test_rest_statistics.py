@@ -1,82 +1,28 @@
-import os
-from pathlib import Path
-import urllib
-import pytest
-from nidm.experiment.tools.rest import RestParser
-
-REST_TEST_FILE = "./agent.ttl"
-BRAIN_VOL_FILES = ["./cmu_a.nidm.ttl", "./caltech.nidm.ttl"]
-test_person_uuid = ""
-test_p2_subject_uuids = []
-stat_test_project_uuid = None
-restParser = RestParser(verbosity_level=0, output_format=RestParser.OBJECT_FORMAT)
-cmu_test_project_uuid = None
-cmu_test_subject_uuid = None
+from ..conftest import BrainVol
 
 
-@pytest.fixture(scope="module", autouse="True")
-def setup():
-    global cmu_test_project_uuid
-    global cmu_test_subject_uuid
-
-    for f in ["./cmu_a.nidm.ttl", "caltech.nidm.ttl"]:
-        if Path(f).is_file():
-            os.remove(f)
-
-    if not Path("./cmu_a.nidm.ttl").is_file():
-        urllib.request.urlretrieve(
-            "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/master/datasets.datalad.org/abide/RawDataBIDS/CMU_a/nidm.ttl",
-            "cmu_a.nidm.ttl",
-        )
-
-    if not Path("./caltech.nidm.ttl").is_file():
-        urllib.request.urlretrieve(
-            "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/master/datasets.datalad.org/abide/RawDataBIDS/Caltech/nidm.ttl",
-            "caltech.nidm.ttl",
-        )
-
-    restParser = RestParser(output_format=RestParser.OBJECT_FORMAT)
-    projects = restParser.run(BRAIN_VOL_FILES, "/projects")
-    for p in projects:
-        proj_info = restParser.run(BRAIN_VOL_FILES, "/projects/{}".format(p))
-        if (
-            type(proj_info) == dict
-            and "dctypes:title" in proj_info.keys()
-            and proj_info["dctypes:title"] == "ABIDE - CMU_a"
-        ):
-            cmu_test_project_uuid = p
-            break
-    subjects = restParser.run(
-        BRAIN_VOL_FILES, "/projects/{}/subjects".format(cmu_test_project_uuid)
-    )
-    cmu_test_subject_uuid = subjects["uuid"][0]
-
-
-def test_project_statistics():
-    global cmu_test_project_uuid
+def test_project_statistics(brain_vol: BrainVol) -> None:
     AGE_CUTOFF = 30
 
-    project = cmu_test_project_uuid
+    project = brain_vol.cmu_test_project_uuid
 
     # basics stats
-    basic_project_stats = restParser.run(
-        BRAIN_VOL_FILES, "/statistics/projects/{}".format(project)
+    basic_project_stats = brain_vol.restParser.run(
+        brain_vol.files, f"/statistics/projects/{project}"
     )
     assert "title" in basic_project_stats
 
     # basics stats with subjects
-    project_stats_with_subjects = restParser.run(
-        BRAIN_VOL_FILES, "/statistics/projects/{}?fields=subjects".format(project)
+    project_stats_with_subjects = brain_vol.restParser.run(
+        brain_vol.files, f"/statistics/projects/{project}?fields=subjects"
     )
     assert "title" in project_stats_with_subjects
     assert "subjects" in project_stats_with_subjects
 
     # filtered subjects stats
-    filtered_stats_with_subjects = restParser.run(
-        BRAIN_VOL_FILES,
-        "/statistics/projects/{}?fields=subjects&filter=instruments.AGE_AT_SCAN gt {}".format(
-            project, AGE_CUTOFF
-        ),
+    filtered_stats_with_subjects = brain_vol.restParser.run(
+        brain_vol.files,
+        f"/statistics/projects/{project}?fields=subjects&filter=instruments.AGE_AT_SCAN gt {AGE_CUTOFF}",
     )
     assert "title" in filtered_stats_with_subjects
     assert "subjects" in filtered_stats_with_subjects
@@ -85,11 +31,9 @@ def test_project_statistics():
     )
 
     # filtered subjects instrument stats
-    age_stats = restParser.run(
-        BRAIN_VOL_FILES,
-        "/statistics/projects/{}?fields=instruments.AGE_AT_SCAN&filter=instruments.AGE_AT_SCAN gt {}".format(
-            project, AGE_CUTOFF
-        ),
+    age_stats = brain_vol.restParser.run(
+        brain_vol.files,
+        f"/statistics/projects/{project}?fields=instruments.AGE_AT_SCAN&filter=instruments.AGE_AT_SCAN gt {AGE_CUTOFF}",
     )
     assert "title" in age_stats
     assert "subjects" in age_stats
@@ -102,11 +46,9 @@ def test_project_statistics():
     # assert age_stats['AGE_AT_SCAN']['median'] <= age_stats['AGE_AT_SCAN']['max']
 
     # filtered subjects instrument and derivative stats
-    derivative_stats = restParser.run(
-        BRAIN_VOL_FILES,
-        "/statistics/projects/{}?fields=instruments.AGE_AT_SCAN,derivatives.Right-Hippocampus (mm^3)&filter=instruments.AGE_AT_SCAN gt {}".format(
-            project, AGE_CUTOFF
-        ),
+    derivative_stats = brain_vol.restParser.run(
+        brain_vol.files,
+        f"/statistics/projects/{project}?fields=instruments.AGE_AT_SCAN,derivatives.Right-Hippocampus (mm^3)&filter=instruments.AGE_AT_SCAN gt {AGE_CUTOFF}",
     )
     assert "title" in derivative_stats
     assert "subjects" in derivative_stats
@@ -119,15 +61,13 @@ def test_project_statistics():
             assert x in derivative_stats[field]
 
 
-def test_project_statistics_fields():
-    global cmu_test_project_uuid
-
-    project = cmu_test_project_uuid
+def test_project_statistics_fields(brain_vol: BrainVol) -> None:
+    project = brain_vol.cmu_test_project_uuid
 
     # ask for a field based on URI tail
-    derivative_stats = restParser.run(
-        BRAIN_VOL_FILES,
-        "/statistics/projects/{}?fields=derivatives.fsl_000020".format(project),
+    derivative_stats = brain_vol.restParser.run(
+        brain_vol.files,
+        f"/statistics/projects/{project}?fields=derivatives.fsl_000020",
     )
     assert "title" in derivative_stats
     assert "subjects" in derivative_stats
@@ -138,11 +78,9 @@ def test_project_statistics_fields():
             assert x in derivative_stats[field]
 
     # ask for a field based on URI tail
-    derivative_stats = restParser.run(
-        BRAIN_VOL_FILES,
-        "/statistics/projects/{}?fields=derivatives.fsl_000020,instruments.AGE_AT_SCAN".format(
-            project
-        ),
+    derivative_stats = brain_vol.restParser.run(
+        brain_vol.files,
+        f"/statistics/projects/{project}?fields=derivatives.fsl_000020,instruments.AGE_AT_SCAN",
     )
     assert "title" in derivative_stats
     assert "subjects" in derivative_stats
@@ -153,11 +91,12 @@ def test_project_statistics_fields():
             assert x in derivative_stats[field]
 
 
-def test_getTailOfURI():
+def test_getTailOfURI(brain_vol: BrainVol) -> None:
     assert (
-        restParser.getTailOfURI("http://purl.org/nidash/fsl#fsl_000020") == "fsl_000020"
+        brain_vol.restParser.getTailOfURI("http://purl.org/nidash/fsl#fsl_000020")
+        == "fsl_000020"
     )
     assert (
-        restParser.getTailOfURI("https://surfer.nmr.mgh.harvard.edu/fs_00005")
+        brain_vol.restParser.getTailOfURI("https://surfer.nmr.mgh.harvard.edu/fs_00005")
         == "fs_00005"
     )

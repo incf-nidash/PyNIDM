@@ -2,25 +2,19 @@ from io import StringIO
 import json
 from pathlib import Path
 import prov
-import pytest
 import rdflib
 from nidm.core import Constants
 from nidm.experiment import Project, Session
 
 
-def test_1(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
-    monkeypatch.chdir(tmp_path)
-
+def test_1(tmp_path: Path) -> None:
     project = Project()
-
     # save a turtle file
-    with open("test.ttl", "w") as f:
+    with open(tmp_path / "test.ttl", "w") as f:
         f.write(project.serializeTurtle())
 
 
-def test_2(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
-    monkeypatch.chdir(tmp_path)
-
+def test_2(tmp_path: Path) -> None:
     kwargs = {
         Constants.NIDM_PROJECT_NAME: "FBIRN_PhaseII",
         Constants.NIDM_PROJECT_IDENTIFIER: 9610,
@@ -28,13 +22,11 @@ def test_2(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     }
     project = Project(attributes=kwargs)
 
-    with open("test.ttl", "w") as f:
+    with open(tmp_path / "test.ttl", "w") as f:
         f.write(project.serializeTurtle())
 
 
-def test_sessions_1(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
-    monkeypatch.chdir(tmp_path)
-
+def test_sessions_1() -> None:
     project = Project()
     assert project.sessions == []
 
@@ -48,9 +40,7 @@ def test_sessions_1(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     assert session2.label == project.sessions[1].label
 
 
-def test_sessions_2(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
-    monkeypatch.chdir(tmp_path)
-
+def test_sessions_2() -> None:
     project = Project()
     assert project.sessions == []
 
@@ -58,9 +48,7 @@ def test_sessions_2(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     assert project.sessions[0].label == session1.label
 
 
-def test_sessions_3(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
-    monkeypatch.chdir(tmp_path)
-
+def test_sessions_3() -> None:
     project1 = Project()
     project2 = Project()
 
@@ -188,7 +176,7 @@ def test_session_noparameters():
     assert len(proj.graph.get_records()) == 2
 
 
-def test_jsonld_exports():
+def test_jsonld_exports(tmp_path: Path) -> None:
     kwargs = {
         Constants.NIDM_PROJECT_NAME: "FBIRN_PhaseII",
         Constants.NIDM_PROJECT_IDENTIFIER: 9610,
@@ -197,16 +185,15 @@ def test_jsonld_exports():
     project = Project(uuid="_123456", attributes=kwargs)
 
     # save a turtle file
-    with open("test.json", "w") as f:
+    with open(tmp_path / "test.json", "w") as f:
         f.write(project.serializeJSONLD())
 
     # load in JSON file
-    with open("test.json") as json_file:
+    with open(tmp_path / "test.json") as json_file:
         data = json.load(json_file)
 
     assert data["Identifier"]["@value"] == "9610"
     # WIP  Read back in json-ld file and check that we have the project info
-    # remove("test.json")
 
 
 def test_project_trig_serialization():

@@ -1,8 +1,10 @@
-import os
+from __future__ import annotations
+from dataclasses import dataclass
 from pathlib import Path
 import re
 import sys
-import urllib
+from typing import Optional
+import urllib.request
 import uuid
 import pytest
 import rdflib
@@ -11,85 +13,57 @@ from nidm.core import Constants
 from nidm.experiment import Acquisition, AssessmentObject, Project, Query, Session
 from nidm.experiment.CDE import getCDEs
 from nidm.experiment.tools.rest import RestParser
+from ..conftest import BrainVol
 
 if sys.version_info >= (3, 9):
     from importlib.resources import as_file, files
 else:
     from importlib_resources import as_file, files
 
-REST_TEST_FILE = "./agent.ttl"
-BRAIN_VOL_FILES = ["./cmu_a.nidm.ttl", "./caltech.nidm.ttl"]
-OPENNEURO_FILES = ["ds000120.nidm.ttl"]
-ALL_FILES = ["./cmu_a.nidm.ttl", "./caltech.nidm.ttl", "ds000120.nidm.ttl"]
-OPENNEURO_PROJECT_URI = None
-OPENNEURO_SUB_URI = None
 
-test_person_uuid = ""
-test_p2_subject_uuids = []
-cmu_test_project_uuid = None
-cmu_test_subject_uuid = None
+@dataclass
+class RestTest:
+    path: str
+    person_uuid: str
+    p2_subject_uuids: list[str]
 
 
-@pytest.fixture(scope="module", autouse="True")
-def setup():
-    global cmu_test_project_uuid, cmu_test_subject_uuid, OPENNEURO_PROJECT_URI, OPENNEURO_SUB_URI
-
-    if Path(REST_TEST_FILE).is_file():
-        os.remove(REST_TEST_FILE)
-    makeTestFile(
-        filename=REST_TEST_FILE, params={"PROJECT_UUID": "p1", "PROJECT2_UUID": "p2"}
+@pytest.fixture
+def rest_test(tmp_path: Path) -> RestTest:
+    return makeTestFile(
+        dirpath=tmp_path,
+        filename="agent.ttl",
+        params={"PROJECT_UUID": "p1", "PROJECT2_UUID": "p2"},
     )
 
-    for f in ["./cmu_a.nidm.ttl", "caltech.nidm.ttl"]:
-        if Path(f).is_file():
-            os.remove(f)
 
-    if not Path("./cmu_a.nidm.ttl").is_file():
-        urllib.request.urlretrieve(
-            "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/master/datasets.datalad.org/abide/RawDataBIDS/CMU_a/nidm.ttl",
-            "cmu_a.nidm.ttl",
-        )
+@dataclass
+class OpenNeuro:
+    files: list[str]
+    project_uri: str
 
-    if not Path("./caltech.nidm.ttl").is_file():
-        urllib.request.urlretrieve(
-            "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/master/datasets.datalad.org/abide/RawDataBIDS/Caltech/nidm.ttl",
-            "caltech.nidm.ttl",
-        )
 
+@pytest.fixture(scope="module")
+def openneuro(tmp_path_factory: pytest.TempPathFactory) -> OpenNeuro:
+    tmp_path = tmp_path_factory.mktemp("openneuro")
+    urllib.request.urlretrieve(
+        "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/master/datasets.datalad.org/openneuro/ds000120/nidm.ttl",
+        tmp_path / "ds000120.nidm.ttl",
+    )
+    files = [str(tmp_path / "ds000120.nidm.ttl")]
     restParser = RestParser(output_format=RestParser.OBJECT_FORMAT)
-    projects = restParser.run(BRAIN_VOL_FILES, "/projects")
-    for p in projects:
-        proj_info = restParser.run(BRAIN_VOL_FILES, "/projects/{}".format(p))
-        if (
-            "dctypes:title" in proj_info.keys()
-            and proj_info["dctypes:title"] == "ABIDE - CMU_a"
-        ):
-            cmu_test_project_uuid = p
-            break
-    subjects = restParser.run(
-        BRAIN_VOL_FILES, "/projects/{}/subjects".format(cmu_test_project_uuid)
-    )
-    cmu_test_subject_uuid = subjects["uuid"][0]
-
-    if not Path("./ds000120.nidm.ttl").is_file():
-        urllib.request.urlretrieve(
-            "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/master/datasets.datalad.org/openneuro/ds000120/nidm.ttl",
-            "ds000120.nidm.ttl",
-        )
-
-    projects2 = restParser.run(OPENNEURO_FILES, "/projects")
+    projects2 = restParser.run(files, "/projects")
+    project_uri: Optional[str] = None
     for p in projects2:
-        proj_info = restParser.run(OPENNEURO_FILES, "/projects/{}".format(p))
+        proj_info = restParser.run(files, f"/projects/{p}")
         if (
             "dctypes:title" in proj_info.keys()
             and proj_info["dctypes:title"]
             == "Developmental changes in brain function underlying the influence of reward processing on inhibitory control (Slot Reward)"
         ):
-            OPENNEURO_PROJECT_URI = p
-    subjects = restParser.run(
-        OPENNEURO_FILES, "/projects/{}/subjects".format(OPENNEURO_PROJECT_URI)
-    )
-    OPENNEURO_SUB_URI = subjects["uuid"][0]
+            project_uri = p
+    assert project_uri is not None
+    return OpenNeuro(files, project_uri)
 
 
 def addData(acq, data):
@@ -99,9 +73,7 @@ def addData(acq, data):
     return acq
 
 
-def makeTestFile(filename, params):
-    global test_person_uuid, test_p2_subject_uuids
-
+def makeTestFile(dirpath: Path, filename: str, params: dict) -> RestTest:
     nidm_project_name = params.get("NIDM_PROJECT_NAME", False) or "Project_name_sample"
     nidm_project_identifier = params.get("NIDM_PROJECT_IDENTIFIER", False) or 9610
     nidm_project2_identifier = params.get("NIDM_PROJECT_IDENTIFIER", False) or 550
@@ -183,45 +155,49 @@ def makeTestFile(filename, params):
         },
     )
 
-    test_p2_subject_uuids.append((str(person4.identifier)).replace("niiri:", ""))
-    test_p2_subject_uuids.append((str(person5.identifier)).replace("niiri:", ""))
+    test_p2_subject_uuids = [
+        str(person4.identifier).replace("niiri:", ""),
+        str(person5.identifier).replace("niiri:", ""),
+    ]
 
-    with open("a.ttl", "w") as f:
+    with open(dirpath / "a.ttl", "w") as f:
         f.write(project.graph.serialize(None, format="rdf", rdf_format="ttl"))
-    with open("b.ttl", "w") as f:
+    with open(dirpath / "b.ttl", "w") as f:
         f.write(project2.graph.serialize(None, format="rdf", rdf_format="ttl"))
 
     # create empty graph
     graph = Graph()
     for nidm_file in ("a.ttl", "b.ttl"):
         tmp = Graph()
-        graph = graph + tmp.parse(nidm_file, format=util.guess_format(nidm_file))
+        graph = graph + tmp.parse(
+            str(dirpath / nidm_file), format=util.guess_format(str(dirpath / nidm_file))
+        )
 
-    graph.serialize(filename, format="turtle")
+    graph.serialize(str(dirpath / filename), format="turtle")
 
-    os.unlink("a.ttl")
-    os.unlink("b.ttl")
-
-    with open(filename, "r") as f:
-        x = f.read()
-
-    with open("./agent.ttl", "w") as f:
-        f.write(x)
+    return RestTest(
+        path=str(dirpath / filename),
+        person_uuid=test_person_uuid,
+        p2_subject_uuids=test_p2_subject_uuids,
+    )
 
 
-def test_uri_subject_list():
+def test_uri_subject_list(brain_vol: BrainVol, openneuro: OpenNeuro) -> None:
     restParser = RestParser(output_format=RestParser.OBJECT_FORMAT)
-    result = restParser.run(ALL_FILES, "/subjects")
+    result = restParser.run(brain_vol.files + openneuro.files, "/subjects")
 
     assert type(result) == dict
     assert type(result["subject"]) == list
     assert len(result["subject"]) > 10
 
 
-def test_uri_subject_list_with_fields():
+def test_uri_subject_list_with_fields(
+    brain_vol: BrainVol, openneuro: OpenNeuro
+) -> None:
     restParser = RestParser(output_format=RestParser.OBJECT_FORMAT)
     result = restParser.run(
-        ALL_FILES, "/subjects?fields=ilx_0100400,MagneticFieldStrength"
+        brain_vol.files + openneuro.files,
+        "/subjects?fields=ilx_0100400,MagneticFieldStrength",
     )  # ilx_0100400 "is about" age
     assert type(result) == dict
 
@@ -241,7 +217,7 @@ def test_uri_subject_list_with_fields():
     assert "MagneticFieldStrength" in all_fields
 
 
-def test_uri_project_list():
+def test_uri_project_list(tmp_path: Path) -> None:
     kwargs = {
         Constants.NIDM_PROJECT_NAME: "FBIRN_PhaseII",
         Constants.NIDM_PROJECT_IDENTIFIER: 9610,
@@ -251,7 +227,7 @@ def test_uri_project_list():
     proj2_uuid = str(uuid.uuid1())
     project = Project(uuid=proj1_uuid, attributes=kwargs)
     # save a turtle file
-    with open("uritest.ttl", "w") as f:
+    with open(tmp_path / "uritest.ttl", "w") as f:
         f.write(project.serializeTurtle())
 
     kwargs = {
@@ -261,11 +237,13 @@ def test_uri_project_list():
     }
     project = Project(uuid=proj2_uuid, attributes=kwargs)
     # save a turtle file
-    with open("uritest2.ttl", "w") as f:
+    with open(tmp_path / "uritest2.ttl", "w") as f:
         f.write(project.serializeTurtle())
 
     restParser = RestParser()
-    result = restParser.run(["uritest.ttl", "uritest2.ttl"], "/projects")
+    result = restParser.run(
+        [str(tmp_path / "uritest.ttl"), str(tmp_path / "uritest2.ttl")], "/projects"
+    )
 
     project_uuids = []
 
@@ -277,16 +255,13 @@ def test_uri_project_list():
     assert proj1_uuid in project_uuids
     assert proj2_uuid in project_uuids
 
-    os.remove("uritest.ttl")
-    os.remove("uritest2.ttl")
 
-
-def test_uri_project_id():
+def test_uri_project_id(openneuro: OpenNeuro) -> None:
     # try with the real brain volume files
     restParser = RestParser()
-    # result = restParser.run(OPENNEURO_FILES, '/projects')
-    project = OPENNEURO_PROJECT_URI
-    result = restParser.run(OPENNEURO_FILES, "/projects/{}".format(project))
+    # result = restParser.run(openneuro.files, '/projects')
+    project = openneuro.project_uri
+    result = restParser.run(openneuro.files, f"/projects/{project}")
 
     assert "dctypes:title" in result
     assert "sio:Identifier" in result
@@ -296,27 +271,23 @@ def test_uri_project_id():
     assert len(result["data_elements"]["uuid"]) > 1
 
 
-def test_uri_projects_subjects_1():
-    global test_p2_subject_uuids
-
+def test_uri_projects_subjects_1(rest_test: RestTest) -> None:
     proj_uuid = "p2"
     restParser = RestParser()
-    result = restParser.run([REST_TEST_FILE], "/projects/{}/subjects".format(proj_uuid))
+    result = restParser.run([rest_test.path], f"/projects/{proj_uuid}/subjects")
 
     assert type(result) == dict
     assert len(result["uuid"]) == 2
 
-    assert test_p2_subject_uuids[0] in result["uuid"]
-    assert test_p2_subject_uuids[1] in result["uuid"]
+    assert rest_test.p2_subject_uuids[0] in result["uuid"]
+    assert rest_test.p2_subject_uuids[1] in result["uuid"]
 
 
-def test_uri_subjects():
-    global cmu_test_subject_uuid
-
+def test_uri_subjects(brain_vol: BrainVol) -> None:
     restParser = RestParser()
     restParser.setOutputFormat(RestParser.OBJECT_FORMAT)
     result = restParser.run(
-        BRAIN_VOL_FILES, "/subjects/{}".format(cmu_test_subject_uuid)
+        brain_vol.files, f"/subjects/{brain_vol.cmu_test_subject_uuid}"
     )
 
     assert type(result) == dict
@@ -324,20 +295,18 @@ def test_uri_subjects():
     assert "instruments" in result
     assert "derivatives" in result
 
-    assert cmu_test_subject_uuid == result["uuid"]
+    assert brain_vol.cmu_test_subject_uuid == result["uuid"]
 
 
-def test_uri_projects_subjects_id():
-    global test_person_uuid
-
+def test_uri_projects_subjects_id(openneuro: OpenNeuro) -> None:
     restParser = RestParser()
-    # result = restParser.run(OPENNEURO_FILES, '/projects')
-    project = OPENNEURO_PROJECT_URI
-    result = restParser.run(OPENNEURO_FILES, "/projects/{}/subjects".format(project))
+    # result = restParser.run(openneuro.files, '/projects')
+    project = openneuro.project_uri
+    result = restParser.run(openneuro.files, f"/projects/{project}/subjects")
     subject = result["uuid"][0]
 
-    uri = "/projects/{}/subjects/{}".format(project, subject)
-    result = restParser.run(OPENNEURO_FILES, uri)
+    uri = f"/projects/{project}/subjects/{subject}"
+    result = restParser.run(openneuro.files, uri)
 
     assert type(result) == dict
     assert result["uuid"] == subject
@@ -353,8 +322,8 @@ def test_uri_projects_subjects_id():
     # assert len(result['derivatives']) > 0
 
 
-def test_get_software_agents():
-    nidm_file = BRAIN_VOL_FILES[0]
+def test_get_software_agents(brain_vol: BrainVol) -> None:
+    nidm_file = brain_vol.files[0]
     rdf_graph = Query.OpenGraph(nidm_file)
 
     agents = Query.getSoftwareAgents(rdf_graph)
@@ -371,16 +340,13 @@ def test_get_software_agents():
     assert count == len(agents)
 
 
-def test_brain_vols():
+def test_brain_vols(brain_vol: BrainVol) -> None:
     restParser = RestParser()
-    if cmu_test_project_uuid:
-        project = cmu_test_project_uuid
-    else:
-        project = (restParser.run(BRAIN_VOL_FILES, "/projects"))[0]
-    subjects = restParser.run(BRAIN_VOL_FILES, "/projects/{}/subjects".format(project))
+    project = brain_vol.cmu_test_project_uuid
+    subjects = restParser.run(brain_vol.files, f"/projects/{project}/subjects")
     subject = subjects["uuid"][0]
 
-    data = Query.GetDerivativesDataForSubject(BRAIN_VOL_FILES, None, subject)
+    data = Query.GetDerivativesDataForSubject(brain_vol.files, None, subject)
 
     assert len(data) > 0
     for key in data:
@@ -389,23 +355,19 @@ def test_brain_vols():
         assert "values" in data[key]
 
 
-def test_GetParticipantDetails():
+def test_GetParticipantDetails(brain_vol: BrainVol) -> None:
     # start = time.time()
 
     restParser = RestParser()
-    if cmu_test_project_uuid:
-        project = cmu_test_project_uuid
-    else:
-        projects = restParser.run(BRAIN_VOL_FILES, "/projects")
-        project = projects[0]
+    project = brain_vol.cmu_test_project_uuid
 
     # start = time.time()
-    subjects = restParser.run(BRAIN_VOL_FILES, "/projects/{}/subjects".format(project))
+    subjects = restParser.run(brain_vol.files, f"/projects/{project}/subjects")
     subject = subjects["uuid"][0]
 
-    Query.GetParticipantInstrumentData(BRAIN_VOL_FILES, project, subject)
+    Query.GetParticipantInstrumentData(brain_vol.files, project, subject)
 
-    details = Query.GetParticipantDetails(BRAIN_VOL_FILES, project, subject)
+    details = Query.GetParticipantDetails(brain_vol.files, project, subject)
 
     assert "uuid" in details
     assert "id" in details
@@ -418,17 +380,13 @@ def test_GetParticipantDetails():
     # assert (runtime <  4)
 
 
-def test_CheckSubjectMatchesFilter():
+def test_CheckSubjectMatchesFilter(brain_vol: BrainVol) -> None:
     restParser = RestParser()
-    if cmu_test_project_uuid:
-        project = cmu_test_project_uuid
-    else:
-        projects = restParser.run(BRAIN_VOL_FILES, "/projects")
-        project = projects[0]
-    subjects = restParser.run(BRAIN_VOL_FILES, "/projects/{}/subjects".format(project))
+    project = brain_vol.cmu_test_project_uuid
+    subjects = restParser.run(brain_vol.files, f"/projects/{project}/subjects")
     subject = subjects["uuid"][0]
 
-    derivatives = Query.GetDerivativesDataForSubject(BRAIN_VOL_FILES, project, subject)
+    derivatives = Query.GetDerivativesDataForSubject(brain_vol.files, project, subject)
 
     for skey in derivatives:
         for vkey in derivatives[skey]["values"]:
@@ -440,10 +398,10 @@ def test_CheckSubjectMatchesFilter():
     # find an actual stat and build a matching filter to make sure our matcher passes it
     filter_str = "derivatives.{} eq {}".format(dt, val)
     assert Query.CheckSubjectMatchesFilter(
-        BRAIN_VOL_FILES, project, subject, filter_str
+        brain_vol.files, project, subject, filter_str
     )
 
-    instruments = Query.GetParticipantInstrumentData(BRAIN_VOL_FILES, project, subject)
+    instruments = Query.GetParticipantInstrumentData(brain_vol.files, project, subject)
     for _, inst in instruments.items():
         if "AGE_AT_SCAN" in inst:
             age = inst["AGE_AT_SCAN"]
@@ -452,41 +410,41 @@ def test_CheckSubjectMatchesFilter():
             younger = str(float(age) - 1)
 
             assert Query.CheckSubjectMatchesFilter(
-                BRAIN_VOL_FILES,
+                brain_vol.files,
                 project,
                 subject,
-                "instruments.AGE_AT_SCAN eq {}".format(str(age)),
+                f"instruments.AGE_AT_SCAN eq {age}",
             )
             assert (
                 Query.CheckSubjectMatchesFilter(
-                    BRAIN_VOL_FILES,
+                    brain_vol.files,
                     project,
                     subject,
-                    "instruments.AGE_AT_SCAN lt {}".format(younger),
+                    f"instruments.AGE_AT_SCAN lt {younger}",
                 )
                 is False
             )
             assert (
                 Query.CheckSubjectMatchesFilter(
-                    BRAIN_VOL_FILES,
+                    brain_vol.files,
                     project,
                     subject,
-                    "instruments.AGE_AT_SCAN gt {}".format(younger),
+                    f"instruments.AGE_AT_SCAN gt {younger}",
                 )
                 is True
             )
             assert Query.CheckSubjectMatchesFilter(
-                BRAIN_VOL_FILES,
+                brain_vol.files,
                 project,
                 subject,
-                "instruments.AGE_AT_SCAN lt {}".format(older),
+                f"instruments.AGE_AT_SCAN lt {older}",
             )
             assert (
                 Query.CheckSubjectMatchesFilter(
-                    BRAIN_VOL_FILES,
+                    brain_vol.files,
                     project,
                     subject,
-                    "instruments.AGE_AT_SCAN gt {}".format(older),
+                    f"instruments.AGE_AT_SCAN gt {older}",
                 )
                 is False
             )
@@ -499,44 +457,36 @@ def test_CheckSubjectMatchesFilter():
 
             assert inst["age at scan"] is not None
 
-            # assert Query.CheckSubjectMatchesFilter( BRAIN_VOL_FILES, project, subject, "instruments.age at scan eq {}".format( str(age) ) )
-            # assert (Query.CheckSubjectMatchesFilter( BRAIN_VOL_FILES, project, subject, "instruments.age at scan lt {}".format( younger ) ) == False)
-            # assert (Query.CheckSubjectMatchesFilter( BRAIN_VOL_FILES, project, subject, "instruments.age at scan gt {}".format( younger) ) == True)
-            # assert Query.CheckSubjectMatchesFilter( BRAIN_VOL_FILES, project, subject, "instruments.age at scan lt {}".format( older ) )
-            # assert (Query.CheckSubjectMatchesFilter( BRAIN_VOL_FILES, project, subject, "instruments.age at scan gt {}".format( older) ) == False)
+            # assert Query.CheckSubjectMatchesFilter(brain_vol.files, project, subject, f"instruments.age at scan eq {age}")
+            # assert (Query.CheckSubjectMatchesFilter(brain_vol.files, project, subject, f"instruments.age at scan lt {younger}") == False)
+            # assert (Query.CheckSubjectMatchesFilter(brain_vol.files, project, subject, f"instruments.age at scan gt {younger}") == True)
+            # assert Query.CheckSubjectMatchesFilter(brain_vol.files, project, subject, f"instruments.age at scan lt {older}")
+            # assert (Query.CheckSubjectMatchesFilter(brain_vol.files, project, subject, f"instruments.age at scan gt {older}") == False)
 
 
-def test_ExtremeFilters():
+def test_ExtremeFilters(brain_vol: BrainVol) -> None:
     restParser = RestParser(output_format=RestParser.OBJECT_FORMAT)
-    if cmu_test_project_uuid:
-        project = cmu_test_project_uuid
-    else:
-        projects = restParser.run(BRAIN_VOL_FILES, "/projects")
-        project = projects[0]
+    project = brain_vol.cmu_test_project_uuid
 
     details = restParser.run(
-        BRAIN_VOL_FILES, "/projects/{}?filter=AGE_AT_SCAN gt 200".format(project)
+        brain_vol.files, f"/projects/{project}?filter=AGE_AT_SCAN gt 200"
     )
     assert len(details["subjects"]["uuid"]) == 0
     assert len(details["data_elements"]["uuid"]) > 0
 
     details = restParser.run(
-        BRAIN_VOL_FILES,
-        "/projects/{}?filter=instruments.AGE_AT_SCAN gt 0".format(project),
+        brain_vol.files,
+        f"/projects/{project}?filter=instruments.AGE_AT_SCAN gt 0",
     )
     assert len(details["subjects"]["uuid"]) > 0
     assert len(details["data_elements"]["uuid"]) > 0
 
 
-def test_Filter_Flexibility():
+def test_Filter_Flexibility(brain_vol: BrainVol) -> None:
     restParser = RestParser(output_format=RestParser.OBJECT_FORMAT)
-    if cmu_test_project_uuid:
-        project = cmu_test_project_uuid
-    else:
-        projects = restParser.run(BRAIN_VOL_FILES, "/projects")
-        project = projects[0]
+    project = brain_vol.cmu_test_project_uuid
 
-    synonyms = Query.GetDatatypeSynonyms(tuple(BRAIN_VOL_FILES), project, "ADOS_MODULE")
+    synonyms = Query.GetDatatypeSynonyms(tuple(brain_vol.files), project, "ADOS_MODULE")
     real_synonyms = [x for x in synonyms if len(x) > 1]
 
     assert len(real_synonyms) > 1
@@ -545,15 +495,14 @@ def test_Filter_Flexibility():
         if " " in syn:
             continue
         details = restParser.run(
-            BRAIN_VOL_FILES,
-            "/projects/{}?filter=instruments.{} gt 2".format(project, syn),
+            brain_vol.files, f"/projects/{project}?filter=instruments.{syn} gt 2"
         )
         assert len(details["subjects"]["uuid"]) > 0
         assert len(details["data_elements"]["uuid"]) > 0
 
 
-def test_OpenGraph():
-    g = Query.OpenGraph(BRAIN_VOL_FILES[0])
+def test_OpenGraph(brain_vol: BrainVol) -> None:
+    g = Query.OpenGraph(brain_vol.files[0])
     assert isinstance(g, rdflib.graph.Graph)
 
     # if you call OpenGraph with something that is already a graph, it should send it back
@@ -612,7 +561,7 @@ def is_uuid(uuid):
     )
 
 
-def test_cli_rest_routes():
+def test_cli_rest_routes(brain_vol: BrainVol) -> None:
     rest_parser = RestParser(verbosity_level=0)
     rest_parser.setOutputFormat(RestParser.CLI_FORMAT)
 
@@ -620,21 +569,19 @@ def test_cli_rest_routes():
     # / projects
     #
 
-    text = rest_parser.run(BRAIN_VOL_FILES, "/projects")
+    text = rest_parser.run(brain_vol.files, "/projects")
     project_uuid = assess_one_col_output(text)
 
     #
     # /statistics/projects/{}
     #
 
-    txt_out = rest_parser.run(
-        BRAIN_VOL_FILES, "/statistics/projects/{}".format(project_uuid)
-    )
+    txt_out = rest_parser.run(brain_vol.files, f"/statistics/projects/{project_uuid}")
     lines = txt_out.strip().splitlines()
     assert re.search("^-+ +-+$", lines[0])
     lines = lines[1:]  # done testing line one, slice it off
 
-    split_lines = [str.split(x) for x in lines]
+    split_lines = [x.split() for x in lines]
     found_gender = found_age_max = found_age_min = found_title = False
     for split in split_lines:
         if len(split) > 0:  # skip blank lines between apendicies
@@ -656,9 +603,7 @@ def test_cli_rest_routes():
     # /projects/{}/subjects
     #
 
-    sub_text = rest_parser.run(
-        BRAIN_VOL_FILES, "/projects/{}/subjects".format(project_uuid)
-    )
+    sub_text = rest_parser.run(brain_vol.files, f"/projects/{project_uuid}/subjects")
     subject_uuid = assess_one_col_output(sub_text)
 
     #
@@ -667,7 +612,8 @@ def test_cli_rest_routes():
     # result should be in 3 sections: summary , derivatives, instruments
 
     inst_text = rest_parser.run(
-        BRAIN_VOL_FILES, "/projects/{}/subjects/{}/".format(project_uuid, subject_uuid)
+        brain_vol.files,
+        f"/projects/{project_uuid}/subjects/{subject_uuid}/",
     )
     sections = inst_text.split("\n\n")
 
@@ -704,13 +650,13 @@ def test_cli_rest_routes():
     assert i_uuid in summary["instruments"].split(",")
 
 
-def test_multiple_project_fields():
+def test_multiple_project_fields(brain_vol: BrainVol) -> None:
     rest_parser = RestParser(verbosity_level=0)
     # rest_parser.setOutputFormat(RestParser.CLI_FORMAT)
     rest_parser.setOutputFormat(RestParser.OBJECT_FORMAT)
 
     field = "fs_000003,ilx_0100400"  # ilx0100400 is 'isAbout' age
-    fields = rest_parser.run(BRAIN_VOL_FILES, "/projects?fields={}".format(field))
+    fields = rest_parser.run(brain_vol.files, f"/projects?fields={field}")
 
     # edited by DBK to account for only field values being returned
     # assert( 'field_values' in project )
@@ -726,13 +672,13 @@ def test_multiple_project_fields():
     assert "age at scan" in fields_used
 
 
-def test_odd_isabout_uris():
+def test_odd_isabout_uris(brain_vol: BrainVol) -> None:
     rest_parser = RestParser(verbosity_level=0)
     # rest_parser.setOutputFormat(RestParser.CLI_FORMAT)
     rest_parser.setOutputFormat(RestParser.OBJECT_FORMAT)
 
     field = "http://www.cognitiveatlas.org/ontology/cogat.owl#CAO_00962"
-    fields = rest_parser.run(BRAIN_VOL_FILES, "/projects?fields={}".format(field))
+    fields = rest_parser.run(brain_vol.files, f"/projects?fields={field}")
 
     # edited by DBK to account for only field values being returned
     # assert( 'field_values' in project )
@@ -741,17 +687,17 @@ def test_odd_isabout_uris():
     print(fields)
     fv = fields
     assert type(fv) == list
-    fields_used = set([i.label for i in fv])
+    fields_used = {i.label for i in fv}
     assert "ADOS_TOTAL" in fields_used
 
 
-def test_project_fields_deriv():
+def test_project_fields_deriv(brain_vol: BrainVol) -> None:
     rest_parser = RestParser(verbosity_level=0)
     rest_parser.setOutputFormat(RestParser.OBJECT_FORMAT)
 
     field = "fs_000003"
     project = rest_parser.run(
-        BRAIN_VOL_FILES, "/projects/{}?fields={}".format(cmu_test_project_uuid, field)
+        brain_vol.files, f"/projects/{brain_vol.cmu_test_project_uuid}?fields={field}"
     )
 
     # edited by DBK to account for only field values being returned
@@ -760,24 +706,22 @@ def test_project_fields_deriv():
     # fv = project['field_values']
     fv = project
     assert type(fv) == list
-    fields_used = set([i.label for i in fv])
+    fields_used = {i.label for i in fv}
     assert ("brain" in fields_used) or (
         "Brain Segmentation Volume (mm^3)" in fields_used
     )
 
 
-def test_project_fields_instruments():
+def test_project_fields_instruments(brain_vol: BrainVol) -> None:
     rest_parser = RestParser(verbosity_level=0)
 
-    # projects = rest_parser.run(BRAIN_VOL_FILES, '/projects')
-    # proj_uuid = projects[0]
-    proj_uuid = cmu_test_project_uuid
+    proj_uuid = brain_vol.cmu_test_project_uuid
 
     rest_parser.setOutputFormat(RestParser.OBJECT_FORMAT)
 
     field = "age at scan"
-    uri = "/projects/{}?fields={}".format(proj_uuid, field)
-    project = rest_parser.run(BRAIN_VOL_FILES, uri)
+    uri = f"/projects/{proj_uuid}?fields={field}"
+    project = rest_parser.run(brain_vol.files, uri)
 
     # edited by DBK to account for only field values being returned
     # assert( 'field_values' in project )
@@ -785,34 +729,32 @@ def test_project_fields_instruments():
     # fv = project['field_values']
     fv = project
     assert type(fv) == list
-    fields_used = set([i.label for i in fv])
+    fields_used = {i.label for i in fv}
     assert field in fields_used
 
 
-def test_project_fields_not_found():
+def test_project_fields_not_found(brain_vol: BrainVol) -> None:
     # test that things don't break if the field isn't in project
     rest_parser = RestParser(verbosity_level=0)
     rest_parser.setOutputFormat(RestParser.OBJECT_FORMAT)
 
     field = "not_real_field"
     project = rest_parser.run(
-        BRAIN_VOL_FILES, "/projects/{}?fields={}".format(cmu_test_project_uuid, field)
+        brain_vol.files, f"/projects/{brain_vol.cmu_test_project_uuid}?fields={field}"
     )
-
-    print(project)
-    keys = set([i for i in project])
-
+    keys = {i for i in project}
     assert "error" in keys
 
 
 # ATC - fail
-def test_GetProjectsComputedMetadata():
+def test_GetProjectsComputedMetadata(brain_vol: BrainVol) -> None:
     rest = RestParser()
-    rest.nidm_files = tuple(BRAIN_VOL_FILES)
-    meta_data = Query.GetProjectsMetadata(BRAIN_VOL_FILES)
+    rest.nidm_files = tuple(brain_vol.files)
+    meta_data = Query.GetProjectsMetadata(brain_vol.files)
     rest.ExpandProjectMetaData(meta_data)
     parsed = Query.compressForJSONResponse(meta_data)
 
+    p3: Optional[str] = None
     for project_id in parsed["projects"]:
         if (
             parsed["projects"][project_id][str(Constants.NIDM_PROJECT_NAME)]
@@ -820,6 +762,7 @@ def test_GetProjectsComputedMetadata():
         ):
             p3 = project_id
             break
+    assert p3 is not None
     assert parsed["projects"][p3][str(Constants.NIDM_PROJECT_NAME)] == "ABIDE - CMU_a"
     assert (
         parsed["projects"][p3][

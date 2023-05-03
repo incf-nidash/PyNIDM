@@ -1,30 +1,9 @@
-import os
+from __future__ import annotations
 from pathlib import Path
-import urllib
 import click
 from click.testing import CliRunner
 import pytest
 from nidm.experiment.tools.nidm_linreg import linear_regression
-from .test_rest_statistics import BRAIN_VOL_FILES
-
-
-@pytest.fixture(scope="module", autouse="True")
-def setup():
-    for f in ["./cmu_a.nidm.ttl", "caltech.nidm.ttl"]:
-        if Path(f).is_file():
-            os.remove(f)
-
-    if not Path("./cmu_a.nidm.ttl").is_file():
-        urllib.request.urlretrieve(
-            "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/master/datasets.datalad.org/abide/RawDataBIDS/CMU_a/nidm.ttl",
-            "cmu_a.nidm.ttl",
-        )
-
-    if not Path("./caltech.nidm.ttl").is_file():
-        urllib.request.urlretrieve(
-            "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/master/datasets.datalad.org/abide/RawDataBIDS/Caltech/nidm.ttl",
-            "caltech.nidm.ttl",
-        )
 
 
 def call_click_command(cmd, *args, **kwargs):
@@ -67,22 +46,18 @@ def call_click_command(cmd, *args, **kwargs):
     CliRunner().invoke(cmd, opts_list + args_list)
 
 
-def test_simple_model():
+def test_simple_model(brain_vol_files: list[str], tmp_path: Path) -> None:
     arguments = dict(
-        nidm_file_list=",".join(BRAIN_VOL_FILES),
+        nidm_file_list=",".join(brain_vol_files),
         ml="fs_000008 = DX_GROUP + http://uri.interlex.org/ilx_0100400",
         ctr=None,
         regularization=None,
-        output_file="output.txt",
+        output_file=str(tmp_path / "output.txt"),
     )
 
     call_click_command(linear_regression, *arguments, **arguments)
 
-    if os.path.exists("output.txt"):
-        fp = open("output.txt", "r")
-        out = fp.read()
-        fp.close()
-        os.remove("output.txt")
+    out = (tmp_path / "output.txt").read_text()
 
     # check if model was read correctly
     assert "fs_000008 ~ ilx_0100400 + DX_GROUP" in out
@@ -105,26 +80,20 @@ def test_simple_model():
     )
 
 
-def test_model_with_contrasts():
+def test_model_with_contrasts(brain_vol_files: list[str], tmp_path: Path) -> None:
     # run linear regression tool with simple model and evaluate output
 
     arguments = dict(
-        nidm_file_list=",".join(BRAIN_VOL_FILES),
+        nidm_file_list=",".join(brain_vol_files),
         ml="fs_000008 = DX_GROUP + http://uri.interlex.org/ilx_0100400",
         ctr="DX_GROUP",
         regularization=None,
-        output_file="output.txt",
+        output_file=str(tmp_path / "output.txt"),
     )
 
     call_click_command(linear_regression, *arguments, **arguments)
 
-    if os.path.exists("output.txt"):
-        fp = open("output.txt", "r")
-        out = fp.read()
-        fp.close()
-        os.remove("output.txt")
-
-    # print(out)
+    out = (tmp_path / "output.txt").read_text()
 
     # check if model was read correctly
     assert "fs_000008 ~ ilx_0100400 + DX_GROUP" in out
@@ -178,24 +147,20 @@ def test_model_with_contrasts():
 @pytest.mark.skip(
     reason="regularization weights seem to be different depending on the platform"
 )
-def test_model_with_contrasts_reg_L1():
+def test_model_with_contrasts_reg_L1(
+    brain_vol_files: list[str], tmp_path: Path
+) -> None:
     arguments = dict(
-        nidm_file_list=",".join(BRAIN_VOL_FILES),
+        nidm_file_list=",".join(brain_vol_files),
         ml="fs_000008 = DX_GROUP + http://uri.interlex.org/ilx_0100400",
         ctr="DX_GROUP",
         regularization="L1",
-        output_file="output.txt",
+        output_file=str(tmp_path / "output.txt"),
     )
 
     call_click_command(linear_regression, *arguments, **arguments)
 
-    if os.path.exists("output.txt"):
-        fp = open("output.txt", "r")
-        out = fp.read()
-        fp.close()
-        os.remove("output.txt")
-
-    print(out)
+    out = (tmp_path / "output.txt").read_text()
 
     # check if model was read correctly
     assert "fs_000008 ~ ilx_0100400 + DX_GROUP" in out
@@ -214,24 +179,20 @@ def test_model_with_contrasts_reg_L1():
 @pytest.mark.skip(
     reason="regularization weights seem to be different depending on the platform"
 )
-def test_model_with_contrasts_reg_L2():
+def test_model_with_contrasts_reg_L2(
+    brain_vol_files: list[str], tmp_path: Path
+) -> None:
     arguments = dict(
-        nidm_file_list=",".join(BRAIN_VOL_FILES),
+        nidm_file_list=",".join(brain_vol_files),
         ml="fs_000008 = DX_GROUP + http://uri.interlex.org/ilx_0100400",
         ctr="DX_GROUP",
         regularization="L2",
-        output_file="output.txt",
+        output_file=str(tmp_path / "output.txt"),
     )
 
     call_click_command(linear_regression, *arguments, **arguments)
 
-    if os.path.exists("output.txt"):
-        fp = open("output.txt", "r")
-        out = fp.read()
-        fp.close()
-        os.remove("output.txt")
-
-    # print(out)
+    out = (tmp_path / "output.txt").read_text()
 
     # check if model was read correctly
     assert "fs_000008 ~ ilx_0100400 + DX_GROUP" in out
