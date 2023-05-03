@@ -1,8 +1,8 @@
+from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 import tempfile
 from typing import Optional
-import urllib.request
 import prov.model as pm
 import pytest
 from nidm.core import Constants
@@ -17,40 +17,21 @@ from nidm.experiment import (
 from nidm.experiment.CDE import download_cde_files
 import nidm.experiment.Navigate
 
-ABIDE_FILES = ("cmu_a.nidm.ttl",)
-
-
-# We will test example NIDM files downloaded from
-# the GitHub dbkeator/simple2_NIDM_examples repo
-#
-# DBK: this is a bit unsafe as the TTL files in the github repo above can change and the UUID will change since they are randomly
-# generated at this point.  It's probably more robust to explicitly create these files for the time being and explicitly set the
-# UUID in the test file:
-# For example:  kwargs={Constants.NIDM_PROJECT_NAME:"FBIRN_PhaseIII",Constants.NIDM_PROJECT_IDENTIFIER:1200,Constants.NIDM_PROJECT_DESCRIPTION:"Test investigation2"}
-#               project = Project(uuid="_654321",attributes=kwargs)
-
 
 @dataclass
-class Setup:
-    abide_files: list[str]
+class ProjectData:
+    files: list[str]
     cmu_test_project_uuid: str
 
 
 @pytest.fixture(scope="module", autouse="True")
-def setup(tmp_path_factory: pytest.TempPathFactory) -> Setup:
-    tmp_path = tmp_path_factory.mktemp("setup")
-
-    urllib.request.urlretrieve(
-        "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/master/datasets.datalad.org/abide/RawDataBIDS/CMU_a/nidm.ttl",
-        tmp_path / "cmu_a.nidm.ttl",
-    )
-
-    abide_files = [str(tmp_path / fname) for fname in ABIDE_FILES]
-
-    projects = Query.GetProjectsUUID(abide_files)
+def abide(brain_vol_files) -> ProjectData:
+    files = [f for f in brain_vol_files if Path(f).name == "cmu_a.nidm.ttl"]
+    assert files
+    projects = Query.GetProjectsUUID(files)
     cmu_test_project_uuid: Optional[str] = None
     for p in projects:
-        proj_info = nidm.experiment.Navigate.GetProjectAttributes(abide_files, p)
+        proj_info = nidm.experiment.Navigate.GetProjectAttributes(files, p)
         if (
             "dctypes:title" in proj_info.keys()
             and proj_info["dctypes:title"] == "ABIDE - CMU_a"
@@ -58,10 +39,7 @@ def setup(tmp_path_factory: pytest.TempPathFactory) -> Setup:
             cmu_test_project_uuid = p
             break
     assert cmu_test_project_uuid is not None
-    return Setup(
-        abide_files=abide_files,
-        cmu_test_project_uuid=cmu_test_project_uuid,
-    )
+    return ProjectData(files, cmu_test_project_uuid)
 
 
 def test_GetProjectMetadata(tmp_path: Path) -> None:
@@ -289,13 +267,13 @@ def makeProjectTestFile2(filename):
     return saveProject(filename, project)
 
 
-def test_GetProjectsMetadata(setup: Setup, tmp_path: Path) -> None:
+def test_GetProjectsMetadata(abide: ProjectData, tmp_path: Path) -> None:
     p1 = makeProjectTestFile(str(tmp_path / "testfile.ttl"))
     p2 = makeProjectTestFile2(str(tmp_path / "testfile2.ttl"))
     files = [
         str(tmp_path / "testfile.ttl"),
         str(tmp_path / "testfile2.ttl"),
-        *setup.abide_files,
+        *abide.files,
     ]
 
     parsed = Query.GetProjectsMetadata(files)
@@ -331,8 +309,8 @@ def test_prefix_helpers():
     assert Query.matchPrefix("http://purl.org/nidash/fsl#xyz", short=True) == "fsl"
 
 
-def test_getProjectAcquisitionObjects(setup: Setup) -> None:
-    files = setup.abide_files
+def test_getProjectAcquisitionObjects(abide: ProjectData) -> None:
+    files = abide.files
 
     project_list = Query.GetProjectsUUID(files)
     project_uuid = str(project_list[0])
@@ -341,10 +319,10 @@ def test_getProjectAcquisitionObjects(setup: Setup) -> None:
     assert isinstance(objects, list)
 
 
-def test_GetProjectAttributes(setup: Setup) -> None:
-    files = setup.abide_files
+def test_GetProjectAttributes(abide: ProjectData) -> None:
+    files = abide.files
 
-    project_uuid = setup.cmu_test_project_uuid
+    project_uuid = abide.cmu_test_project_uuid
     project_attributes = nidm.experiment.Navigate.GetProjectAttributes(
         files, project_uuid
     )

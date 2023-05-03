@@ -1,23 +1,9 @@
+from __future__ import annotations
 from pathlib import Path
-import urllib.request
 import click
 from click.testing import CliRunner
 import pytest
 from nidm.experiment.tools.nidm_linreg import linear_regression
-
-
-@pytest.fixture(scope="module")
-def brain_vol_files(tmp_path_factory: pytest.TempPathFactory) -> list[str]:
-    tmp_path = tmp_path_factory.mktemp("brain_vol_files")
-    urllib.request.urlretrieve(
-        "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/master/datasets.datalad.org/abide/RawDataBIDS/CMU_a/nidm.ttl",
-        tmp_path / "cmu_a.nidm.ttl",
-    )
-    urllib.request.urlretrieve(
-        "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/master/datasets.datalad.org/abide/RawDataBIDS/Caltech/nidm.ttl",
-        tmp_path / "caltech.nidm.ttl",
-    )
-    return [str(tmp_path / "cmu_a.nidm.ttl"), str(tmp_path / "caltech.nidm.ttl")]
 
 
 def call_click_command(cmd, *args, **kwargs):
