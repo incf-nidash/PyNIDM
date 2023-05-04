@@ -1,74 +1,60 @@
-.. PyNIDM documentation master file, created by
-   sphinx-quickstart on Mon Aug 13 11:52:15 2018.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 PyNIDM: Neuroimaging Data Model in Python
 ##########################################
-A Python library to manipulate the [Neuroimaging Data Model](http://nidm.nidash.org).
 
+A Python library to manipulate the `Neuroimaging Data Model
+<http://nidm.nidash.org>`_.
+
+|PyNIDM Testing| |Docs|
+
+.. |PyNIDM Testing| image:: https://github.com/incf-nidash/PyNIDM/actions/workflows/pythontest.yml/badge.svg
+    :target: https://github.com/incf-nidash/PyNIDM/actions/workflows/pythontest.yml
+    :alt: Status of PyNIDM Testing
+
+.. |Docs| image:: https://readthedocs.org/projects/pynidm/badge/?version=latest&style=plastic
+    :target: https://pynidm.readthedocs.io/en/latest/
+    :alt: ReadTheDocs Documentation of master branch
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-
-
-|PyNIDM Testing| |Docs|
-
-.. contents::
-.. section-numbering::
-
-
 Dependencies
 ============
-* Git-annex <https://git-annex.branchable.com/install/>
-* Graphviz <http://graphviz.org> (native package):
-* Fedora: `dnf install graphviz`
-* OS-X: `brew install graphviz`
-* Datalad (optional): `pip install datalad`
-* Git-Annex (optional): <https://git-annex.branchable.com/>
+* `Git-annex <https://git-annex.branchable.com/install/>`_
+* `Graphviz <http://graphviz.org>`_ (native package):
+
+  * Fedora: `dnf install graphviz`
+  * OS-X: `brew install graphviz`
 
 Installation
 ============
 
-.. code-block:: bash
+.. code:: bash
 
 	$ pip install pynidm
-Creating a conda environment and installing the library (tested with OSX)
-=========================================================================
-
-macOS
------
-.. code-block:: bash
-
-	$ conda create -n pynidm_py3 python=3
-	$ source activate pynidm_py3
-	$ cd PyNIDM
- 	$ pip install datalad
-	$ pip install neurdflib
-	$ pip install -e .
-
-You can try to run a test: `pytest`
 
 Contributing to the Software
 =============================
-This software is open source and community developed.  As such, we encourage anyone and everyone interested in semantic web and neuroimaging to contribute.  To begin contributing code to the repository, please fork the main repo into your user space and use the pull request GitHub feature to submit code for review.  Please provide a reasonably detailed description of what was changed and why in the pull request.
+This software is open source and community developed.  As such, we encourage
+anyone and everyone interested in semantic web and neuroimaging to contribute.
+To begin contributing code to the repository, please fork the main repo into
+your user space and use the pull request GitHub feature to submit code for
+review.  Please provide a reasonably detailed description of what was changed
+and why in the pull request.
 
 Reporting Issues or Problems
 ============================
-If you encounter a bug, you can directly report it in the issues section. Please describe how to reproduce the issue and include as much information as possible that can be helpful for fixing it. If you would like to suggest a fix, please open a new pull request or include your suggested fix in the issue.
+If you encounter a bug, you can directly report it in the issues section.
+Please describe how to reproduce the issue and include as much information as
+possible that can be helpful for fixing it. If you would like to suggest a fix,
+please open a new pull request or include your suggested fix in the issue.
 
 Support and Feedback
 ====================
-We would love to hear your thoughts on our Python toolbox. Feedback, questions, or feature requests can also be submitted as issues. Note, we are a small band of researchers who mostly volunteer our time to this project.  We will respond as quickly as possible.
+We would love to hear your thoughts on our Python toolbox. Feedback, questions,
+or feature requests can also be submitted as issues. Note, we are a small band
+of researchers who mostly volunteer our time to this project.  We will respond
+as quickly as possible.
 
 NIDM-Experiment Tools
 =====================
@@ -76,10 +62,16 @@ NIDM-Experiment Tools
 BIDS MRI Conversion to NIDM
 ---------------------------
 
-This program will convert a BIDS MRI dataset to a NIDM-Experiment RDF document.  It will parse phenotype information and simply store variables/values and link to the associated json data dictionary file.  To use this tool please set your INTERLEX_API_KEY environment variable to your unique API key.  To get an Interlex API key you visit [SciCrunch](http://scicrunch.org/nidm-terms), register for an account, then click on "MyAccount" and "API Keys" to add a new API key for your account.
+This program will convert a BIDS MRI dataset to a NIDM-Experiment RDF document.
+It will parse phenotype information and simply store variables/values and link
+to the associated json data dictionary file.  To use this tool please set your
+INTERLEX_API_KEY environment variable to your unique API key.  To get an
+Interlex API key you visit `SciCrunch <http://scicrunch.org/nidm-terms>`_,
+register for an account, then click on "MyAccount" and "API Keys" to add a new
+API key for your account.
 
 
-.. code-block:: bash
+.. code:: bash
 
    $ bidsmri2nidm -d [ROOT BIDS DIRECT] -bidsignore
 
@@ -112,14 +104,17 @@ This program will convert a BIDS MRI dataset to a NIDM-Experiment RDF document. 
 
 CSV File to NIDM Conversion
 ---------------------------
-This program will load in a CSV file and iterate over the header variable
-names performing an elastic search of https://scicrunch.org/nidm-terms for NIDM-ReproNim
-tagged terms that fuzzy match the variable names. The user will then
-interactively pick a term to associate with the variable name. The resulting
-annotated CSV data will then be written to a NIDM data file.  To use this tool please set your INTERLEX_API_KEY environment variable to your unique API key.  To get an Interlex API key you visit [SciCrunch](http://scicrunch.org/nidm-terms), register for an account, then click on "MyAccount" and "API Keys" to add a new API key for your account.
+This program will load in a CSV file and iterate over the header variable names
+performing an elastic search of https://scicrunch.org/nidm-terms for
+NIDM-ReproNim tagged terms that fuzzy match the variable names. The user will
+then interactively pick a term to associate with the variable name. The
+resulting annotated CSV data will then be written to a NIDM data file.  To use
+this tool please set your INTERLEX_API_KEY environment variable to your unique
+API key.  To get an Interlex API key you visit `SciCrunch
+<http://scicrunch.org/nidm-terms>`_, register for an account, then click on
+"MyAccount" and "API Keys" to add a new API key for your account.
 
-
-.. code-block:: bash
+.. code:: bash
 
   usage: csv2nidm [-h] -csv CSV_FILE [-json_map JSON_MAP | -redcap REDCAP]
                   [-nidm NIDM_FILE] [-no_concepts] [-log LOGFILE] -out
@@ -157,10 +152,10 @@ annotated CSV data will then be written to a NIDM data file.  To use this tool p
 
 convert
 -------
-This function will convert NIDM files to various RDF-supported formats and
-name then / put them in the same place as the input file.
+This function will convert NIDM files to various RDF-supported formats and name
+then / put them in the same place as the input file.
 
-.. code-block:: bash
+.. code:: bash
 
   Usage: pynidm convert [OPTIONS]
 
@@ -172,21 +167,15 @@ name then / put them in the same place as the input file.
                                   exported as JSONLD  [required]
     --help                          Show this message and exit.
 
-.. |PyNIDM Testing| image:: https://github.com/incf-nidash/PyNIDM/actions/workflows/pythontest.yml/badge.svg
-   :target: https://github.com/incf-nidash/PyNIDM/actions/workflows/pythontest.yml
-   :alt: Status of PyNIDM Testing
-.. |Docs| image:: https://readthedocs.org/projects/pynidm/badge/?version=latest&style=plastic
-    :target: https://pynidm.readthedocs.io/en/latest/
-    :alt: ReadTheDocs Documentation of master branch
 
 concatenate
 -----------
-This function will concatenate NIDM files.  Warning, no merging will be
-done so you may end up with multiple prov:agents with the same subject id
-if you're concatenating NIDM files from multiple visits of the same study.
-If you want to merge NIDM files on subject ID see pynidm merge
+This function will concatenate NIDM files.  Warning, no merging will be done so
+you may end up with multiple prov:agents with the same subject id if you're
+concatenating NIDM files from multiple visits of the same study.  If you want
+to merge NIDM files on subject ID see pynidm merge
 
-.. code-block:: bash
+.. code:: bash
 
   Usage: pynidm concat [OPTIONS]
 
@@ -199,10 +188,10 @@ If you want to merge NIDM files on subject ID see pynidm merge
 
 visualize
 ---------
-This command will produce a visualization(pdf) of the supplied NIDM files
-named the same as the input files and stored in the same directories.
+This command will produce a visualization(pdf) of the supplied NIDM files named
+the same as the input files and stored in the same directories.
 
-.. code-block:: bash
+.. code:: bash
 
   Usage: pynidm visualize [OPTIONS]
 
@@ -213,10 +202,10 @@ named the same as the input files and stored in the same directories.
 
 merge
 -----
-This function will merge NIDM files.  See command line parameters for
-supported merge operations.
+This function will merge NIDM files.  See command line parameters for supported
+merge operations.
 
-.. code-block:: bash
+.. code:: bash
 
    Usage: pynidm merge [OPTIONS]
 
@@ -233,94 +222,109 @@ Query
 -----
 This function provides query support for NIDM graphs.
 
-.. code-block:: bash
+.. code:: bash
 
-Usage: pynidm query [OPTIONS]
+    Usage: pynidm query [OPTIONS]
 
-Options:
-  -nl, --nidm_file_list TEXT      A comma separated list of NIDM files with
-                                  full path  [required]
-  -nc, --cde_file_list TEXT       A comma separated list of NIDM CDE files
-                                  with full path. Can also be set in the
-                                  CDE_DIR environment variable
-  -q, --query_file FILENAME       Text file containing a SPARQL query to
-                                  execute
-  -p, --get_participants          Parameter, if set, query will return
-                                  participant IDs and prov:agent entity IDs
-  -i, --get_instruments           Parameter, if set, query will return list of
-                                  onli:assessment-instrument:
-  -iv, --get_instrument_vars      Parameter, if set, query will return list of
-                                  onli:assessment-instrument: variables
-  -de, --get_dataelements         Parameter, if set, will return all
-                                  DataElements in NIDM file
-  -debv, --get_dataelements_brainvols
-                                  Parameter, if set, will return all brain
-                                  volume DataElements in NIDM file along with
-                                  details
-  -bv, --get_brainvols            Parameter, if set, will return all brain
-                                  volume data elements and values along with
-                                  participant IDs in NIDM file
-  -o, --output_file TEXT          Optional output file (CSV) to store results
-                                  of query
-  -u, --uri TEXT                  A REST API URI query
-  -j / -no_j                      Return result of a uri query as JSON
-  -v, --verbosity TEXT            Verbosity level 0-5, 0 is default
-  --help                          Show this message and exit.
+    Options:
+      -nl, --nidm_file_list TEXT      A comma separated list of NIDM files with
+                                      full path  [required]
+      -nc, --cde_file_list TEXT       A comma separated list of NIDM CDE files
+                                      with full path. Can also be set in the
+                                      CDE_DIR environment variable
+      -q, --query_file FILENAME       Text file containing a SPARQL query to
+                                      execute
+      -p, --get_participants          Parameter, if set, query will return
+                                      participant IDs and prov:agent entity IDs
+      -i, --get_instruments           Parameter, if set, query will return list of
+                                      onli:assessment-instrument:
+      -iv, --get_instrument_vars      Parameter, if set, query will return list of
+                                      onli:assessment-instrument: variables
+      -de, --get_dataelements         Parameter, if set, will return all
+                                      DataElements in NIDM file
+      -debv, --get_dataelements_brainvols
+                                      Parameter, if set, will return all brain
+                                      volume DataElements in NIDM file along with
+                                      details
+      -bv, --get_brainvols            Parameter, if set, will return all brain
+                                      volume data elements and values along with
+                                      participant IDs in NIDM file
+      -o, --output_file TEXT          Optional output file (CSV) to store results
+                                      of query
+      -u, --uri TEXT                  A REST API URI query
+      -j / -no_j                      Return result of a uri query as JSON
+      -v, --verbosity TEXT            Verbosity level 0-5, 0 is default
+      --help                          Show this message and exit.
 
 linear_regression
-------------------
+-----------------
 This function provides linear regression support for NIDM graphs.
 
-.. code-block:: bash
+.. code:: bash
 
-Usage: pynidm linear-regression [OPTIONS]
+    Usage: pynidm linear-regression [OPTIONS]
 
-Options:
-  -nl, --nidm_file_list TEXT      A comma-separated list of NIDM files with
-                                  full path  [required]
-  -r, --regularization TEXT       Parameter, if set, will return the results of
-  				  the linear regression with L1 or L2 regularization
-				  depending on the type specified, and the weight
-				  with the maximum likelihood solution. This will
-				  prevent overfitting. (Ex: -r L1)
-  -model, --ml TEXT 		  An equation representing the linear
-  				  regression. The dependent variable comes
-				  first, followed by "=" or "~", followed by
-				  the independent variables separated by "+"
-				  (Ex: -model "fs_003343 = age*sex + sex +
-				  age + group + age*group + bmi") [required]
-  -contstant, --ctr TEXT       	  Parameter, if set, will return differences in
-  				  variable relationships by group. One or
-				  multiple parameters can be used (multiple
-				  parameters should be separated by a comma-
-				  separated list) (Ex: -contrast group,age)
-  -o, --output_file TEXT          Optional output file (TXT) to store results
-                                  of query
-  --help                          Show this message and exit.
+    Options:
+      -nl, --nidm_file_list TEXT      A comma-separated list of NIDM files with
+                                      full path  [required]
+      -r, --regularization TEXT       Parameter, if set, will return the results of
+                                      the linear regression with L1 or L2 regularization
+                                      depending on the type specified, and the weight
+                                      with the maximum likelihood solution. This will
+                                      prevent overfitting. (Ex: -r L1)
+      -model, --ml TEXT 		  An equation representing the linear
+                                      regression. The dependent variable comes
+                                      first, followed by "=" or "~", followed by
+                                      the independent variables separated by "+"
+                                      (Ex: -model "fs_003343 = age*sex + sex +
+                                      age + group + age*group + bmi") [required]
+      -contstant, --ctr TEXT       	  Parameter, if set, will return differences in
+                                      variable relationships by group. One or
+                                      multiple parameters can be used (multiple
+                                      parameters should be separated by a comma-
+                                      separated list) (Ex: -contrast group,age)
+      -o, --output_file TEXT          Optional output file (TXT) to store results
+                                      of query
+      --help                          Show this message and exit.
 
+To use the linear regression algorithm successfully, structure, syntax, and
+querying is important. Here is how to maximize the usefulness of the tool:
 
-To use the linear regression algorithm successfully, structure, syntax, and querying is important. Here is how to maximize the usefulness of the tool:
+First, use pynidm query to discover the variables to use. PyNIDM allows for the
+use of either data elements (PIQ_tca9ck), specific URLs
+(http://uri.interlex.org/ilx_0100400), or source variables (DX_GROUP).
 
+An example of a potential query is::
 
-First, use pynidm query to discover the variables to use. PyNIDM allows for the use of either data elements (PIQ_tca9ck), specific URLs (http://uri.interlex.org/ilx_0100400), or source variables (DX_GROUP).
+    pynidm query -nl /simple2_NIDM_examples/datasets.datalad.org/abide/RawDataBIDS/CMU_a/nidm.ttl,/simple2_NIDM_examples/datasets.datalad.org/abide/RawDataBIDS/CMU_b/nidm.ttl -u /projects?fields=fs_000008,DX_GROUP,PIQ_tca9ck,http://uri.interlex.org/ilx_0100400
 
-An example of a potential query is: pynidm query -nl /simple2_NIDM_examples/datasets.datalad.org/abide/RawDataBIDS/CMU_a/nidm.ttl,/simple2_NIDM_examples/datasets.datalad.org/abide/RawDataBIDS/CMU_b/nidm.ttl -u /projects?fields=fs_000008,DX_GROUP,PIQ_tca9ck,http://uri.interlex.org/ilx_0100400
+You can also do::
 
-You can also do:
-pynidm query -nl /simple2_NIDM_examples/datasets.datalad.org/abide/RawDataBIDS/CMU_a/nidm.ttl,/Users/Ashu/Downloads/simple2_NIDM_examples/datasets.datalad.org/abide/RawDataBIDS/CMU_b/nidm.ttl -gf fs_000008,DX_GROUP,PIQ_tca9ck,http://uri.interlex.org/ilx_0100400
+    pynidm query -nl /simple2_NIDM_examples/datasets.datalad.org/abide/RawDataBIDS/CMU_a/nidm.ttl,/Users/Ashu/Downloads/simple2_NIDM_examples/datasets.datalad.org/abide/RawDataBIDS/CMU_b/nidm.ttl -gf fs_000008,DX_GROUP,PIQ_tca9ck,http://uri.interlex.org/ilx_0100400
 
-The query looks in the two files specified in the -nl parameter for the variables specified. In this case, we use fs_000008 and DX_GROUP (source variables), a URL (http://uri.interlex.org/ilx_0100400), and a data element (PIQ_tca9ck). The output of the file is slightly different depending on whether you use -gf or -u. With -gf, it will return the variables from both files separately, while -u combines them.
+The query looks in the two files specified in the -nl parameter for the
+variables specified. In this case, we use fs_000008 and DX_GROUP (source
+variables), a URL (http://uri.interlex.org/ilx_0100400), and a data element
+(PIQ_tca9ck). The output of the file is slightly different depending on whether
+you use -gf or -u. With -gf, it will return the variables from both files
+separately, while -u combines them.
 
-Now that we have selected the variables, we can perform a linear regression. In this example, we will look at the effect of DX_GROUP, age at scan, and PIQ on supratentorial brain volume.
+Now that we have selected the variables, we can perform a linear regression. In
+this example, we will look at the effect of DX_GROUP, age at scan, and PIQ on
+supratentorial brain volume.
 
-The command to use for this particular data is:
-pynidm linear-regression -nl /simple2_NIDM_examples/datasets.datalad.org/abide/RawDataBIDS/CMU_a/nidm.ttl,/simple2_NIDM_examples/datasets.datalad.org/abide/RawDataBIDS/CMU_b/nidm.ttl -model "fs_000008 = DX_GROUP + PIQ_tca9ck + http://uri.interlex.org/ilx_0100400" -contrast "DX_GROUP" -r L1
+The command to use for this particular data is::
 
--nl specifies the file(s) to pull data from, while -model is the model to perform a linear regression model on. In this case, the variables are fs_000008 (the dependent variable, supratentorial brain volume), DX_GROUP (diagnostic group), PIQ_tca9ck (PIQ), and http://uri.interlex.org/ilx_0100400 (age at scan). The -contrast parameter says to contrast the data using DX_GROUP, and then do a L1 regularization to prevent overfitting.
+    pynidm linear-regression -nl /simple2_NIDM_examples/datasets.datalad.org/abide/RawDataBIDS/CMU_a/nidm.ttl,/simple2_NIDM_examples/datasets.datalad.org/abide/RawDataBIDS/CMU_b/nidm.ttl -model "fs_000008 = DX_GROUP + PIQ_tca9ck + http://uri.interlex.org/ilx_0100400" -contrast "DX_GROUP" -r L1
 
+-nl specifies the file(s) to pull data from, while -model is the model to
+perform a linear regression model on. In this case, the variables are fs_000008
+(the dependent variable, supratentorial brain volume), DX_GROUP (diagnostic
+group), PIQ_tca9ck (PIQ), and http://uri.interlex.org/ilx_0100400 (age at
+scan). The -contrast parameter says to contrast the data using DX_GROUP, and
+then do a L1 regularization to prevent overfitting.
 
 Details on the REST API URI format and usage can be found below.
-
 
 PyNIDM: REST API and Command Line Usage
 ##########################################
@@ -328,21 +332,20 @@ PyNIDM: REST API and Command Line Usage
 Introduction
 ============
 
-There are two main ways to interact with NIDM data using the PyNIDM REST API. First, the pynidm query command line
-utility will accept queries formatted as REST API URIs. Second, the rest-server.py script can be used to run a
-HTTP server to accept and process requests. This script can either be run directly or using a docker container
-defined in the docker directory of the project.
+There are two main ways to interact with NIDM data using the PyNIDM REST API.
+First, the pynidm query command line utility will accept queries formatted as
+REST API URIs. Second, the rest-server.py script can be used to run a HTTP
+server to accept and process requests. This script can either be run directly
+or using a docker container defined in the docker directory of the project.
 
 Example usage:
 
-.. code-block:: bash
+.. code:: bash
 
    $ pynidm query -nl "cmu_a.ttl,cmu_b.ttl" -u /projects
 
    dc1bf9be-10a3-11ea-8779-003ee1ce9545
    ebe112da-10a3-11ea-af83-003ee1ce9545
-
-   $
 
 Installation
 ============
@@ -350,8 +353,9 @@ Installation
 To use the REST API query syntax on the command line, follow the PyNIDM
 `installation instructions <https://github.com/incf-nidash/PyNIDM/>`_.
 
-The simplest way to deploy a HTTP REST API server would be with the provided docker container. You can find instructions
-for that process in the `README.md <https://github.com/incf-nidash/PyNIDM/tree/master/docker>`_ file in the docker
+The simplest way to deploy a HTTP REST API server would be with the provided
+docker container. You can find instructions for that process in the `README.md
+<https://github.com/incf-nidash/PyNIDM/tree/master/docker>`_ file in the docker
 directory of the Github repository.
 
 
@@ -367,184 +371,194 @@ Here is a list of the current operations.
 
 ::
 
-- /projects
-- /projects/{project_id}
-- /projects/{project_id}/subjects
-- /projects/{project_id}/subjects
-- /projects/{project_id}/subjects/{subject_id}
-- /projects/{project_id}/subjects/{subject_id}/instruments
-- /projects/{project_id}/subjects/{subject_id}/instruments/{instrument_id}
-- /projects/{project_id}/subjects/{subject_id}/derivatives/
-- /projects/{project_id}/subjects/{subject_id}/derivatives/{derivative_id}
-- /subjects
-- /subjects/{subject_id}
-- /statistics/projects/{project_id}
-- /dataelements
-- /dataelements/{dataelement_id}
+    - /projects
+    - /projects/{project_id}
+    - /projects/{project_id}/subjects
+    - /projects/{project_id}/subjects
+    - /projects/{project_id}/subjects/{subject_id}
+    - /projects/{project_id}/subjects/{subject_id}/instruments
+    - /projects/{project_id}/subjects/{subject_id}/instruments/{instrument_id}
+    - /projects/{project_id}/subjects/{subject_id}/derivatives/
+    - /projects/{project_id}/subjects/{subject_id}/derivatives/{derivative_id}
+    - /subjects
+    - /subjects/{subject_id}
+    - /statistics/projects/{project_id}
+    - /dataelements
+    - /dataelements/{dataelement_id}
 
-You can append the following query parameters to many of the operations:
+You can append the following query parameters to many of the operations::
 
-::
-
-- filter
-- field
+    - filter
+    - field
 
 Operations
 -----------
 
-**/projects**
- | Get a list of all project IDs available.
- |
- | Supported optional query parameters: fields
- |
+``/projects``
+    Get a list of all project IDs available.
 
-**/projects/{project_id}**
- | See some details for a project. This will include project summary information (acquisition modality, contrast type, image usage, etc) as well as a list of subject IDs and data elements used in the project.
- | When a fields parameters are provided, all instrument/derivative data in the project matching the field list will be returned as a table.
- | When a filter parameter is provided, the list of subjects returned will only include subjects that have data passing the filter
- |
- | Supported optional query parameters: filter, fields
- |
- |
+    Supported optional query parameters: fields
 
-**/projects/{project_id}/subjects**
- | Get the list of subjects in a project
- | When a filter parameter is provided only subjects matching the filter will be returned.
- |
- | Supported optional query parameters: filter
- |
- |
+``/projects/{project_id}``
+    See some details for a project. This will include project summary
+    information (acquisition modality, contrast type, image usage, etc) as well
+    as a list of subject IDs and data elements used in the project.
 
-**/projects/{project_id}/subjects/{subject_id}**
- | Get the details for a particular subject. This will include the results of any instrumnts or derivatives associated with the subject, as well a list of the related activities.
- |
- | Supported query parameters: none
- |
- |
+    When a fields parameters are provided, all instrument/derivative data in
+    the project matching the field list will be returned as a table.
 
-**/projects/{project_id}/subjects/{subject_id}/instruments**
- | Get a list of all instruments associated with that subject.
- |
- | Supported query parameters: none
- |
- |
+    When a filter parameter is provided, the list of subjects returned will
+    only include subjects that have data passing the filter
 
-**/projects/{project_id}/subjects/{subject_id}/instruments/{instrument_id}**
- | Get the values for a particular instrument
- |
- | Supported query parameters: none
- |
- |
+    Supported optional query parameters: filter, fields
 
-**/projects/{project_id}/subjects/{subject_id}/derivatives**
- | Get a list of all instruments associated with that subject.
- |
- | Supported query parameters: none
- |
- |
+``/projects/{project_id}/subjects``
+    Get the list of subjects in a project
 
-**/projects/{project_id}/subjects/{subject_id}/derivatives/{derivative_id}**
- | Get the values for a particular derivative
- |
- | Supported query parameters: none
- |
- |
+    When a filter parameter is provided only subjects matching the filter will
+    be returned.
 
-**/subjects**
- | Returns the UUID and Source Subject ID for all subjects available.
- | If the fields parameter is provided, the result will also include a table of subjects along with the values for the supplied fields in any instrument or derivative
- |
- | Supported query parameters: fields
- |
- |
+    Supported optional query parameters: filter
 
-**/subjects/{subject_id}**
- | Get the details for a particular subject. This will include the results of any instrumnts or derivatives associated with the subject, as well a a list of the related activities.
- |
- | Supported query parameters: none
- |
- |
 
-**/statistics/projects/{project_id}**
- | See project statistics. You can also use this operation to get statsitcs on a particular instrument or derivative entry by use a *field* query option.
- |
- | Supported query parameters: filter, field
- |
- |
+``/projects/{project_id}/subjects/{subject_id}``
+    Get the details for a particular subject. This will include the results of
+    any instrumnts or derivatives associated with the subject, as well a list
+    of the related activities.
 
-**/statistics/projects/{project_id}/subjects/{subject_id}**
- | See some details for a project. This will include the list of subject IDs and data elements used in the project
- |
- | Supported query parameters: none
- |
- |
+    Supported query parameters: none
 
-**/dataelements/{identifier}**
- | Returns a table of details on the dataelement that has any synonym matching the provided identifier. The system will attempt to match the data element label, isAbout URI, or data element URI. The return result will also provide a list of projects where the data element is in use.
- |
- | Supported query parameters: none
- |
- |
+``/projects/{project_id}/subjects/{subject_id}/instruments``
+    Get a list of all instruments associated with that subject.
 
+    Supported query parameters: none
+
+``/projects/{project_id}/subjects/{subject_id}/instruments/{instrument_id}``
+    Get the values for a particular instrument
+
+    Supported query parameters: none
+
+``/projects/{project_id}/subjects/{subject_id}/derivatives``
+    Get a list of all instruments associated with that subject.
+
+    Supported query parameters: none
+
+``/projects/{project_id}/subjects/{subject_id}/derivatives/{derivative_id}``
+    Get the values for a particular derivative
+
+    Supported query parameters: none
+
+``/subjects``
+    Returns the UUID and Source Subject ID for all subjects available.
+
+    If the fields parameter is provided, the result will also include a table
+    of subjects along with the values for the supplied fields in any instrument
+    or derivative
+
+    Supported query parameters: fields
+
+``/subjects/{subject_id}``
+    Get the details for a particular subject. This will include the results of
+    any instrumnts or derivatives associated with the subject, as well a a list
+    of the related activities.
+
+    Supported query parameters: none
+
+``/statistics/projects/{project_id}``
+    See project statistics. You can also use this operation to get statsitcs on
+    a particular instrument or derivative entry by use a *field* query option.
+
+    Supported query parameters: filter, field
+
+``/statistics/projects/{project_id}/subjects/{subject_id}``
+    See some details for a project. This will include the list of subject IDs
+    and data elements used in the project
+
+    Supported query parameters: none
+
+``/dataelements/{identifier}``
+    Returns a table of details on the dataelement that has any synonym matching
+    the provided identifier. The system will attempt to match the data element
+    label, isAbout URI, or data element URI. The return result will also
+    provide a list of projects where the data element is in use.
+
+    Supported query parameters: none
 
 Query Parameters
 -----------------
 
-**filter**
- | The filter query parameter is used when you want to receive data only on subjects that match some criteria.  The format for the filter value should be of the form:
- |    *identifier op value [ and identifier op value and ... ]*
- | Identifiers should be formatted as either a simple field, such as "age", or if you want to restrict the match to just instruments or derivatives format it ia "derivatives.ID" or "derivatives.Subcortical gray matter volume (mm^3)"
- |You can use any value for identifier that is shown in the data_elements section of the project details. For a derivative ID, you can use the last component of a derivative field URI (ex. for the URI http://purl.org/nidash/fsl#fsl_000007, the ID would be "fsl_000007") or the exact label shown when viewing derivative data (ex. "Left-Caudate (mm^3)").
- | The *op* can be one of "eq", "gt", "lt"
+``filter``
+    The filter query parameter is used when you want to receive data only on
+    subjects that match some criteria.  The format for the filter value should
+    be of the form::
 
- | **Example filters:**
- |    *?filter=instruments.AGE_AT_SCAN gt 30*
- |    *?filter=instrument.AGE_AT_SCAN eq 21 and derivative.fsl_000007 lt 3500*
+        identifier op value [ and identifier op value and ... ]
 
-**fields**
- | The fields query parameter is used to specify what fields should be detailed. The matching rules are similar to the filter parameter.
+    Identifiers should be formatted as either a simple field, such as "age", or
+    if you want to restrict the match to just instruments or derivatives format
+    it ia "derivatives.ID" or "derivatives.Subcortical gray matter volume
+    (mm^3)"
 
- | **Example field query:**
- |    *http://localhost:5000/statistics/projects/abc123?field=AGE_AT_SCAN,derivatives.fsl_000020*
+    You can use any value for identifier that is shown in the data_elements
+    section of the project details. For a derivative ID, you can use the last
+    component of a derivative field URI (ex. for the URI
+    http://purl.org/nidash/fsl#fsl_000007, the ID would be "fsl_000007") or the
+    exact label shown when viewing derivative data (ex. "Left-Caudate (mm^3)").
 
+    The ``op`` can be one of "eq", "gt", "lt".
 
-For identifiers in both the fields and filters, when PyNIDM is trying to match your provided value with data in the file a list of synonyms will be created to facilitate the match. This allows you to use the exact identifier, URI, data element label, or an "is about" concept URI if available.
+    Example filters:
+        ``?filter=instruments.AGE_AT_SCAN gt 30``
+        ``?filter=instrument.AGE_AT_SCAN eq 21 and derivative.fsl_000007 lt 3500``
+
+``fields``
+    The fields query parameter is used to specify what fields should be
+    detailed. The matching rules are similar to the filter parameter.
+
+    Example field query:
+        ``http://localhost:5000/statistics/projects/abc123?field=AGE_AT_SCAN,derivatives.fsl_000020``
+
+For identifiers in both the fields and filters, when PyNIDM is trying to match
+your provided value with data in the file a list of synonyms will be created to
+facilitate the match. This allows you to use the exact identifier, URI, data
+element label, or an "is about" concept URI if available.
 
 Return Formatting
 ==================
 
-By default the HTTP REST API server will return JSON formatted objects or arrays.  When using the pynidm query
-command line utility the default return format is text (when possible) or you can use the -j option to have the
-output formatted as JSON.
-
-
+By default the HTTP REST API server will return JSON formatted objects or
+arrays.  When using the pynidm query command line utility the default return
+format is text (when possible) or you can use the -j option to have the output
+formatted as JSON.
 
 Examples
 --------
 
-**Get the UUID for all the projects at this location:**
+Get the UUID for all the projects at this location
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. code-block:: bash
+.. code:: bash
 
    curl http://localhost:5000/projects
 
 Example response:
 
-.. code-block:: JSON
+.. code:: JSON
 
    [
        "dc1bf9be-10a3-11ea-8779-003ee1ce9545"
    ]
 
-**Get the project summary details:**
+Get the project summary details
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. code-block:: HTML
+.. code:: bash
 
    curl http://localhost:5000/projects/dc1bf9be-10a3-11ea-8779-003ee1ce9545
 
 Example response:
 
-.. code-block:: JSON
+.. code:: JSON
 
    {
      "AcquisitionModality": [
@@ -601,14 +615,15 @@ Example response:
      ]
    }
 
-**Get Left-Pallidum volume (fsl_0000012) values for all subjects in a project**
-.. code-block:: HTML
+Get Left-Pallidum volume (fsl_0000012) values for all subjects in a project
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code:: bash
 
    pynidm query -nl ttl/cmu_a.ttl -u /projects/cc305b3e-67aa-11ea-ba45-003ee1ce9545?fields=fsl_000012
 
-.. code-block:: HTML
+::
 
-   <pre>
    -----------------------------------------------  -----------------------------------------------------
    AcquisitionModality                              ["MagneticResonanceImaging"]
    ImageContrastType                                ["FlowWeighted", "T1Weighted"]
@@ -661,17 +676,15 @@ Example response:
    b41d75f2-67aa-11ea-ba45-003ee1ce9545  fsl_000012  ilx_0738276  Left-Pallidum (mm^3)     2031  mm^3
    be3fbff0-67aa-11ea-ba45-003ee1ce9545  fsl_000012  ilx_0738276  Left-Pallidum (mm^3)     1935  mm^3
    eec5a0ca-67aa-11ea-ba45-003ee1ce9545  fsl_000012  ilx_0738276  Left-Pallidum (mm^3)     1806  mm^3
-   </pre>
 
-**Get the subjects in a project:**
+Get the subjects in a project
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. code-block:: HTML
+.. code:: bash
 
    pynidm query -nl "cmu_a.nidm.ttl" -u http://localhost:5000/projects/dc1bf9be-10a3-11ea-8779-003ee1ce9545/subjects
 
-Example response:
-
-.. code-block:: JSON
+Example response::
 
    deef8eb2-10a3-11ea-8779-003ee1ce9545
    df533e6c-10a3-11ea-8779-003ee1ce9545
@@ -688,17 +701,14 @@ Example response:
    df87cbaa-10a3-11ea-8779-003ee1ce9545
    de55285e-10a3-11ea-8779-003ee1ce9545
 
+Use the command line to get statistics on a project for the AGE_AT_SCAN and a FSL data element
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-**Use the command line to get statistics on a project for the AGE_AT_SCAN and a FSL data element:**
-
-.. code-block:: HTML
+.. code:: bash
 
    pynidm query -nl ttl/cmu_a.nidm.ttl -u /statistics/projects/dc1bf9be-10a3-11ea-8779-003ee1ce9545?fields=instruments.AGE_AT_SCAN,derivatives.fsl_000001
 
-Example response:
-
-
-.. code-block:: bash
+Example response::
 
   -------------------------------------------------  ---------------------------------------------
   "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"  http://www.w3.org/ns/prov#Activity
@@ -753,15 +763,18 @@ Example response:
   fsl_000001  standard_deviation  2.22465e+06
   ----------  ------------------  -----------
 
-**Get details on a subject. Use -j for a JSON formatted response:**
+Get details on a subject
+~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. code-block:: HTML
+Use ``-j`` for a JSON formatted response
+
+.. code:: bash
 
    pynidm query -j -nl "cmu_a.nidm.ttl" -u http://localhost:5000/projects/dc1bf9be-10a3-11ea-8779-003ee1ce9545/subjects/df21cada-10a3-11ea-8779-003ee1ce9545
 
 Example response:
 
-.. code-block:: JSON
+.. code:: JSON
 
    {
   "uuid": "df21cada-10a3-11ea-8779-003ee1ce9545",
@@ -821,3 +834,11 @@ Example response:
          "StatCollectionType": "FSLStatsCollection"
       }
    }
+
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
