@@ -1,13 +1,8 @@
 import sys
-from tempfile import gettempdir
-from joblib import Memory
 from nidm.core import Constants
 from nidm.experiment import Navigate
 import nidm.experiment.Navigate
 import nidm.experiment.tools.rest
-
-memory = Memory(gettempdir(), verbose=0)
-USE_JOBLIB_CACHE = False
 
 
 def GetProjectsComputedMetadata(nidm_file_list):
