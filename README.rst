@@ -444,14 +444,14 @@ Query Parameters
     subjects that match some criteria.  The format for the filter value should
     be of the form::
 
-       identifier op value [ and identifier op value and ... ]
+        identifier op value [ and identifier op value and ... ]
 
     Identifiers should be formatted as "instrument.ID" or "derivatives.ID"  You
     can use any value for the instrument ID that is shown for an instrument or
     in the data_elements section of the project details. For the derivative ID,
     you can use the last component of a derivative field URI (ex. for the URI
     http://purl.org/nidash/fsl#fsl_000007, the ID would be "fsl_000007") or the
-    exact label shown when viewing derivative data (ex. "Left-Caudate (mm^3)")
+    exact label shown when viewing derivative data (ex. "Left-Caudate (mm^3)").
 
     The ``op`` can be one of "eq", "gt", "lt".
 
@@ -502,7 +502,7 @@ Example response:
 Get the project summary details
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. code:: HTML
+.. code:: bash
 
    curl http://localhost:5000/projects/dc1bf9be-10a3-11ea-8779-003ee1ce9545
 
