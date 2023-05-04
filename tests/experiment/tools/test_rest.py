@@ -4,7 +4,6 @@ from pathlib import Path
 import re
 import sys
 from typing import Optional
-import urllib.request
 import uuid
 import pytest
 import rdflib
@@ -13,6 +12,7 @@ from nidm.core import Constants
 from nidm.experiment import Acquisition, AssessmentObject, Project, Query, Session
 from nidm.experiment.CDE import getCDEs
 from nidm.experiment.tools.rest import RestParser
+from nidm.util import urlretrieve
 from ..conftest import BrainVol
 
 if sys.version_info >= (3, 9):
@@ -46,7 +46,7 @@ class OpenNeuro:
 @pytest.fixture(scope="module")
 def openneuro(tmp_path_factory: pytest.TempPathFactory) -> OpenNeuro:
     tmp_path = tmp_path_factory.mktemp("openneuro")
-    urllib.request.urlretrieve(
+    urlretrieve(
         "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/master/datasets.datalad.org/openneuro/ds000120/nidm.ttl",
         tmp_path / "ds000120.nidm.ttl",
     )

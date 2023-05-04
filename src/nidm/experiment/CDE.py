@@ -2,10 +2,10 @@ import hashlib
 from os import environ, path
 import pickle
 import tempfile
-from urllib.request import urlretrieve
 from rdflib import Graph
 from nidm.core import Constants
 import nidm.experiment.Query
+from nidm.util import urlretrieve
 
 
 def download_cde_files():

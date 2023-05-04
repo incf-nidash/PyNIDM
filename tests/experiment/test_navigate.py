@@ -1,9 +1,9 @@
 from __future__ import annotations
 from dataclasses import dataclass
 import re
-import urllib.request
 import pytest
 from nidm.experiment import Navigate
+from nidm.util import urlretrieve
 
 
 @dataclass
@@ -22,7 +22,7 @@ def brain_vol(brain_vol_files: list[str]) -> ProjectData:
 @pytest.fixture(scope="module")
 def openneuro(tmp_path_factory: pytest.TempPathFactory) -> ProjectData:
     tmp_path = tmp_path_factory.mktemp("openneuro")
-    urllib.request.urlretrieve(
+    urlretrieve(
         "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/master/datasets.datalad.org/openneuro/ds000110/nidm.ttl",
         tmp_path / "ds000110.nidm.ttl",
     )

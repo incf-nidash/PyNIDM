@@ -44,10 +44,10 @@ from shutil import copyfile
 import sys
 import tempfile
 import urllib.parse
-import urllib.request as ur
 import datalad.api as dl
 import pandas as pd
 from rdflib import Graph, URIRef
+import requests
 import validators
 from nidm.core import BIDS_Constants, Constants
 from nidm.core.Constants import DD
@@ -145,10 +145,13 @@ def GetImageFromURL(url):
     # try to open the url and get the pointed to file
     try:
         # open url and get file
-        with ur.urlopen(url) as opener:
+        with requests.get(url, stream=True) as r:
+            r.raise_for_status()
             # write temporary file to disk and use for stats
             with tempfile.NamedTemporaryFile(delete=False) as temp:
-                temp.write(opener.read())
+                for chunk in r.iter_content(65535):
+                    temp.write(chunk)
+                temp.flush()
                 return temp.name
     except Exception:
         print("ERROR! Can't open url: %s" % url)

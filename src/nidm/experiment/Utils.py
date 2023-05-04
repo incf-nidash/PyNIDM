@@ -4,7 +4,6 @@ import json
 import logging
 import os
 import sys
-from urllib.request import urlopen
 from uuid import UUID
 from cognitiveatlas.api import get_concept, get_disorder
 from datalad.support.annexrepo import AnnexRepo
@@ -966,8 +965,9 @@ def load_nidm_terms_concepts():
     concept_url = "https://raw.githubusercontent.com/NIDM-Terms/terms/master/terms/NIDM_Concepts.jsonld"
 
     try:
-        with urlopen(concept_url) as response:
-            concept_graph = json.loads(response.read().decode("utf-8"))
+        r = requests.get(concept_url)
+        r.raise_for_status()
+        concept_graph = r.json()
     except Exception:
         logging.info("Error opening %s used concepts file..continuing" % concept_url)
         return None
