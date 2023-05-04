@@ -1,5 +1,5 @@
+from nidm import __version__
 from nidm.experiment.tools.click_base import cli
-from nidm.version import __version__
 
 
 # adding click argument parsing
