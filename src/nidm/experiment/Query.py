@@ -37,13 +37,13 @@ from os import environ, path
 import pickle
 import re
 import tempfile
-from urllib.request import urlretrieve
 import pandas as pd
 import rdflib
 from rdflib import Graph, URIRef, util
 import requests
 from nidm.core import Constants
 import nidm.experiment.CDE
+from nidm.util import urlretrieve
 
 QUERY_CACHE_SIZE = 64
 BIG_CACHE_SIZE = 256

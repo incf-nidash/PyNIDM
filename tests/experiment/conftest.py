@@ -1,9 +1,9 @@
 from __future__ import annotations
 from dataclasses import dataclass
 from typing import Optional
-import urllib.request
 import pytest
 from nidm.experiment.tools.rest import RestParser
+from nidm.util import urlretrieve
 
 # We will test example NIDM files downloaded from
 # the GitHub dbkeator/simple2_NIDM_examples repo
@@ -18,11 +18,11 @@ from nidm.experiment.tools.rest import RestParser
 @pytest.fixture(scope="session")
 def brain_vol_files(tmp_path_factory: pytest.TempPathFactory) -> list[str]:
     tmp_path = tmp_path_factory.mktemp("brain_vol_files")
-    urllib.request.urlretrieve(
+    urlretrieve(
         "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/master/datasets.datalad.org/abide/RawDataBIDS/CMU_a/nidm.ttl",
         tmp_path / "cmu_a.nidm.ttl",
     )
-    urllib.request.urlretrieve(
+    urlretrieve(
         "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/master/datasets.datalad.org/abide/RawDataBIDS/Caltech/nidm.ttl",
         tmp_path / "caltech.nidm.ttl",
     )

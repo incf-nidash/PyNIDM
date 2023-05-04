@@ -1,9 +1,9 @@
 from __future__ import annotations
 from dataclasses import dataclass
 from typing import Optional
-import urllib.request
 import pytest
 from nidm.experiment.tools.rest import RestParser
+from nidm.util import urlretrieve
 from ..conftest import BrainVol
 
 
@@ -16,7 +16,7 @@ class OpenNeuro:
 @pytest.fixture(scope="module")
 def openneuro(tmp_path_factory: pytest.TempPathFactory) -> OpenNeuro:
     tmp_path = tmp_path_factory.mktemp("openneuro")
-    urllib.request.urlretrieve(
+    urlretrieve(
         "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/master/datasets.datalad.org/openneuro/ds000120/nidm.ttl",
         tmp_path / "ds000120.nidm.ttl",
     )

@@ -1,7 +1,7 @@
 from __future__ import annotations
-import urllib.request
 import pytest
 from nidm.experiment.tools.rest import RestParser
+from nidm.util import urlretrieve
 
 OPENNEURO_FILES = [
     "ds000002.nidm.ttl",
@@ -38,7 +38,7 @@ def openneuro_files(tmp_path_factory: pytest.TempPathFactory) -> list[str]:
     tmp_path = tmp_path_factory.mktemp("openneuro")
     for fname in OPENNEURO_FILES:
         dataset = fname.split(".")[0]
-        urllib.request.urlretrieve(
+        urlretrieve(
             f"https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/master/datasets.datalad.org/openneuro/{dataset}/nidm.ttl",
             tmp_path / fname,
         )
