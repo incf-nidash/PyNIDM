@@ -1,6 +1,5 @@
 FROM pynidm:latest
-
-RUN pip3 install flask flask_restful flask-cors
-
+RUN pip install flask flask_restful flask-cors
 EXPOSE 5000
-CMD ["python", "/opt/project/rest-server.py"]
+COPY rest-server.py /usr/src/
+CMD ["python", "/usr/src/rest-server.py"]
