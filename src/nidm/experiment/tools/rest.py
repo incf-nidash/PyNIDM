@@ -7,7 +7,6 @@ import re
 from tempfile import gettempdir
 from urllib import parse
 from urllib.parse import parse_qs, urlparse
-from joblib import Memory
 from numpy import mean, median, std
 from tabulate import tabulate
 from nidm.core import Constants
@@ -15,9 +14,6 @@ from nidm.experiment import Navigate, Query
 import nidm.experiment.Navigate
 from nidm.experiment.Utils import validate_uuid
 import nidm.experiment.tools.rest_statistics
-
-memory = Memory(gettempdir(), verbose=0)
-USE_JOBLIB_CACHE = False
 
 
 def convertListtoDict(lst):

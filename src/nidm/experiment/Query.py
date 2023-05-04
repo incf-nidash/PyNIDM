@@ -38,16 +38,12 @@ import pickle
 import re
 import tempfile
 from urllib.request import urlretrieve
-from joblib import Memory
 import pandas as pd
 import rdflib
 from rdflib import Graph, URIRef, util
 import requests
 from nidm.core import Constants
 import nidm.experiment.CDE
-
-memory = Memory(tempfile.gettempdir(), verbose=0)
-
 
 QUERY_CACHE_SIZE = 64
 BIG_CACHE_SIZE = 256
@@ -1436,9 +1432,6 @@ def OpenGraph(file):
     rdf_graph.parse(file, format=util.guess_format(file))
     with open(pickle_file, "wb") as fp:
         pickle.dump(rdf_graph, fp)
-
-    # new graph, so to be safe clear out all cached entries
-    memory.clear(warn=False)
 
     return rdf_graph
 
