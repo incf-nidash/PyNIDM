@@ -1438,9 +1438,7 @@ def map_variables_to_terms(
                         column_to_terms[current_tuple]["description"] = ""
                     # column_to_terms[current_tuple]['variable'] = json_map[json_key[0]]['variable']
 
-                    print(
-                        "\n*************************************************************************************"
-                    )
+                    print("\n" + ("*" * 85))
                     print(
                         "Column %s already annotated in user supplied JSON mapping file"
                         % column
@@ -1897,12 +1895,8 @@ def map_variables_to_terms(
                             # write annotations to json file so user can start up again if not doing whole file
                             write_json_mapping_file(column_to_terms, output_file, bids)
 
-            print(
-                "***************************************************************************************"
-            )
-            print(
-                "---------------------------------------------------------------------------------------"
-            )
+            print("*" * 87)
+            print("-" * 87)
 
             if (json_map is not None) and (len(json_key) > 0):
                 continue
@@ -1951,9 +1945,7 @@ def map_variables_to_terms(
             print(
                 "Source Variable: %s" % column_to_terms[subjid_tuple]["source_variable"]
             )
-            print(
-                "---------------------------------------------------------------------------------------"
-            )
+            print("-" * 87)
             continue
         # if we haven't already found an annotation for this column then have user create one.
         if current_tuple not in column_to_terms.keys():
@@ -2335,9 +2327,7 @@ def find_concept_interactive(
         option = option + 1
         print("%d: No concept needed for this variable" % option)
 
-        print(
-            "---------------------------------------------------------------------------------------"
-        )
+        print("*" * 87)
         # Wait for user input
         selection = input("Please select an option (1:%d) from above: \t" % option)
 
@@ -2356,9 +2346,7 @@ def find_concept_interactive(
                 "Please input new search string for CSV column: %s \t:"
                 % source_variable
             )
-            print(
-                "---------------------------------------------------------------------------------------"
-            )
+            print("*" * 87)
 
         # ####### DEFINE NEW CONCEPT COMMENTED OUT RIGHT NOW ##################
         # elif int(selection) == (option - 1):
@@ -2591,9 +2579,7 @@ def annotate_data_element(source_variable, current_tuple, source_variable_annota
         ] = term_category
 
     # print mappings
-    print(
-        "\n*************************************************************************************"
-    )
+    print("\n" + ("*" * 85))
     print("Stored mapping: %s ->  " % source_variable)
     print("label: %s" % source_variable_annotations[current_tuple]["label"])
     print(
@@ -2628,9 +2614,7 @@ def annotate_data_element(source_variable, current_tuple, source_variable_annota
             "choices: %s"
             % source_variable_annotations[current_tuple]["responseOptions"]["choices"]
         )
-    print(
-        "---------------------------------------------------------------------------------------"
-    )
+    print("-" * 87)
 
 
 def DD_UUID(element, dd_struct, dataset_identifier=None):
