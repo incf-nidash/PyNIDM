@@ -29,7 +29,7 @@ class Derivative(pm.ProvActivity, Core):
             self._uuid = getUUID()
 
             # execute default parent class constructor
-            super(Derivative, self).__init__(
+            super().__init__(
                 project.graph,
                 pm.QualifiedName(
                     pm.Namespace("niiri", Constants.NIIRI), self.get_uuid()
@@ -38,9 +38,7 @@ class Derivative(pm.ProvActivity, Core):
             )
         else:
             self._uuid = uuid
-            super(Derivative, self).__init__(
-                project.graph, pm.Identifier(uuid), attributes
-            )
+            super().__init__(project.graph, pm.Identifier(uuid), attributes)
 
         project.graph._add_record(self)
 

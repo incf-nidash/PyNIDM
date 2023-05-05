@@ -29,7 +29,5 @@ class ProcessExecution(pm.ProvActivity, Core):
             self.graph = Constants.NIDMDocument(namespaces=Constants.namespaces)
 
         # execute default parent class constructor
-        super(ProcessExecution, self).__init__(
-            self.graph, pm.PROV[getUUID()], attributes
-        )
+        super().__init__(self.graph, pm.PROV[getUUID()], attributes)
         self.graph._add_record(self)

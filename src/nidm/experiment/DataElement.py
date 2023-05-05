@@ -29,15 +29,13 @@ class DataElement(pm.ProvEntity, Core):
 
         if uuid is None:
             # execute default parent class constructor
-            super(DataElement, self).__init__(
+            super().__init__(
                 project.graph,
                 pm.QualifiedName(pm.Namespace("niiri", Constants.NIIRI), getUUID()),
                 attributes,
             )
         else:
-            super(DataElement, self).__init__(
-                project.graph, pm.Identifier(uuid), attributes
-            )
+            super().__init__(project.graph, pm.Identifier(uuid), attributes)
 
         project.graph._add_record(self)
 

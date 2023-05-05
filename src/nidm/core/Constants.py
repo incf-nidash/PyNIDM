@@ -113,9 +113,9 @@ for name, namespace in namespaces.items():
 class NIDMDocument(ProvDocument):
     def __init__(self, namespaces=None):
         if namespaces is not None:
-            super(NIDMDocument, self).__init__(namespaces=namespaces)
+            super().__init__(namespaces=namespaces)
         else:
-            super(NIDMDocument, self).__init__()
+            super().__init__()
 
 
 # NIDM constants
