@@ -12,6 +12,7 @@ import logging
 import os
 from os.path import basename, dirname, join
 from shutil import copy2
+import sys
 import pandas as pd
 from rdflib import Graph
 from nidm.core import Constants
@@ -131,7 +132,7 @@ def main():
             "file types.  Please change your input file appropriately and re-run."
         )
         print("no NIDM file created!")
-        exit(1)
+        sys.exit(1)
     # temp = csv.reader(args.csv_file)
     # df = pd.DataFrame(temp)
 
@@ -190,12 +191,10 @@ def main():
 
         # look at column_to_terms dictionary for NIDM URL for subject id  (Constants.NIDM_SUBJECTID)
         id_field = None
-        for key, _ in column_to_terms.items():
-            if "isAbout" in column_to_terms[key]:
-                for isabout_key, isabout_value in column_to_terms[key][
-                    "isAbout"
-                ].items():
-                    if (isabout_key == "url") or (isabout_key == "@id"):
+        for key, value in column_to_terms.items():
+            if "isAbout" in value:
+                for isabout_key, isabout_value in value["isAbout"].items():
+                    if isabout_key in ("url", "@id"):
                         if isabout_value == Constants.NIDM_SUBJECTID._uri:
                             key_tuple = eval(key)
                             # id_field=key
@@ -259,7 +258,7 @@ def main():
 
             # if there was data about this subject in the NIDM file already (i.e. an agent already exists with this subject id)
             # then add this CSV assessment data to NIDM file, else skip it....
-            if not (len(csv_row.index) == 0):
+            if len(csv_row.index) != 0:
                 logging.info("found participant in CSV file")
 
                 # create a new session for this assessment
@@ -343,12 +342,12 @@ def main():
 
         # look at column_to_terms dictionary for NIDM URL for subject id  (Constants.NIDM_SUBJECTID)
         id_field = None
-        for key, _ in column_to_terms.items():
+        for key, value in column_to_terms.items():
             # using isAbout concept association to associate subject identifier variable from csv with a known term
             # for subject IDs
-            if "isAbout" in column_to_terms[key]:
+            if "isAbout" in value:
                 # iterate over isAbout list entries and look for Constants.NIDM_SUBJECTID
-                for entries in column_to_terms[key]["isAbout"]:
+                for entries in value["isAbout"]:
                     if Constants.NIDM_SUBJECTID.uri == entries["@id"]:
                         key_tuple = eval(key)
                         id_field = key_tuple.variable

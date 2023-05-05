@@ -33,7 +33,7 @@ def abide(brain_vol_files) -> ProjectData:
     for p in projects:
         proj_info = nidm.experiment.Navigate.GetProjectAttributes(files, p)
         if (
-            "dctypes:title" in proj_info.keys()
+            "dctypes:title" in proj_info
             and proj_info["dctypes:title"] == "ABIDE - CMU_a"
         ):
             cmu_test_project_uuid = p
@@ -105,10 +105,10 @@ def test_GetParticipantIDs(tmp_path: Path) -> None:
     acq = Acquisition(uuid="_15793", session=session)
     acq2 = Acquisition(uuid="_15795", session=session)
 
-    person = acq.add_person(attributes=({Constants.NIDM_SUBJECTID: "9999"}))
+    person = acq.add_person(attributes={Constants.NIDM_SUBJECTID: "9999"})
     acq.add_qualified_association(person=person, role=Constants.NIDM_PARTICIPANT)
 
-    person2 = acq2.add_person(attributes=({Constants.NIDM_SUBJECTID: "8888"}))
+    person2 = acq2.add_person(attributes={Constants.NIDM_SUBJECTID: "8888"})
     acq2.add_qualified_association(person=person2, role=Constants.NIDM_PARTICIPANT)
 
     # save a turtle file
@@ -287,7 +287,7 @@ def test_GetProjectsMetadata(abide: ProjectData, tmp_path: Path) -> None:
     # find the project ID from the CMU file
     p3 = None
     for project_id in parsed["projects"]:
-        if project_id != p1 and project_id != p2:
+        if project_id not in (p1, p2):
             if (
                 parsed["projects"][project_id][str(Constants.NIDM_PROJECT_NAME)]
                 == "ABIDE - CMU_a"
@@ -331,10 +331,10 @@ def test_GetProjectAttributes(abide: ProjectData) -> None:
     assert (
         "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" in project_attributes
     ) or ("type" in project_attributes)
-    assert ("AcquisitionModality") in project_attributes
-    assert ("ImageContrastType") in project_attributes
-    assert ("Task") in project_attributes
-    assert ("ImageUsageType") in project_attributes
+    assert "AcquisitionModality" in project_attributes
+    assert "ImageContrastType" in project_attributes
+    assert "Task" in project_attributes
+    assert "ImageUsageType" in project_attributes
 
 
 def test_download_cde_files():

@@ -101,14 +101,14 @@ def makeTestFile(dirpath: Path, filename: str, params: dict) -> RestTest:
     acq2 = Acquisition(uuid="_acq2", session=session)
     acq3 = Acquisition(uuid="_acq2", session=session)
 
-    person = acq.add_person(attributes=({Constants.NIDM_SUBJECTID: "a1_9999"}))
+    person = acq.add_person(attributes={Constants.NIDM_SUBJECTID: "a1_9999"})
     test_person_uuid = (str(person.identifier)).replace("niiri:", "")
 
     acq.add_qualified_association(person=person, role=Constants.NIDM_PARTICIPANT)
 
-    person2 = acq2.add_person(attributes=({Constants.NIDM_SUBJECTID: "a1_8888"}))
+    person2 = acq2.add_person(attributes={Constants.NIDM_SUBJECTID: "a1_8888"})
     acq2.add_qualified_association(person=person2, role=Constants.NIDM_PARTICIPANT)
-    person3 = acq3.add_person(attributes=({Constants.NIDM_SUBJECTID: "a2_7777"}))
+    person3 = acq3.add_person(attributes={Constants.NIDM_SUBJECTID: "a2_7777"})
     acq2.add_qualified_association(person=person3, role=Constants.NIDM_PARTICIPANT)
 
     project2 = Project(uuid=project_uuid2, attributes=p2kwargs)
@@ -116,9 +116,9 @@ def makeTestFile(dirpath: Path, filename: str, params: dict) -> RestTest:
     acq4 = Acquisition(uuid="_acq3", session=session2)
     acq5 = Acquisition(uuid="_acq4", session=session2)
 
-    person4 = acq4.add_person(attributes=({Constants.NIDM_SUBJECTID: "a3_6666"}))
+    person4 = acq4.add_person(attributes={Constants.NIDM_SUBJECTID: "a3_6666"})
     acq4.add_qualified_association(person=person4, role=Constants.NIDM_PARTICIPANT)
-    person5 = acq5.add_person(attributes=({Constants.NIDM_SUBJECTID: "a4_5555"}))
+    person5 = acq5.add_person(attributes={Constants.NIDM_SUBJECTID: "a4_5555"})
     acq5.add_qualified_association(person=person5, role=Constants.NIDM_PARTICIPANT)
 
     # now add some assessment instrument data
@@ -349,10 +349,10 @@ def test_brain_vols(brain_vol: BrainVol) -> None:
     data = Query.GetDerivativesDataForSubject(brain_vol.files, None, subject)
 
     assert len(data) > 0
-    for key in data:
-        assert "StatCollectionType" in data[key]
-        assert "URI" in data[key]
-        assert "values" in data[key]
+    for value in data.values():
+        assert "StatCollectionType" in value
+        assert "URI" in value
+        assert "values" in value
 
 
 def test_GetParticipantDetails(brain_vol: BrainVol) -> None:
@@ -388,10 +388,10 @@ def test_CheckSubjectMatchesFilter(brain_vol: BrainVol) -> None:
 
     derivatives = Query.GetDerivativesDataForSubject(brain_vol.files, project, subject)
 
-    for skey in derivatives:
-        for vkey in derivatives[skey]["values"]:
+    for svalue in derivatives.values():
+        for vkey in svalue["values"]:
             dt = vkey
-            val = derivatives[skey]["values"][vkey]["value"]
+            val = svalue["values"][vkey]["value"]
             if dt and val:
                 break
 
@@ -402,7 +402,7 @@ def test_CheckSubjectMatchesFilter(brain_vol: BrainVol) -> None:
     )
 
     instruments = Query.GetParticipantInstrumentData(brain_vol.files, project, subject)
-    for _, inst in instruments.items():
+    for inst in instruments.values():
         if "AGE_AT_SCAN" in inst:
             age = inst["AGE_AT_SCAN"]
 
@@ -551,7 +551,6 @@ def assess_one_col_output(txt_output):
     # if we didn't find a line with a uuid then we simply flag a false assertion and return the first line of output
     # cause it doesn't really matter at this point the assertion already failed
     raise AssertionError
-    return lines[0]
 
 
 def is_uuid(uuid):
@@ -621,7 +620,7 @@ def test_cli_rest_routes(brain_vol: BrainVol) -> None:
     summary_lines = (
         sections[0].strip().splitlines()[1:-1]
     )  # first and last lines should be -----
-    summary = dict()
+    summary = {}
     for ln in summary_lines:
         summary[ln.split()[0]] = ln.split()[1]
     inst_uuid = summary["instruments"].split(",")[0]
@@ -665,7 +664,7 @@ def test_multiple_project_fields(brain_vol: BrainVol) -> None:
     print(fields)
     fv = fields
     assert type(fv) == list
-    fields_used = set([i.label for i in fv])
+    fields_used = {i.label for i in fv}
     assert ("brain" in fields_used) or (
         "Brain Segmentation Volume (mm^3)" in fields_used
     )
@@ -742,7 +741,7 @@ def test_project_fields_not_found(brain_vol: BrainVol) -> None:
     project = rest_parser.run(
         brain_vol.files, f"/projects/{brain_vol.cmu_test_project_uuid}?fields={field}"
     )
-    keys = {i for i in project}
+    keys = set(project)
     assert "error" in keys
 
 

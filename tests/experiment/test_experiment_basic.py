@@ -28,7 +28,7 @@ def test_2(tmp_path: Path) -> None:
 
 def test_sessions_1() -> None:
     project = Project()
-    assert project.sessions == []
+    assert not project.sessions
 
     session1 = Session(project)
     project.add_sessions(session1)
@@ -42,7 +42,7 @@ def test_sessions_1() -> None:
 
 def test_sessions_2() -> None:
     project = Project()
-    assert project.sessions == []
+    assert not project.sessions
 
     session1 = Session(project)
     assert project.sessions[0].label == session1.label
@@ -161,7 +161,7 @@ def test_session_noparameters():
     assert issubclass(type(proj.bundle), prov.model.ProvDocument)
 
     # checking if one session is added
-    assert len(proj.sessions)
+    assert len(proj.sessions) != 0
 
     # checking graph namespace
     const_l = list(Constants.namespaces)

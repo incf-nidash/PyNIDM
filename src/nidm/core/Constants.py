@@ -588,17 +588,13 @@ PROVONE_ATTRIBUTE_QNAMES = {
 PROVONE_ATTRIBUTES = (
     PROVONE_ATTRIBUTE_QNAMES | PROV_ATTRIBUTE_QNAMES | PROV_ATTRIBUTE_LITERALS
 )
-PROVONE_RECORD_ATTRIBUTES = list((attr, str(attr)) for attr in PROVONE_ATTRIBUTES)
+PROVONE_RECORD_ATTRIBUTES = [(attr, str(attr)) for attr in PROVONE_ATTRIBUTES]
 
-PROV_RECORD_IDS_MAP = dict(
-    (PROV_N_MAP[rec_type_id], rec_type_id) for rec_type_id in PROV_N_MAP
-)
-PROVONE_ID_ATTRIBUTES_MAP = dict(
-    (prov_id, attribute) for (prov_id, attribute) in PROVONE_RECORD_ATTRIBUTES
-)
-PROVONE_ATTRIBUTES_ID_MAP = dict(
-    (attribute, prov_id) for (prov_id, attribute) in PROVONE_RECORD_ATTRIBUTES
-)
+PROV_RECORD_IDS_MAP = {value: rec_type_id for rec_type_id, value in PROV_N_MAP.items()}
+PROVONE_ID_ATTRIBUTES_MAP = dict(PROVONE_RECORD_ATTRIBUTES)
+PROVONE_ATTRIBUTES_ID_MAP = {
+    attribute: prov_id for (prov_id, attribute) in PROVONE_RECORD_ATTRIBUTES
+}
 
 
 # ADDED BY DBK to make searching NIDM-Experiment Terms easier...temporary, should be done in the OWL file #

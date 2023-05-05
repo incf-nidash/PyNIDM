@@ -1,5 +1,6 @@
 import csv
 import os
+import sys
 import tempfile
 import click
 import matplotlib.pyplot as plt
@@ -113,11 +114,7 @@ def data_aggregation():  # all data from all the files is collected
             global var_list
             # below, we edit the model so it splits by +,~, or =. However, to help it out in catching everything
             # we replaced ~ and = with a + so that we can still use split. Regex wasn't working.
-            var_list = v.split(",")
-            for i in range(
-                len(var_list)
-            ):  # here, we remove any leading or trailing spaces
-                var_list[i] = var_list[i].strip()
+            var_list = [vv.strip() for vv in v.split(",")]
             # set the dependent variable to the one dependent variable in the model
             global variables  # used in dataparsing()
             variables = ""
@@ -156,7 +153,6 @@ def data_aggregation():  # all data from all the files is collected
             numcols = (len(data) - 1) // (
                 len(var_list)
             )  # Finds the number of columns in the original dataframe
-            global condensed_data  # also used in linreg()
             condensed_data_holder[count] = [
                 [0] * (len(var_list))
             ]  # makes an array 1 row by the number of necessary columns
@@ -164,14 +160,10 @@ def data_aggregation():  # all data from all the files is collected
                 numcols
             ):  # makes the 2D array big enough to store all of the necessary values in the edited dataset
                 condensed_data_holder[count].append([0] * (len(var_list)))
-            for m in range(0, len(var_list)):
-                end_url = var_list[m].split("/")
-                if "/" in var_list[m]:
-                    var_list[m] = end_url[len(end_url) - 1]
-            for i in range(
-                len(var_list)
-            ):  # stores the independent variable names in the first row
-                condensed_data_holder[count][0][i] = var_list[i]
+            var_list = [v.split("/")[-1] for v in var_list]
+            for i, vr in enumerate(var_list):
+                # stores the independent variable names in the first row
+                condensed_data_holder[count][0][i] = vr
             numrows = 1  # begins at the first row to add data
             fieldcolumn = (
                 0  # the column the variable name is in in the original dataset
@@ -267,18 +259,11 @@ def data_aggregation():  # all data from all the files is collected
                 if count1 > len(condensed_data_holder[count]) - 2:
                     not_found_list.append(condensed_data_holder[count][0][i])
                 count1 = 0
-            for i in range(len(condensed_data_holder[count][0])):
-                if " " in condensed_data_holder[count][0][i]:
-                    condensed_data_holder[count][0][i] = condensed_data_holder[count][
-                        0
-                    ][i].replace(" ", "_")
-            for i in range(len(var_list)):
-                if "/" in var_list[i]:
-                    split = var_list[i].split("/")
-                    var_list[i] = split[len(split) - 1]
-                if " " in var_list[i]:
-                    var_list[i] = var_list[i].replace(" ", "_")
-            count = count + 1
+            for i, cdh in enumerate(condensed_data_holder[count][0]):
+                if " " in cdh:
+                    condensed_data_holder[count][0][i] = cdh.replace(" ", "_")
+            var_list = [vr.split("/")[-1].replace(" ", "_") for vr in var_list]
+            count += 1
             if len(not_found_list) > 0:
                 print("*" * 107)
                 print()
@@ -297,23 +282,22 @@ def data_aggregation():  # all data from all the files is collected
                             + nidm_file
                             + ". The model cannot run because this will skew the data. Try checking your spelling or use nidm_query.py to see other possible variables."
                         )
-                for i in range(0, len(not_found_list)):
-                    print(str(i + 1) + ". " + not_found_list[i])
+                for i, nf in enumerate(not_found_list):
+                    print(f"{i+1}. {nf}")
                     if o is not None:
                         with open(o, "a", encoding="utf-8") as f:
-                            f.write(str(i + 1) + ". " + not_found_list[i])
-                for j in range(len(not_found_list) - 1, 0, -1):
-                    not_found_list.pop(j)
-                not_found_count = not_found_count + 1
+                            f.write(f"{i+1}. {nf}")
+                not_found_list.clear()
+                not_found_count += 1
                 print()
         if not_found_count > 0:
-            exit(1)
+            sys.exit(1)
 
     else:
         print("ERROR: No query parameter provided.  See help:")
         print()
         os.system("pynidm k-means --help")
-        exit(1)
+        sys.exit(1)
 
 
 def dataparsing():  # The data is changed to a format that is usable by the linear regression method
@@ -363,8 +347,8 @@ def dataparsing():  # The data is changed to a format that is usable by the line
     le = (
         preprocessing.LabelEncoder()
     )  # anything involving le shows the encoding of categorical variables
-    for i in range(len(stringvars)):
-        le.fit(obj_df[stringvars[i]].astype(str))
+    for sv in stringvars:
+        le.fit(obj_df[sv].astype(str))
     obj_df_trf = obj_df.astype(str).apply(
         le.fit_transform
     )  # transforms the categorical variables into numbers.
@@ -394,19 +378,18 @@ def cluster_number():
     for i in range(1, len(condensed_data)):
         if condensed_data[i][index] not in levels:
             levels.append(condensed_data[i][index])
-    for i in range(len(levels)):
-        levels[i] = i
+    levels = list(range(len(levels)))
 
     # Beginning of the linear regression
     global X
     # global y
     # Unsure on how to proceed here with interacting variables, since I'm sure dmatrices won't work
 
-    """scaler = MinMaxScaler()
-
-    for i in range(len(model_list)):
-        scaler.fit(df_final[[model_list[i]]])
-        df_final[[model_list[i]]] = scaler.transform(df_final[[model_list[i]]])"""
+    # scaler = MinMaxScaler()
+    #
+    # for i in range(len(model_list)):
+    #     scaler.fit(df_final[[model_list[i]]])
+    #     df_final[[model_list[i]]] = scaler.transform(df_final[[model_list[i]]])
     X = df_final[var_list]
     if "si" in cm.lower():
         print("Sillhoute Score")
@@ -420,10 +403,10 @@ def cluster_number():
             ss.append(silhouette_avg)
         optimal_i = 0
         distance_to_one = abs(1 - ss[0])
-        for i in range(0, len(ss)):
-            if abs(1 - ss[i]) <= distance_to_one:
+        for i, s in enumerate(ss):
+            if abs(1 - s) <= distance_to_one:
                 optimal_i = i
-                distance_to_one = abs(1 - ss[i])
+                distance_to_one = abs(1 - s)
 
         n_clusters = optimal_i + 2
         print(
@@ -454,38 +437,39 @@ def cluster_number():
         print(
             "Optimal number of clusters: " + str(n_clusters)
         )  # optimal number of clusters, minimizing aic
-        """min_aic = aic[0]
-        max_aic = aic[0]
-        max_i = 0
-        min_i = 0
-        for i in range(1, len(aic)):
-            if aic[i] >= max_aic:
-                max_aic = aic[i]
-                max_i = i
-            elif aic[i] <= min_aic:
-                min_aic = aic[i]
-                min_i = i
-        p1 = np.array([min_i, aic[min_i]])
-        p2 = np.array([max_i, aic[max_i]])
-        # the way I am doing the method is as follows:
-        # the different sse values form a curve like an L (like an exponential decay)
-        # The elbow is the point furthest from a line connecting max and min
-        # So I am calculating the distance, and the maximum distance from point to curve shows the optimal point
-        # AKA the number of clusters
-        dist = []
-        for n in range(0, len(aic)):
-            norm = np.linalg.norm
-            p3 = np.array([n, aic[n]])
-            dist.append(np.abs(norm(np.cross(p2 - p1, p1 - p3))) / norm(p2 - p1))
-        max_dist = dist[0]
-        n_clusters = 2
-        for x in range(1, len(dist)):
-            if dist[x] >= max_dist:
-                max_dist = dist[x]
-                n_clusters = x + 2
 
-        plt.plot(aic)
-        plt.show()"""
+        # min_aic = aic[0]
+        # max_aic = aic[0]
+        # max_i = 0
+        # min_i = 0
+        # for i in range(1, len(aic)):
+        #     if aic[i] >= max_aic:
+        #         max_aic = aic[i]
+        #         max_i = i
+        #     elif aic[i] <= min_aic:
+        #         min_aic = aic[i]
+        #         min_i = i
+        # p1 = np.array([min_i, aic[min_i]])
+        # p2 = np.array([max_i, aic[max_i]])
+        # # the way I am doing the method is as follows:
+        # # the different sse values form a curve like an L (like an exponential decay)
+        # # The elbow is the point furthest from a line connecting max and min
+        # # So I am calculating the distance, and the maximum distance from point to curve shows the optimal point
+        # # AKA the number of clusters
+        # dist = []
+        # for n in range(0, len(aic)):
+        #     norm = np.linalg.norm
+        #     p3 = np.array([n, aic[n]])
+        #     dist.append(np.abs(norm(np.cross(p2 - p1, p1 - p3))) / norm(p2 - p1))
+        # max_dist = dist[0]
+        # n_clusters = 2
+        # for x in range(1, len(dist)):
+        #     if dist[x] >= max_dist:
+        #         max_dist = dist[x]
+        #         n_clusters = x + 2
+        #
+        # plt.plot(aic)
+        # plt.show()
 
         gmm = GaussianMixture(n_components=n_clusters).fit(X)
         labels = gmm.fit(X).predict(X)
@@ -509,43 +493,41 @@ def cluster_number():
                 min_bic = bic[i]
                 min_i = i
         n_clusters = min_i + 2
-        """min_bic = bic[0]
-        max_bic = bic[0]
-        max_i = 0
-        min_i = 0
-        for i in range(1,len(bic)):
-            if bic[i]>=max_bic:
-                max_bic = bic[i]
-                max_i = i
-            elif bic[i]<= min_bic:
-                min_bic = bic[i]
-                min_i = i
-        p1 = np.array([min_i, bic[min_i]])
-        p2 = np.array([max_i, bic[max_i]])
-        # the way I am doing the method is as follows:
-        # the different sse values form a curve like an L (like an exponential decay)
-        # The elbow is the point furthest from a line connecting max and min
-        # So I am calculating the distance, and the maximum distance from point to curve shows the optimal point
-        # AKA the number of clusters
-        dist = []
-        for n in range(0, len(bic)):
-            norm = np.linalg.norm
-            p3 = np.array([n, bic[n]])
-            dist.append(np.abs(norm(np.cross(p2 - p1, p1 - p3))) / norm(p2 - p1))
-        max_dist = dist[0]
-        n_clusters = 2
-        for x in range(1, len(dist)):
-            if dist[x] >= max_dist:
-                max_dist = dist[x]
-                n_clusters = x + 2
-        plt.plot(bic)
-        plt.show()"""
-        print(
-            "Optimal number of clusters: " + str(n_clusters)
-        )  # optimal number of clusters
+        # min_bic = bic[0]
+        # max_bic = bic[0]
+        # max_i = 0
+        # min_i = 0
+        # for i in range(1,len(bic)):
+        #     if bic[i]>=max_bic:
+        #         max_bic = bic[i]
+        #         max_i = i
+        #     elif bic[i]<= min_bic:
+        #         min_bic = bic[i]
+        #         min_i = i
+        # p1 = np.array([min_i, bic[min_i]])
+        # p2 = np.array([max_i, bic[max_i]])
+        # # the way I am doing the method is as follows:
+        # # the different sse values form a curve like an L (like an exponential decay)
+        # # The elbow is the point furthest from a line connecting max and min
+        # # So I am calculating the distance, and the maximum distance from point to curve shows the optimal point
+        # # AKA the number of clusters
+        # dist = []
+        # for n in range(0, len(bic)):
+        #     norm = np.linalg.norm
+        #     p3 = np.array([n, bic[n]])
+        #     dist.append(np.abs(norm(np.cross(p2 - p1, p1 - p3))) / norm(p2 - p1))
+        # max_dist = dist[0]
+        # n_clusters = 2
+        # for x in range(1, len(dist)):
+        #     if dist[x] >= max_dist:
+        #         max_dist = dist[x]
+        #         n_clusters = x + 2
+        # plt.plot(bic)
+        # plt.show()
+        print("Optimal number of clusters:", n_clusters)
         gmm = GaussianMixture(n_components=n_clusters).fit(X)
         labels = gmm.fit(X).predict(X)
-        ax = None or plt.gca()
+        ax = plt.gca()
         X = df_final[var_list].to_numpy()
         ax.scatter(X[:, 0], X[:, 1], c=labels, s=40, cmap="viridis", zorder=2)
         ax.axis("equal")

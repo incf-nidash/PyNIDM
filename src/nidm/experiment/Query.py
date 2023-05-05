@@ -36,7 +36,7 @@ def sparql_query_nidm(nidm_file_list, query, output_file=None, return_graph=Fals
     :return: dataframe | graph depending on return_graph parameter
     """
 
-    if "BLAZEGRAPH_URL" in environ.keys():
+    if "BLAZEGRAPH_URL" in environ:
         try:
             # first make sure all files are loaded into blazegraph
             for nidm_file in nidm_file_list:
@@ -902,14 +902,10 @@ def CheckSubjectMatchesFilter(
             instrument_details = GetParticipantInstrumentData(
                 nidm_file_list, project_uuid, subject_uuid
             )
-            for instrument_uuid in instrument_details:
-                for instrument_term in instrument_details[instrument_uuid]:
+            for terms in instrument_details.values():
+                for instrument_term, v in terms.items():
                     if instrument_term in synonyms:
-                        found_match = filterCompare(
-                            instrument_details[instrument_uuid][instrument_term],
-                            op,
-                            value,
-                        )
+                        found_match = filterCompare(v, op, value)
                     if found_match:
                         break
 
@@ -921,8 +917,8 @@ def CheckSubjectMatchesFilter(
             derivatives_details = GetDerivativesDataForSubject(
                 nidm_file_list, project_uuid, subject_uuid
             )
-            for key in derivatives_details:
-                derivatives = derivatives_details[key]["values"]
+            for details in derivatives_details.values():
+                derivatives = details["values"]
                 for (
                     vkey
                 ) in (
@@ -1345,7 +1341,7 @@ def OpenGraph(file):
         return file
 
     # If we have a Blazegraph instance, load the data then do the rest
-    if "BLAZEGRAPH_URL" in environ.keys():
+    if "BLAZEGRAPH_URL" in environ:
         try:
             with open(file, encoding="utf-8") as f:
                 data = f.read()

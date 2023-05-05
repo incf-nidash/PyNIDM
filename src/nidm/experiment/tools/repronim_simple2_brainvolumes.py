@@ -77,7 +77,7 @@ def add_brainvolume_data(
                     # store participant id for later use in processing the data for this row
                     participant_id = row_data
                     # if there is no agent for the participant then add one
-                    if row_data not in participant_agent.keys():
+                    if row_data not in participant_agent:
                         # add an agent for this person
                         participant_agent[row_data] = nidmdoc.graph.agent(
                             QualifiedName(
@@ -95,7 +95,7 @@ def add_brainvolume_data(
                     )
 
                     # see if we already have a software_activity for this agent
-                    if software_key not in software_activity.keys():
+                    if software_key not in software_activity:
                         # create an activity for the computation...simply a placeholder for more extensive provenance
                         software_activity[software_key] = nidmdoc.graph.activity(
                             QualifiedName(
@@ -128,7 +128,7 @@ def add_brainvolume_data(
                         )
 
                         # check if there's an associated software agent and if not, create one
-                        if software_key not in software_agent.keys():
+                        if software_key not in software_agent:
                             # create an agent
                             software_agent[software_key] = nidmdoc.graph.agent(
                                 QualifiedName(
@@ -189,7 +189,7 @@ def add_brainvolume_data(
                     if (
                         software_activity[software_key].identifier.localpart
                         + participant_agent[participant_id].identifier.localpart
-                        not in entity.keys()
+                        not in entity
                     ):
                         # create an entity to store brain volume data for this participant
                         entity[
@@ -276,7 +276,7 @@ def add_brainvolume_data(
 
             # if there was data about this subject in the NIDM file already (i.e. an agent already exists with this subject id)
             # then add this brain volumes data to NIDM file, else skip it....
-            if not (len(csv_row.index) == 0):
+            if len(csv_row.index) != 0:
                 print(f"found other data for participant {row[1]}")
 
                 # Here we're sure we have an agent in the NIDM graph that corresponds to the participant in the
@@ -309,7 +309,7 @@ def add_brainvolume_data(
                         )
 
                         # see if we already have a software_activity for this agent
-                        if software_key + row[2] not in software_activity.keys():
+                        if software_key + row[2] not in software_activity:
                             # create an activity for the computation...simply a placeholder for more extensive provenance
                             software_activity[
                                 software_key + row[2]
@@ -349,7 +349,7 @@ def add_brainvolume_data(
                             )
 
                             # check if there's an associated software agent and if not, create one
-                            if software_key not in software_agent.keys():
+                            if software_key not in software_agent:
                                 # if we have a URL defined for this software in Constants.py then use it else simply use the string name of the software product
                                 if software_key.lower() in Constants.namespaces:
                                     # create an agent
@@ -457,7 +457,7 @@ def add_brainvolume_data(
                                 software_key + row[2]
                             ].identifier.localpart
                             + row[2]
-                            not in entity.keys()
+                            not in entity
                         ):
                             # create an entity to store brain volume data for this participant
                             entity[

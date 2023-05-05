@@ -3,6 +3,7 @@
 import csv
 import os
 from statistics import mean
+import sys
 import tempfile
 import warnings
 import click
@@ -130,11 +131,7 @@ def data_aggregation():  # all data from all the files is collected
                 plus_replace = m.replace("=", "+")
             elif "," in m:
                 plus_replace = m.replace(",", "+")
-            model_list = plus_replace.split("+")
-            for i in range(
-                len(model_list)
-            ):  # here, we remove any leading or trailing spaces
-                model_list[i] = model_list[i].strip()
+            model_list = [v.strip() for v in plus_replace.split("+")]
             full_model_variable_list = []
             # set the dependent variable to the one dependent variable in the model
             global dep_var  # used in dataparsing(), linreg(), and contrasting()
@@ -170,7 +167,7 @@ def data_aggregation():  # all data from all the files is collected
                                 + dep_var
                                 + '" from either the right or the left side of the equation.'
                             )
-                    exit(1)
+                    sys.exit(1)
                 else:
                     ind_vars = ind_vars + model_list[i] + ","
             ind_vars = ind_vars[0 : len(ind_vars) - 1]
@@ -203,7 +200,6 @@ def data_aggregation():  # all data from all the files is collected
             numcols = (len(data) - 1) // (
                 len(independentvariables) + 1
             )  # Finds the number of columns in the original dataframe
-            global condensed_data  # also used in linreg()
             condensed_data_holder[count] = [
                 [0] * (len(independentvariables) + 1)
             ]  # makes an array 1 row by the number of necessary columns
@@ -213,10 +209,9 @@ def data_aggregation():  # all data from all the files is collected
                 condensed_data_holder[count].append(
                     [0] * (len(independentvariables) + 1)
                 )
-            for i in range(
-                len(independentvariables)
-            ):  # stores the independent variable names in the first row
-                condensed_data_holder[count][0][i] = independentvariables[i]
+            for i, v in enumerate(independentvariables):
+                # stores the independent variable names in the first row
+                condensed_data_holder[count][0][i] = v
             condensed_data_holder[count][0][-1] = str(
                 dep_var
             )  # stores the dependent variable name in the first row
@@ -254,11 +249,9 @@ def data_aggregation():  # all data from all the files is collected
                 ):  # column, so it can append the values under the proper variables
                     try:
                         split_url = condensed_data_holder[count][0][i].split("/")
-                        for k in range(0, len(full_model_variable_list)):
-                            if "/" in full_model_variable_list[k]:
-                                full_model_variable_list[k] = split_url[
-                                    len(split_url) - 1
-                                ]
+                        for k, fmv in enumerate(full_model_variable_list):
+                            if "/" in fmv:
+                                full_model_variable_list[k] = split_url[-1]
                         if (
                             data[j][fieldcolumn] == condensed_data_holder[count][0][i]
                         ):  # in the dataframe, the name is in column 3
@@ -330,20 +323,13 @@ def data_aggregation():  # all data from all the files is collected
                 if count1 > len(condensed_data_holder[count]) - 2:
                     not_found_list.append(condensed_data_holder[count][0][i])
                 count1 = 0
-            for i in range(len(condensed_data_holder[count][0])):
-                if " " in condensed_data_holder[count][0][i]:
-                    condensed_data_holder[count][0][i] = condensed_data_holder[count][
-                        0
-                    ][i].replace(" ", "_")
-            for i in range(len(independentvariables)):
-                if "/" in independentvariables[i]:
-                    split = independentvariables[i].split("/")
-                    independentvariables[i] = split[len(split) - 1]
-                if " " in independentvariables[i]:
-                    independentvariables[i] = independentvariables[i].replace(" ", "_")
-            if " " in dep_var:
-                dep_var = dep_var.replace(" ", "_")
-            count = count + 1
+            for i, cdh in enumerate(condensed_data_holder[count][0]):
+                condensed_data_holder[count][0][i] = cdh.replace(" ", "_")
+            independentvariables = [
+                v.split("/")[-1].replace(" ", "_") for v in independentvariables
+            ]
+            dep_var = dep_var.replace(" ", "_")
+            count += 1
             if len(not_found_list) > 0:
                 print("*" * 107)
                 print()
@@ -362,23 +348,22 @@ def data_aggregation():  # all data from all the files is collected
                             + nidm_file
                             + ". The model cannot run because this will skew the data. Try checking your spelling or use nidm_query.py to see other possible variables."
                         )
-                for i in range(0, len(not_found_list)):
-                    print(str(i + 1) + ". " + not_found_list[i])
+                for i, nf in enumerate(not_found_list):
+                    print(f"{i+1}. {nf}")
                     if o is not None:
                         with open(o, "a", encoding="utf-8") as f:
-                            f.write(str(i + 1) + ". " + not_found_list[i])
-                for j in range(len(not_found_list) - 1, 0, -1):
-                    not_found_list.pop(j)
-                not_found_count = not_found_count + 1
+                            f.write(f"{i+1}. {nf}")
+                not_found_list.clear()
+                not_found_count += 1
                 print()
         if not_found_count > 0:
-            exit(1)
+            sys.exit(1)
 
     else:
         print("ERROR: No query parameter provided.  See help:")
         print()
         os.system("pynidm linreg --help")
-        exit(1)
+        sys.exit(1)
 
 
 def dataparsing():  # The data is changed to a format that is usable by the linear regression method
@@ -393,10 +378,13 @@ def dataparsing():  # The data is changed to a format that is usable by the line
             split = condensed_data[0][i].split("/")
             condensed_data[0][i] = split[len(split) - 1]
 
-    """In this section, if there are less than 20 points, the model will be inaccurate and there are too few variables for regularization.
-    That means that we warn the user that such errors can occur and ask them if they want to proceed.
-    The answer is stored in answer. If the user responds with N, it exits the code after writing the error to the output file (if there is one).
-    If the user says Y instead, the code runs, but stops before doing the regularization."""
+    # In this section, if there are less than 20 points, the model will be
+    # inaccurate and there are too few variables for regularization.  That
+    # means that we warn the user that such errors can occur and ask them if
+    # they want to proceed.  The answer is stored in answer. If the user
+    # responds with N, it exits the code after writing the error to the output
+    # file (if there is one).  If the user says Y instead, the code runs, but
+    # stops before doing the regularization.
     global answer
     answer = "?"
     if (len(condensed_data) - 1) < 20:
@@ -420,7 +408,7 @@ def dataparsing():  # The data is changed to a format that is usable by the line
                 f.write(
                     "Due to a lack of data (<20 points), you stopped the model because the results may have been inaccurate."
                 )
-        exit(1)
+        sys.exit(1)
     x = pd.read_csv(
         opencsv(condensed_data)
     )  # changes the dataframe to a csv to make it easier to work with
@@ -453,8 +441,8 @@ def dataparsing():  # The data is changed to a format that is usable by the line
     le = (
         preprocessing.LabelEncoder()
     )  # anything involving le shows the encoding of categorical variables
-    for i in range(len(variables)):
-        le.fit(obj_df[variables[i]].astype(str))
+    for v in variables:
+        le.fit(obj_df[v].astype(str))
     obj_df_trf = obj_df.astype(str).apply(
         le.fit_transform
     )  # transforms the categorical variables into numbers.
@@ -483,8 +471,8 @@ def linreg():  # actual linear regression
     model_string = []
     model_string.append(dep_var)
     model_string.append(" ~ ")
-    for i in range(0, len(full_model_variable_list)):
-        model_string.append(full_model_variable_list[i])
+    for fmv in full_model_variable_list:
+        model_string.append(fmv)
         model_string.append(" + ")
     model_string.pop(-1)
     global full_model
@@ -502,8 +490,7 @@ def linreg():  # actual linear regression
     for i in range(1, len(condensed_data)):
         if condensed_data[i][index] not in levels:
             levels.append(condensed_data[i][index])
-    for i in range(len(levels)):
-        levels[i] = i
+    levels = list(range(len(levels)))
 
     # Beginning of the linear regression
     global X
@@ -513,13 +500,13 @@ def linreg():  # actual linear regression
         model_string = []
         model_string.append(dep_var)
         model_string.append(" ~ ")
-        for i in range(0, len(full_model_variable_list)):
-            model_string.append(full_model_variable_list[i])
+        for fmv in full_model_variable_list:
+            model_string.append(fmv)
             model_string.append(" + ")
         model_string.pop(-1)
-        for i in range(0, len(model_string)):
-            if "*" in model_string[i]:
-                replacement = model_string[i].split("*")
+        for i, mdl in enumerate(model_string):
+            if "*" in mdl:
+                replacement = mdl.split("*")
                 model_string[i] = replacement[0] + ":" + replacement[1]
             # makes sure the model is in the right format.
         string = "".join(model_string)
@@ -549,39 +536,28 @@ def linreg():  # actual linear regression
 
 def contrasting():
     global c
+    global full_model_variable_list
     if c:
         # to account for multiple contrast variables
         contrastvars = []
         if "," in c:
             contrastvars = c.split(",")
-        for i in range(len(contrastvars)):
-            contrastvars[i] = contrastvars[i].strip()
-            if " " in contrastvars[i]:
-                contrastvars[i] = contrastvars[i].replace(" ", "_")
-            if "/" in contrastvars[i]:  # to account for URLs
-                split = contrastvars[i].split("/")
-                contrastvars[i] = split[len(split) - 1]
-        else:
-            split = c.split("/")  # to account for URLs
-            c = split[len(split) - 1]
-
+        contrastvars = [
+            v.strip().replace(" ", "_").split("/")[-1] for v in contrastvars
+        ]
+        c = c.split("/")[-1]  # to account for URLs
         ind_vars_no_contrast_var = ""
         index = 1
-        for i in range(len(full_model_variable_list)):
-            if "/" in full_model_variable_list[i]:
-                split = full_model_variable_list[i].split("/")
-                full_model_variable_list[i] = split[len(split) - 1]
-            if " " in full_model_variable_list[i]:
-                full_model_variable_list[i] = full_model_variable_list[i].replace(
-                    " ", "_"
-                )
+        full_model_variable_list = [
+            v.split("/")[-1].replace(" ", "_") for v in full_model_variable_list
+        ]
         for var in full_model_variable_list:
-            if var != c and not (var in contrastvars):
+            if var != c and var not in contrastvars:
                 if index == 1:
                     ind_vars_no_contrast_var = var
                     index += 1
                 else:
-                    ind_vars_no_contrast_var = ind_vars_no_contrast_var + " + " + var
+                    ind_vars_no_contrast_var += " + " + var
         if len(contrastvars) > 0:
             contraststring = " + ".join(contrastvars)
         else:
@@ -734,9 +710,8 @@ def contrasting():
 
 
 def regularizing():
-    if r == ("L1" or "Lasso" or "l1" or "lasso") and not (
-        "y" in answer.lower()
-    ):  # does it say L1, and has the user chosen to go ahead with running the code?
+    # does it say L1, and has the user chosen to go ahead with running the code?
+    if r in ("L1", "Lasso", "l1", "lasso") and "y" not in answer.lower():
         # Loop to compute the cross-validation scores
         max_cross_val_alpha = 1
         max_cross_val_score = (
@@ -783,9 +758,8 @@ def regularizing():
                 f.write(f"\nIntercept: {lassoModelChosen.intercept_}")
         print()
 
-    if r == ("L2" or "Ridge" or "l2" or "Ridge") and not (
-        "y" in answer.lower()
-    ):  # does it say L2, and has the user chosen to go ahead with running the code?
+    # does it say L2, and has the user chosen to go ahead with running the code?
+    if r in ("L2", "Ridge", "l2", "ridge") and "y" not in answer.lower():
         # Loop to compute the different values of cross-validation scores
         max_cross_val_alpha = 1
         max_cross_val_score = (
@@ -810,9 +784,10 @@ def regularizing():
         )
         print(f"Current Model Score = {ridgeModelChosen.score(X, y)}")
         index = 0
-        """This numpy_conversion part was necessary because for the ridge model, all the coefficients get stored in a
-        numpy array, and the conversion is necessary to get the coefficients. However, it is only needed if the model
-        has interacting variables."""
+        # This numpy_conversion part was necessary because for the ridge model,
+        # all the coefficients get stored in a numpy array, and the conversion
+        # is necessary to get the coefficients. However, it is only needed if
+        # the model has interacting variables.
         numpy_conversion = False
         for var in full_model_variable_list:
             if ("*" in var) or (":" in var):

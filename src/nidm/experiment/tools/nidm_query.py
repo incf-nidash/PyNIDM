@@ -2,6 +2,7 @@
 
 from json import dumps
 import os
+import sys
 import click
 from click_option_group import RequiredMutuallyExclusiveOptionGroup, optgroup
 import pandas as pd
@@ -276,7 +277,7 @@ def query(
         print("ERROR: No query parameter provided.  See help:")
         print()
         os.system("pynidm query --help")
-        exit(1)
+        sys.exit(1)
 
 
 # it can be used calling the script `python nidm_query.py -nl ... -q ..

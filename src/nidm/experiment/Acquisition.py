@@ -83,10 +83,7 @@ class Acquisition(pm.ProvActivity, Core):
         :param uuid: full uuid of acquisition
         :return: True if exists, False otherwise
         """
-        if uuid in self._acquisition_objects:
-            return True
-        else:
-            return False
+        return bool(uuid in self._acquisition_objects)
 
     def __str__(self):
         return "NIDM-Experiment Acquisition Class"

@@ -309,10 +309,10 @@ class ProvONERDFSerializer(Serializer):
                                 rec_uri = rec_type.uri
                                 for attr_name, val in record.extra_attributes:
                                     if attr_name == PROV["type"]:
-                                        if (
-                                            PROV["Revision"] == val
-                                            or PROV["Quotation"] == val
-                                            or PROV["PrimarySource"] == val
+                                        if val in (
+                                            PROV["Revision"],
+                                            PROV["Quotation"],
+                                            PROV["PrimarySource"],
                                         ):
                                             qualifier = val._localpart
                                             rec_uri = val.uri
@@ -453,8 +453,8 @@ class ProvONERDFSerializer(Serializer):
         PROV_CLS_MAP = {}
         formal_attributes = {}
         unique_sets = {}
-        for key, _ in PROV_BASE_CLS.items():
-            PROV_CLS_MAP[key.uri] = PROV_BASE_CLS[key]
+        for key, value in PROV_BASE_CLS.items():
+            PROV_CLS_MAP[key.uri] = value
         relation_mapper = {
             URIRef(PROV["alternateOf"].uri): "alternate",
             URIRef(PROV["actedOnBehalfOf"].uri): "delegation",
@@ -575,9 +575,7 @@ class ProvONERDFSerializer(Serializer):
                 obj1 = self.decode_rdf_representation(obj, graph)
                 if obj is not None and obj1 is None:
                     raise ValueError(("Error transforming", obj))
-                pred_new = pred
-                if pred in predicate_mapper:
-                    pred_new = predicate_mapper[pred]
+                pred_new = predicate_mapper.get(pred, pred)
                 if ids[id_] == PROV_COMMUNICATION and "activity" in str(pred_new):
                     pred_new = PROV_ATTR_INFORMANT
                 if ids[id_] == PROV_DELEGATION and "agent" in str(pred_new):
@@ -605,12 +603,10 @@ class ProvONERDFSerializer(Serializer):
             if local_key in ids:
                 if "qualified" in pred:
                     formal_attributes[local_key][
-                        list(formal_attributes[local_key].keys())[0]
+                        next(iter(formal_attributes[local_key]))
                     ] = id_
-        for id_ in ids:
-            attrs = None
-            if id_ in other_attributes:
-                attrs = other_attributes[id_]
+        for id_, idvalue in ids.items():
+            attrs = other_attributes.get(id_)
             items_to_walk = []
             for qname, values in unique_sets[id_].items():
                 if values and len(values) > 1:
@@ -619,9 +615,9 @@ class ProvONERDFSerializer(Serializer):
                 for subset in list(walk(items_to_walk)):
                     for key, value in subset.items():
                         formal_attributes[id_][key] = value
-                    bundle.new_record(ids[id_], id_, formal_attributes[id_], attrs)
+                    bundle.new_record(idvalue, id_, formal_attributes[id_], attrs)
             else:
-                bundle.new_record(ids[id_], id_, formal_attributes[id_], attrs)
+                bundle.new_record(idvalue, id_, formal_attributes[id_], attrs)
             ids[id_] = None
             if attrs is not None:
                 other_attributes[id_] = []

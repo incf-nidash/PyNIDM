@@ -14,6 +14,7 @@ import os
 from os import mkdir, system
 from os.path import basename, isdir, isfile, join, splitext
 from shutil import copyfile
+import sys
 import tempfile
 import urllib.parse
 import datalad.api as dl
@@ -52,27 +53,27 @@ def GetImageFromAWS(location, output_file, args):
         # remove everything from location string before openneuro
         openneuro_loc = location[location.find("openneuro/") + 10 :]
         # get a temporary directory for this file
-        temp_dir = tempfile.TemporaryDirectory()
+        temp_dir = tempfile.mkdtemp()
         # aws command
         cmd = (
             "aws s3 cp --no-sign-request "
             + "s3://openneuro.org/"
             + openneuro_loc
             + " "
-            + temp_dir.name
+            + temp_dir
         )
         # execute command
         print(cmd)
         system(cmd)
         # check if aws command downloaded something
-        if not isfile(join(temp_dir.name, basename(location))):
+        if not isfile(join(temp_dir, basename(location))):
             print("Couldn't get dataset from AWS either...")
             return None
         else:
             try:
                 # copy file from temp_dir to bids dataset
                 print("Copying temporary file to final location....")
-                copyfile(join(temp_dir.name, basename(location)), output_file)
+                copyfile(join(temp_dir, basename(location)), output_file)
                 return True
             except Exception:
                 print("Couldn't get dataset from AWS either...")
@@ -86,21 +87,21 @@ def GetImageFromAWS(location, output_file, args):
         # remove everything from location string before openneuro
         loc = location[location.find(args.dataset_string) + len(args.dataset_string) :]
         # get a temporary directory for this file
-        temp_dir = tempfile.TemporaryDirectory()
+        temp_dir = tempfile.mkdtemp()
         # aws command
-        cmd = "aws s3 cp --no-sign-request " + aws_baseurl + loc + " " + temp_dir.name
+        cmd = "aws s3 cp --no-sign-request " + aws_baseurl + loc + " " + temp_dir
         # execute command
         print(cmd)
         system(cmd)
         # check if aws command downloaded something
-        if not isfile(join(temp_dir.name, basename(location))):
+        if not isfile(join(temp_dir, basename(location))):
             print("Couldn't get dataset from AWS either...")
             return None
         else:
             try:
                 # copy file from temp_dir to bids dataset
                 print("Copying temporary file to final location....")
-                copyfile(join(temp_dir.name, basename(location)), output_file)
+                copyfile(join(temp_dir, basename(location)), output_file)
                 return True
             except Exception:
                 print("Couldn't get dataset from AWS either...")
@@ -307,7 +308,6 @@ def CreateBIDSParticipantFile(nidm_graph, output_file, participant_fields):
                 #   Step(2): Query for prov:Entity that were prov:wasGeneratedBy uris from Step(1)
                 #   Step(3): For each metadata triple in objects whose subject is uris from Step(2), fuzzy match predicate after
                 #   removing base of uri to "fields" in participants list, then add these to data list for appending to pandas
-                match_ratio = {}
                 #
                 # Steps(1):(3)
 
@@ -356,8 +356,7 @@ def CreateBIDSParticipantFile(nidm_graph, output_file, participant_fields):
 
         # add row to participants DataFrame
         # participants=participants.append(pd.DataFrame(data))
-        participants
-        row_index = row_index + 1
+        row_index += 1
 
     # save participants.tsv file
     participants.to_csv(output_file + ".tsv", sep="\t", index=False)
@@ -389,19 +388,15 @@ def NIDMProject2BIDSDatasetDescriptor(nidm_graph, output_directory):
     # make copy of project_metadata
     project_metadata_tmp = dict(project_metadata)
     # iterate over the temporary dictionary and delete items from the original
-    for proj_key, _ in project_metadata_tmp.items():
+    for proj_key in project_metadata_tmp:
         key_found = 0
         # print(f"proj_key = {proj_key} ")
         # print(f"project_metadata[proj_key] = {project_metadata[proj_key]}")
 
-        for key, _ in BIDS_Constants.dataset_description.items():
-            if BIDS_Constants.dataset_description[key]._uri == proj_key:
+        for key, value in BIDS_Constants.dataset_description.items():
+            if value._uri == proj_key:
                 # added since BIDS validator validates values of certain keys
-                if (
-                    (key == "Authors")
-                    or (key == "Funding")
-                    or (key == "ReferencesAndLinks")
-                ):
+                if key in ("Authors", "Funding", "ReferencesAndLinks"):
                     project_metadata[key] = [project_metadata[proj_key]]
                 else:
                     project_metadata[key] = project_metadata[proj_key]
@@ -438,11 +433,7 @@ def AddMetadataToImageSidecar(graph_entity, graph, output_directory, image_filen
     json_dict = {}
     for row in qres:
         key = next(
-            (
-                k
-                for k in BIDS_Constants.json_keys
-                if BIDS_Constants.json_keys[k] == row[0]
-            ),
+            (k for k, v in BIDS_Constants.json_keys.items() if v == row[0]),
             None,
         )
         if key is not None:
@@ -825,7 +816,7 @@ def main():
             " string in your AWS S3 urls then just supply -aws_baseurl with nothing after it."
         )
         print(args.print_help())
-        exit(-1)
+        sys.exit(-1)
 
     # set up some local variables
     rdf_file = args.rdf_file
@@ -857,7 +848,7 @@ def main():
             "File doesn't appear to be a valid RDF format supported by Python RDFLib!  Please check input file"
         )
         print("exiting...")
-        exit(-1)
+        sys.exit(-1)
 
     #  if not os.path.isdir(join(output_directory,os.path.splitext(args.rdf_file)[0])):
     #      os.mkdir(join(output_directory,os.path.splitext(args.rdf_file)[0]))
