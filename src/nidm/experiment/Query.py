@@ -86,9 +86,7 @@ def sparql_query_nidm(nidm_file_list, query, output_file=None, return_graph=Fals
 
         except Exception as e:
             print(
-                "Exception while communicating with blazegraph at {}: {}".format(
-                    environ["BLAZEGRAPH_URL"], e
-                )
+                f"Exception while communicating with blazegraph at {environ['BLAZEGRAPH_URL']}: {e}"
             )
 
     # query result list
@@ -227,8 +225,7 @@ def testprojectmeta(nidm_file_list):
 
 
 def GetProjectSessionsMetadata(nidm_file_list, project_uuid):
-    query = (
-        """
+    query = f"""
 
         prefix nidm: <http://purl.org/nidash/nidm#>
         prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
@@ -236,14 +233,12 @@ def GetProjectSessionsMetadata(nidm_file_list, project_uuid):
 
         select distinct ?session_uuid ?p ?o
 
-        where {
-                ?session_uuid  dct:isPartOf  <%s> ;
+        where {{
+                ?session_uuid  dct:isPartOf  <{project_uuid}> ;
                     ?p ?o .
-        }
+        }}
 
     """
-        % project_uuid
-    )
 
     df = sparql_query_nidm(nidm_file_list, query, output_file=None)
 
@@ -292,8 +287,7 @@ def GetProjectInstruments(nidm_file_list, project_id):
     :param project_id: identifier of project you'd like to search for unique instruments
     :return: Dataframe of instruments and project titles
     """
-    query = (
-        """
+    query = f"""
         PREFIX prov: <http://www.w3.org/ns/prov#>
         PREFIX sio: <http://semanticscience.org/ontology/sio.owl#>
         PREFIX dct: <http://purl.org/dc/terms/>
@@ -301,7 +295,7 @@ def GetProjectInstruments(nidm_file_list, project_id):
         prefix dctypes: <http://purl.org/dc/dcmitype/>
 
         SELECT  DISTINCT ?project_title ?assessment_type
-        WHERE {
+        WHERE {{
             ?entity rdf:type  onli:assessment-instrument ;
                 rdf:type ?assessment_type .
             ?entity prov:wasGeneratedBy/dct:isPartOf/dct:isPartOf ?project .
@@ -310,11 +304,9 @@ def GetProjectInstruments(nidm_file_list, project_id):
 
 
 
-            FILTER( (!regex(str(?assessment_type), "http://www.w3.org/ns/prov#Entity")) &&  (!regex(str(?assessment_type), "http://purl.org/nidash/nidm#AcquisitionObject")) &&  (regex(str(?project), "%s")) )
-            }
+            FILTER( (!regex(str(?assessment_type), "http://www.w3.org/ns/prov#Entity")) &&  (!regex(str(?assessment_type), "http://purl.org/nidash/nidm#AcquisitionObject")) &&  (regex(str(?project), "{project_id}")) )
+            }}
             """
-        % project_id
-    )
     logging.info("Query: %s", query)
     df = sparql_query_nidm(nidm_file_list, query, output_file=None)
     results = df.to_dict()
@@ -330,8 +322,7 @@ def GetInstrumentVariables(nidm_file_list, project_id):
     :param project_id: identifier of project you'd like to search for unique instruments
     :return: Dataframe of instruments, project titles, and variables
     """
-    query = (
-        """
+    query = f"""
         PREFIX prov: <http://www.w3.org/ns/prov#>
         PREFIX sio: <http://semanticscience.org/ontology/sio.owl#>
         PREFIX dct: <http://purl.org/dc/terms/>
@@ -339,7 +330,7 @@ def GetInstrumentVariables(nidm_file_list, project_id):
         prefix dctypes: <http://purl.org/dc/dcmitype/>
 
         SELECT  DISTINCT ?project_title ?assessment_type ?variables
-        WHERE {
+        WHERE {{
             ?entity rdf:type  onli:assessment-instrument ;
                 rdf:type ?assessment_type ;
                 ?variables ?value .
@@ -349,11 +340,9 @@ def GetInstrumentVariables(nidm_file_list, project_id):
 
 
 
-            FILTER( (!regex(str(?assessment_type), "http://www.w3.org/ns/prov#Entity")) &&  (!regex(str(?assessment_type), "http://purl.org/nidash/nidm#AcquisitionObject")) &&  (regex(str(?project), "%s")) )
-            }
+            FILTER( (!regex(str(?assessment_type), "http://www.w3.org/ns/prov#Entity")) &&  (!regex(str(?assessment_type), "http://purl.org/nidash/nidm#AcquisitionObject")) &&  (regex(str(?project), "{project_id}")) )
+            }}
             """
-        % project_id
-    )
     logging.info("Query: %s", query)
     df = sparql_query_nidm(nidm_file_list, query, output_file=None)
     results = df.to_dict()
@@ -369,7 +358,7 @@ def GetParticipantIDs(nidm_file_list, output_file=None):
     :return: list of Constants.NIDM_PARTICIPANT UUIDs and Constants.NIDM_SUBJECTID
     """
 
-    query = """
+    query = f"""
 
         PREFIX prov:<http://www.w3.org/ns/prov#>
         PREFIX sio: <http://semanticscience.org/ontology/sio.owl#>
@@ -377,21 +366,18 @@ def GetParticipantIDs(nidm_file_list, output_file=None):
         PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
         SELECT DISTINCT ?uuid ?ID
-        WHERE {
+        WHERE {{
 
             ?activity rdf:type prov:Activity ;
                         prov:qualifiedAssociation _:blanknode .
 
-                _:blanknode prov:hadRole %s ;
+                _:blanknode prov:hadRole {Constants.NIDM_PARTICIPANT} ;
                  prov:agent ?uuid  .
 
-                ?uuid %s ?ID .
+                ?uuid {Constants.NIDM_SUBJECTID} ?ID .
 
-        }
-    """ % (
-        Constants.NIDM_PARTICIPANT,
-        Constants.NIDM_SUBJECTID,
-    )
+        }}
+    """
 
     df = sparql_query_nidm(nidm_file_list, query, output_file=output_file)
 
@@ -409,7 +395,7 @@ def GetParticipantIDFromAcquisition(nidm_file_list, acquisition, output_file=Non
     :return: a dataframe subject ID and prov:Agent UUID of participant with qualified association
     """
 
-    query = """
+    query = f"""
 
             PREFIX prov:<http://www.w3.org/ns/prov#>
             PREFIX sio: <http://semanticscience.org/ontology/sio.owl#>
@@ -418,22 +404,18 @@ def GetParticipantIDFromAcquisition(nidm_file_list, acquisition, output_file=Non
             PREFIX prov:<http://www.w3.org/ns/prov#>
 
             SELECT DISTINCT ?uuid ?ID
-            WHERE {
+            WHERE {{
 
-                <%s> rdf:type prov:Activity ;
+                <{acquisition}> rdf:type prov:Activity ;
                         prov:qualifiedAssociation _:blanknode .
 
-                _:blanknode prov:hadRole %s ;
+                _:blanknode prov:hadRole {Constants.NIDM_PARTICIPANT} ;
                      prov:agent ?uuid  .
 
-                ?uuid %s ?ID .
+                ?uuid {Constants.NIDM_SUBJECTID} ?ID .
 
-            }
-        """ % (
-        acquisition,
-        Constants.NIDM_PARTICIPANT,
-        Constants.NIDM_SUBJECTID,
-    )
+            }}
+        """
 
     df = sparql_query_nidm(nidm_file_list, query, output_file=output_file)
 
@@ -447,7 +429,7 @@ def GetParticipantDetails(nidm_file_list, project_id, participant_id, output_fil
     :return: list of Constants.NIDM_PARTICIPANT UUIDs and Constants.NIDM_SUBJECTID
     """
 
-    query = """
+    query = f"""
 
         PREFIX prov:<http://www.w3.org/ns/prov#>
         PREFIX sio: <http://semanticscience.org/ontology/sio.owl#>
@@ -458,28 +440,24 @@ def GetParticipantDetails(nidm_file_list, project_id, participant_id, output_fil
 
 
         SELECT DISTINCT ?uuid ?id ?activity
-        WHERE {
+        WHERE {{
 
             ?activity rdf:type prov:Activity ;
                         prov:qualifiedAssociation _:blanknode .
 
-                _:blanknode prov:hadRole %s ;
+                _:blanknode prov:hadRole {Constants.NIDM_PARTICIPANT} ;
                  prov:agent ?uuid  .
 
-                ?uuid %s ?id .
+                ?uuid {Constants.NIDM_SUBJECTID} ?id .
 
             ?proj a nidm:Project .
             ?sess dct:isPartOf ?proj .
             ?activity dct:isPartOf ?sess .
 
-            FILTER(regex(str(?uuid), "%s")).
+            FILTER(regex(str(?uuid), "{participant_id}")).
 
-        }
-    """ % (
-        Constants.NIDM_PARTICIPANT,
-        Constants.NIDM_SUBJECTID,
-        participant_id,
-    )
+        }}
+    """
 
     df = sparql_query_nidm(nidm_file_list, query, output_file=output_file)
     data = df.values
@@ -1205,13 +1183,11 @@ def matchPrefix(possible_URI, short=False) -> str:
             if short:
                 return k
             else:
-                return "{}:{}".format(k, possible_URI.replace(n, ""))
+                return f"{k}:{possible_URI.replace(n, '')}"
 
     # also check the prov prefix
     if possible_URI.startswith("http://www.w3.org/ns/prov#"):
-        return "{}:{}".format(
-            "prov", possible_URI.replace("http://www.w3.org/ns/prov#", "")
-        )
+        return f"prov:{possible_URI.replace('http://www.w3.org/ns/prov#', '')}"
 
     return possible_URI
 
@@ -1401,14 +1377,14 @@ def OpenGraph(file):
         try:
             with open(file) as f:
                 data = f.read()
-            logging.debug("Sending {} to blazegraph".format(file))
+            logging.debug("Sending %s to blazegraph", file)
             requests.post(
                 url=environ["BLAZEGRAPH_URL"],
                 data=data,
                 headers={"Content-type": "application/x-turtle"},
             )
         except Exception as e:
-            logging.error("Exception {} loading {} into Blazegraph.".format(e, file))
+            logging.error("Exception %s loading %s into Blazegraph.", e, file)
 
     BLOCKSIZE = 65536
     hasher = hashlib.md5()
@@ -1419,7 +1395,7 @@ def OpenGraph(file):
             buf = afile.read(BLOCKSIZE)
     digest = hasher.hexdigest()
 
-    pickle_file = "{}/rdf_graph.{}.pickle".format(tempfile.gettempdir(), digest)
+    pickle_file = f"{tempfile.gettempdir()}/rdf_graph.{digest}.pickle"
     if path.isfile(pickle_file):
         with open(pickle_file, "rb") as fp:
             return pickle.load(fp)
@@ -1487,7 +1463,7 @@ def download_cde_files():
     cde_dir = tempfile.gettempdir()
 
     for url in Constants.CDE_FILE_LOCATIONS:
-        urlretrieve(url, "{}/{}".format(cde_dir, url.split("/")[-1]))
+        urlretrieve(url, f"{cde_dir}/{url.split('/')[-1]}")
 
     return cde_dir
 
@@ -1500,7 +1476,7 @@ def getCDEs(file_list=None):
     hasher.update(str(file_list).encode("utf-8"))
     h = hasher.hexdigest()
 
-    cache_file_name = tempfile.gettempdir() + "/cde_graph.{}.pickle".format(h)
+    cache_file_name = tempfile.gettempdir() + f"/cde_graph.{h}.pickle"
 
     if path.isfile(cache_file_name):
         with open(cache_file_name, "rb") as fp:
@@ -1526,7 +1502,7 @@ def getCDEs(file_list=None):
         # TODO: the list of file names should be it's own constant or derived from CDE_FILE_LOCATIONS
         file_list = []
         for f in ["ants_cde.ttl", "fs_cde.ttl", "fsl_cde.ttl"]:
-            fname = "{}/{}".format(cde_dir, f)
+            fname = f"{cde_dir}/{f}"
             if os.path.isfile(fname):
                 file_list.append(fname)
 

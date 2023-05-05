@@ -38,19 +38,16 @@ def main():
     #      for items in term['_source']['existing_ids']:
     #          if items['preferred']=='1':
     #              preferred_url=items['iri']
-    #      print("Label = %s \t Definition = %s \t Preferred URL = %s " %(term['_source']['label'],term['_source']['definition'],preferred_url))
+    #      print(f"Label = {term['_source']['label']} \t Definition = {term['_source']['definition']} \t Preferred URL = {preferred_url} ")
 
     # example of uber elastic search query returns dictionary of label, definition, and preferred_url
     print("\n\n-------------------------------------------")
     print("Example uber elastic search:")
     results = Utils.GetNIDMTermsFromSciCrunch(args.key, args.query_string)
-    for key, _ in results.items():
+    for value in results.values():
         print(
-            "Label: %s \t Definition: %s \t Preferred URL: %s "
-            % (
-                results[key]["label"],
-                results[key]["definition"],
-                results[key]["preferred_url"],
+            "Label: {label} \t Definition: {definition} \t Preferred URL: {preferred_url} ".format_map(
+                value
             )
         )
 

@@ -250,8 +250,9 @@ class Core:
                 )
         except KeyError as e:
             print(
-                '\nPredicate namespace identifier " %s " not found! \n'
-                % (str(e).split("'")[1])
+                '\nPredicate namespace identifier "',
+                str(e).split("'")[1],
+                '" not found! \n',
             )
             print(
                 "Use addNamespace method to add namespace before adding literal attribute \n"
@@ -364,7 +365,7 @@ class Core:
             uri = s
 
         if uri is None:
-            print("Error finding %s in NIDM-Exp Graph" % NIDM_TYPE)
+            print(f"Error finding {NIDM_TYPE} in NIDM-Exp Graph")
             return metadata
 
         # Cycle through metadata and add to json
@@ -531,7 +532,7 @@ class Core:
         """
         qres = rdf_graph.query(query)
         for row in qres:
-            print("project uuid = %s" % row)
+            print(f"project uuid = {row}")
             # parse uuid from project URI
             # project_uuid = str(row[0]).rsplit('/', 1)[-1]
             project_uuid = str(row[0])
@@ -557,7 +558,7 @@ class Core:
                         dot.obj_dict["nodes"][key][0]["attributes"]["URL"]
                     ):
                         session_node = key
-                        # print("session node = %s" %key)
+                        # print(f"session node = {key}")
 
                         # add to DOT structure edge between project_node and session_node
                         dot.add_edge(Edge(session_node, project_node, **style))
@@ -574,7 +575,7 @@ class Core:
                                         ]
                                     ):
                                         acquisition_node = key
-                                        # print("acquisition node = %s" %key)
+                                        # print(f"acquisition node = {key}")
 
                                         dot.add_edge(
                                             Edge(

@@ -538,7 +538,7 @@ def GetDataelementDetails(nidm_files_tuple, dataelement):
                             if d in rdf_graph.subjects(
                                 predicate=isa, object=Constants.NIDM["Project"]
                             ):
-                                result["inProjects"].add("{} ({})".format(str(d), file))
+                                result["inProjects"].add(f"{d} ({file})")
 
             return result  # found it, we are done
 

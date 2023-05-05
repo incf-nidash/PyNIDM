@@ -221,7 +221,7 @@ ANNOTATION_END_ROW = "    </TABLE>>"
 def htlm_link_if_uri(value):
     try:
         uri = value.uri
-        return '<a href="%s">%s</a>' % (uri, str(value))
+        return f'<a href="{uri}">{value}</a>'
     except AttributeError:
         return str(value)
 
@@ -279,7 +279,7 @@ def provone_to_dot(
                 % (
                     attr.uri,
                     escape(str(attr)),
-                    ' href="%s"' % value.uri if isinstance(value, Identifier) else "",
+                    f' href="{value.uri}"' if isinstance(value, Identifier) else "",
                     escape(
                         str(value)
                         if not isinstance(value, datetime)
@@ -291,7 +291,7 @@ def provone_to_dot(
             ann_rows.append(ANNOTATION_END_ROW)
             count[3] += 1
             annotations = pydot.Node(
-                "ann%d" % count[3], label="\n".join(ann_rows), **ANNOTATION_STYLE
+                f"ann{count[3]}", label="\n".join(ann_rows), **ANNOTATION_STYLE
             )
             dot.add_node(annotations)
             dot.add_edge(pydot.Edge(annotations, node, **ANNOTATION_LINK_STYLE))
@@ -299,58 +299,50 @@ def provone_to_dot(
         def _add_bundle(bundle):
             count[2] += 1
             subdot = pydot.Cluster(
-                graph_name="c%d" % count[2], URL='"%s"' % bundle.identifier.uri
+                graph_name=f"c{count[2]}", URL=f'"{bundle.identifier.uri}"'
             )
             if use_labels:
                 if bundle.label == bundle.identifier:
-                    bundle_label = '"%s"' % str(bundle.label)
+                    bundle_label = f'"{bundle.label}"'
                 else:
                     # Fancier label if both are different. The label will be
                     # the main node text, whereas the identifier will be a
                     # kind of subtitle.
                     bundle_label = (
-                        "<%s<br />"
+                        f"<{bundle.label}<br />"
                         '<font color="#333333" point-size="10">'
-                        "%s</font>>"
+                        f"{bundle.identifier}</font>>"
                     )
-                    bundle_label = bundle_label % (
-                        str(bundle.label),
-                        str(bundle.identifier),
-                    )
-                subdot.set_label('"%s"' % str(bundle_label))
+                subdot.set_label(f'"{bundle_label}"')
             else:
-                subdot.set_label('"%s"' % str(bundle.identifier))
+                subdot.set_label(f'"{bundle.identifier}"')
             _bundle_to_dot(subdot, bundle)
             dot.add_subgraph(subdot)
             return subdot
 
         def _add_node(record):
             count[0] += 1
-            node_id = "n%d" % count[0]
+            node_id = f"n{count[0]}"
             if use_labels:
                 if record.label == record.identifier:
-                    node_label = '"%s"' % str(record.label)
+                    node_label = f'"{record.label}"'
                 else:
                     # Fancier label if both are different. The label will be
                     # the main node text, whereas the identifier will be a
                     # kind of subtitle.
                     node_label = (
-                        "<%s<br />"
+                        f"<{record.label}<br />"
                         '<font color="#333333" point-size="10">'
-                        "%s</font>>"
-                    )
-                    node_label = node_label % (
-                        str(record.label),
-                        str(record.identifier),
+                        f"{record.identifier}</font>>"
                     )
             else:
-                node_label = '"%s"' % str(record.identifier)
+                node_label = f'"{record.identifier}"'
 
             uri = record.identifier.uri
             print("record type: ", record.get_type())
             style = DOT_PROVONE_STYLE[record.get_type()]
             print("style: ", style)
-            node = pydot.Node(node_id, label=node_label, URL='"%s"' % uri, **style)
+            node = pydot.Node(node_id, label=node_label, URL=f'"{uri}"', **style)
             node_map[uri] = node
             dot.add_node(node)
 
@@ -360,19 +352,19 @@ def provone_to_dot(
 
         def _add_generic_node(qname):
             count[0] += 1
-            node_id = "n%d" % count[0]
-            node_label = '"%s"' % str(qname)
+            node_id = f"n{count[0]}"
+            node_label = f'"{qname}"'
 
             uri = qname.uri
             style = DOT_PROVONE_STYLE[0]
-            node = pydot.Node(node_id, label=node_label, URL='"%s"' % uri, **style)
+            node = pydot.Node(node_id, label=node_label, URL=f'"{uri}"', **style)
             node_map[uri] = node
             dot.add_node(node)
             return node
 
         def _get_bnode():
             count[1] += 1
-            bnode_id = "b%d" % count[1]
+            bnode_id = f"b{count[1]}"
             bnode = pydot.Node(bnode_id, label='""', shape="point", color="gray")
             dot.add_node(bnode)
             return bnode

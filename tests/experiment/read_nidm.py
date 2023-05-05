@@ -13,29 +13,29 @@ def main():
 
     project = read_nidm(args.nidm_file)
 
-    print("Project: \n %s" % project.get_uuid())
+    print(f"Project: \n {project.get_uuid()}")
     sessions = project.get_sessions()
-    print("Sessions:\n %s" % sessions)
+    print(f"Sessions:\n {sessions}")
 
     acquisitions = []
     for session in sessions:
         acquisitions = session.get_acquisitions()
-        print("Acquisitions:\n %s" % acquisitions)
+        print(f"Acquisitions:\n {acquisitions}")
 
         for acq in acquisitions:
             acquisition_objects = acq.get_acquisition_objects()
-            print("Acquisition Objects:\n %s" % acquisition_objects)
+            print(f"Acquisition Objects:\n {acquisition_objects}")
 
     # check for data elements
-    print("Data Elements: \n %s" % project.get_dataelements())
+    print(f"Data Elements: \n {project.get_dataelements()}")
 
     # derivatives
 
     # and for derivatives
-    print("Derivatives: \n %s" % project.get_derivatives())
+    print(f"Derivatives: \n {project.get_derivatives()}")
     for deriv in project.get_derivatives():
         derivobj = deriv.get_derivative_objects()
-        print("Derivative Objects: \n %s" % derivobj)
+        print(f"Derivative Objects: \n {derivobj}")
 
     with open(args.outfile, "w") as f:
         # serialize project for comparison with the original

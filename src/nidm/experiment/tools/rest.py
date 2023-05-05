@@ -34,11 +34,11 @@ class RestParser:
     def __init__(self, verbosity_level=0, output_format=0):
         self.verbosity_level = verbosity_level
         self.output_format = output_format
-        self.restLog("Setting output format {}".format(self.output_format), 4)
+        self.restLog(f"Setting output format {self.output_format}", 4)
 
     def setOutputFormat(self, output_format):
         self.output_format = output_format
-        self.restLog("Setting output format {}".format(self.output_format), 4)
+        self.restLog(f"Setting output format {self.output_format}", 4)
 
     #####################
     # Standard formatters
@@ -191,7 +191,7 @@ class RestParser:
                 ]
                 field_table = tabulate(fh_rows, fh_header)
                 # added by DBK, if they asked for fields then just give them the fields
-                return "{}".format(field_table)
+                return str(field_table)
             else:
                 field_table = ""
 
@@ -222,9 +222,7 @@ class RestParser:
                 return self.format(result)
 
     def formatDerivatives(self, derivative):
-        self.restLog(
-            "formatting derivatives in format {}".format(self.output_format), 5
-        )
+        self.restLog(f"formatting derivatives in format {self.output_format}", 5)
         if self.output_format == self.CLI_FORMAT:
             table = []
             for uri in derivative:
@@ -335,7 +333,7 @@ class RestParser:
             )
             derivatives = self.formatDerivatives(result["derivatives"])
 
-            return "{}\n\n{}\n\n{}".format(tabulate(toptable), derivatives, instruments)
+            return f"{tabulate(toptable)}\n\n{derivatives}\n\n{instruments}"
         else:
             return self.format(result)
 
@@ -365,7 +363,7 @@ class RestParser:
             instruments = self.activityDataTableFormat(result["instruments"])
             derivatives = self.activityDataTableFormat(result["derivatives"])
 
-            return "{}\n\n{}\n\n{}".format(tabulate(toptable), derivatives, instruments)
+            return f"{tabulate(toptable)}\n\n{derivatives}\n\n{instruments}"
         else:
             return self.format(result)
 
@@ -413,7 +411,7 @@ class RestParser:
         if "fields" in self.query and len(self.query["fields"]) > 0:
             subjects_set = set()
             dataelements_set = set()
-            self.restLog("Using fields {}".format(self.query["fields"]), 2)
+            self.restLog(f"Using fields {self.query['fields']}", 2)
             # result['field_values'] = []
 
             for proj in projects:
@@ -533,7 +531,7 @@ class RestParser:
 
         match = re.match(r"^/?statistics/projects/([^/]+)\??$", path)
         id_ = parse.unquote(str(match.group(1)))
-        self.restLog("Returning project {} stats metadata".format(id_), 2)
+        self.restLog(f"Returning project {id_} stats metadata", 2)
 
         meta_data = Query.GetProjectsMetadata(self.nidm_files)
         self.ExpandProjectMetaData(meta_data)
@@ -639,7 +637,7 @@ class RestParser:
     def projectSummary(self):
         match = re.match(r"^/?projects/([^/]+)$", self.command)
         pid = parse.unquote(str(match.group(1)))
-        self.restLog("Returning project {} summary".format(pid), 2)
+        self.restLog(f"Returning project {pid} summary", 2)
 
         result = nidm.experiment.Navigate.GetProjectAttributes(
             self.nidm_files, project_id=pid
@@ -654,7 +652,7 @@ class RestParser:
         # if we got fields, drill into each subject and pull out the field data
         # subject details -> derivatives / instrument -> values -> element
         if "fields" in self.query and len(self.query["fields"]) > 0:
-            self.restLog("Using fields {}".format(self.query["fields"]), 2)
+            self.restLog(f"Using fields {self.query['fields']}", 2)
             result["field_values"] = []
             # get all the synonyms for all the fields
             field_synonyms = functools.reduce(
@@ -687,9 +685,7 @@ class RestParser:
         match = re.match(r"^/?projects/([^/]+)/subjects/?$", self.command)
         project = match.group((1))
         self.restLog(
-            "Returning all agents matching filter '{}' for project {}".format(
-                self.query["filter"], project
-            ),
+            f"Returning all agents matching filter '{self.query['filter']}' for project {project}",
             2,
         )
         # result = Query.GetParticipantUUIDsForProject(self.nidm_files, project, self.query['filter'], None)
@@ -712,7 +708,7 @@ class RestParser:
     def projectSubjectSummary(self):
         match = re.match(r"^/?projects/([^/]+)/subjects/([^/]+)/?$", self.command)
         subject = Navigate.normalizeSingleSubjectToUUID(self.nidm_files, match.group(2))
-        self.restLog("Returning info about subject {}".format(match.group(2)), 2)
+        self.restLog(f"Returning info about subject {match[2]}", 2)
         return self.subjectSummaryFormat(
             Query.GetParticipantDetails(self.nidm_files, match.group(1), subject)
         )
@@ -782,7 +778,7 @@ class RestParser:
 
     def subjectSummary(self):
         match = re.match(r"^/?subjects/([^/]+)/?$", self.command)
-        self.restLog("Returning info about subject {}".format(match.group(1)), 2)
+        self.restLog(f"Returning info about subject {match[1]}", 2)
         sid = match.group(1)
 
         # if we were passed in a sub_id rather than a UUID, lookup the associated UUID. (we might get multiple!)
@@ -816,7 +812,7 @@ class RestParser:
         match = re.match(
             r"^/?projects/([^/]+)/subjects/([^/]+)/instruments/?$", self.command
         )
-        self.restLog("Returning instruments in subject {}".format(match.group(2)), 2)
+        self.restLog(f"Returning instruments in subject {match[2]}", 2)
         subject = Navigate.normalizeSingleSubjectToUUID(self.nidm_files, match.group(2))
         instruments = Query.GetParticipantInstrumentData(
             self.nidm_files, match.group(1), subject
@@ -830,9 +826,7 @@ class RestParser:
             r"^/?projects/([^/]+)/subjects/([^/]+)/instruments/([^/]+)$", self.command
         )
         self.restLog(
-            "Returning instrument {} in subject {}".format(
-                match.group(3), match.group(2)
-            ),
+            f"Returning instrument {match[3]} in subject {match[2]}",
             2,
         )
         subject = Navigate.normalizeSingleSubjectToUUID(self.nidm_files, match.group(2))
@@ -844,7 +838,7 @@ class RestParser:
     def derivativesList(self):
         result = []
         match = re.match(r"^/?projects/([^/]+)/subjects/([^/]+)", self.command)
-        self.restLog("Returning derivatives in subject {}".format(match.group(2)), 2)
+        self.restLog(f"Returning derivatives in subject {match[2]}", 2)
         subject = Navigate.normalizeSingleSubjectToUUID(self.nidm_files, match.group(2))
         derivatives = Query.GetDerivativesDataForSubject(
             self.nidm_files, match.group(1), subject
@@ -859,7 +853,7 @@ class RestParser:
         )
         subject = Navigate.normalizeSingleSubjectToUUID(self.nidm_files, match.group(2))
         uri = match.group(3)
-        self.restLog("Returning stat {} in subject {}".format(uri, match.group(2)), 2)
+        self.restLog(f"Returning stat {uri} in subject {match[2]}", 2)
         derivatives = Query.GetDerivativesDataForSubject(
             self.nidm_files, match.group(1), subject
         )
@@ -874,9 +868,7 @@ class RestParser:
         try:
             self.restLog("parsing command " + command, 1)
             self.restLog("Files to read:" + str(nidm_files), 1)
-            self.restLog(
-                "Using {} as the graph cache directory".format(gettempdir()), 1
-            )
+            self.restLog(f"Using {gettempdir()} as the graph cache directory", 1)
 
             self.nidm_files = tuple(nidm_files)
             # replace # marks with %23 - they are sometimes used in the is_about terms
@@ -898,7 +890,7 @@ class RestParser:
 
             return self.route()
         except ValueError as ve:
-            logging.error("Exception: {}".format(ve))
+            logging.error("Exception: %s", ve)
             return self.format(
                 {"error": "One of the supplied field terms was not found."}
             )

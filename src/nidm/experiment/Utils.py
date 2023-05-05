@@ -96,7 +96,7 @@ def read_nidm(nidmDoc):
         proj_id = s
 
     if proj_id is None:
-        print("Error reading NIDM-Exp Document %s, Must have Project Object" % nidmDoc)
+        print(f"Error reading NIDM-Exp Document {nidmDoc}, Must have Project Object")
         print()
         create_obj = input("Should read_nidm create a Project object for you [yes]: ")
         if create_obj == "yes" or create_obj == "":
@@ -142,12 +142,12 @@ def read_nidm(nidmDoc):
     for s in rdf_graph_parse.subjects(
         predicate=RDF.type, object=URIRef(Constants.NIDM_SESSION.uri)
     ):
-        # print("session: %s" % s)
+        # print(f"session: {s}")
 
         # Split subject URI for session into namespace, uuid
         nm, session_uuid = split_uri(s)
 
-        # print("session uuid= %s" %session_uuid)
+        # print(f"session uuid= {session_uuid}")
 
         # instantiate session with this uuid
         session = Session(project=project, uuid=session_uuid, add_default_type=False)
@@ -165,7 +165,7 @@ def read_nidm(nidmDoc):
         ):
             # Split subject URI for session into namespace, uuid
             nm, acq_uuid = split_uri(acq)
-            # print("acquisition uuid: %s" %acq_uuid)
+            # print(f"acquisition uuid: {acq_uuid}")
 
             # query for whether this is an AssessmentAcquisition of other Acquisition, etc.
             for rdf_type in rdf_graph_parse.objects(subject=acq, predicate=RDF.type):
@@ -177,7 +177,7 @@ def read_nidm(nidmDoc):
                     ):
                         # Split subject URI for acquisition object (entity) into namespace, uuid
                         nm, acq_obj_uuid = split_uri(acq_obj)
-                        # print("acquisition object uuid: %s" %acq_obj_uuid)
+                        # print(f"acquisition object uuid: {acq_obj_uuid}")
 
                         # query for whether this is an MRI acquisition by way of looking at the generated entity and determining
                         # if it has the tuple [uuid Constants.NIDM_ACQUISITION_MODALITY Constants.NIDM_MRI]
@@ -233,7 +233,7 @@ def read_nidm(nidmDoc):
                                 ) in rdf_graph:
                                     # Split subject URI for associated acquisition entity for nidm:StimulusResponseFile into namespace, uuid
                                     nm, assoc_acq_uuid = split_uri(assoc_acq)
-                                    # print("associated acquisition object (stimulus file) uuid: %s" % assoc_acq_uuid)
+                                    # print(f"associated acquisition object (stimulus file) uuid: {assoc_acq_uuid}")
                                     # if so then add this entity and associate it with acquisition activity and MRI entity
                                     events_obj = AcquisitionObject(
                                         acquisition=acquisition, uuid=assoc_acq_uuid
@@ -413,8 +413,7 @@ def read_nidm(nidmDoc):
         )
 
         # now we need to check if there are labels for data element isAbout entries, if so add them.
-        query2 = (
-            """
+        query2 = f"""
 
                 prefix nidm: <http://purl.org/nidash/nidm#>
                 prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -422,16 +421,14 @@ def read_nidm(nidmDoc):
                 prefix prov: <http://www.w3.org/ns/prov#>
 
                 select distinct ?id ?label
-                where {
-                    <%s> nidm:isAbout ?id .
+                where {{
+                    <{row["uuid"]}> nidm:isAbout ?id .
 
                     ?id rdf:type prov:Entity ;
                         rdfs:label ?label .
-                }
+                }}
 
             """
-            % row["uuid"]
-        )
         # print(query2)
         qres2 = rdf_graph_parse.query(query2)
 
@@ -723,70 +720,192 @@ def QuerySciCrunchElasticSearch(
         sys.exit(1)
     # Add check for internet connection, if not then skip this query...return empty dictionary
 
-    headers = {
-        "Content-Type": "application/json",
-    }
-
     params = (("key", os.environ["INTERLEX_API_KEY"]),)
     if type == "cde":
         if anscestors:
-            data = (
-                '\n{\n  "query": {\n    "bool": {\n       "must" : [\n       {  "term" : { "type" : "cde" } },\n       { "terms" : { "ancestors.ilx" : ["ilx_0115066" , "ilx_0103210", "ilx_0115072", "ilx_0115070"] } },\n       { "multi_match" : {\n         "query":    "%s", \n         "fields": [ "label", "definition" ] \n       } }\n]\n    }\n  }\n}\n'
-                % query_string
-            )
+            data = {
+                "query": {
+                    "bool": {
+                        "must": [
+                            {"term": {"type": "cde"}},
+                            {
+                                "terms": {
+                                    "ancestors.ilx": [
+                                        "ilx_0115066",
+                                        "ilx_0103210",
+                                        "ilx_0115072",
+                                        "ilx_0115070",
+                                    ]
+                                }
+                            },
+                            {
+                                "multi_match": {
+                                    "query": query_string,
+                                    "fields": ["label", "definition"],
+                                }
+                            },
+                        ]
+                    }
+                }
+            }
         else:
-            data = (
-                '\n{\n  "query": {\n    "bool": {\n       "must" : [\n       {  "term" : { "type" : "cde" } },\n             { "multi_match" : {\n         "query":    "%s", \n         "fields": [ "label", "definition" ] \n       } }\n]\n    }\n  }\n}\n'
-                % query_string
-            )
+            data = {
+                "query": {
+                    "bool": {
+                        "must": [
+                            {"term": {"type": "cde"}},
+                            {
+                                "multi_match": {
+                                    "query": query_string,
+                                    "fields": ["label", "definition"],
+                                }
+                            },
+                        ]
+                    }
+                }
+            }
     elif type == "pde":
         if anscestors:
-            data = (
-                '\n{\n  "query": {\n    "bool": {\n       "must" : [\n       {  "term" : { "type" : "pde" } },\n       { "terms" : { "ancestors.ilx" : ["ilx_0115066" , "ilx_0103210", "ilx_0115072", "ilx_0115070"] } },\n       { "multi_match" : {\n         "query":    "%s", \n         "fields": [ "label", "definition" ] \n       } }\n]\n    }\n  }\n}\n'
-                % query_string
-            )
+            data = {
+                "query": {
+                    "bool": {
+                        "must": [
+                            {"term": {"type": "pde"}},
+                            {
+                                "terms": {
+                                    "ancestors.ilx": [
+                                        "ilx_0115066",
+                                        "ilx_0103210",
+                                        "ilx_0115072",
+                                        "ilx_0115070",
+                                    ]
+                                }
+                            },
+                            {
+                                "multi_match": {
+                                    "query": query_string,
+                                    "fields": ["label", "definition"],
+                                }
+                            },
+                        ]
+                    }
+                }
+            }
         else:
-            data = (
-                '\n{\n  "query": {\n    "bool": {\n       "must" : [\n       {  "term" : { "type" : "pde" } },\n              { "multi_match" : {\n         "query":    "%s", \n         "fields": [ "label", "definition" ] \n       } }\n]\n    }\n  }\n}\n'
-                % query_string
-            )
+            data = {
+                "query": {
+                    "bool": {
+                        "must": [
+                            {"term": {"type": "pde"}},
+                            {
+                                "multi_match": {
+                                    "query": query_string,
+                                    "fields": ["label", "definition"],
+                                }
+                            },
+                        ]
+                    }
+                }
+            }
     elif type == "fde":
         if anscestors:
-            data = (
-                '\n{\n  "query": {\n    "bool": {\n       "must" : [\n       {  "term" : { "type" : "fde" } },\n       { "terms" : { "ancestors.ilx" : ["ilx_0115066" , "ilx_0103210", "ilx_0115072", "ilx_0115070"] } },\n       { "multi_match" : {\n         "query":    "%s", \n         "fields": [ "label", "definition" ] \n       } }\n]\n    }\n  }\n}\n'
-                % query_string
-            )
+            data = {
+                "query": {
+                    "bool": {
+                        "must": [
+                            {"term": {"type": "fde"}},
+                            {
+                                "terms": {
+                                    "ancestors.ilx": [
+                                        "ilx_0115066",
+                                        "ilx_0103210",
+                                        "ilx_0115072",
+                                        "ilx_0115070",
+                                    ]
+                                }
+                            },
+                            {
+                                "multi_match": {
+                                    "query": query_string,
+                                    "fields": ["label", "definition"],
+                                }
+                            },
+                        ]
+                    }
+                }
+            }
         else:
-            data = (
-                '\n{\n  "query": {\n    "bool": {\n       "must" : [\n       {  "term" : { "type" : "fde" } },\n              { "multi_match" : {\n         "query":    "%s", \n         "fields": [ "label", "definition" ] \n       } }\n]\n    }\n  }\n}\n'
-                % query_string
-            )
+            data = {
+                "query": {
+                    "bool": {
+                        "must": [
+                            {"term": {"type": "fde"}},
+                            {
+                                "multi_match": {
+                                    "query": query_string,
+                                    "fields": ["label", "definition"],
+                                }
+                            },
+                        ]
+                    }
+                }
+            }
 
     elif type == "term":
         if anscestors:
-            data = (
-                '\n{\n  "query": {\n    "bool": {\n       "must" : [\n       {  "term" : { "type" : "term" } },\n       { "terms" : { "ancestors.ilx" : ["ilx_0115066" , "ilx_0103210", "ilx_0115072", "ilx_0115070"] } },\n       { "multi_match" : {\n         "query":    "%s", \n         "fields": [ "label", "definition" ] \n       } }\n]\n    }\n  }\n}\n'
-                % query_string
-            )
+            data = {
+                "query": {
+                    "bool": {
+                        "must": [
+                            {"term": {"type": "term"}},
+                            {
+                                "terms": {
+                                    "ancestors.ilx": [
+                                        "ilx_0115066",
+                                        "ilx_0103210",
+                                        "ilx_0115072",
+                                        "ilx_0115070",
+                                    ]
+                                }
+                            },
+                            {
+                                "multi_match": {
+                                    "query": query_string,
+                                    "fields": ["label", "definition"],
+                                }
+                            },
+                        ]
+                    }
+                }
+            }
         else:
-            data = (
-                '\n{\n  "query": {\n    "bool": {\n       "must" : [\n       {  "term" : { "type" : "term" } },\n              { "multi_match" : {\n         "query":    "%s", \n         "fields": [ "label", "definition" ] \n       } }\n]\n    }\n  }\n}\n'
-                % query_string
-            )
+            data = {
+                "query": {
+                    "bool": {
+                        "must": [
+                            {"term": {"type": "term"}},
+                            {
+                                "multi_match": {
+                                    "query": query_string,
+                                    "fields": ["label", "definition"],
+                                }
+                            },
+                        ]
+                    }
+                }
+            }
 
     else:
         print(
-            "ERROR: Valid types for SciCrunch query are 'cde','pde', or 'fde'.  You set type: %s "
-            % type
+            f"ERROR: Valid types for SciCrunch query are 'cde','pde', or 'fde'.  You set type: {type} "
         )
         print("ERROR: in function Utils.py/QuerySciCrunchElasticSearch")
         exit(1)
 
     response = requests.post(
         "https://scicrunch.org/api/1/elastic-ilx/interlex/term/_search#",
-        headers=headers,
         params=params,
-        data=data,
+        json=data,
     )
 
     return json.loads(response.text)
@@ -969,7 +1088,7 @@ def load_nidm_terms_concepts():
         r.raise_for_status()
         concept_graph = r.json()
     except Exception:
-        logging.info("Error opening %s used concepts file..continuing" % concept_url)
+        logging.info("Error opening %s used concepts file..continuing", concept_url)
         return None
 
     return concept_graph
@@ -1015,7 +1134,7 @@ def load_nidm_owl_files():
     #        union_graph=union_graph+temp_graph
     #
     #    except Exception:
-    #        logging.info("Error opening %s import file..continuing" %os.path.join(imports_path,resource))
+    #        logging.info("Error opening %s import file..continuing", os.path.join(imports_path,resource))
     #        continue
 
     owls = [
@@ -1041,7 +1160,7 @@ def load_nidm_owl_files():
             temp_graph.parse(location=resource, format="turtle")
             union_graph = union_graph + temp_graph
         except Exception:
-            logging.info("Error opening %s owl file..continuing" % resource)
+            logging.info("Error opening %s owl file..continuing", resource)
             continue
 
     return union_graph
@@ -1186,7 +1305,7 @@ def getSubjIDColumn(column_to_terms, df):
     if id_field is None:
         option = 1
         for column in df.columns:
-            print("%d: %s" % (option, column))
+            print(f"{option}: {column}")
             option = option + 1
         selection = input("Please select the subject ID field from the list above: ")
         id_field = df.columns[int(selection) - 1]
@@ -1330,7 +1449,7 @@ def map_variables_to_terms(
                 with open(json_source, "r") as f:
                     json_map = json.load(f)
             else:
-                print("ERROR: Can't open json mapping file: %s" % (json_source))
+                print(f"ERROR: Can't open json mapping file: {json_source}")
                 exit()
         except Exception:
             # if not then it's a json structure already
@@ -1417,8 +1536,7 @@ def map_variables_to_terms(
                             column_to_terms[current_tuple]["label"] = ""
                             print(
                                 "No label or source_variable or sourceVariable keys found in json mapping file for variable "
-                                "%s. Consider adding these to the json file as they are important"
-                                % json_key[0]
+                                f"{json_key[0]}. Consider adding these to the json file as they are important"
                             )
                     else:
                         column_to_terms[current_tuple]["label"] = json_map[json_key[0]][
@@ -1440,67 +1558,63 @@ def map_variables_to_terms(
 
                     print("\n" + ("*" * 85))
                     print(
-                        "Column %s already annotated in user supplied JSON mapping file"
-                        % column
+                        f"Column {column} already annotated in user supplied JSON mapping file"
                     )
-                    print("label: %s" % column_to_terms[current_tuple]["label"])
-                    print(
-                        "description: %s"
-                        % column_to_terms[current_tuple]["description"]
-                    )
+                    print("label:", column_to_terms[current_tuple]["label"])
+                    print("description:", column_to_terms[current_tuple]["description"])
                     if "url" in json_map[json_key[0]]:
                         column_to_terms[current_tuple]["url"] = json_map[json_key[0]][
                             "url"
                         ]
-                        print("url: %s" % column_to_terms[current_tuple]["url"])
-                    # print("Variable: %s" %column_to_terms[current_tuple]['variable'])
+                        print("url:", column_to_terms[current_tuple]["url"])
+                    # print("Variable:", column_to_terms[current_tuple]['variable'])
                     if "sameAs" in json_map[json_key[0]]:
                         column_to_terms[current_tuple]["sameAs"] = json_map[
                             json_key[0]
                         ]["sameAs"]
-                        print("sameAs: %s" % column_to_terms[current_tuple]["sameAs"])
+                        print("sameAs:", column_to_terms[current_tuple]["sameAs"])
                     if "url" in json_map[json_key[0]]:
                         column_to_terms[current_tuple]["url"] = json_map[json_key[0]][
                             "url"
                         ]
-                        print("url: %s" % column_to_terms[current_tuple]["url"])
+                        print("url:", column_to_terms[current_tuple]["url"])
 
                     if "source_variable" in json_map[json_key[0]]:
                         column_to_terms[current_tuple]["source_variable"] = json_map[
                             json_key[0]
                         ]["source_variable"]
                         print(
-                            "source variable: %s"
-                            % column_to_terms[current_tuple]["source_variable"]
+                            "source variable:",
+                            column_to_terms[current_tuple]["source_variable"],
                         )
                     elif "sourceVariable" in json_map[json_key[0]]:
                         column_to_terms[current_tuple]["source_variable"] = json_map[
                             json_key[0]
                         ]["sourceVariable"]
                         print(
-                            "source variable: %s"
-                            % column_to_terms[current_tuple]["source_variable"]
+                            "source variable:",
+                            column_to_terms[current_tuple]["source_variable"],
                         )
                     else:
                         # add source variable if not there...
                         column_to_terms[current_tuple]["source_variable"] = str(column)
-                        print("Added source variable (%s) to annotations" % column)
+                        print(f"Added source variable ({column}) to annotations")
 
                     if "associatedWith" in json_map[json_key[0]]:
                         column_to_terms[current_tuple]["associatedWith"] = json_map[
                             json_key[0]
                         ]["associatedWith"]
                         print(
-                            "associatedWith: %s"
-                            % column_to_terms[current_tuple]["associatedWith"]
+                            "associatedWith:",
+                            column_to_terms[current_tuple]["associatedWith"],
                         )
                     if "allowableValues" in json_map[json_key[0]]:
                         column_to_terms[current_tuple]["allowableValues"] = json_map[
                             json_key[0]
                         ]["allowableValues"]
                         print(
-                            "allowableValues: %s"
-                            % column_to_terms[current_tuple]["allowableValues"]
+                            "allowableValues:",
+                            column_to_terms[current_tuple]["allowableValues"],
                         )
 
                     # added to support ReproSchema json format
@@ -1523,10 +1637,10 @@ def map_variables_to_terms(
                                     "valueType"
                                 ]
                                 print(
-                                    "valueType: %s"
-                                    % column_to_terms[current_tuple]["responseOptions"][
+                                    "valueType:",
+                                    column_to_terms[current_tuple]["responseOptions"][
                                         "valueType"
-                                    ]
+                                    ],
                                 )
 
                             elif "minValue" in subkey:
@@ -1542,10 +1656,10 @@ def map_variables_to_terms(
                                     "minValue"
                                 ] = json_map[json_key[0]]["responseOptions"]["minValue"]
                                 print(
-                                    "minValue: %s"
-                                    % column_to_terms[current_tuple]["responseOptions"][
+                                    "minValue:",
+                                    column_to_terms[current_tuple]["responseOptions"][
                                         "minValue"
-                                    ]
+                                    ],
                                 )
 
                             elif "maxValue" in subkey:
@@ -1561,10 +1675,10 @@ def map_variables_to_terms(
                                     "maxValue"
                                 ] = json_map[json_key[0]]["responseOptions"]["maxValue"]
                                 print(
-                                    "maxValue: %s"
-                                    % column_to_terms[current_tuple]["responseOptions"][
+                                    "maxValue:",
+                                    column_to_terms[current_tuple]["responseOptions"][
                                         "maxValue"
-                                    ]
+                                    ],
                                 )
                             elif "choices" in subkey:
                                 if (
@@ -1579,10 +1693,10 @@ def map_variables_to_terms(
                                     "choices"
                                 ] = json_map[json_key[0]]["responseOptions"]["choices"]
                                 print(
-                                    "levels: %s"
-                                    % column_to_terms[current_tuple]["responseOptions"][
+                                    "levels:",
+                                    column_to_terms[current_tuple]["responseOptions"][
                                         "choices"
-                                    ]
+                                    ],
                                 )
                             elif "hasUnit" in subkey:
                                 if (
@@ -1597,10 +1711,10 @@ def map_variables_to_terms(
                                     "unitCode"
                                 ] = json_map[json_key[0]]["responseOptions"]["hasUnit"]
                                 print(
-                                    "units: %s"
-                                    % column_to_terms[current_tuple]["responseOptions"][
+                                    "units:",
+                                    column_to_terms[current_tuple]["responseOptions"][
                                         "unitCode"
-                                    ]
+                                    ],
                                 )
                             elif "unitCode" in subkey:
                                 if (
@@ -1615,10 +1729,10 @@ def map_variables_to_terms(
                                     "unitCode"
                                 ] = json_map[json_key[0]]["responseOptions"]["unitCode"]
                                 print(
-                                    "units: %s"
-                                    % column_to_terms[current_tuple]["responseOptions"][
+                                    "units:",
+                                    column_to_terms[current_tuple]["responseOptions"][
                                         "unitCode"
-                                    ]
+                                    ],
                                 )
 
                     if "levels" in json_map[json_key[0]]:
@@ -1632,10 +1746,10 @@ def map_variables_to_terms(
                             "choices"
                         ] = json_map[json_key[0]]["levels"]
                         print(
-                            "choices: %s"
-                            % column_to_terms[current_tuple]["responseOptions"][
+                            "choices:",
+                            column_to_terms[current_tuple]["responseOptions"][
                                 "choices"
-                            ]
+                            ],
                         )
                     elif "Levels" in json_map[json_key[0]]:
                         # upgrade 'levels' to 'responseOptions'->'choices'
@@ -1648,10 +1762,10 @@ def map_variables_to_terms(
                             "choices"
                         ] = json_map[json_key[0]]["Levels"]
                         print(
-                            "levels: %s"
-                            % column_to_terms[current_tuple]["responseOptions"][
+                            "levels:",
+                            column_to_terms[current_tuple]["responseOptions"][
                                 "choices"
-                            ]
+                            ],
                         )
 
                     if "valueType" in json_map[json_key[0]]:
@@ -1665,10 +1779,10 @@ def map_variables_to_terms(
                             "valueType"
                         ] = json_map[json_key[0]]["valueType"]
                         print(
-                            "valueType: %s"
-                            % column_to_terms[current_tuple]["responseOptions"][
+                            "valueType:",
+                            column_to_terms[current_tuple]["responseOptions"][
                                 "valueType"
-                            ]
+                            ],
                         )
 
                     if "minValue" in json_map[json_key[0]]:
@@ -1682,10 +1796,10 @@ def map_variables_to_terms(
                             "minValue"
                         ] = json_map[json_key[0]]["minValue"]
                         print(
-                            "minValue: %s"
-                            % column_to_terms[current_tuple]["responseOptions"][
+                            "minValue:",
+                            column_to_terms[current_tuple]["responseOptions"][
                                 "minValue"
-                            ]
+                            ],
                         )
                     elif "minimumValue" in json_map[json_key[0]]:
                         # upgrade 'minValue' to 'responseOptions'->'minValue
@@ -1698,10 +1812,10 @@ def map_variables_to_terms(
                             "minValue"
                         ] = json_map[json_key[0]]["minimumValue"]
                         print(
-                            "minValue: %s"
-                            % column_to_terms[current_tuple]["responseOptions"][
+                            "minValue:",
+                            column_to_terms[current_tuple]["responseOptions"][
                                 "minValue"
-                            ]
+                            ],
                         )
 
                     if "maxValue" in json_map[json_key[0]]:
@@ -1715,10 +1829,10 @@ def map_variables_to_terms(
                             "maxValue"
                         ] = json_map[json_key[0]]["maxValue"]
                         print(
-                            "maxValue: %s"
-                            % column_to_terms[current_tuple]["responseOptions"][
+                            "maxValue:",
+                            column_to_terms[current_tuple]["responseOptions"][
                                 "maxValue"
-                            ]
+                            ],
                         )
                     elif "maximumValue" in json_map[json_key[0]]:
                         # upgrade 'maxValue' to 'responseOptions'->'maxValue
@@ -1731,10 +1845,10 @@ def map_variables_to_terms(
                             "maxValue"
                         ] = json_map[json_key[0]]["maximumValue"]
                         print(
-                            "maxValue: %s"
-                            % column_to_terms[current_tuple]["responseOptions"][
+                            "maxValue:",
+                            column_to_terms[current_tuple]["responseOptions"][
                                 "maxValue"
-                            ]
+                            ],
                         )
                     if "hasUnit" in json_map[json_key[0]]:
                         # upgrade 'hasUnit' to 'responseOptions'->'unitCode
@@ -1747,10 +1861,10 @@ def map_variables_to_terms(
                             "unitCode"
                         ] = json_map[json_key[0]]["hasUnit"]
                         print(
-                            "unitCode: %s"
-                            % column_to_terms[current_tuple]["responseOptions"][
+                            "unitCode:",
+                            column_to_terms[current_tuple]["responseOptions"][
                                 "unitCode"
-                            ]
+                            ],
                         )
                     elif "Units" in json_map[json_key[0]]:
                         # upgrade 'Units' to 'responseOptions'->'unitCode
@@ -1763,10 +1877,10 @@ def map_variables_to_terms(
                             "unitCode"
                         ] = json_map[json_key[0]]["Units"]
                         print(
-                            "unitCode: %s"
-                            % column_to_terms[current_tuple]["responseOptions"][
+                            "unitCode:",
+                            column_to_terms[current_tuple]["responseOptions"][
                                 "unitCode"
-                            ]
+                            ],
                         )
 
                     if "isAbout" in json_map[json_key[0]]:
@@ -1805,24 +1919,16 @@ def map_variables_to_terms(
                                             }
                                         )
                                         print(
-                                            "isAbout: %s = %s, %s = %s"
-                                            % (
-                                                "@id",
-                                                subdict["@id"],
-                                                "label",
-                                                subdict["label"],
-                                            )
+                                            f"isAbout: @id = {subdict['@id']}, label = {subdict['label']}"
                                         )
                                     else:
                                         column_to_terms[current_tuple][
                                             "isAbout"
                                         ].append({"@id": subdict["@id"]})
-                                        print(
-                                            "isAbout: %s = %s" % ("@id", subdict["@id"])
-                                        )
+                                        print(f"isAbout: @id = {subdict['@id']}")
                                     # for isabout_key,isabout_value in subdict.items():
                                     #    column_to_terms[current_tuple]['isAbout'].append({isabout_key:isabout_value})
-                                    #    print("isAbout: %s = %s" %(isabout_key, isabout_value))
+                                    #    print(f"isAbout: {isabout_key} = {isabout_value}")
                         # if isAbout is a dictionary then we only have 1 isAbout...we'll upgrade it to a list
                         # to be consistent moving forward
                         else:
@@ -1861,13 +1967,7 @@ def map_variables_to_terms(
                                     )
 
                             print(
-                                "isAbout: %s = %s, %s = %s"
-                                % (
-                                    "@id",
-                                    column_to_terms[current_tuple]["isAbout"]["@id"],
-                                    "label",
-                                    column_to_terms[current_tuple]["isAbout"]["label"],
-                                )
+                                f"isAbout: @id = {column_to_terms[current_tuple]['isAbout']['@id']}, label = {column_to_terms[current_tuple]['isAbout']['label']}"
                             )
                     else:
                         # if user ran in mode where they want to associate concepts and this isn't the participant
@@ -1936,15 +2036,12 @@ def map_variables_to_terms(
             # column_to_terms[subjid_tuple]['variable'] = str(column)
 
             print(
-                "Variable %s automatically mapped to participant/subject identifier"
-                % search_term
+                f"Variable {search_term} automatically mapped to participant/subject identifier"
             )
-            print("Label: %s" % column_to_terms[subjid_tuple]["label"])
-            print("Description: %s" % column_to_terms[subjid_tuple]["description"])
-            # print("Url: %s" %column_to_terms[subjid_tuple]['url'])
-            print(
-                "Source Variable: %s" % column_to_terms[subjid_tuple]["source_variable"]
-            )
+            print("Label:", column_to_terms[subjid_tuple]["label"])
+            print("Description:", column_to_terms[subjid_tuple]["description"])
+            # print("Url:", column_to_terms[subjid_tuple]['url'])
+            print("Source Variable:", column_to_terms[subjid_tuple]["source_variable"])
             print("-" * 87)
             continue
         # if we haven't already found an annotation for this column then have user create one.
@@ -2063,7 +2160,7 @@ def write_json_mapping_file(source_variable_annotations, output_file, bids=False
         ) as fp:
             json.dump(new_dict, fp, indent=4)
     else:
-        # logging.info("saving json mapping file: %s" %os.path.join(os.path.basename(output_file), \
+        # logging.info("saving json mapping file: %s", os.path.join(os.path.basename(output_file), \
         #                            os.path.splitext(output_file)[0]+".json"))
         with open(
             os.path.join(
@@ -2123,7 +2220,7 @@ def find_concept_interactive(
         option = 1
         print()
         print("Concept Association")
-        print("Query String: %s " % search_term)
+        print(f"Query String: {search_term} ")
 
         # modified by DBK 5/14/21 to start with nidm-terms used concepts
         if nidmterms_concepts is not None:
@@ -2140,13 +2237,12 @@ def find_concept_interactive(
                         first_nidm_term = False
 
                     print(
-                        "%d: Label: %s \t Definition: %s \t URL: %s"
-                        % (
-                            option,
-                            nidmterms_concepts_query[key]["label"],
-                            nidmterms_concepts_query[key]["definition"],
-                            nidmterms_concepts_query[key]["url"],
-                        )
+                        f"{option}: Label:",
+                        nidmterms_concepts_query[key]["label"],
+                        "\t Definition:",
+                        nidmterms_concepts_query[key]["definition"],
+                        "\t URL:",
+                        nidmterms_concepts_query[key]["url"],
                     )
                     search_result[key] = {}
                     search_result[key]["label"] = nidmterms_concepts_query[key]["label"]
@@ -2167,20 +2263,19 @@ def find_concept_interactive(
                 )
 
                 # temp = ilx_result.copy()
-                # print("Search Term: %s" %search_term)
+                # print("Search Term:", search_term)
                 if len(ilx_result) != 0:
                     print("InterLex:")
                     print()
                     # print("Search Results: ")
                     for key, _ in ilx_result.items():
                         print(
-                            "%d: Label: %s \t Definition: %s \t Preferred URL: %s "
-                            % (
-                                option,
-                                ilx_result[key]["label"],
-                                ilx_result[key]["definition"],
-                                ilx_result[key]["preferred_url"],
-                            )
+                            f"{option}: Label:",
+                            ilx_result[key]["label"],
+                            "\t Definition:",
+                            ilx_result[key]["definition"],
+                            "\t Preferred URL:",
+                            ilx_result[key]["preferred_url"],
                         )
 
                         search_result[key] = {}
@@ -2207,14 +2302,10 @@ def find_concept_interactive(
                             first_cogatlas_concept = False
 
                         print(
-                            "%d: Label: %s \t Definition:   %s "
-                            % (
-                                option,
-                                cogatlas_concepts_query[key]["label"],
-                                cogatlas_concepts_query[key]["definition"].rstrip(
-                                    "\r\n"
-                                ),
-                            )
+                            f"{option}: Label:",
+                            cogatlas_concepts_query[key]["label"],
+                            "\t Definition:  ",
+                            cogatlas_concepts_query[key]["definition"].rstrip("\r\n"),
                         )
                         search_result[key] = {}
                         search_result[key]["label"] = cogatlas_concepts_query[key][
@@ -2239,14 +2330,10 @@ def find_concept_interactive(
                 for key, _ in cogatlas_disorders_query.items():
                     if cogatlas_disorders_query[key]["score"] > min_match_score + 20:
                         print(
-                            "%d: Label: %s \t Definition:   %s "
-                            % (
-                                option,
-                                cogatlas_disorders_query[key]["label"],
-                                cogatlas_disorders_query[key]["definition"].rstrip(
-                                    "\r\n"
-                                ),
-                            )
+                            f"{option}: Label:",
+                            cogatlas_disorders_query[key]["label"],
+                            "\t Definition:   ",
+                            cogatlas_disorders_query[key]["definition"].rstrip("\r\n"),
                         )
                         search_result[key] = {}
                         search_result[key]["label"] = cogatlas_disorders_query[key][
@@ -2281,13 +2368,12 @@ def find_concept_interactive(
                             first_nidm_term = False
 
                         print(
-                            "%d: Label: %s \t Definition: %s \t URL: %s"
-                            % (
-                                option,
-                                nidm_constants_query[key]["label"],
-                                nidm_constants_query[key]["definition"],
-                                nidm_constants_query[key]["url"],
-                            )
+                            f"{option}: Label:",
+                            nidm_constants_query[key]["label"],
+                            "\t Definition:",
+                            nidm_constants_query[key]["definition"],
+                            "\t URL:",
+                            nidm_constants_query[key]["url"],
                         )
                         search_result[key] = {}
                         search_result[key]["label"] = nidm_constants_query[key]["label"]
@@ -2304,37 +2390,35 @@ def find_concept_interactive(
         if ancestor:
             # Broaden Interlex search
             print(
-                "%d: Broaden Search (includes interlex, cogatlas, and nidm ontology) "
-                % option
+                f"{option}: Broaden Search (includes interlex, cogatlas, and nidm ontology) "
             )
         else:
             # Narrow Interlex search
             print(
-                "%d: Narrow Search (includes nidm-terms previously used concepts) "
-                % option
+                f"{option}: Narrow Search (includes nidm-terms previously used concepts) "
             )
         option = option + 1
 
         # Add option to change query string
-        print('%d: Change query string from: "%s"' % (option, search_term))
+        print(f'{option}: Change query string from: "{search_term}"')
 
         # ####### DEFINE NEW CONCEPT COMMENTED OUT RIGHT NOW ##################
         # # Add option to define your own term
         # option = option + 1
-        # print("%d: Define my own concept for this variable" % option)
+        # print(f"{option}: Define my own concept for this variable")
         # ####### DEFINE NEW CONCEPT COMMENTED OUT RIGHT NOW ##################
         # Add option to define your own term
         option = option + 1
-        print("%d: No concept needed for this variable" % option)
+        print(f"{option}: No concept needed for this variable")
 
         print("*" * 87)
         # Wait for user input
-        selection = input("Please select an option (1:%d) from above: \t" % option)
+        selection = input(f"Please select an option (1:{option}) from above: \t")
 
         # Make sure user selected one of the options.  If not present user with selection input again
         while (not selection.isdigit()) or (int(selection) > int(option)):
             # Wait for user input
-            selection = input("Please select an option (1:%d) from above: \t" % option)
+            selection = input(f"Please select an option (1:{option}) from above: \t")
 
         # toggle use of ancestors in interlex query or not
         if int(selection) == (option - 2):
@@ -2343,8 +2427,7 @@ def find_concept_interactive(
         elif int(selection) == (option - 1):
             # ask user for new search string
             search_term = input(
-                "Please input new search string for CSV column: %s \t:"
-                % source_variable
+                f"Please input new search string for CSV column: {source_variable} \t:"
             )
             print("*" * 87)
 
@@ -2372,19 +2455,17 @@ def find_concept_interactive(
                     "label": search_result[search_result[selection]]["label"],
                 }
             )
-            print(
-                "\nConcept annotation added for source variable: %s" % source_variable
-            )
+            print("\nConcept annotation added for source variable:", source_variable)
             go_loop = False
 
 
 def define_new_concept(source_variable, ilx_obj):
     # user wants to define their own term.  Ask for term label and definition
-    print("\nYou selected to enter a new concept for CSV column: %s" % source_variable)
+    print("\nYou selected to enter a new concept for CSV column:", source_variable)
 
     # collect term information from user
     concept_label = input(
-        "Please enter a label for the new concept [%s]:\t" % source_variable
+        f"Please enter a label for the new concept [{source_variable}]:\t"
     )
     concept_definition = input("Please enter a definition for this concept:\t")
 
@@ -2408,13 +2489,13 @@ def annotate_data_element(source_variable, current_tuple, source_variable_annota
 
     # user instructions
     print(
-        "\nYou will now be asked a series of questions to annotate your term: %s"
-        % source_variable
+        "\nYou will now be asked a series of questions to annotate your term:",
+        source_variable,
     )
 
     # collect term information from user
     term_label = input(
-        "Please enter a full name to associate with the term [%s]:\t" % source_variable
+        f"Please enter a full name to associate with the term [{source_variable}]:\t"
     )
     if term_label == "":
         term_label = source_variable
@@ -2501,11 +2582,10 @@ def annotate_data_element(source_variable, current_tuple, source_variable_annota
             for category in range(1, int(num_categories) + 1):
                 # term category dictionary has labels as keys and value associated with label as value
                 cat_label = input(
-                    "Please enter the text string label for the category %d:\t"
-                    % category
+                    f"Please enter the text string label for the category {category}:\t"
                 )
                 cat_value = input(
-                    'Please enter the value associated with label "%s":\t' % cat_label
+                    f'Please enter the value associated with label "{cat_label}":\t'
                 )
                 term_category[cat_label] = cat_value
 
@@ -2515,8 +2595,7 @@ def annotate_data_element(source_variable, current_tuple, source_variable_annota
             for category in range(1, int(num_categories) + 1):
                 # term category dictionary has labels as keys and value associated with label as value
                 cat_label = input(
-                    "Please enter the text string label for the category %d:\t"
-                    % category
+                    f"Please enter the text string label for the category {category}:\t"
                 )
                 term_category.append(cat_label)
 
@@ -2580,39 +2659,39 @@ def annotate_data_element(source_variable, current_tuple, source_variable_annota
 
     # print mappings
     print("\n" + ("*" * 85))
-    print("Stored mapping: %s ->  " % source_variable)
-    print("label: %s" % source_variable_annotations[current_tuple]["label"])
+    print(f"Stored mapping: {source_variable} ->  ")
+    print("label:", source_variable_annotations[current_tuple]["label"])
     print(
-        "source variable: %s"
-        % source_variable_annotations[current_tuple]["source_variable"]
+        "source variable:",
+        source_variable_annotations[current_tuple]["source_variable"],
     )
-    print("description: %s" % source_variable_annotations[current_tuple]["description"])
+    print("description:", source_variable_annotations[current_tuple]["description"])
     print(
-        "valueType: %s"
-        % source_variable_annotations[current_tuple]["responseOptions"]["valueType"]
+        "valueType:",
+        source_variable_annotations[current_tuple]["responseOptions"]["valueType"],
     )
     # left for legacy purposes
     if "hasUnit" in source_variable_annotations[current_tuple]:
-        print("hasUnit: %s" % source_variable_annotations[current_tuple]["hasUnit"])
+        print("hasUnit:", source_variable_annotations[current_tuple]["hasUnit"])
     elif "unitCode" in source_variable_annotations[current_tuple]["responseOptions"]:
         print(
-            "hasUnit: %s"
-            % source_variable_annotations[current_tuple]["responseOptions"]["unitCode"]
+            "hasUnit:",
+            source_variable_annotations[current_tuple]["responseOptions"]["unitCode"],
         )
     if "minValue" in source_variable_annotations[current_tuple]["responseOptions"]:
         print(
-            "minimumValue: %s"
-            % source_variable_annotations[current_tuple]["responseOptions"]["minValue"]
+            "minimumValue:",
+            source_variable_annotations[current_tuple]["responseOptions"]["minValue"],
         )
     if "maxValue" in source_variable_annotations[current_tuple]["responseOptions"]:
         print(
-            "maximumValue: %s"
-            % source_variable_annotations[current_tuple]["responseOptions"]["maxValue"]
+            "maximumValue:",
+            source_variable_annotations[current_tuple]["responseOptions"]["maxValue"],
         )
     if term_datatype == URIRef(Constants.XSD["complexType"]):
         print(
-            "choices: %s"
-            % source_variable_annotations[current_tuple]["responseOptions"]["choices"]
+            "choices:",
+            source_variable_annotations[current_tuple]["responseOptions"]["choices"],
         )
     print("-" * 87)
 
@@ -2888,7 +2967,7 @@ def addGitAnnexSources(obj, bids_root, filepath=None):
         return len(sources)
     except Exception:
         # if "No annex found at" not in str(e):
-        #    print("Warning, error with AnnexRepo (Utils.py, addGitAnnexSources): %s" %str(e))
+        #    print("Warning, error with AnnexRepo (Utils.py, addGitAnnexSources):", e)
         return 0
 
 

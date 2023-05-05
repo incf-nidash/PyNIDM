@@ -12,7 +12,7 @@ def download_cde_files():
     cde_dir = tempfile.gettempdir()
 
     for url in Constants.CDE_FILE_LOCATIONS:
-        urlretrieve(url, "{}/{}".format(cde_dir, url.split("/")[-1]))
+        urlretrieve(url, f"{cde_dir}/{url.split('/')[-1]}")
 
     return cde_dir
 
@@ -25,7 +25,7 @@ def getCDEs(file_list=None):
     hasher.update(str(file_list).encode("utf-8"))
     h = hasher.hexdigest()
 
-    cache_file_name = tempfile.gettempdir() + "/cde_graph.{}.pickle".format(h)
+    cache_file_name = tempfile.gettempdir() + f"/cde_graph.{h}.pickle"
 
     if path.isfile(cache_file_name):
         with open(cache_file_name, "rb") as fp:
@@ -50,7 +50,7 @@ def getCDEs(file_list=None):
 
         file_list = []
         for f in ["ants_cde.ttl", "fs_cde.ttl", "fsl_cde.ttl"]:
-            fname = "{}/{}".format(cde_dir, f)
+            fname = f"{cde_dir}/{f}"
             if path.isfile(fname):
                 file_list.append(fname)
 
