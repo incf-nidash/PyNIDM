@@ -205,7 +205,7 @@ def test_map_vars_to_terms_BIDS(setup: Setup, tmp_path: Path) -> None:
     )
 
     # now check the JSON sidecar file created by map_variables_to_terms which should match BIDS format
-    with open(tmp_path / "nidm_annotations.json") as fp:
+    with open(tmp_path / "nidm_annotations.json", encoding="utf-8") as fp:
         bids_sidecar = json.load(fp)
 
     assert "age" in bids_sidecar.keys()
@@ -306,7 +306,7 @@ def test_map_vars_to_terms_reproschema(setup: Setup, tmp_path: Path) -> None:
     )
 
     # now check the JSON mapping file created by map_variables_to_terms which should match Reproschema format
-    with open(tmp_path / "nidm_annotations_annotations.json") as fp:
+    with open(tmp_path / "nidm_annotations_annotations.json", encoding="utf-8") as fp:
         json.load(fp)
 
     assert "DD(source='test', variable='age')" in column_to_terms.keys()

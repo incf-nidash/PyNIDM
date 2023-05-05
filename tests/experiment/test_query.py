@@ -51,7 +51,7 @@ def test_GetProjectMetadata(tmp_path: Path) -> None:
     project = Project(uuid="_123456", attributes=kwargs)
 
     # save a turtle file
-    with open(tmp_path / "test_gpm.ttl", "w") as f:
+    with open(tmp_path / "test_gpm.ttl", "w", encoding="utf-8") as f:
         f.write(project.serializeTurtle())
 
     kwargs = {
@@ -62,7 +62,7 @@ def test_GetProjectMetadata(tmp_path: Path) -> None:
     project = Project(uuid="_654321", attributes=kwargs)
 
     # save a turtle file
-    with open(tmp_path / "test2_gpm.ttl", "w") as f:
+    with open(tmp_path / "test2_gpm.ttl", "w", encoding="utf-8") as f:
         f.write(project.serializeTurtle())
 
     # WIP test = Query.GetProjectMetadata(["test.ttl", "test2.ttl"])
@@ -86,7 +86,7 @@ def test_GetProjects(tmp_path: Path) -> None:
     project = Project(uuid="_123456", attributes=kwargs)
 
     # save a turtle file
-    with open(tmp_path / "test_gp.ttl", "w") as f:
+    with open(tmp_path / "test_gp.ttl", "w", encoding="utf-8") as f:
         f.write(project.serializeTurtle())
 
     project_list = Query.GetProjectsUUID([str(tmp_path / "test_gp.ttl")])
@@ -112,7 +112,7 @@ def test_GetParticipantIDs(tmp_path: Path) -> None:
     acq2.add_qualified_association(person=person2, role=Constants.NIDM_PARTICIPANT)
 
     # save a turtle file
-    with open(tmp_path / "test_3.ttl", "w") as f:
+    with open(tmp_path / "test_3.ttl", "w", encoding="utf-8") as f:
         f.write(project.serializeTurtle())
 
     participant_list = Query.GetParticipantIDs([str(tmp_path / "test_3.ttl")])
@@ -150,7 +150,7 @@ def test_GetProjectInstruments(tmp_path: Path) -> None:
     AssessmentObject(acq2, attributes=kwargs)
 
     # save a turtle file
-    with open(tmp_path / "test_gpi.ttl", "w") as f:
+    with open(tmp_path / "test_gpi.ttl", "w", encoding="utf-8") as f:
         f.write(project.serializeTurtle())
 
     assessment_list = Query.GetProjectInstruments(
@@ -201,7 +201,7 @@ def saveTestFile(file_name, data):
 
 def saveProject(file_name, project):
     # save a turtle file
-    with open(file_name, "w") as f:
+    with open(file_name, "w", encoding="utf-8") as f:
         f.write(project.serializeTurtle())
     return f"nidm:_123_{file_name}"
 

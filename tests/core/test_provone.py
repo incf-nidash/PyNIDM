@@ -37,7 +37,7 @@ def test_ispartof(doc, tmp_path) -> None:
     doc.isPartOf(pe1, workflow_1ex1)
 
     # save a turtle file
-    with open(tmp_path / "test.ttl", "w") as f:
+    with open(tmp_path / "test.ttl", "w", encoding="utf-8") as f:
         f.write(doc.serialize(format="rdf", rdf_format="ttl"))
 
 
@@ -56,7 +56,7 @@ def test_used(doc, tmp_path) -> None:
     doc.used(pe1, dt1)
 
     # save a turtle file
-    with open(tmp_path / "test.ttl", "w") as f:
+    with open(tmp_path / "test.ttl", "w", encoding="utf-8") as f:
         f.write(doc.serialize(format="rdf", rdf_format="ttl"))
 
 
@@ -73,7 +73,7 @@ def test_wasderivedfrom(doc, tmp_path) -> None:
     doc.wasDerivedFrom(dt1, dt2)
 
     # save a turtle file
-    with open(tmp_path / "test.ttl", "w") as f:
+    with open(tmp_path / "test.ttl", "w", encoding="utf-8") as f:
         f.write(doc.serialize(format="rdf", rdf_format="ttl"))
 
 
@@ -81,7 +81,7 @@ def test_dataonlink(doc, tmp_path) -> None:
     dt2 = doc.data("dcterms:identifier:defparam2", {"rdfs:label": "filename"})
     dl1 = doc.dataLink("dcterms:identifier:e1_e2DL")
     # save a turtle file
-    with open(tmp_path / "test.ttl", "w") as f:
+    with open(tmp_path / "test.ttl", "w", encoding="utf-8") as f:
         f.write(doc.serialize(format="rdf", rdf_format="ttl"))
     doc.dataOnLink(dt2, dl1)
 
@@ -93,7 +93,7 @@ def test_wasgeneratedby(doc, tmp_path) -> None:
     )
     doc.wasGeneratedBy(dt2, pe1)
     # save a turtle file
-    with open(tmp_path / "test.ttl", "w") as f:
+    with open(tmp_path / "test.ttl", "w", encoding="utf-8") as f:
         f.write(doc.serialize(format="rdf", rdf_format="ttl"))
 
 
@@ -137,7 +137,7 @@ def test_dltoinport(doc):
 
 def test_documentserialize(doc, tmp_path) -> None:
     # save a turtle file
-    with open(tmp_path / "test.ttl", "w") as f:
+    with open(tmp_path / "test.ttl", "w", encoding="utf-8") as f:
         f.write(doc.serialize(format="rdf", rdf_format="ttl"))
 
 

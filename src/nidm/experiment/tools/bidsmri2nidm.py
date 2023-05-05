@@ -197,7 +197,7 @@ and API Keys.  Then set the environment variable INTERLEX_API_KEY with your key.
         rdf_graph.serialize(destination=outputfile, format="turtle")
 
     # serialize NIDM file
-    # with open(outputfile,'w') as f:
+    # with open(outputfile,'w', encoding="utf-8") as f:
     #     if args.jsonld:
     #         f.write(project.serializeJSONLD())
     #     else:
@@ -215,12 +215,16 @@ def addbidsignore(directory, filename_to_add):
     logging.info("Adding file %s to %s/.bidsignore...", filename_to_add, directory)
     # adds filename_to_add to .bidsignore file in directory
     if not isfile(os.path.join(directory, ".bidsignore")):
-        with open(os.path.join(directory, ".bidsignore"), "w") as text_file:
+        with open(
+            os.path.join(directory, ".bidsignore"), "w", encoding="utf-8"
+        ) as text_file:
             text_file.write("%s\n" % filename_to_add)
     else:
-        with open(os.path.join(directory, ".bidsignore")) as fp:
+        with open(os.path.join(directory, ".bidsignore"), encoding="utf-8") as fp:
             if filename_to_add not in fp.read():
-                with open(os.path.join(directory, ".bidsignore"), "a") as text_file:
+                with open(
+                    os.path.join(directory, ".bidsignore"), "a", encoding="utf-8"
+                ) as text_file:
                     text_file.write("%s\n" % filename_to_add)
 
 
@@ -373,7 +377,9 @@ def addimagingsessions(
             # Parse T1w.json file in BIDS directory to add the attributes contained inside
             if os.path.isdir(os.path.join(directory)):
                 try:
-                    with open(os.path.join(directory, "T1w.json")) as data_file:
+                    with open(
+                        os.path.join(directory, "T1w.json"), encoding="utf-8"
+                    ) as data_file:
                         dataset = json.load(data_file)
                 except OSError:
                     logging.warning(
@@ -384,7 +390,8 @@ def addimagingsessions(
                             with open(
                                 os.path.join(
                                     directory, "ses-" + img_session + "_T1w.json"
-                                )
+                                ),
+                                encoding="utf-8",
                             ) as data_file:
                                 dataset = json.load(data_file)
                         else:
@@ -567,7 +574,7 @@ def addimagingsessions(
             if os.path.isdir(os.path.join(directory)):
                 try:
                     with open(
-                        os.path.join(directory, "task-rest_bold.json")
+                        os.path.join(directory, "task-rest_bold.json"), encoding="utf-8"
                     ) as data_file:
                         dataset = json.load(data_file)
                 except OSError:
@@ -580,7 +587,8 @@ def addimagingsessions(
                                 os.path.join(
                                     directory,
                                     "ses-" + img_session + "_task-rest_bold.json",
-                                )
+                                ),
+                                encoding="utf-8",
                             ) as data_file:
                                 dataset = json.load(data_file)
                         else:
@@ -930,7 +938,9 @@ def bidsmri2project(directory, args):
     # Parse dataset_description.json file in BIDS directory
     if os.path.isdir(os.path.join(directory)):
         try:
-            with open(os.path.join(directory, "dataset_description.json")) as data_file:
+            with open(
+                os.path.join(directory, "dataset_description.json"), encoding="utf-8"
+            ) as data_file:
                 dataset = json.load(data_file)
         except OSError:
             logging.critical(
@@ -985,7 +995,9 @@ def bidsmri2project(directory, args):
     participant = {}
     # Parse participants.tsv file in BIDS directory and create study and acquisition objects
     if os.path.isfile(os.path.join(directory, "participants.tsv")):
-        with open(os.path.join(directory, "participants.tsv")) as csvfile:
+        with open(
+            os.path.join(directory, "participants.tsv"), encoding="utf-8"
+        ) as csvfile:
             participants_data = csv.DictReader(csvfile, delimiter="\t")
 
             # logic to create data dictionaries for variables and/or use them if they already exist.
@@ -1300,7 +1312,7 @@ def bidsmri2project(directory, args):
     for tsv_file in glob.glob(os.path.join(directory, "phenotype", "*.tsv")):
         # for now, open the TSV file, extract the row for this subject, store it in an acquisition object and link to
         # the associated JSON data dictionary file
-        with open(tsv_file) as phenofile:
+        with open(tsv_file, encoding="utf-8") as phenofile:
             pheno_data = csv.DictReader(phenofile, delimiter="\t")
             mapping_list = []
             column_to_terms = {}

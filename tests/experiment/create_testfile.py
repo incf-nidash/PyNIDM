@@ -76,7 +76,7 @@ def main():
     acq_entity.add_attributes({Constants.NIDM_AGE: 60, Constants.NIDM_GENDER: "Male"})
 
     # save a turtle file
-    with open("test_nidm.ttl", "w") as f:
+    with open("test_nidm.ttl", "w", encoding="utf-8") as f:
         f.write(project.serializeTurtle())
 
     # save a DOT graph as PDF

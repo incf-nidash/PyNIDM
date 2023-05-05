@@ -49,14 +49,14 @@ def convert(nidm_file_list, outtype, outdir):
             # read in nidm file
             project = read_nidm(nidm_file)
             # write jsonld file with same name
-            with open(outfile + ".json", "w") as f:
+            with open(outfile + ".json", "w", encoding="utf-8") as f:
                 f.write(project.serializeJSONLD())
         elif outtype == "turtle":
             # graph = Graph()
             # graph.parse(nidm_file, format=util.guess_format(nidm_file))
             # graph.serialize(splitext(nidm_file)[0] + ".ttl", format='turtle')
             project = read_nidm(nidm_file)
-            with open(outfile + ".ttl", "w") as f:
+            with open(outfile + ".ttl", "w", encoding="utf-8") as f:
                 f.write(project.serializeTurtle())
         elif outtype == "xml-rdf":
             graph = Graph()
@@ -69,7 +69,7 @@ def convert(nidm_file_list, outtype, outdir):
         elif outtype == "trig":
             # read in nidm file
             project = read_nidm(nidm_file)
-            with open(outfile + ".trig", "w") as f:
+            with open(outfile + ".trig", "w", encoding="utf-8") as f:
                 f.write(project.serializeTrig())
         else:
             print("Error, type is not supported at this time")

@@ -164,7 +164,7 @@ def query(
         # if output file parameter specified
         if output_file is not None:
             df.to_csv(output_file)
-            # with open(output_file,'w') as myfile:
+            # with open(output_file,'w', encoding="utf-8") as myfile:
             #    wr=csv.writer(myfile,quoting=csv.QUOTE_ALL)
             #    wr.writerow(df)
 
@@ -243,7 +243,7 @@ def query(
         df = restParser.run(nidm_file_list.split(","), uri)
         if output_file is not None:
             if j:
-                with open(output_file, "w+") as f:
+                with open(output_file, "w+", encoding="utf-8") as f:
                     f.write(dumps(df))
             else:
                 # convert object df to dataframe and output

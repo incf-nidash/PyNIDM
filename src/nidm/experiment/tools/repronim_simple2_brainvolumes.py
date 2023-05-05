@@ -232,7 +232,7 @@ def add_brainvolume_data(
             if png_file is not None:
                 if first_row:
                     # serialize NIDM file
-                    # with open(args.output_file,'w') as f:
+                    # with open(args.output_file,'w', encoding="utf-8") as f:
                     #   print("Writing NIDM file...")
                     #   f.write(nidmdoc.serializeTurtle())
                     if png_file:
@@ -510,7 +510,7 @@ def add_brainvolume_data(
             # if png_file is not None:
             #    if first_row:
             # serialize NIDM file
-            # with open(args.output_file,'w') as f:
+            # with open(args.output_file,'w', encoding="utf-8") as f:
             #   print("Writing NIDM file...")
             #   f.write(nidmdoc.serializeTurtle())
             #        nidmdoc.save_DotGraph(str(output_file + ".pdf"), format="pdf")
@@ -643,7 +643,7 @@ def main():
         )
 
         # serialize NIDM file
-        with open(args.output_file, "w") as f:
+        with open(args.output_file, "w", encoding="utf-8") as f:
             print("Writing NIDM file...")
             f.write(project.serializeTurtle())
             # if args.png:
@@ -709,7 +709,7 @@ def main():
     #                continue
 
     #        #serialize NIDM file
-    #        with open(args.nidm_file,'w') as f:
+    #        with open(args.nidm_file,'w', encoding="utf-8") as f:
     #            print("Writing NIDM file...")
     #            f.write(project.serializeTurtle())
     #            project.save_DotGraph(str(args.nidm_file + ".png"), format="png")
@@ -741,7 +741,7 @@ def main():
         )
 
         # serialize NIDM file
-        with open(args.output_file, "w") as f:
+        with open(args.output_file, "w", encoding="utf-8") as f:
             print("Writing NIDM file...")
             f.write(nidmdoc.serializeTurtle())
             if args.png:

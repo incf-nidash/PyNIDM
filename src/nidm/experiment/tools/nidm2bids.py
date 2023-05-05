@@ -362,7 +362,7 @@ def CreateBIDSParticipantFile(nidm_graph, output_file, participant_fields):
     # save participants.tsv file
     participants.to_csv(output_file + ".tsv", sep="\t", index=False)
     # save participants.json file
-    with open(output_file + ".json", "w") as f:
+    with open(output_file + ".json", "w", encoding="utf-8") as f:
         json.dump(participants_json, f, sort_keys=True, indent=2)
 
     # save participant sidecar file
@@ -412,7 +412,9 @@ def NIDMProject2BIDSDatasetDescriptor(nidm_graph, output_directory):
         if not key_found:
             del project_metadata[proj_key]
 
-    with open(join(output_directory, "dataset_description.json"), "w") as f:
+    with open(
+        join(output_directory, "dataset_description.json"), "w", encoding="utf-8"
+    ) as f:
         json.dump(project_metadata, f, sort_keys=True, indent=2)
 
 
@@ -447,7 +449,9 @@ def AddMetadataToImageSidecar(graph_entity, graph, output_directory, image_filen
             json_dict[key] = row[1]
 
     # write json_dict out to appropriate sidecar filename
-    with open(join(output_directory, image_filename + ".json"), "w") as fp:
+    with open(
+        join(output_directory, image_filename + ".json"), "w", encoding="utf-8"
+    ) as fp:
         json.dump(json_dict, fp, indent=2)
 
 
@@ -840,7 +844,7 @@ def main():
             # load NIDM graph into NIDM-Exp API objects
             nidm_project = read_nidm(rdf_file)
             # temporary save nidm_project
-            with open("/Users/dbkeator/Downloads/nidm.ttl", "w") as f:
+            with open("/Users/dbkeator/Downloads/nidm.ttl", "w", encoding="utf-8") as f:
                 print(nidm_project.serializeTurtle(), file=f)
             print("RDF file successfully read")
             format_found = True

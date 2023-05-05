@@ -160,9 +160,9 @@ def makeTestFile(dirpath: Path, filename: str, params: dict) -> RestTest:
         str(person5.identifier).replace("niiri:", ""),
     ]
 
-    with open(dirpath / "a.ttl", "w") as f:
+    with open(dirpath / "a.ttl", "w", encoding="utf-8") as f:
         f.write(project.graph.serialize(None, format="rdf", rdf_format="ttl"))
-    with open(dirpath / "b.ttl", "w") as f:
+    with open(dirpath / "b.ttl", "w", encoding="utf-8") as f:
         f.write(project2.graph.serialize(None, format="rdf", rdf_format="ttl"))
 
     # create empty graph
@@ -227,7 +227,7 @@ def test_uri_project_list(tmp_path: Path) -> None:
     proj2_uuid = str(uuid.uuid1())
     project = Project(uuid=proj1_uuid, attributes=kwargs)
     # save a turtle file
-    with open(tmp_path / "uritest.ttl", "w") as f:
+    with open(tmp_path / "uritest.ttl", "w", encoding="utf-8") as f:
         f.write(project.serializeTurtle())
 
     kwargs = {
@@ -237,7 +237,7 @@ def test_uri_project_list(tmp_path: Path) -> None:
     }
     project = Project(uuid=proj2_uuid, attributes=kwargs)
     # save a turtle file
-    with open(tmp_path / "uritest2.ttl", "w") as f:
+    with open(tmp_path / "uritest2.ttl", "w", encoding="utf-8") as f:
         f.write(project.serializeTurtle())
 
     restParser = RestParser()

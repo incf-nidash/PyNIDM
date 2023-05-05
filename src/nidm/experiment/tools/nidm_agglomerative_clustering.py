@@ -54,7 +54,7 @@ def data_aggregation():  # all data from all the files is collected
 
         print("Your command was: " + command)
         if o is not None:
-            with open(o, "w") as f:
+            with open(o, "w", encoding="utf-8") as f:
                 f.write("Your command was " + command)
         verbosity = 0
         restParser = RestParser(verbosity_level=int(verbosity))
@@ -115,7 +115,7 @@ def data_aggregation():  # all data from all the files is collected
             ) as temp:  # turns the dataframe into a temporary csv
                 df.to_csv(temp.name + ".csv")
                 temp.close()
-            with open(temp.name + ".csv") as fp:
+            with open(temp.name + ".csv", encoding="utf-8") as fp:
                 data = list(
                     csv.reader(fp)
                 )  # makes the csv a 2D list to make it easier to call the contents of certain cells
@@ -251,7 +251,7 @@ def data_aggregation():  # all data from all the files is collected
                     + ". The model cannot run because this will skew the data. Try checking your spelling or use nidm_query.py to see other possible variables."
                 )
                 if o is not None:
-                    with open(o, "a") as f:
+                    with open(o, "a", encoding="utf-8") as f:
                         f.write("Your variables were " + v)
                         f.write(
                             "The following variables were not found in "
@@ -261,7 +261,7 @@ def data_aggregation():  # all data from all the files is collected
                 for i in range(0, len(not_found_list)):
                     print(str(i + 1) + ". " + not_found_list[i])
                     if o is not None:
-                        with open(o, "a") as f:
+                        with open(o, "a", encoding="utf-8") as f:
                             f.write(str(i + 1) + ". " + not_found_list[i])
                 for j in range(len(not_found_list) - 1, 0, -1):
                     not_found_list.pop(j)
@@ -332,7 +332,7 @@ def dataparsing():  # The data is changed to a format that is usable by the line
     print("*" * 107)
     print()
     if o is not None:
-        with open(o, "a") as f:
+        with open(o, "a", encoding="utf-8") as f:
             f.write(df_final.to_string(header=True, index=True))
             f.write("\n\n" + ("*" * 107))
             f.write("\n\nModel Results: ")
@@ -375,7 +375,7 @@ def ac():
     plt.show()
 
     if o is not None:
-        with open(o, "a"):
+        with open(o, "a", encoding="utf-8"):
             pass
 
 

@@ -1446,7 +1446,7 @@ def map_variables_to_terms(
             # check if json_source is a file
             if os.path.isfile(json_source):
                 # load file
-                with open(json_source, "r") as f:
+                with open(json_source, "r", encoding="utf-8") as f:
                     json_map = json.load(f)
             else:
                 print(f"ERROR: Can't open json mapping file: {json_source}")
@@ -2157,6 +2157,7 @@ def write_json_mapping_file(source_variable_annotations, output_file, bids=False
                 os.path.dirname(output_file), os.path.splitext(output_file)[0] + ".json"
             ),
             "w+",
+            encoding="utf-8",
         ) as fp:
             json.dump(new_dict, fp, indent=4)
     else:
@@ -2168,6 +2169,7 @@ def write_json_mapping_file(source_variable_annotations, output_file, bids=False
                 os.path.splitext(output_file)[0] + "_annotations.json",
             ),
             "w+",
+            encoding="utf-8",
         ) as fp:
             json.dump(source_variable_annotations, fp, indent=4)
 
