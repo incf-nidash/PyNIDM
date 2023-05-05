@@ -25,7 +25,7 @@ def getUUID():
     return uid
 
 
-class Core(object):
+class Core:
     """Base-class for NIDM-Experimenent
 
     Typically this class is not instantiated directly.  Instantiate one of the child classes such as
