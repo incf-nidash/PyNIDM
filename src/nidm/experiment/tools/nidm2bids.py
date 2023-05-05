@@ -1,38 +1,11 @@
-#!/usr/bin/env python
-# *****************************************************************************
-# *****************************************************************************
-#  NIDM2BIDSMRI.py
-#  License: Apache License, Version 2.0
-# *****************************************************************************
-# *****************************************************************************
-# Date: 10-2-17                 Coded by: David Keator (dbkeator@gmail.com)
-# Filename: NIDM2BIDSMRI.py
-#
-# Program description:  This program will convert a NIDM-Experiment RDF document
-# to a BIDS dataset.  The program will query the NIDM-Experiment document for subjects,
-# MRI scans, and associated assessments saving the MRI data to disk in an organization
-# according to the BIDS specification, the demographics metadata to a participants.tsv
-# file, the project-level metadata to a dataset_description.json file, and the
-# assessments to *.tsv/*.json file pairs in a phenotypes directory.
-# *****************************************************************************
-# Development environment: Python - PyCharm IDE
-#
-# *****************************************************************************
-# System requirements:  Python 3.X
-# Libraries: pybids, numpy, matplotlib, pandas, scipy, math, dateutil, datetime,argparse,
-# os,sys,getopt,csv
-# *****************************************************************************
-# Start date: 10-2-17
-# Update history:
-# DATE            MODIFICATION				Who
-#
-#
-# *****************************************************************************
-# Programmer comments:
-#
-#
-# *****************************************************************************
-# *****************************************************************************
+"""
+This program will convert a NIDM-Experiment RDF document to a BIDS dataset.
+The program will query the NIDM-Experiment document for subjects, MRI scans,
+and associated assessments saving the MRI data to disk in an organization
+according to the BIDS specification, the demographics metadata to a
+participants.tsv file, the project-level metadata to a dataset_description.json
+file, and the assessments to *.tsv/*.json file pairs in a phenotypes directory.
+"""
 
 from argparse import ArgumentParser
 from io import StringIO

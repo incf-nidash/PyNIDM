@@ -1,33 +1,10 @@
-#!/usr/bin/env python
-# *****************************************************************************
-# *****************************************************************************
-#  csv2nidm.py
-#  License:Apache License, Version 2.0
-# *****************************************************************************
-# *****************************************************************************
-# Date: 01-19-18                 Coded by: David Keator (dbkeator@gmail.com)
-# Filename: csv2nidm.py
-#
-# Program description:  This program will load in a CSV file and iterate over the header
-# variable names performing an elastic search of https://scicrunch.org/ for NIDM-ReproNim
-# tagged terms that fuzzy match the variable names.  The user will then interactively pick
-# a term to associate with the variable name.  The resulting annotated CSV data will
-# then be written to a NIDM data file.
-#
-# *****************************************************************************
-# Development environment: Python - PyCharm IDE
-#
-# *****************************************************************************
-# System requirements:  Python 3.X
-# Libraries: pybids, numpy, matplotlib, pandas, scipy, math, dateutil, datetime,argparse,
-# os,sys,getopt,csv
-# *****************************************************************************
-# *****************************************************************************
-# Programmer comments:
-#
-#
-# *****************************************************************************
-# *****************************************************************************
+"""
+This program will load in a CSV file and iterate over the header variable names
+performing an elastic search of https://scicrunch.org/ for NIDM-ReproNim tagged
+terms that fuzzy match the variable names.  The user will then interactively
+pick a term to associate with the variable name.  The resulting annotated CSV
+data will then be written to a NIDM data file.
+"""
 
 from argparse import ArgumentParser
 from io import StringIO
