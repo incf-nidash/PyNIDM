@@ -44,9 +44,11 @@ def main():
     print("\n\n-------------------------------------------")
     print("Example uber elastic search:")
     results = Utils.GetNIDMTermsFromSciCrunch(args.key, args.query_string)
-    for key, _ in results.items():
+    for value in results.values():
         print(
-            f"Label: {results[key]['label']} \t Definition: {results[key]['definition']} \t Preferred URL: {results[key]['preferred_url']} "
+            "Label: {label} \t Definition: {definition} \t Preferred URL: {preferred_url} ".format_map(
+                value
+            )
         )
 
 
