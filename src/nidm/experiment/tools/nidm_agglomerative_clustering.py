@@ -381,10 +381,6 @@ def ac():
 
 def opencsv(data):
     """saves a list of lists as a csv and opens"""
-    import csv
-    import os
-    import tempfile
-
     handle, fn = tempfile.mkstemp(suffix=".csv")
     with os.fdopen(
         handle, "w", encoding="utf8", errors="surrogateescape", newline=""
