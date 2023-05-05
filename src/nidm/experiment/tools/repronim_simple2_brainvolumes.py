@@ -1,45 +1,18 @@
-#!/usr/bin/env python
-# *****************************************************************************
-# *****************************************************************************
-#  repronim_simple2_brainvolumes.py
-#  License: Apache License, Version 2.0
-# *****************************************************************************
-# *****************************************************************************
-# Date: 03-22-19                 Coded by: David Keator (dbkeator@gmail.com)
-# Filename: repronim_simple2_brainvolumes.py
-#
-# Program description:  This program will load in a CSV file made during simple-2
-# brain volumes experiment which has the following organization:
-#
-# source	FSL	FSL	FSL
-# participant_id	left nucleus accumbens volume	left amygdala volume	left caudate nucleus volume
-# sub-0050002	796.4723293	1255.574283	4449.579039
-# sub-0050003	268.9688215	878.7860634	3838.602449
-# sub-0050004	539.0969914	1195.288168	3561.518188
-#
-# If will use the first row to determine the software used for the segmentations and the
-# second row for the variable names.  Then it does a simple NIDM conversion using
-# example model in: https://docs.google.com/document/d/1PyBoM7J0TuzTC1TIIFPDqd05nomcCM5Pvst8yCoqLng/edit
+"""
+Program description:  This program will load in a CSV file made during simple-2
+brain volumes experiment which has the following organization::
 
-# *****************************************************************************
-# Development environment: Python - PyCharm IDE
-#
-# *****************************************************************************
-# System requirements:  Python 3.X
-# Libraries: pybids, numpy, matplotlib, pandas, scipy, math, dateutil, datetime,argparse,
-# os,sys,getopt,csv
-# *****************************************************************************
-# Start date: 03-22-18
-# Update history:
-# DATE            MODIFICATION				Who
-#
-#
-# *****************************************************************************
-# Programmer comments:
-#
-#
-# *****************************************************************************
-# *****************************************************************************
+    source  FSL     FSL     FSL
+    participant_id  left nucleus accumbens volume   left amygdala volume    left caudate nucleus volume
+    sub-0050002     796.4723293     1255.574283     4449.579039
+    sub-0050003     268.9688215     878.7860634     3838.602449
+    sub-0050004     539.0969914     1195.288168     3561.518188
+
+If will use the first row to determine the software used for the segmentations
+and the second row for the variable names.  Then it does a simple NIDM
+conversion using example model in:
+https://docs.google.com/document/d/1PyBoM7J0TuzTC1TIIFPDqd05nomcCM5Pvst8yCoqLng/edit
+"""
 
 from argparse import ArgumentParser
 from io import StringIO

@@ -1,35 +1,4 @@
-# coding=utf-8
-# !/usr/bin/env python
-# *****************************************************************************
-# *****************************************************************************
-#  nidm_linreg.py
-#  License: Apache License, Version 2.0
-# *****************************************************************************
-# *****************************************************************************
-# Date: 07-26-22                 Coded by: Ashmita Kumar (ashmita.kumar@gmail.com)
-# Filename: nidm_linreg.py
-#
-# Program description:  This program provides a tool to complete a linear regression on nidm files
-#
-#
-# *****************************************************************************
-# Development environment: Python - PyCharm IDE
-#
-# *****************************************************************************
-# System requirements:  Python 3.X
-# Libraries: os, sys, tempfile, pandas, click, nidm, csv, sklearn, numpy, statsmodel.api, patsy.contrasts
-# *****************************************************************************
-# Start date: 6-15-20
-# Update history:
-# DATE            MODIFICATION				Who
-#
-#
-# *****************************************************************************
-# Programmer comments:
-#
-#
-# *****************************************************************************
-# *****************************************************************************
+"""This program provides a tool to complete a linear regression on nidm files"""
 
 import csv
 import os

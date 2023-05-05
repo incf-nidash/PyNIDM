@@ -1,33 +1,5 @@
-# *****************************************************************************
-# *****************************************************************************
-#  nidm_query.py
-#  License: GPL
-# *****************************************************************************
-# *****************************************************************************
-# Date: 8-1-18                 Coded by: David Keator (dbkeator@gmail.com)
-# Filename: nidm_query.py
-#
-# Program description:  This program provides query functionality for NIDM-Experiment files
-#
-#
-# *****************************************************************************
-# Development environment: Python - PyCharm IDE
-#
-# *****************************************************************************
-# System requirements:  Python 3.X
-# Libraries: os, sys, rdflib, pandas, argparse, logging
-# *****************************************************************************
-# Start date: 8-1-18
-# Update history:
-# DATE            MODIFICATION				Who
-#
-#
-# *****************************************************************************
-# Programmer comments:
-#
-#
-# *****************************************************************************
-# *****************************************************************************
+"""This program provides query functionality for NIDM-Experiment files"""
+
 import functools
 import hashlib
 import json

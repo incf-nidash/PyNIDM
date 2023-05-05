@@ -1,30 +1,8 @@
-# !/usr/bin/env python
-# *****************************************************************************
-# *****************************************************************************
-#   bidsmri2nidm.py
-#   License: Apache License, Version 2.0
-# *****************************************************************************
-# *****************************************************************************
-#  Date: 10-2-17                 Coded by: David Keator (dbkeator@gmail.com)
-#  Filename: bidsmri2nidm.py
-#
-#  Program description:  This program will convert a BIDS MRI dataset to a NIDM-Experiment
-#  RDF document.  It will parse phenotype information and simply store variables/values
-#  and link to the associated json data dictionary file.
-#
-# *****************************************************************************
-#  Development environment: Python - PyCharm IDE
-#
-# *****************************************************************************
-#  System requirements:  Python 3.X
-#  Libraries: pybids, numpy, matplotlib, pandas, scipy, math, dateutil, datetime,argparse,
-#  os,sys,getopt,csv
-# *****************************************************************************
-#  Programmer comments:
-#
-#
-# *****************************************************************************
-# *****************************************************************************
+"""
+This program will convert a BIDS MRI dataset to a NIDM-Experiment RDF document.
+It will parse phenotype information and simply store variables/values and link
+to the associated json data dictionary file.
+"""
 
 from argparse import ArgumentParser, RawTextHelpFormatter
 import csv
