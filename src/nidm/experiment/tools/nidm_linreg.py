@@ -35,6 +35,7 @@ import csv
 import os
 from statistics import mean
 import tempfile
+import warnings
 import click
 import numpy as np
 import pandas as pd
@@ -434,8 +435,6 @@ def dataparsing():  # The data is changed to a format that is usable by the line
             "\nYour data set has less than 20 points, which means the model calculated may not be accurate due to a lack of data. "
         )
         print("This means you cannot regularize the data either.")
-        import warnings
-
         warnings.filterwarnings("ignore")
         answer = input("Continue anyways? Y or N: ")
         if o is not None:
@@ -893,10 +892,6 @@ def regularizing():
 
 def opencsv(data):
     """saves a list of lists as a csv and opens"""
-    import csv
-    import os
-    import tempfile
-
     handle, fn = tempfile.mkstemp(suffix=".csv")
     with os.fdopen(
         handle, "w", encoding="utf8", errors="surrogateescape", newline=""

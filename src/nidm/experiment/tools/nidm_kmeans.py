@@ -1,6 +1,7 @@
 import csv
 import os
 import tempfile
+import warnings
 import click
 import matplotlib.pyplot as plt
 import numpy as np
@@ -548,8 +549,6 @@ def cluster_number():
         plt.show()
 
     if "ca" in cm.lower():
-        import warnings
-
         warnings.filterwarnings(
             "ignore", category=FutureWarning
         )  # it is a function for 0.24 but says it is deprecated in 0.23
@@ -646,10 +645,6 @@ def cluster_number():
 
 def opencsv(data):
     """saves a list of lists as a csv and opens"""
-    import csv
-    import os
-    import tempfile
-
     handle, fn = tempfile.mkstemp(suffix=".csv")
     with os.fdopen(
         handle, "w", encoding="utf8", errors="surrogateescape", newline=""

@@ -1,7 +1,6 @@
 import sys
 from nidm.core import Constants
 from nidm.experiment import Navigate
-import nidm.experiment.Navigate
 import nidm.experiment.tools.rest
 
 
@@ -34,7 +33,7 @@ def GetProjectsComputedMetadata(nidm_file_list):
 
             for a in activities:
                 data = Navigate.getActivityData(tuple(nidm_file_list), a)
-                if type(data) == nidm.experiment.Navigate.ActivityData:
+                if type(data) == Navigate.ActivityData:
                     for x in data.data:
                         if x.isAbout == Constants.NIDM_IS_ABOUT_AGE:
                             if (

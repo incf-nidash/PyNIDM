@@ -200,8 +200,6 @@ def GetProjectLocation(nidm_file_list, project_uuid, output_file=None):  # noqa:
 
 
 def testprojectmeta(nidm_file_list):
-    import json
-
     query = """
          prefix nidm: <http://purl.org/nidash/nidm#>
          prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
@@ -229,8 +227,6 @@ def testprojectmeta(nidm_file_list):
 
 
 def GetProjectSessionsMetadata(nidm_file_list, project_uuid):
-    import json
-
     query = (
         """
 
