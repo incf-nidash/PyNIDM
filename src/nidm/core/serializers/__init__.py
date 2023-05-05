@@ -6,7 +6,7 @@ __email__ = "trungdong@donggiang.com"
 __all__ = ["get"]
 
 
-class Serializer(object):
+class Serializer:
     """Serializer for PROVONE documents."""
 
     document = None
