@@ -27,7 +27,7 @@ class Session(pm.ProvActivity, Core):
         if uuid is None:
             self._uuid = getUUID()
             # execute default parent class constructor
-            super(Session, self).__init__(
+            super().__init__(
                 project.graph,
                 pm.QualifiedName(
                     pm.Namespace("niiri", Constants.NIIRI), self.get_uuid()
@@ -37,7 +37,7 @@ class Session(pm.ProvActivity, Core):
         else:
             self._uuid = uuid
             # execute default parent class constructor
-            super(Session, self).__init__(
+            super().__init__(
                 project.graph,
                 pm.QualifiedName(
                     pm.Namespace("niiri", Constants.NIIRI), self.get_uuid()

@@ -35,8 +35,7 @@ class AssessmentObject(AcquisitionObject):
 
         """
         # execute default parent class constructor
-        # execute default parent class constructor
-        super(AssessmentObject, self).__init__(acquisition, attributes, uuid)
+        super().__init__(acquisition, attributes, uuid)
 
         if add_default_type:
             self.add_attributes({pm.PROV_TYPE: Constants.NIDM_ASSESSMENT_ENTITY})

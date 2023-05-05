@@ -30,7 +30,7 @@ class AcquisitionObject(pm.ProvEntity, Core):
         if uuid is None:
             self._uuid = getUUID()
             # execute default parent class constructor
-            super(AcquisitionObject, self).__init__(
+            super().__init__(
                 acquisition.graph,
                 pm.QualifiedName(
                     pm.Namespace("niiri", Constants.NIIRI), self.get_uuid()
@@ -39,7 +39,7 @@ class AcquisitionObject(pm.ProvEntity, Core):
             )
         else:
             self._uuid = uuid
-            super(AcquisitionObject, self).__init__(
+            super().__init__(
                 acquisition.graph,
                 pm.QualifiedName(
                     pm.Namespace("niiri", Constants.NIIRI), self.get_uuid()

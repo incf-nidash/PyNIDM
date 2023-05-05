@@ -29,7 +29,7 @@ class Acquisition(pm.ProvActivity, Core):
             self._uuid = getUUID()
 
             # execute default parent class constructor
-            super(Acquisition, self).__init__(
+            super().__init__(
                 session.graph,
                 pm.QualifiedName(
                     pm.Namespace("niiri", Constants.NIIRI), self.get_uuid()
@@ -38,7 +38,7 @@ class Acquisition(pm.ProvActivity, Core):
             )
         else:
             self._uuid = uuid
-            super(Acquisition, self).__init__(
+            super().__init__(
                 session.graph,
                 pm.QualifiedName(
                     pm.Namespace("niiri", Constants.NIIRI), self.get_uuid()

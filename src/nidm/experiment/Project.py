@@ -37,7 +37,7 @@ class Project(pm.ProvActivity, Core):
             self._uuid = getUUID()
 
             # execute default parent class constructor
-            super(Project, self).__init__(
+            super().__init__(
                 self.graph,
                 pm.QualifiedName(
                     pm.Namespace("niiri", Constants.NIIRI), self.get_uuid()
@@ -47,7 +47,7 @@ class Project(pm.ProvActivity, Core):
         else:
             self._uuid = uuid
             # execute default parent class constructor
-            super(Project, self).__init__(
+            super().__init__(
                 self.graph,
                 pm.QualifiedName(
                     pm.Namespace("niiri", Constants.NIIRI), self.get_uuid()

@@ -27,7 +27,7 @@ class PETObject(AcquisitionObject):
 
         """
         # execute default parent class constructor
-        super(PETObject, self).__init__(acquisition, attributes, uuid)
+        super().__init__(acquisition, attributes, uuid)
 
         if add_default_type:
             self.add_attributes({pm.PROV_TYPE: Constants.NIDM_ACQUISITION_ENTITY})

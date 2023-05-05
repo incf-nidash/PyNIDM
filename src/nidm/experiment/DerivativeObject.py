@@ -29,15 +29,13 @@ class DerivativeObject(pm.ProvEntity, Core):
 
         if uuid is None:
             # execute default parent class constructor
-            super(DerivativeObject, self).__init__(
+            super().__init__(
                 derivative.graph,
                 pm.QualifiedName(pm.Namespace("niiri", Constants.NIIRI), getUUID()),
                 attributes,
             )
         else:
-            super(DerivativeObject, self).__init__(
-                derivative.graph, pm.Identifier(uuid), attributes
-            )
+            super().__init__(derivative.graph, pm.Identifier(uuid), attributes)
 
         derivative.graph._add_record(self)
 

@@ -30,8 +30,6 @@ class ProcessSpecification(pm.ProvEntity, Core):
             self.graph = Constants.NIDMDocument(namespaces=Constants.namespaces)
 
         # execute default parent class constructor
-        super(ProcessSpecification, self).__init__(
-            self.graph, pm.PROV[getUUID()], attributes
-        )
+        super().__init__(self.graph, pm.PROV[getUUID()], attributes)
         self.add_attributes({pm.PROV_TYPE: pm.PROV_ATTR_PLAN})
         self.graph._add_record(self)
