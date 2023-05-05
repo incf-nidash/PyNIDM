@@ -289,7 +289,7 @@ def add_brainvolume_data(
         qres = rdf_graph_parse.query(query)
 
         for row in qres:
-            print("%s \t %s" % (row[2], row[1]))
+            print(f"{row[2]} \t {row[1]}")
             # find row in CSV file with subject id matching agent from NIDM file
 
             # csv_row = df.loc[df[id_field]==type(df[id_field][0])(row[1])]
@@ -304,7 +304,7 @@ def add_brainvolume_data(
             # if there was data about this subject in the NIDM file already (i.e. an agent already exists with this subject id)
             # then add this brain volumes data to NIDM file, else skip it....
             if not (len(csv_row.index) == 0):
-                print("found other data for participant %s" % row[1])
+                print(f"found other data for participant {row[1]}")
 
                 # Here we're sure we have an agent in the NIDM graph that corresponds to the participant in the
                 # brain volumes data.  We don't know which AcquisitionObject (entity) describes the T1-weighted scans
@@ -325,7 +325,7 @@ def add_brainvolume_data(
                     if row_variable == id_field:
                         # store participant id for later use in processing the data for this row
                         participant_id = row_data.values[0]
-                        print("participant id: %s" % participant_id)
+                        print(f"participant id: {participant_id}")
                         continue
                     else:
                         # get source software matching this column deal with duplicate variables in source_row and pandas changing duplicate names
@@ -691,7 +691,7 @@ def main():
     #        qres = rdf_graph_parse.query(query)
 
     #        for row in qres:
-    #            print('%s \t %s' %(row[0],row[1]))
+    #            print(f'{row[0]} \t {row[1]}')
     #            #find row in CSV file with subject id matching agent from NIDM file
 
     #            #csv_row = df.loc[df[id_field]==type(df[id_field][0])(row[1])]

@@ -72,7 +72,7 @@ class Session(pm.ProvActivity, Core):
         :param uuid: full uuid of acquisition
         :return: True if exists, False otherwise
         """
-        # print("Query uuid: %s" %uuid)
+        # print(f"Query uuid: {uuid}")
         for acquisitions in self._acquisitions:
             # print(acquisitions._identifier._localpart)
             if str(uuid) == acquisitions._identifier._localpart:

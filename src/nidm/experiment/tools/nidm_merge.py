@@ -86,8 +86,7 @@ def merge(nidm_file_list, s, out_file):
 
                 # for each UUID / subject ID look in graph and see if you can find the same ID.  If so get the UUID of
                 # that prov:agent and change all the UUIDs in nidm_file to match then concatenate the two graphs.
-                query = (
-                    """
+                query = f"""
 
                     PREFIX prov:<http://www.w3.org/ns/prov#>
                     PREFIX sio: <http://semanticscience.org/ontology/sio.owl#>
@@ -96,14 +95,12 @@ def merge(nidm_file_list, s, out_file):
                     PREFIX prov:<http://www.w3.org/ns/prov#>
 
                     SELECT DISTINCT ?uuid ?ID
-                    WHERE {
+                    WHERE {{
 
                         ?uuid a prov:Agent ;
-                            %s ?ID .
+                            {Constants.NIDM_SUBJECTID} ?ID .
                     FILTER(?ID =
                     """
-                    % Constants.NIDM_SUBJECTID
-                )
 
                 # add filters to above query to only look for subject IDs which are in the first file to merge into
                 temp = True
@@ -135,15 +132,15 @@ def merge(nidm_file_list, s, out_file):
 
                         for s, p, o in graph.triples((None, None, None)):
                             if s == row["uuid"]:
-                                # print("replacing subject in triple %s %s %s with %s" %(s,p,o,uuid_to_replace))
+                                # print(f"replacing subject in triple {s} {p} {o} with {uuid_to_replace}")
                                 graph.add((uuid_replacement, p, o))
                                 graph.remove((row["uuid"], p, o))
                             elif o == row["uuid"]:
-                                # print("replacing object in triple %s %s %s with %s" %(s,p,o,uuid_to_replace))
+                                # print(f"replacing object in triple {s} {p} {o} with {uuid_to_replace}")
                                 graph.add((s, p, uuid_replacement))
                                 graph.remove((s, p, row["uuid"]))
                             elif p == row["uuid"]:
-                                # print("replacing predicate in triple %s %s %s with %s" %(s,p,o,uuid_to_replace))
+                                # print(f"replacing predicate in triple {s} {p} {o} with {uuid_to_replace}")
                                 graph.add((s, uuid_replacement, o))
                                 graph.remove((s, row["uuid"], o))
 

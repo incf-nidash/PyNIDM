@@ -73,4 +73,4 @@ def get(format_name):
     try:
         return Registry.serializers[format_name]
     except KeyError:
-        raise DoNotExist('No serializer available for the format "%s"' % format_name)
+        raise DoNotExist(f'No serializer available for the format "{format_name}"')

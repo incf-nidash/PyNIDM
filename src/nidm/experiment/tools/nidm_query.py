@@ -167,7 +167,7 @@ def query(
 
     if blaze:
         os.environ["BLAZEGRAPH_URL"] = blaze
-        print("setting BLAZEGRAPH_URL to {}".format(blaze))
+        print(f"setting BLAZEGRAPH_URL to {blaze}")
 
     if get_participants:
         df = GetParticipantIDs(nidm_file_list.split(","), output_file=output_file)

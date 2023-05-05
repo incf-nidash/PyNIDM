@@ -159,7 +159,7 @@ and API Keys.  Then set the environment variable INTERLEX_API_KEY with your key.
             level=logging.DEBUG,
         )
         #  add some logging info
-        logging.info("bidsmri2nidm %s" % args)
+        logging.info("bidsmri2nidm %s", args)
 
     # if args.owl is None:
     #     args.owl = 'nidm'
@@ -234,7 +234,7 @@ and API Keys.  Then set the environment variable INTERLEX_API_KEY with your key.
 
 
 def addbidsignore(directory, filename_to_add):
-    logging.info("Adding file %s to %s/.bidsignore..." % (filename_to_add, directory))
+    logging.info("Adding file %s to %s/.bidsignore...", filename_to_add, directory)
     # adds filename_to_add to .bidsignore file in directory
     if not isfile(os.path.join(directory, ".bidsignore")):
         with open(os.path.join(directory, ".bidsignore"), "w") as text_file:
@@ -309,8 +309,8 @@ def addimagingsessions(
                 )
             else:
                 logging.info(
-                    "WARNING: No matching image contrast type found in BIDS_Constants.py for %s"
-                    % file_tpl.entities["suffix"]
+                    "WARNING: No matching image contrast type found in BIDS_Constants.py for %s",
+                    file_tpl.entities["suffix"],
                 )
 
             # add image usage type
@@ -324,8 +324,8 @@ def addimagingsessions(
                 )
             else:
                 logging.info(
-                    "WARNING: No matching image usage type found in BIDS_Constants.py for %s"
-                    % file_tpl.entities["datatype"]
+                    "WARNING: No matching image usage type found in BIDS_Constants.py for %s",
+                    file_tpl.entities["datatype"],
                 )
             # add file link
             # make relative link to
@@ -364,8 +364,8 @@ def addimagingsessions(
                 )
             else:
                 logging.info(
-                    "WARNING file %s doesn't exist! No SHA512 sum stored in NIDM files..."
-                    % join(directory, file_tpl.dirname, file_tpl.filename)
+                    "WARNING file %s doesn't exist! No SHA512 sum stored in NIDM files...",
+                    join(directory, file_tpl.dirname, file_tpl.filename),
                 )
             # get associated JSON file if exists
             # There is T1w.json file with information
@@ -419,7 +419,7 @@ def addimagingsessions(
 
             else:
                 logging.critical(
-                    "Error: BIDS directory %s does not exist!" % os.path.join(directory)
+                    "Error: BIDS directory %s does not exist!", os.path.join(directory)
                 )
                 exit(-1)
 
@@ -450,8 +450,8 @@ def addimagingsessions(
                 )
             else:
                 logging.info(
-                    "WARNING: No matching image contrast type found in BIDS_Constants.py for %s"
-                    % file_tpl.entities["suffix"]
+                    "WARNING: No matching image contrast type found in BIDS_Constants.py for %s",
+                    file_tpl.entities["suffix"],
                 )
 
             # add image usage type
@@ -465,8 +465,8 @@ def addimagingsessions(
                 )
             else:
                 logging.info(
-                    "WARNING: No matching image usage type found in BIDS_Constants.py for %s"
-                    % file_tpl.entities["datatype"]
+                    "WARNING: No matching image usage type found in BIDS_Constants.py for %s",
+                    file_tpl.entities["datatype"],
                 )
             # make relative link to
             acq_obj.add_attributes(
@@ -505,8 +505,8 @@ def addimagingsessions(
                 )
             else:
                 logging.info(
-                    "WARNING file %s doesn't exist! No SHA512 sum stored in NIDM files..."
-                    % join(directory, file_tpl.dirname, file_tpl.filename)
+                    "WARNING file %s doesn't exist! No SHA512 sum stored in NIDM files...",
+                    join(directory, file_tpl.dirname, file_tpl.filename),
                 )
 
             if "run" in file_tpl.entities:
@@ -614,7 +614,7 @@ def addimagingsessions(
                         dataset = {}
             else:
                 logging.critical(
-                    "Error: BIDS directory %s does not exist!" % os.path.join(directory)
+                    "Error: BIDS directory %s does not exist!", os.path.join(directory)
                 )
                 exit(-1)
 
@@ -650,8 +650,8 @@ def addimagingsessions(
                 )
             else:
                 logging.info(
-                    "WARNING: No matching image contrast type found in BIDS_Constants.py for %s"
-                    % file_tpl.entities["suffix"]
+                    "WARNING: No matching image contrast type found in BIDS_Constants.py for %s",
+                    file_tpl.entities["suffix"],
                 )
             # add image usage type
             if file_tpl.entities["datatype"] in BIDS_Constants.scans:
@@ -660,8 +660,8 @@ def addimagingsessions(
                 )
             else:
                 logging.info(
-                    "WARNING: No matching image usage type found in BIDS_Constants.py for %s"
-                    % file_tpl.entities["datatype"]
+                    "WARNING: No matching image usage type found in BIDS_Constants.py for %s",
+                    file_tpl.entities["datatype"],
                 )
             # make relative link to
             acq_obj.add_attributes(
@@ -682,8 +682,8 @@ def addimagingsessions(
                 )
             else:
                 logging.info(
-                    "WARNING file %s doesn't exist! No SHA512 sum stored in NIDM files..."
-                    % join(directory, file_tpl.dirname, file_tpl.filename)
+                    "WARNING file %s doesn't exist! No SHA512 sum stored in NIDM files...",
+                    join(directory, file_tpl.dirname, file_tpl.filename),
                 )
 
             # add git-annex/datalad info if exists
@@ -749,8 +749,8 @@ def addimagingsessions(
                 )
             else:
                 logging.info(
-                    "WARNING: No matching image contrast type found in BIDS_Constants.py for %s"
-                    % file_tpl.entities["suffix"]
+                    "WARNING: No matching image contrast type found in BIDS_Constants.py for %s",
+                    file_tpl.entities["suffix"],
                 )
 
             # add image usage type
@@ -760,8 +760,8 @@ def addimagingsessions(
                 )
             else:
                 logging.info(
-                    "WARNING: No matching image usage type found in BIDS_Constants.py for %s"
-                    % file_tpl.entities["datatype"]
+                    "WARNING: No matching image usage type found in BIDS_Constants.py for %s",
+                    file_tpl.entities["datatype"],
                 )
             # make relative link to
             acq_obj.add_attributes(
@@ -782,8 +782,8 @@ def addimagingsessions(
                 )
             else:
                 logging.info(
-                    "WARNING file %s doesn't exist! No SHA512 sum stored in NIDM files..."
-                    % join(directory, file_tpl.dirname, file_tpl.filename)
+                    "WARNING file %s doesn't exist! No SHA512 sum stored in NIDM files...",
+                    join(directory, file_tpl.dirname, file_tpl.filename),
                 )
 
             # add git-annex/datalad info if exists
@@ -883,8 +883,8 @@ def addimagingsessions(
                 )
             else:
                 logging.info(
-                    "WARNING file %s doesn't exist! No SHA512 sum stored in NIDM files..."
-                    % join(directory, file_tpl.dirname, file_tpl.filename)
+                    "WARNING file %s doesn't exist! No SHA512 sum stored in NIDM files...",
+                    join(directory, file_tpl.dirname, file_tpl.filename),
                 )
             acq_obj_bvec = AcquisitionObject(acq)
             acq_obj_bvec.add_attributes({PROV_TYPE: BIDS_Constants.scans["bvec"]})
@@ -938,8 +938,8 @@ def addimagingsessions(
                 )
             else:
                 logging.info(
-                    "WARNING file %s doesn't exist! No SHA512 sum stored in NIDM files..."
-                    % join(directory, file_tpl.dirname, file_tpl.filename)
+                    "WARNING file %s doesn't exist! No SHA512 sum stored in NIDM files...",
+                    join(directory, file_tpl.dirname, file_tpl.filename),
                 )
 
             # link bval and bvec acquisition object entities together or is their association with DWI scan...
@@ -961,7 +961,7 @@ def bidsmri2project(directory, args):
             exit("-1")
     else:
         logging.critical(
-            "Error: BIDS directory %s does not exist!" % os.path.join(directory)
+            "Error: BIDS directory %s does not exist!", os.path.join(directory)
         )
         exit("-1")
 
@@ -1279,7 +1279,7 @@ def bidsmri2project(directory, args):
     # create acquisition objects for each scan for each subject
     # loop through all subjects in dataset
     for subject_id in bids_layout.get_subjects():
-        logging.info("Converting subject: %s" % subject_id)
+        logging.info("Converting subject: %s", subject_id)
         # skip .git directories...added to support datalad datasets
         if subject_id.startswith("."):
             continue

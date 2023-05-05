@@ -649,7 +649,7 @@ def contrasting():
 
         # Defining the Simple class
         def _name_levels(prefix, levels):
-            return ["[%s%s]" % (prefix, level) for level in levels]
+            return [f"[{prefix}{level}]" for level in levels]
 
         class Simple:
             def _simple_contrast(self, levels):
@@ -788,10 +788,9 @@ def regularizing():
         lassoModelChosen.fit(X, y)
         print("\nLasso regression model:")
         print(
-            "Alpha with maximum likelihood (range: 1 to %d) = %f"
-            % (MAX_ALPHA, max_cross_val_alpha)
+            f"Alpha with maximum likelihood (range: 1 to {MAX_ALPHA}) = {max_cross_val_alpha}"
         )
-        print("Current Model Score = %f" % (lassoModelChosen.score(X, y)))
+        print(f"Current Model Score = {lassoModelChosen.score(X, y)}")
         index = 0
         print("\nCoefficients:")
         if o is not None:
@@ -799,21 +798,20 @@ def regularizing():
             with open(o, "a") as f:
                 f.write("\n\nLasso regression model:")
                 f.write(
-                    "\nAlpha with maximum likelihood (range: 1 to %d) = %f"
-                    % (MAX_ALPHA, max_cross_val_alpha)
+                    f"\nAlpha with maximum likelihood (range: 1 to {MAX_ALPHA}) = {max_cross_val_alpha}"
                 )
-                f.write("\nCurrent Model Score = %f" % (lassoModelChosen.score(X, y)))
+                f.write(f"\nCurrent Model Score = {lassoModelChosen.score(X, y)}")
                 f.write("\n\nCoefficients:")
         for var in full_model_variable_list:
-            print("%s \t %f" % (var, lassoModelChosen.coef_[index]))
+            print(f"{var} \t {lassoModelChosen.coef_[index]}")
             if o is not None:
                 with open(o, "a") as f:
-                    f.write("\n%s \t %f" % (var, lassoModelChosen.coef_[index]))
+                    f.write(f"\n{var} \t {lassoModelChosen.coef_[index]}")
             index = index + 1
-        print("Intercept: %f" % (lassoModelChosen.intercept_))
+        print(f"Intercept: {lassoModelChosen.intercept_}")
         if o is not None:
             with open(o, "a") as f:
-                f.write("\nIntercept: %f" % (lassoModelChosen.intercept_))
+                f.write(f"\nIntercept: {lassoModelChosen.intercept_}")
         print()
 
     if r == ("L2" or "Ridge" or "l2" or "Ridge") and not (
@@ -839,10 +837,9 @@ def regularizing():
         ridgeModelChosen.fit(X, y)
         print("\nRidge regression model:")
         print(
-            "Alpha with maximum likelihood (range: 1 to %d) = %f"
-            % (MAX_ALPHA, max_cross_val_alpha)
+            f"Alpha with maximum likelihood (range: 1 to {MAX_ALPHA}) = {max_cross_val_alpha}"
         )
-        print("Current Model Score = %f" % (ridgeModelChosen.score(X, y)))
+        print(f"Current Model Score = {ridgeModelChosen.score(X, y)}")
         index = 0
         """This numpy_conversion part was necessary because for the ridge model, all the coefficients get stored in a
         numpy array, and the conversion is necessary to get the coefficients. However, it is only needed if the model
@@ -856,37 +853,36 @@ def regularizing():
             with open(o, "a") as f:
                 f.write("\n\nRidge regression model:")
                 f.write(
-                    "\nAlpha with maximum likelihood (range: 1 to %d) = %f"
-                    % (MAX_ALPHA, max_cross_val_alpha)
+                    f"\nAlpha with maximum likelihood (range: 1 to {MAX_ALPHA}) = {max_cross_val_alpha}"
                 )
-                f.write("\nCurrent Model Score = %f" % (ridgeModelChosen.score(X, y)))
+                f.write(f"\nCurrent Model Score = {ridgeModelChosen.score(X, y)}")
                 f.write("\n\nCoefficients:")
         print("\nCoefficients:")
         if numpy_conversion:
             coeff_list = ridgeModelChosen.coef_[index].tolist()
             coeff_list.pop(0)
             for var in full_model_variable_list:
-                print("%s \t %f" % (var, coeff_list[index]))
+                print(f"{var} \t {coeff_list[index]}")
                 if o is not None:
                     with open(o, "a") as f:
-                        f.write("\n%s \t %f" % (var, coeff_list[index]))
+                        f.write(f"\n{var} \t {coeff_list[index]}")
                 index = index + 1
-            print("Intercept: %f" % (ridgeModelChosen.intercept_))
+            print(f"Intercept: {ridgeModelChosen.intercept_}")
             if o is not None:
                 with open(o, "a") as f:
-                    f.write("\nIntercept: %f" % (ridgeModelChosen.intercept_))
+                    f.write(f"\nIntercept: {ridgeModelChosen.intercept_}")
             print()
         else:
             for var in full_model_variable_list:
-                print("%s \t %f" % (var, ridgeModelChosen.coef_[index]))
+                print(f"{var} \t {ridgeModelChosen.coef_[index]}")
                 if o is not None:
                     with open(o, "a") as f:
-                        f.write("\n%s \t %f" % (var, ridgeModelChosen.coef_[index]))
+                        f.write(f"\n{var} \t {ridgeModelChosen.coef_[index]}")
                 index = index + 1
-            print("Intercept: %f" % (ridgeModelChosen.intercept_))
+            print(f"Intercept: {ridgeModelChosen.intercept_}")
             if o is not None:
                 with open(o, "a") as f:
-                    f.write("\nIntercept: %f" % (ridgeModelChosen.intercept_))
+                    f.write(f"\nIntercept: {ridgeModelChosen.intercept_}")
             print()
 
 

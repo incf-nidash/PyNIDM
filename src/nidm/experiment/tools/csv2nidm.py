@@ -195,7 +195,7 @@ def main():
             level=logging.DEBUG,
         )
         # add some logging info
-        logging.info("csv2nidm %s" % args)
+        logging.info("csv2nidm %s", args)
 
     # If user has added an existing NIDM file as a command line parameter then add to existing file for subjects who exist in the NIDM file
     if args.nidm_file:
@@ -232,7 +232,7 @@ def main():
         if id_field is None:
             option = 1
             for column in df.columns:
-                print("%d: %s" % (option, column))
+                print(f"{option}: {column}")
                 option = option + 1
             selection = input(
                 "Please select the subject ID field from the list above: "
@@ -242,7 +242,6 @@ def main():
                 # Wait for user input
                 selection = input(
                     "Please select the subject ID field from the list above: \t"
-                    % option
                 )
             id_field = df.columns[int(selection) - 1]
             # make sure id_field is a string for zero-padded subject ids
@@ -269,7 +268,7 @@ def main():
         # qres = rdf_graph.query(query)
 
         for _, row in qres.iterrows():
-            logging.info("participant in NIDM file %s \t %s" % (row[0], row[1]))
+            logging.info("participant in NIDM file %s \t %s", row[0], row[1])
             # find row in CSV file with subject id matching agent from NIDM file
 
             # csv_row = df.loc[df[id_field]==type(df[id_field][0])(row[1])]
@@ -390,7 +389,7 @@ def main():
         if id_field is None:
             option = 1
             for column in df.columns:
-                print("%d: %s" % (option, column))
+                print(f"{option}: {column}")
                 option = option + 1
             selection = input(
                 "Please select the subject ID field from the list above: "
@@ -400,7 +399,6 @@ def main():
                 # Wait for user input
                 selection = input(
                     "Please select the subject ID field from the list above: \t"
-                    % option
                 )
             id_field = df.columns[int(selection) - 1]
             # make sure id_field is a string for zero-padded subject ids

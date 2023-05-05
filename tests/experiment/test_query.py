@@ -203,7 +203,7 @@ def saveProject(file_name, project):
     # save a turtle file
     with open(file_name, "w") as f:
         f.write(project.serializeTurtle())
-    return "nidm:_123_{}".format(file_name)
+    return f"nidm:_123_{file_name}"
 
 
 def makeProjectTestFile(filename):

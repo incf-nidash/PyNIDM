@@ -8,7 +8,7 @@ def version():
     """
     This function will print the version of pynidm.
     """
-    print("PyNIDM Version: %s" % __version__)
+    print(f"PyNIDM Version: {__version__}")
 
 
 if __name__ == "__main__":

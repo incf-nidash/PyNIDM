@@ -41,7 +41,6 @@ import os
 from os import mkdir, system
 from os.path import basename, isdir, isfile, join, splitext
 from shutil import copyfile
-import sys
 import tempfile
 import urllib.parse
 import datalad.api as dl
@@ -69,7 +68,7 @@ def GetImageFromAWS(location, output_file, args):
     :return: None if file not downloaded else will return True
     """
 
-    print("Trying AWS S3 for dataset: %s" % location)
+    print(f"Trying AWS S3 for dataset: {location}")
     # modify location to remove everything before the dataset name
     # problem is we don't know the dataset identifier inside the path string because
     # it doesn't have any constraints.  For openneuro datasets they start with "ds" so
@@ -154,7 +153,7 @@ def GetImageFromURL(url):
                 temp.flush()
                 return temp.name
     except Exception:
-        print("ERROR! Can't open url: %s" % url)
+        print(f"ERROR! Can't open url: {url}")
         return -1
 
 
@@ -165,22 +164,19 @@ def GetDataElementMetadata(nidm_graph, de_uuid):
     """
 
     # query nidm_graph for Constants.NIIRI[de_uuid] rdf:type PersonalDataElement
-    query = (
-        """
+    query = f"""
         PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
         PREFIX prov: <http://www.w3.org/ns/prov#>
         PREFIX niiri: <http://iri.nidash.org/>
         PREFIX nidm: <http://purl.org/nidash/nidm#>
 
         select distinct ?p ?o
-        where {
+        where {{
 
-            <%s> rdf:type nidm:PersonalDataElement ;
+            <{Constants.NIIRI[de_uuid]}> rdf:type nidm:PersonalDataElement ;
                 ?p ?o .
-        }
+        }}
     """
-        % Constants.NIIRI[de_uuid]
-    )
 
     # print(query)
     qres = nidm_graph.query(query)
@@ -220,21 +216,18 @@ def GetDataElementMetadata(nidm_graph, de_uuid):
                 # if this is a list we have to loop through the entries and store the url and labels
                 for entry in value:
                     # query for label for this isAbout URL
-                    query = (
-                        """
+                    query = f"""
 
                                     prefix prov: <http://www.w3.org/ns/prov#>
                                     prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
                                     prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
                                     select distinct ?label
-                                    where {
-                                        <%s> rdf:type prov:Entity ;
+                                    where {{
+                                        <{entry}> rdf:type prov:Entity ;
                                             rdfs:label ?label .
-                                    }
+                                    }}
                                 """
-                        % entry
-                    )
                     # print(query)
                     qres = nidm_graph.query(query)
 
@@ -245,21 +238,18 @@ def GetDataElementMetadata(nidm_graph, de_uuid):
             else:
                 # only 1 isAbout entry
                 # query for label for this isAbout URL
-                query = (
-                    """
+                query = f"""
 
                         prefix prov: <http://www.w3.org/ns/prov#>
                         prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
                         prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
                         select distinct ?label
-                        where {
-                            <%s> rdf:type prov:Entity ;
+                        where {{
+                            <{value}> rdf:type prov:Entity ;
                                 rdfs:label ?label .
-                        }
+                        }}
                     """
-                    % value
-                )
                 # print(query)
                 qres = nidm_graph.query(query)
                 for row in qres:
@@ -348,7 +338,7 @@ def CreateBIDSParticipantFile(nidm_graph, output_file, participant_fields):
                 #
                 # Steps(1):(3)
 
-                query = """
+                query = f"""
                     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
                     PREFIX prov: <http://www.w3.org/ns/prov#>
                     PREFIX onli: <http://neurolog.unice.fr/ontoneurolog/v3.0/instrument.owl#>
@@ -356,20 +346,17 @@ def CreateBIDSParticipantFile(nidm_graph, output_file, participant_fields):
                     PREFIX niiri: <http://iri.nidash.org/>
 
                 SELECT DISTINCT ?pred ?value
-                    WHERE {
+                    WHERE {{
                         ?asses_activity prov:qualifiedAssociation ?_blank .
                                         ?_blank rdf:type prov:Association ;
-                                        prov:agent <%s> ;
+                                        prov:agent <{subj_uri}> ;
                                         prov:hadRole sio:Subject .
 
                         ?entities prov:wasGeneratedBy ?asses_activity ;
                             rdf:type onli:assessment-instrument ;
                             ?pred ?value .
-                        FILTER (regex(str(?pred) ,"%s","i" ))
-                    }""" % (
-                    subj_uri,
-                    fields,
-                )
+                        FILTER (regex(str(?pred) ,"{fields}","i" ))
+                    }}"""
                 # print(query)
                 qres = nidm_graph.query(query)
 
@@ -431,8 +418,8 @@ def NIDMProject2BIDSDatasetDescriptor(nidm_graph, output_directory):
     # iterate over the temporary dictionary and delete items from the original
     for proj_key, _ in project_metadata_tmp.items():
         key_found = 0
-        # print("proj_key = %s " % proj_key)
-        # print("project_metadata[proj_key] = %s" %project_metadata[proj_key])
+        # print(f"proj_key = {proj_key} ")
+        # print(f"project_metadata[proj_key] = {project_metadata[proj_key]}")
 
         for key, _ in BIDS_Constants.dataset_description.items():
             if BIDS_Constants.dataset_description[key]._uri == proj_key:
@@ -464,15 +451,12 @@ def AddMetadataToImageSidecar(graph_entity, graph, output_directory, image_filen
     """
 
     # query graph for metadata associated with graph_entity
-    query = (
-        """
+    query = f"""
         Select DISTINCT ?p ?o
-        WHERE {
-            <%s> ?p ?o .
-        }
+        WHERE {{
+            <{graph_entity}> ?p ?o .
+        }}
     """
-        % graph_entity
-    )
     qres = graph.query(query)
 
     # dictionary to store metadata
@@ -560,12 +544,11 @@ def ProcessFiles(graph, scan_type, output_directory, project_location, args):
                 ret = GetImageFromURL(location)
                 if ret == -1:
                     print(
-                        "ERROR! Can't download file: %s from url: %s, trying to copy locally...."
-                        % (filename, location)
+                        f"ERROR! Can't download file: {filename} from url: {location}, trying to copy locally...."
                     )
                     if "file" in location:
                         location = str(location).lstrip("file:")
-                        print("Trying to copy file from %s" % (location))
+                        print(f"Trying to copy file from {location}")
                         try:
                             copyfile(
                                 location,
@@ -579,23 +562,20 @@ def ProcessFiles(graph, scan_type, output_directory, project_location, args):
 
                         except Exception:
                             print(
-                                "ERROR! Failed to find file %s on filesystem..."
-                                % location
+                                f"ERROR! Failed to find file {location} on filesystem..."
                             )
                             if not args.no_downloads:
                                 try:
                                     print(
-                                        "Running datalad get command on dataset: %s"
-                                        % location
+                                        f"Running datalad get command on dataset: {location}"
                                     )
                                     dl.Dataset(os.path.dirname(location)).get(
                                         recursive=True, jobs=1
                                     )
 
-                                except Exception:
+                                except Exception as e:
                                     print(
-                                        "ERROR! Datalad returned error: %s for dataset %s."
-                                        % (sys.exc_info()[0], location)
+                                        f"ERROR! Datalad returned error: {type(e)} for dataset {location}."
                                     )
                                     GetImageFromAWS(
                                         location=location,
@@ -635,19 +615,16 @@ def ProcessFiles(graph, scan_type, output_directory, project_location, args):
             # if this is a DWI scan then we should copy over the b-value and b-vector files
             if bids_ext == "dwi":
                 # search for entity uuid with rdf:type nidm:b-value that was generated by activity
-                query = (
-                    """
+                query = f"""
                     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
                     PREFIX prov: <http://www.w3.org/ns/prov#>
                     PREFIX nidm: <http://purl.org/nidash/nidm#>
 
                     SELECT DISTINCT ?entity
-                        WHERE {
+                        WHERE {{
                             ?entity rdf:type <http://purl.org/nidash/nidm#b-value> ;
-                                prov:wasGeneratedBy <%s> .
-                        }"""
-                    % activity
-                )
+                                prov:wasGeneratedBy <{activity}> .
+                        }}"""
                 # print(query)
                 qres = graph.query(query)
 
@@ -663,12 +640,11 @@ def ProcessFiles(graph, scan_type, output_directory, project_location, args):
                     ret = GetImageFromURL(location)
                     if ret == -1:
                         print(
-                            "ERROR! Can't download file: %s from url: %s, trying to copy locally...."
-                            % (filename, location)
+                            f"ERROR! Can't download file: {filename} from url: {location}, trying to copy locally...."
                         )
                         if "file" in location:
                             location = str(location).lstrip("file:")
-                            print("Trying to copy file from %s" % (location))
+                            print(f"Trying to copy file from {location}")
                             try:
                                 copyfile(
                                     location,
@@ -681,23 +657,20 @@ def ProcessFiles(graph, scan_type, output_directory, project_location, args):
                                 )
                             except Exception:
                                 print(
-                                    "ERROR! Failed to find file %s on filesystem..."
-                                    % location
+                                    f"ERROR! Failed to find file {location} on filesystem..."
                                 )
                                 if not args.no_downloads:
                                     try:
                                         print(
-                                            "Running datalad get command on dataset: %s"
-                                            % location
+                                            f"Running datalad get command on dataset: {location}"
                                         )
                                         dl.Dataset(os.path.dirname(location)).get(
                                             recursive=True, jobs=1
                                         )
 
-                                    except Exception:
+                                    except Exception as e:
                                         print(
-                                            "ERROR! Datalad returned error: %s for dataset %s."
-                                            % (sys.exc_info()[0], location)
+                                            f"ERROR! Datalad returned error: {type(e)} for dataset {location}."
                                         )
                                         GetImageFromAWS(
                                             location=location,
@@ -710,19 +683,16 @@ def ProcessFiles(graph, scan_type, output_directory, project_location, args):
                                             args=args,
                                         )
                 # search for entity uuid with rdf:type nidm:b-value that was generated by activity
-                query = (
-                    """
+                query = f"""
                     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
                     PREFIX prov: <http://www.w3.org/ns/prov#>
                     PREFIX nidm: <http://purl.org/nidash/nidm#>
 
                     SELECT DISTINCT ?entity
-                        WHERE {
+                        WHERE {{
                             ?entity rdf:type <http://purl.org/nidash/nidm#b-vector> ;
-                                prov:wasGeneratedBy <%s> .
-                        }"""
-                    % activity
-                )
+                                prov:wasGeneratedBy <{activity}> .
+                        }}"""
                 # print(query)
                 qres = graph.query(query)
 
@@ -738,12 +708,11 @@ def ProcessFiles(graph, scan_type, output_directory, project_location, args):
                     ret = GetImageFromURL(location)
                     if ret == -1:
                         print(
-                            "ERROR! Can't download file: %s from url: %s, trying to copy locally...."
-                            % (filename, location)
+                            f"ERROR! Can't download file: {filename} from url: {location}, trying to copy locally...."
                         )
                         if "file" in location:
                             location = str(location).lstrip("file:")
-                            print("Trying to copy file from %s" % (location))
+                            print(f"Trying to copy file from {location}")
                             try:
                                 copyfile(
                                     location,
@@ -756,23 +725,20 @@ def ProcessFiles(graph, scan_type, output_directory, project_location, args):
                                 )
                             except Exception:
                                 print(
-                                    "ERROR! Failed to find file %s on filesystem..."
-                                    % location
+                                    f"ERROR! Failed to find file {location} on filesystem..."
                                 )
                                 if not args.no_downloads:
                                     try:
                                         print(
-                                            "Running datalad get command on dataset: %s"
-                                            % location
+                                            f"Running datalad get command on dataset: {location}"
                                         )
                                         dl.Dataset(os.path.dirname(location)).get(
                                             recursive=True, jobs=1
                                         )
 
-                                    except Exception:
+                                    except Exception as e:
                                         print(
-                                            "ERROR! Datalad returned error: %s for dataset %s."
-                                            % (sys.exc_info()[0], location)
+                                            f"ERROR! Datalad returned error: {type(e)} for dataset {location}."
                                         )
                                         GetImageFromAWS(
                                             location=location,
@@ -897,7 +863,7 @@ def main():
     format_found = False
     for fmt in "turtle", "xml", "n3", "trix", "rdfa":
         try:
-            print("Reading RDF file as %s..." % fmt)
+            print(f"Reading RDF file as {fmt}...")
             # load NIDM graph into NIDM-Exp API objects
             nidm_project = read_nidm(rdf_file)
             # temporary save nidm_project
@@ -907,7 +873,7 @@ def main():
             format_found = True
             break
         except Exception:
-            print("File: %s appears to be an invalid %s RDF file" % (rdf_file, fmt))
+            print(f"File: {rdf_file} appears to be an invalid {fmt} RDF file")
 
     if not format_found:
         print(

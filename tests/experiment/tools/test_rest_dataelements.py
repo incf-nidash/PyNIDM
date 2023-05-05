@@ -85,7 +85,7 @@ def test_dataelement_details(openneuro_files: list[str]) -> None:
     rest_parser = RestParser(output_format=RestParser.OBJECT_FORMAT)
     # result = rest_parser.run(openneuro_files, '/dataelements')
     #
-    # dti = rest_parser.run(openneuro_files, '/dataelements/{}'.format(result["data_elements"]["label"][0]))
+    # dti = rest_parser.run(openneuro_files, f'/dataelements/{result["data_elements"]["label"][0]}')
     #
     # assert "label" in dti
     # assert "description" in dti
@@ -94,7 +94,7 @@ def test_dataelement_details(openneuro_files: list[str]) -> None:
     #
     # # make sure the text formatter doesn't fail horribly
     # rest_parser.setOutputFormat(RestParser.CLI_FORMAT)
-    # txt = rest_parser.run(openneuro_files, '/dataelements/{}'.format(result["data_elements"]["label"][0]))
+    # txt = rest_parser.run(openneuro_files, f'/dataelements/{result["data_elements"]["label"][0]}')
     #
 
     dti = rest_parser.run(
@@ -106,7 +106,7 @@ def test_dataelement_details(openneuro_files: list[str]) -> None:
 def test_dataelement_details_in_projects_field(brain_vol_files: list[str]) -> None:
     rest_parser = RestParser(output_format=RestParser.OBJECT_FORMAT)
     # result = rest_parser.run(openneuro_files, '/dataelements')
-    # dti = rest_parser.run(openneuro_files, '/dataelements/{}'.format(result["data_elements"]["label"][0]))
+    # dti = rest_parser.run(openneuro_files, f'/dataelements/{result["data_elements"]["label"][0]}')
     # assert len(dti['inProjects']) >= 1
 
     # find a data element that we are using for at least one subject

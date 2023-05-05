@@ -396,7 +396,7 @@ def test_CheckSubjectMatchesFilter(brain_vol: BrainVol) -> None:
                 break
 
     # find an actual stat and build a matching filter to make sure our matcher passes it
-    filter_str = "derivatives.{} eq {}".format(dt, val)
+    filter_str = f"derivatives.{dt} eq {val}"
     assert Query.CheckSubjectMatchesFilter(
         brain_vol.files, project, subject, filter_str
     )

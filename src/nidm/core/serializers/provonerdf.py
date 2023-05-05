@@ -62,7 +62,7 @@ class AnonymousIDGenerator:
     def get_anon_id(self, obj, local_prefix="id"):
         if obj not in self._cache:
             self._count += 1
-            self._cache[obj] = pm.Identifier("_:%s%d" % (local_prefix, self._count)).uri
+            self._cache[obj] = pm.Identifier(f"_:{local_prefix}{self._count}").uri
         return self._cache[obj]
 
 
@@ -178,7 +178,7 @@ class ProvONERDFSerializer(Serializer):
             if datatype == XSD["gYearMonth"]:
                 parsed_info = dateutil.parser.parse(literal)
                 return pm.Literal(
-                    "{0}-{1:02d}".format(parsed_info.year, parsed_info.month),
+                    f"{parsed_info.year}-{parsed_info.month:02d}",
                     datatype=self.valid_identifier(datatype),
                 )
             else:
