@@ -37,7 +37,7 @@ def main():
         derivobj = deriv.get_derivative_objects()
         print(f"Derivative Objects: \n {derivobj}")
 
-    with open(args.outfile, "w") as f:
+    with open(args.outfile, "w", encoding="utf-8") as f:
         # serialize project for comparison with the original
         f.write(project.serializeTurtle())
 

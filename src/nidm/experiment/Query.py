@@ -1347,7 +1347,7 @@ def OpenGraph(file):
     # If we have a Blazegraph instance, load the data then do the rest
     if "BLAZEGRAPH_URL" in environ.keys():
         try:
-            with open(file) as f:
+            with open(file, encoding="utf-8") as f:
                 data = f.read()
             logging.debug("Sending %s to blazegraph", file)
             requests.post(

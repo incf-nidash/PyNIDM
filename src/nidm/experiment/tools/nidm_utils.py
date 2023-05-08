@@ -99,7 +99,9 @@ def main():
         for nidm_file in args.nidm_files:
             project = read_nidm(nidm_file)
             # serialize to jsonld
-            with open(os.path.splitext(nidm_file)[0] + ".json", "w") as f:
+            with open(
+                os.path.splitext(nidm_file)[0] + ".json", "w", encoding="utf-8"
+            ) as f:
                 f.write(project.serializeJSONLD())
 
 

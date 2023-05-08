@@ -10,7 +10,7 @@ from nidm.experiment import Project, Session
 def test_1(tmp_path: Path) -> None:
     project = Project()
     # save a turtle file
-    with open(tmp_path / "test.ttl", "w") as f:
+    with open(tmp_path / "test.ttl", "w", encoding="utf-8") as f:
         f.write(project.serializeTurtle())
 
 
@@ -22,7 +22,7 @@ def test_2(tmp_path: Path) -> None:
     }
     project = Project(attributes=kwargs)
 
-    with open(tmp_path / "test.ttl", "w") as f:
+    with open(tmp_path / "test.ttl", "w", encoding="utf-8") as f:
         f.write(project.serializeTurtle())
 
 
@@ -185,11 +185,11 @@ def test_jsonld_exports(tmp_path: Path) -> None:
     project = Project(uuid="_123456", attributes=kwargs)
 
     # save a turtle file
-    with open(tmp_path / "test.json", "w") as f:
+    with open(tmp_path / "test.json", "w", encoding="utf-8") as f:
         f.write(project.serializeJSONLD())
 
     # load in JSON file
-    with open(tmp_path / "test.json") as json_file:
+    with open(tmp_path / "test.json", encoding="utf-8") as json_file:
         data = json.load(json_file)
 
     assert data["Identifier"]["@value"] == "9610"

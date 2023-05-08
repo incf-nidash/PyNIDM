@@ -182,7 +182,7 @@ def main():
 
         # read in NIDM file
         project = read_nidm(args.nidm_file)
-        # with open("/Users/dbkeator/Downloads/test.ttl","w") as f:
+        # with open("/Users/dbkeator/Downloads/test.ttl","w", encoding="utf-8") as f:
         #    f.write(project.serializeTurtle())
 
         # get list of session objects

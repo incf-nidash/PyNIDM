@@ -7,7 +7,7 @@
 #
 #     monkeypatch.chdir(tmp_path)
 #     #save a turtle file
-#     with open("test.ttl",'w') as f:
+#     with open("test.ttl",'w', encoding="utf-8") as f:
 #         f.write(proc.serializeTurtle())
 #
 #     #save a DOT graph as PDF
@@ -20,7 +20,7 @@
 #
 #     monkeypatch.chdir(tmp_path)
 #     #save a turtle file
-#     with open("test.ttl", 'w') as f:
+#     with open("test.ttl", 'w', encoding="utf-8") as f:
 #         f.write(proc.serializeTurtle())
 #
 #     #save a DOT graph as PDF
