@@ -18,6 +18,7 @@ from sklearn.metrics import (
 from nidm.experiment.Query import GetProjectsUUID
 from nidm.experiment.tools.click_base import cli
 from nidm.experiment.tools.rest import RestParser
+from .utils import Reporter
 
 
 @cli.command()
@@ -59,20 +60,19 @@ def k_means(nidm_file_list, output_file, var, k_range, optimal_cluster_method):
     v = (
         var.strip()
     )  # used in data_aggregation, kmenas(), spaces stripped from left and right
-    global o  # used in dataparsing()
-    o = output_file
-    global n  # used in data_aggregation()
-    n = nidm_file_list
-    global k_num
-    k_num = int(k_range)
-    global cm
-    cm = optimal_cluster_method
-    data_aggregation()
-    dataparsing()
-    cluster_number()
+    with Reporter(output_file) as reporter:
+        global n  # used in data_aggregation()
+        n = nidm_file_list
+        global k_num
+        k_num = int(k_range)
+        global cm
+        cm = optimal_cluster_method
+        data_aggregation(reporter)
+        dataparsing(reporter)
+        cluster_number()
 
 
-def data_aggregation():  # all data from all the files is collected
+def data_aggregation(reporter):  # all data from all the files is collected
     """This function provides query support for NIDM graphs."""
     # if there is a CDE file list, seed the CDE cache
     if v:  # ex: age,sex,DX_GROUP
@@ -89,10 +89,7 @@ def data_aggregation():  # all data from all the files is collected
             + cm
         )
 
-        print("Your command was: " + command)
-        if o is not None:
-            with open(o, "w", encoding="utf-8") as f:
-                f.write("Your command was " + command)
+        reporter.print("Your command was:", command)
         verbosity = 0
         restParser = RestParser(verbosity_level=int(verbosity))
         restParser.setOutputFormat(RestParser.OBJECT_FORMAT)
@@ -125,16 +122,16 @@ def data_aggregation():  # all data from all the files is collected
             # set the dependent variable to the one dependent variable in the model
             global variables  # used in dataparsing()
             variables = ""
-            for i in range(len(var_list) - 1, -1, -1):
+            for vr in reversed(var_list):
                 if (
-                    "*" not in var_list[i]
+                    "*" not in vr
                 ):  # removing the star term from the columns we're about to pull from data
-                    variables = variables + var_list[i] + ","
+                    variables += vr + ","
                 else:
                     print(
                         "Interacting variables are not present in clustering models. They will be removed."
                     )
-            variables = variables[0 : len(variables) - 1]
+            variables = variables[:-1]
             uri = (
                 "/projects/"
                 + project[0].toPython().split("/")[-1]
@@ -273,29 +270,17 @@ def data_aggregation():  # all data from all the files is collected
             if len(not_found_list) > 0:
                 print("*" * 107)
                 print()
-                print("Your variables were " + v)
-                print()
-                print(
+                reporter.print("Your variables were", v)
+                reporter.print()
+                reporter.print(
                     "The following variables were not found in "
                     + nidm_file
                     + ". The model cannot run because this will skew the data. Try checking your spelling or use nidm_query.py to see other possible variables."
                 )
-                if o is not None:
-                    with open(o, "a", encoding="utf-8") as f:
-                        f.write("Your variables were " + v)
-                        f.write(
-                            "The following variables were not found in "
-                            + nidm_file
-                            + ". The model cannot run because this will skew the data. Try checking your spelling or use nidm_query.py to see other possible variables."
-                        )
                 for i, nf in enumerate(not_found_list):
-                    print(f"{i+1}. {nf}")
-                    if o is not None:
-                        with open(o, "a", encoding="utf-8") as f:
-                            f.write(f"{i+1}. {nf}")
-                for j in range(len(not_found_list) - 1, 0, -1):
-                    not_found_list.pop(j)
-                not_found_count = not_found_count + 1
+                    reporter.print(f"{i+1}. {nf}")
+                not_found_list.clear()
+                not_found_count += 1
                 print()
         if not_found_count > 0:
             sys.exit(1)
@@ -307,11 +292,13 @@ def data_aggregation():  # all data from all the files is collected
         sys.exit(1)
 
 
-def dataparsing():  # The data is changed to a format that is usable by the linear regression method
+def dataparsing(
+    reporter,
+):  # The data is changed to a format that is usable by the linear regression method
     global condensed_data
     condensed_data = []
     for i in range(0, len(file_list)):
-        condensed_data = condensed_data + condensed_data_holder[i]
+        condensed_data += condensed_data_holder[i]
     global k_num
     if len(condensed_data[0]) <= k_num:
         print(
@@ -321,7 +308,7 @@ def dataparsing():  # The data is changed to a format that is usable by the line
             "The algorithm cannot run with this, so k_num will be reduced to 1 less than the length of the dataset."
         )
         k_num = len(condensed_data) - 1
-        print("The k_num value is now: " + str(k_num))
+        print("The k_num value is now:", k_num)
     x = pd.read_csv(
         opencsv(condensed_data)
     )  # changes the dataframe to a csv to make it easier to work with
@@ -366,16 +353,9 @@ def dataparsing():  # The data is changed to a format that is usable by the line
         )  # join_axes=[df_int_float.index])
     else:
         df_final = df_int_float
-    df_final.head()  # shows the final dataset with all the encoding
-    print(df_final)  # prints the final dataset
-    print()
-    print("*" * 107)
-    print()
-    if o is not None:
-        with open(o, "a", encoding="utf-8") as f:
-            f.write(df_final.to_string(header=True, index=True))
-            f.write("\n\n" + ("*" * 107))
-            f.write("\n\nModel Results: ")
+    reporter.print(df_final.to_string(header=True, index=True))
+    reporter.print("\n" + ("*" * 107))
+    reporter.print("\nModel Results: ")
 
 
 def cluster_number():
@@ -621,10 +601,6 @@ def cluster_number():
     if "de" in cm.lower():
         print("Dendrogram")
         # ask for help: how does one do a dendrogram, also without graphing?
-
-    if o is not None:
-        with open(o, "a", encoding="utf-8"):
-            pass
 
 
 def opencsv(data):

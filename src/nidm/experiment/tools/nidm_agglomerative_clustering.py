@@ -12,6 +12,7 @@ from sklearn.preprocessing import MinMaxScaler
 from nidm.experiment.Query import GetProjectsUUID
 from nidm.experiment.tools.click_base import cli
 from nidm.experiment.tools.rest import RestParser
+from .utils import Reporter
 
 
 @cli.command()
@@ -37,26 +38,22 @@ def full_ac(nidm_file_list, output_file, variables):
     v = (
         variables.strip()
     )  # used in data_aggregation, linreg(), spaces stripped from left and right
-    global o  # used in dataparsing()
-    o = output_file
-    global n  # used in data_aggregation()
-    n = nidm_file_list
-    data_aggregation()
-    dataparsing()
-    ac()
+    with Reporter(output_file) as reporter:
+        global n  # used in data_aggregation()
+        n = nidm_file_list
+        data_aggregation(reporter)
+        dataparsing(reporter)
+        ac()
 
 
-def data_aggregation():  # all data from all the files is collected
+def data_aggregation(reporter):  # all data from all the files is collected
     """This function provides query support for NIDM graphs."""
     # if there is a CDE file list, seed the CDE cache
     if v:  # ex: fs_00343 ~ age + sex + group
         print("*" * 107)
         command = "python nidm_kmeans.py -nl " + n + ' -variables "' + v + '" '
 
-        print("Your command was: " + command)
-        if o is not None:
-            with open(o, "w", encoding="utf-8") as f:
-                f.write("Your command was " + command)
+        reporter.print("Your command was:", command)
         verbosity = 0
         restParser = RestParser(verbosity_level=int(verbosity))
         restParser.setOutputFormat(RestParser.OBJECT_FORMAT)
@@ -234,29 +231,17 @@ def data_aggregation():  # all data from all the files is collected
             if len(not_found_list) > 0:
                 print("*" * 107)
                 print()
-                print("Your variables were " + v)
-                print()
-                print(
+                reporter.print("Your variables were", v)
+                reporter.print()
+                reporter.print(
                     "The following variables were not found in "
                     + nidm_file
                     + ". The model cannot run because this will skew the data. Try checking your spelling or use nidm_query.py to see other possible variables."
                 )
-                if o is not None:
-                    with open(o, "a", encoding="utf-8") as f:
-                        f.write("Your variables were " + v)
-                        f.write(
-                            "The following variables were not found in "
-                            + nidm_file
-                            + ". The model cannot run because this will skew the data. Try checking your spelling or use nidm_query.py to see other possible variables."
-                        )
                 for i, nf in enumerate(not_found_list):
-                    print(f"{i+1}. {nf}")
-                    if o is not None:
-                        with open(o, "a", encoding="utf-8") as f:
-                            f.write(f"{i+1}. {nf}")
-                for j in range(len(not_found_list) - 1, 0, -1):
-                    not_found_list.pop(j)
-                not_found_count = not_found_count + 1
+                    reporter.print(f"{i+1}. {nf}")
+                not_found_list.clear()
+                not_found_count += 1
                 print()
         if not_found_count > 0:
             sys.exit(1)
@@ -268,7 +253,9 @@ def data_aggregation():  # all data from all the files is collected
         sys.exit(1)
 
 
-def dataparsing():  # The data is changed to a format that is usable by the linear regression method
+def dataparsing(
+    reporter,
+):  # The data is changed to a format that is usable by the linear regression method
     global condensed_data
     condensed_data = []
     for i in range(0, len(file_list)):
@@ -317,16 +304,9 @@ def dataparsing():  # The data is changed to a format that is usable by the line
         )  # join_axes=[df_int_float.index])
     else:
         df_final = df_int_float
-    df_final.head()  # shows the final dataset with all the encoding
-    print(df_final)  # prints the final dataset
-    print()
-    print("*" * 107)
-    print()
-    if o is not None:
-        with open(o, "a", encoding="utf-8") as f:
-            f.write(df_final.to_string(header=True, index=True))
-            f.write("\n\n" + ("*" * 107))
-            f.write("\n\nModel Results: ")
+    reporter.print(df_final.to_string(header=True, index=True))
+    reporter.print("\n" + ("*" * 107))
+    reporter.print("\nModel Results: ")
 
 
 def ac():
@@ -363,10 +343,6 @@ def ac():
     plt.scatter(X[labels == 3, 0], X[labels == 3, 1], s=50, marker="o", color="purple")
     plt.scatter(X[labels == 4, 0], X[labels == 4, 1], s=50, marker="o", color="orange")
     plt.show()
-
-    if o is not None:
-        with open(o, "a", encoding="utf-8"):
-            pass
 
 
 def opencsv(data):
