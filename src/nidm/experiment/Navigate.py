@@ -139,7 +139,7 @@ def simplifyURIWithPrefix(nidm_file_tuples, uri):
         for f in nidm_file_tuples:
             rdf_graph = OpenGraph(f)
             for prefix, uri in rdf_graph.namespace_manager.namespaces():
-                if not str(uri) in names:
+                if str(uri) not in names:
                     names[str(uri)] = prefix
         return names
 
@@ -504,18 +504,14 @@ def GetDataelementDetails(nidm_files_tuple, dataelement):
             dti = getDataTypeInfo(rdf_graph, de_uri)
 
             # check if this is the correct one
-            if not (
-                dataelement
-                in [
-                    str(dti["label"]),
-                    str(dti["dataElement"]),
-                    str(dti["dataElementURI"]),
-                ]
-            ):
+            if dataelement not in [
+                str(dti["label"]),
+                str(dti["dataElement"]),
+                str(dti["dataElementURI"]),
+            ]:
                 continue
 
-            for key in dti.keys():
-                result[key] = dti[key]
+            result.update(dti)
             result["inProjects"] = set()
 
             # figure out what project the dataelement was used in
@@ -542,24 +538,20 @@ def GetDataelementDetails(nidm_files_tuple, dataelement):
 
             return result  # found it, we are done
 
-    if result == {}:  # didn't find it yet, check the CDEs
+    if not result:  # didn't find it yet, check the CDEs
         cde_graph = nidm.experiment.CDE.getCDEs()
         for de_uri in cde_graph.subjects(predicate=isa):
             dti = getDataTypeInfo(cde_graph, de_uri)
 
             # check if this is the correct one
-            if not (
-                dataelement
-                in [
-                    str(dti["label"]),
-                    str(dti["dataElement"]),
-                    str(dti["dataElementURI"]),
-                ]
-            ):
+            if dataelement not in [
+                str(dti["label"]),
+                str(dti["dataElement"]),
+                str(dti["dataElementURI"]),
+            ]:
                 continue
 
-            for key in dti.keys():
-                result[key] = dti[key]
+            result.update(dti)
             result["inProjects"] = set()
             result["inProjects"].add("Common Data Element")
 

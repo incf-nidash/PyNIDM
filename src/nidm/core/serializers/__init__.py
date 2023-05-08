@@ -38,8 +38,6 @@ class Serializer:
 class DoNotExist(Error):
     """Exception for the case a serializer is not available."""
 
-    pass
-
 
 class Registry:
     """Registry of serializers."""

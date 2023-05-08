@@ -159,9 +159,9 @@ def test_map_vars_to_terms_BIDS(setup: Setup, tmp_path: Path) -> None:
 
     # check whether JSON mapping structure returned from map_variables_to_terms matches the
     # reproshema structure
-    assert "DD(source='test', variable='age')" in column_to_terms.keys()
-    assert "DD(source='test', variable='sex')" in column_to_terms.keys()
-    assert "isAbout" in column_to_terms["DD(source='test', variable='age')"].keys()
+    assert "DD(source='test', variable='age')" in column_to_terms
+    assert "DD(source='test', variable='sex')" in column_to_terms
+    assert "isAbout" in column_to_terms["DD(source='test', variable='age')"]
     assert (
         "http://uri.interlex.org/ilx_0100400"
         == column_to_terms["DD(source='test', variable='age')"]["isAbout"][0]["@id"]
@@ -260,9 +260,9 @@ def test_map_vars_to_terms_reproschema(setup: Setup, tmp_path: Path) -> None:
 
     # check whether JSON mapping structure returned from map_variables_to_terms matches the
     # reproshema structure
-    assert "DD(source='test', variable='age')" in column_to_terms.keys()
-    assert "DD(source='test', variable='sex')" in column_to_terms.keys()
-    assert "isAbout" in column_to_terms["DD(source='test', variable='age')"].keys()
+    assert "DD(source='test', variable='age')" in column_to_terms
+    assert "DD(source='test', variable='sex')" in column_to_terms
+    assert "isAbout" in column_to_terms["DD(source='test', variable='age')"]
     assert (
         "http://uri.interlex.org/ilx_0100400"
         == column_to_terms["DD(source='test', variable='age')"]["isAbout"][0]["@id"]
@@ -309,9 +309,9 @@ def test_map_vars_to_terms_reproschema(setup: Setup, tmp_path: Path) -> None:
     with open(tmp_path / "nidm_annotations_annotations.json", encoding="utf-8") as fp:
         json.load(fp)
 
-    assert "DD(source='test', variable='age')" in column_to_terms.keys()
-    assert "DD(source='test', variable='sex')" in column_to_terms.keys()
-    assert "isAbout" in column_to_terms["DD(source='test', variable='age')"].keys()
+    assert "DD(source='test', variable='age')" in column_to_terms
+    assert "DD(source='test', variable='sex')" in column_to_terms
+    assert "isAbout" in column_to_terms["DD(source='test', variable='age')"]
     assert (
         "http://uri.interlex.org/ilx_0100400"
         == column_to_terms["DD(source='test', variable='age')"]["isAbout"][0]["@id"]

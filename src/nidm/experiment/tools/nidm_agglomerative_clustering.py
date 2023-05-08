@@ -1,5 +1,6 @@
 import csv
 import os
+import sys
 import tempfile
 import click
 import matplotlib.pyplot as plt
@@ -83,11 +84,7 @@ def data_aggregation():  # all data from all the files is collected
             global full_model_variable_list
             full_model_variable_list = []
             global model_list
-            model_list = v.split(",")
-            for i in range(
-                len(model_list)
-            ):  # here, we remove any leading or trailing spaces
-                model_list[i] = model_list[i].strip()
+            model_list = [vv.strip() for vv in v.split(",")]
             global variables  # used in dataparsing()
             variables = ""
             for i in range(len(model_list) - 1, -1, -1):
@@ -122,18 +119,16 @@ def data_aggregation():  # all data from all the files is collected
             numcols = (len(data) - 1) // (
                 len(model_list)
             )  # Finds the number of columns in the original dataframe
-            global condensed_data  # also used in linreg()
             condensed_data_holder[count] = [
                 [0] * (len(model_list))
             ]  # makes an array 1 row by the number of necessary columns
             for _ in range(
                 numcols
             ):  # makes the 2D array big enough to store all of the necessary values in the edited dataset
-                condensed_data_holder[count].append([0] * (len(model_list)))
-            for i in range(
-                len(model_list)
-            ):  # stores the independent variable names in the first row
-                condensed_data_holder[count][0][i] = model_list[i]
+                condensed_data_holder[count].append([0] * len(model_list))
+            for i, ml in enumerate(model_list):
+                # stores the independent variable names in the first row
+                condensed_data_holder[count][0][i] = ml
             numrows = 1  # begins at the first row to add data
             fieldcolumn = (
                 0  # the column the variable name is in in the original dataset
@@ -231,15 +226,11 @@ def data_aggregation():  # all data from all the files is collected
                 if count1 > len(condensed_data_holder[count]) - 2:
                     not_found_list.append(condensed_data_holder[count][0][i])
                 count1 = 0
-            for i in range(len(condensed_data_holder[count][0])):
-                if " " in condensed_data_holder[count][0][i]:
-                    condensed_data_holder[count][0][i] = condensed_data_holder[count][
-                        0
-                    ][i].replace(" ", "_")
-            for i in range(len(variables)):
-                if " " in variables[i]:
-                    variables[i] = variables[i].replace(" ", "_")
-            count = count + 1
+            for i, cdh in enumerate(condensed_data_holder[count][0]):
+                if " " in cdh:
+                    condensed_data_holder[count][0][i] = cdh.replace(" ", "_")
+            variables = [v.replace(" ", "_") for v in variables]
+            count += 1
             if len(not_found_list) > 0:
                 print("*" * 107)
                 print()
@@ -258,23 +249,23 @@ def data_aggregation():  # all data from all the files is collected
                             + nidm_file
                             + ". The model cannot run because this will skew the data. Try checking your spelling or use nidm_query.py to see other possible variables."
                         )
-                for i in range(0, len(not_found_list)):
-                    print(str(i + 1) + ". " + not_found_list[i])
+                for i, nf in enumerate(not_found_list):
+                    print(f"{i+1}. {nf}")
                     if o is not None:
                         with open(o, "a", encoding="utf-8") as f:
-                            f.write(str(i + 1) + ". " + not_found_list[i])
+                            f.write(f"{i+1}. {nf}")
                 for j in range(len(not_found_list) - 1, 0, -1):
                     not_found_list.pop(j)
                 not_found_count = not_found_count + 1
                 print()
         if not_found_count > 0:
-            exit(1)
+            sys.exit(1)
 
     else:
         print("ERROR: No query parameter provided.  See help:")
         print()
         os.system("pynidm query --help")
-        exit(1)
+        sys.exit(1)
 
 
 def dataparsing():  # The data is changed to a format that is usable by the linear regression method
@@ -314,8 +305,8 @@ def dataparsing():  # The data is changed to a format that is usable by the line
     le = (
         preprocessing.LabelEncoder()
     )  # anything involving le shows the encoding of categorical variables
-    for i in range(len(stringvars)):
-        le.fit(obj_df[stringvars[i]].astype(str))
+    for sv in stringvars:
+        le.fit(obj_df[sv].astype(str))
     obj_df_trf = obj_df.astype(str).apply(
         le.fit_transform
     )  # transforms the categorical variables into numbers.
@@ -345,8 +336,7 @@ def ac():
     for i in range(1, len(condensed_data)):
         if condensed_data[i][index] not in levels:
             levels.append(condensed_data[i][index])
-    for i in range(len(levels)):
-        levels[i] = i
+    levels = list(range(len(levels)))
 
     # Beginning of the linear regression
     global X
@@ -355,9 +345,9 @@ def ac():
 
     scaler = MinMaxScaler()
 
-    for i in range(len(model_list)):
-        scaler.fit(df_final[[model_list[i]]])
-        df_final[[model_list[i]]] = scaler.transform(df_final[[model_list[i]]])
+    for ml in model_list:
+        scaler.fit(df_final[[ml]])
+        df_final[[ml]] = scaler.transform(df_final[[ml]])
 
     X = df_final[
         model_list

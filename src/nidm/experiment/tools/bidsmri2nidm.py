@@ -13,6 +13,7 @@ import json
 import logging
 import os
 from os.path import isfile, join
+import sys
 import bids
 from pandas import DataFrame
 from prov.model import PROV_TYPE, Namespace, QualifiedName
@@ -218,14 +219,14 @@ def addbidsignore(directory, filename_to_add):
         with open(
             os.path.join(directory, ".bidsignore"), "w", encoding="utf-8"
         ) as text_file:
-            text_file.write("%s\n" % filename_to_add)
+            print(filename_to_add, file=text_file)
     else:
         with open(os.path.join(directory, ".bidsignore"), encoding="utf-8") as fp:
             if filename_to_add not in fp.read():
                 with open(
                     os.path.join(directory, ".bidsignore"), "a", encoding="utf-8"
                 ) as text_file:
-                    text_file.write("%s\n" % filename_to_add)
+                    print(filename_to_add, file=text_file)
 
 
 def addimagingsessions(
@@ -406,7 +407,7 @@ def addimagingsessions(
                 logging.critical(
                     "Error: BIDS directory %s does not exist!", os.path.join(directory)
                 )
-                exit(-1)
+                sys.exit(-1)
 
             # add various attributes if they exist in BIDS dataset
             for key in dataset:
@@ -602,7 +603,7 @@ def addimagingsessions(
                 logging.critical(
                     "Error: BIDS directory %s does not exist!", os.path.join(directory)
                 )
-                exit(-1)
+                sys.exit(-1)
 
             # add various attributes if they exist in BIDS dataset
             for key in dataset:
@@ -946,12 +947,12 @@ def bidsmri2project(directory, args):
             logging.critical(
                 "Cannot find dataset_description.json file which is required in the BIDS spec"
             )
-            exit("-1")
+            sys.exit(-1)
     else:
         logging.critical(
             "Error: BIDS directory %s does not exist!", os.path.join(directory)
         )
-        exit("-1")
+        sys.exit(-1)
 
     # create project / nidm-exp doc
     project = Project()
@@ -1008,7 +1009,7 @@ def bidsmri2project(directory, args):
             column_to_terms = {}
             for field in participants_data.fieldnames:
                 # column is not in BIDS_Constants
-                if not (field in BIDS_Constants.participants):
+                if field not in BIDS_Constants.participants:
                     # add column to list for column_to_terms mapping
                     mapping_list.append(field)
 
@@ -1318,7 +1319,7 @@ def bidsmri2project(directory, args):
             column_to_terms = {}
             for field in pheno_data.fieldnames:
                 # column is not in BIDS_Constants
-                if not (field in BIDS_Constants.participants):
+                if field not in BIDS_Constants.participants:
                     # add column to list for column_to_terms mapping
                     mapping_list.append(field)
 

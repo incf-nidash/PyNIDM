@@ -100,8 +100,6 @@ class ProvPlan(ProvEntity):
     ProvONE Plan element
     """
 
-    pass
-
 
 class Process(ProvEntity):
     """
@@ -905,7 +903,7 @@ class ProvONEDocument(ProvDocument):
             serializer.serialize(stream, **args)
         else:
             location = destination
-            scheme, netloc, path, params, _query, fragment = urlparse(location)
+            _, netloc, path, _, _, _ = urlparse(location)
             if netloc != "":
                 print(
                     "WARNING: not saving as location " + "is not a local file reference"

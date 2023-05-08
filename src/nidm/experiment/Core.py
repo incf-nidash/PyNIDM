@@ -16,7 +16,7 @@ def getUUID():
     uid = str(uuid.uuid1())
     # added to address some weird bug in rdflib where if the uuid starts with a number, everything up until the first
     # alapha character becomes a prefix...
-    if not (re.match("^[a-fA-F]+.*", uid)):
+    if not re.match("^[a-fA-F]+.*", uid):
         # if first digit is not a character than replace it with a randomly selected hex character (a-f).
         uid_temp = uid
         randint = random.randint(0, 5)
@@ -116,11 +116,7 @@ class Core:
         :return: True if prefix exists, False if not
         """
         # check if prefix already exists
-        if prefix in self.graph._namespaces.keys():
-            # prefix already exists
-            return True
-        else:
-            return False
+        return bool(prefix in self.graph._namespaces)
 
     def safe_string(self, string):
         return (
@@ -538,53 +534,42 @@ class Core:
             project_uuid = str(row[0])
             # for each Project uuid search dot structure for Project uuid
             project_node = None
-            for key, _ in dot.obj_dict["nodes"].items():
+            for key, value in dot.obj_dict["nodes"].items():
                 # get node number in DOT graph for Project
-                if "URL" in dot.obj_dict["nodes"][key][0]["attributes"]:
-                    if project_uuid in str(
-                        dot.obj_dict["nodes"][key][0]["attributes"]["URL"]
-                    ):
-                        project_node = key
-                        break
+                if project_uuid in str(value[0]["attributes"].get("URL", "")):
+                    project_node = key
+                    break
 
         # for each Session in Project class self.sessions list, find node numbers in DOT graph
 
         for session in self.sessions:
             print(session)
-            for key, _ in dot.obj_dict["nodes"].items():
+            for key, value in dot.obj_dict["nodes"].items():
                 # get node number in DOT graph for Project
-                if "URL" in dot.obj_dict["nodes"][key][0]["attributes"]:
-                    if session.identifier.uri in str(
-                        dot.obj_dict["nodes"][key][0]["attributes"]["URL"]
-                    ):
-                        session_node = key
-                        # print(f"session node = {key}")
+                if session.identifier.uri in str(value[0]["attributes"].get("URL", "")):
+                    session_node = key
+                    # print(f"session node = {key}")
 
-                        # add to DOT structure edge between project_node and session_node
-                        dot.add_edge(Edge(session_node, project_node, **style))
+                    # add to DOT structure edge between project_node and session_node
+                    dot.add_edge(Edge(session_node, project_node, **style))
 
-                        # for each Acquisition in Session class ._acquisitions list, find node numbers in DOT graph
-                        for acquisition in session.get_acquisitions():
-                            # search through the nodes again to figure out node number for acquisition
-                            for key, _ in dot.obj_dict["nodes"].items():
-                                # get node number in DOT graph for Project
-                                if "URL" in dot.obj_dict["nodes"][key][0]["attributes"]:
-                                    if acquisition.identifier.uri in str(
-                                        dot.obj_dict["nodes"][key][0]["attributes"][
-                                            "URL"
-                                        ]
-                                    ):
-                                        acquisition_node = key
-                                        # print(f"acquisition node = {key}")
+                    # for each Acquisition in Session class ._acquisitions list, find node numbers in DOT graph
+                    for acquisition in session.get_acquisitions():
+                        # search through the nodes again to figure out node number for acquisition
+                        for key, value in dot.obj_dict["nodes"].items():
+                            # get node number in DOT graph for Project
+                            if acquisition.identifier.uri in str(
+                                value[0]["attributes"].get("URL", "")
+                            ):
+                                acquisition_node = key
+                                # print(f"acquisition node = {key}")
 
-                                        dot.add_edge(
-                                            Edge(
-                                                acquisition_node, session_node, **style
-                                            )
-                                        )
+                                dot.add_edge(
+                                    Edge(acquisition_node, session_node, **style)
+                                )
 
         # add some logic to find nodes with dct:hasPart relation and add those edges to graph...prov_to_dot ignores these
-        if not (format == "None"):
+        if format != "None":
             dot.write(filename, format=format)
         else:
             dot.write(filename, format="pdf")

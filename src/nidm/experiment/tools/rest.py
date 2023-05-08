@@ -11,9 +11,7 @@ from numpy import mean, median, std
 from tabulate import tabulate
 from nidm.core import Constants
 from nidm.experiment import Navigate, Query
-import nidm.experiment.Navigate
 from nidm.experiment.Utils import validate_uuid
-import nidm.experiment.tools.rest_statistics
 
 
 def convertListtoDict(lst):
@@ -491,20 +489,19 @@ class RestParser:
                 for acq in Navigate.getAcquisitions(self.nidm_files, session):
                     act_data = Navigate.getActivityData(self.nidm_files, acq)
                     for de in act_data.data:
-                        if (
-                            de.isAbout == "http://uri.interlex.org/ilx_0100400"
-                            or de.isAbout == "http://uri.interlex.org/base/ilx_0100400"
+                        if de.isAbout in (
+                            "http://uri.interlex.org/ilx_0100400",
+                            "http://uri.interlex.org/base/ilx_0100400",
                         ):
-                            if de.value == "n/a" or de.value == "nan":
+                            if de.value in ("n/a", "nan"):
                                 ages.add(float("nan"))
                             else:
                                 ages.add(float(de.value))
-                        elif (
-                            de.isAbout == "http://uri.interlex.org/ilx_0101292"
-                            or de.isAbout == "http://uri.interlex.org/base/ilx_0101292"
-                            or de.isAbout == "http://uri.interlex.org/ilx_0738439"
-                            or de.isAbout
-                            == "https://ndar.nih.gov/api/datadictionary/v2/dataelement/gender"
+                        elif de.isAbout in (
+                            "http://uri.interlex.org/ilx_0101292",
+                            "http://uri.interlex.org/base/ilx_0101292",
+                            "http://uri.interlex.org/ilx_0738439",
+                            "https://ndar.nih.gov/api/datadictionary/v2/dataelement/gender",
                         ):
                             genders.add(de.value)
                         elif (
@@ -525,7 +522,7 @@ class RestParser:
             project[str(Constants.NIDM_HANDEDNESS)] = list(hands)
 
     def projectStats(self):
-        result = dict()
+        result = {}
         subjects = None
         path = (urlparse(self.command)).path
 
@@ -541,7 +538,7 @@ class RestParser:
             self.restLog("comparng " + str(pid) + " with " + str(id_), 5)
             self.restLog("comparng " + str(pid) + " with " + Constants.NIIRI + id_, 5)
             self.restLog("comparng " + str(pid) + " with niiri:" + id_, 5)
-            if pid == id_ or pid == Constants.NIIRI + id_ or pid == "niiri:" + id_:
+            if pid in (id_, Constants.NIIRI + id_, "niiri:" + id_):
                 # strip off prefixes to make it more human readable
                 for key in projects["projects"][pid]:
                     short_key = key
@@ -602,17 +599,17 @@ class RestParser:
                 data = Query.GetParticipantInstrumentData(
                     tuple(self.nidm_files), project, s
                 )
-                for i in data:
-                    if field in data[i]:
-                        values.append(float(data[i][field]))
+                for v in data.values():
+                    if field in v:
+                        values.append(float(v[field]))
             # derivatives are of the form [UUID]['values'][URI]{datumType, label, values, units}
             if type == self.STAT_TYPE_DERIVATIVES:
                 data = Query.GetDerivativesDataForSubject(
                     tuple(self.nidm_files), project, s
                 )
-                for deriv in data:
-                    for URI in data[deriv]["values"]:
-                        measures = data[deriv]["values"][URI]
+                for deriv_value in data.values():
+                    for URI in deriv_value["values"]:
+                        measures = deriv_value["values"][URI]
                         if field == measures["label"] or field == self.getTailOfURI(
                             URI
                         ):
@@ -639,9 +636,7 @@ class RestParser:
         pid = parse.unquote(str(match.group(1)))
         self.restLog(f"Returning project {pid} summary", 2)
 
-        result = nidm.experiment.Navigate.GetProjectAttributes(
-            self.nidm_files, project_id=pid
-        )
+        result = Navigate.GetProjectAttributes(self.nidm_files, project_id=pid)
         result["subjects"] = Query.GetParticipantUUIDsForProject(
             self.nidm_files, project_id=pid, filter=self.query["filter"]
         )
@@ -772,7 +767,7 @@ class RestParser:
 
                 # print ("getting info for " + str(s))
                 x = self.getFieldInfoForSubject(proj, s)
-                if x != {}:
+                if x:
                     result["fields"][Query.URITail(s)] = x
         return self.subjectFormat(result)
 
