@@ -1,4 +1,6 @@
-__version__ = "3.9.7"
+from importlib.metadata import version
+
+__version__ = version("pynidm")
 
 try:
     import etelemetry
