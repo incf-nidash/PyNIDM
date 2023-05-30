@@ -20,7 +20,7 @@ def test_simple_model(brain_vol_files: list[str]) -> None:
             ],
         )
         assert r.exit_code == 0
-        out = Path("output.txt").read_text()
+        out = Path("output.txt").read_text(encoding="utf-8")
 
     # check if model was read correctly
     assert "fs_000008 ~ ilx_0100400 + DX_GROUP" in out
@@ -62,7 +62,7 @@ def test_model_with_contrasts(brain_vol_files: list[str]) -> None:
             ],
         )
         assert r.exit_code == 0
-        out = Path("output.txt").read_text()
+        out = Path("output.txt").read_text(encoding="utf-8")
 
     # check if model was read correctly
     assert "fs_000008 ~ ilx_0100400 + DX_GROUP" in out
@@ -135,7 +135,7 @@ def test_model_with_contrasts_reg_L1(brain_vol_files: list[str]) -> None:
             ],
         )
         assert r.exit_code == 0
-        out = Path("output.txt").read_text()
+        out = Path("output.txt").read_text(encoding="utf-8")
 
     # check if model was read correctly
     assert "fs_000008 ~ ilx_0100400 + DX_GROUP" in out
@@ -173,7 +173,7 @@ def test_model_with_contrasts_reg_L2(brain_vol_files: list[str]) -> None:
             ],
         )
         assert r.exit_code == 0
-        out = Path("output.txt").read_text()
+        out = Path("output.txt").read_text(encoding="utf-8")
 
     # check if model was read correctly
     assert "fs_000008 ~ ilx_0100400 + DX_GROUP" in out
