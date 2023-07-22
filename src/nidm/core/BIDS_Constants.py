@@ -6,7 +6,7 @@ from . import Constants
 
 # BIDS dataset_description -> NIDM constants mappings
 dataset_description = {
-    "BIDSVersion": Constants.NIDM_PROJECT_IDENTIFIER,
+    "BIDSVersion": Constants.BIDS["BIDSVersion"],
     "Name": Constants.NIDM_PROJECT_NAME,
     "Procedure": Constants.NIDM_PROJECT_DESCRIPTION,
     "License": Constants.NIDM_PROJECT_LICENSE,
