@@ -33,6 +33,7 @@ from nidm.experiment.Utils import (
     addGitAnnexSources,
     map_variables_to_terms,
 )
+from nidm.experiment.Core import getUUID
 
 
 def getRelPathToBIDS(filepath, bids_root):
@@ -957,22 +958,36 @@ def bidsmri2project(directory, args):
     # create project / nidm-exp doc
     project = Project()
 
+    # 7/22/23 - Modified to create collection of AcquisitionObjects (prov:Entity) to
+    # essentially model the BIDS dataset that we're using to convert data into the
+    # NIDM representation
+    provgraph = project.getGraph()
+    collection = provgraph.collection(Constants.NIIRI[getUUID()])
+
     # if there are git annex sources then add them
     num_sources = addGitAnnexSources(obj=project.get_uuid(), bids_root=directory)
     # else just add the local path to the dataset
     if num_sources == 0:
-        project.add_attributes({Constants.PROV["Location"]: "file:/" + directory})
+        # 7/22/23 - modified to add location attribute to collection of acquisition objects
+        collection.add_attributes({Constants.PROV["Location"]: "file:/" + directory})
 
     # add various attributes if they exist in BIDS dataset description file
     for key in dataset:
         # if key from dataset_description file is mapped to term in BIDS_Constants.py then add to NIDM object
         if key in BIDS_Constants.dataset_description:
-            if type(dataset[key]) is list:
+            if key == "Name":
+                # 7/22/23 - modified to add BIDS "Name" attribute to project
                 project.add_attributes(
                     {BIDS_Constants.dataset_description[key]: "".join(dataset[key])}
                 )
+            elif type(dataset[key]) is list:
+                # 7/22/23 - modified to add attributes to collection of acquisition objects
+                collection.add_attributes(
+                    {BIDS_Constants.dataset_description[key]: "".join(dataset[key])}
+                )
             else:
-                project.add_attributes(
+                # 7/22/23 - modified to add attributes to collection of acquisition objects
+                collection.add_attributes(
                     {BIDS_Constants.dataset_description[key]: dataset[key]}
                 )
 
@@ -1114,6 +1129,10 @@ def bidsmri2project(directory, args):
                 acq = AssessmentAcquisition(session=session[subjid])
                 # add acquisition entity
                 acq_entity = AssessmentObject(acquisition=acq)
+
+                # Modified 7/22/23 to add acq_entity to collection
+                provgraph.hadMember(collection,acq_entity)
+
                 # create participant dictionary indexed by subjid to get agen UUIDs for later use
                 participant[subjid] = {}
                 # add agent for this participant to the graph
