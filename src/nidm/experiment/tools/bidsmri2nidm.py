@@ -33,6 +33,7 @@ from nidm.experiment.Utils import (
     addGitAnnexSources,
     map_variables_to_terms,
 )
+from nidm.experiment.Core import getUUID
 
 
 def getRelPathToBIDS(filepath, bids_root):
@@ -230,16 +231,17 @@ def addbidsignore(directory, filename_to_add):
 
 
 def addimagingsessions(
-    bids_layout, subject_id, session, participant, directory, img_session=None
+    bids_layout, subject_id, session, participant, directory, collection, img_session=None
 ):
     """
     This function adds imaging acquistions to the NIDM file and deals with BIDS structures potentially having
     separate ses-* directories or not
     :param bids_layout:
     :param subject_id:
-    :param session:
+    :param session: nidm session
     :param participant:
-    :param directory:
+    :param directory: BIDS directory
+    :param collection: prov:collection to add imaging acquisition objects to for BIDS dataset
     :param img_session:
     :return:
     """
@@ -281,6 +283,10 @@ def addimagingsessions(
         if file_tpl.entities["datatype"] == "anat":
             # do something with anatomicals
             acq_obj = MRObject(acq)
+
+            # Modified 7/22/23 to add acq_entity to collection
+            session.graph.hadMember(collection, acq_obj)
+
             # add image contrast type
             if file_tpl.entities["suffix"] in BIDS_Constants.scans:
                 acq_obj.add_attributes(
@@ -425,6 +431,10 @@ def addimagingsessions(
         elif file_tpl.entities["datatype"] == "func":
             # do something with functionals
             acq_obj = MRObject(acq)
+
+            # Modified 7/22/23 to add acq_entity to collection
+            session.graph.hadMember(collection, acq_obj)
+
             # add image contrast type
             if file_tpl.entities["suffix"] in BIDS_Constants.scans:
                 acq_obj.add_attributes(
@@ -546,6 +556,9 @@ def addimagingsessions(
                 events_obj = AcquisitionObject(acq)
                 # add prov type, task name as prov:label, and link to filename of events file
 
+                # Modified 7/22/23 to add acq_entity to collection
+                session.graph.hadMember(collection, events_obj)
+
                 events_obj.add_attributes(
                     {
                         PROV_TYPE: Constants.NIDM_MRI_BOLD_EVENTS,
@@ -626,6 +639,10 @@ def addimagingsessions(
         # WIP: Waiting for pybids > 0.12.4 to support perfusion scans
         elif file_tpl.entities["datatype"] == "perf":
             acq_obj = MRObject(acq)
+
+            # Modified 7/22/23 to add acq_entity to collection
+            session.graph.hadMember(collection, acq_obj)
+
             # add image contrast type
             if file_tpl.entities["suffix"] in BIDS_Constants.scans:
                 acq_obj.add_attributes(
@@ -725,6 +742,10 @@ def addimagingsessions(
         elif file_tpl.entities["datatype"] == "dwi":
             # do stuff with with dwi scans...
             acq_obj = MRObject(acq)
+
+            # Modified 7/22/23 to add acq_entity to collection
+            session.graph.hadMember(collection, acq_obj)
+
             # add image contrast type
             if file_tpl.entities["suffix"] in BIDS_Constants.scans:
                 acq_obj.add_attributes(
@@ -819,6 +840,10 @@ def addimagingsessions(
 
             # for now, create new generic acquisition objects, link the files, and associate with the one for the DWI scan?
             acq_obj_bval = AcquisitionObject(acq)
+
+            # Modified 7/22/23 to add acq_entity to collection
+            session.graph.hadMember(collection, acq_obj_bval)
+
             acq_obj_bval.add_attributes({PROV_TYPE: BIDS_Constants.scans["bval"]})
             # add file link to bval files
             acq_obj_bval.add_attributes(
@@ -874,6 +899,10 @@ def addimagingsessions(
                     join(directory, file_tpl.dirname, file_tpl.filename),
                 )
             acq_obj_bvec = AcquisitionObject(acq)
+
+            # Modified 7/22/23 to add acq_entity to collection
+            session.graph.hadMember(collection, acq_obj_bvec)
+
             acq_obj_bvec.add_attributes({PROV_TYPE: BIDS_Constants.scans["bvec"]})
             # add file link to bvec files
             acq_obj_bvec.add_attributes(
@@ -957,22 +986,40 @@ def bidsmri2project(directory, args):
     # create project / nidm-exp doc
     project = Project()
 
+    # 7/22/23 - Modified to create collection of AcquisitionObjects (prov:Entity) to
+    # essentially model the BIDS dataset that we're using to convert data into the
+    # NIDM representation
+    provgraph = project.getGraph()
+    collection = provgraph.collection(Constants.NIIRI[getUUID()])
+    # 7/22/23 add type as bids:Dataset
+    collection.add_attributes({PROV_TYPE: QualifiedName(
+                                Namespace("bids", Constants.BIDS), "Dataset"
+                            )})
+
     # if there are git annex sources then add them
     num_sources = addGitAnnexSources(obj=project.get_uuid(), bids_root=directory)
     # else just add the local path to the dataset
-    if num_sources == 0:
-        project.add_attributes({Constants.PROV["Location"]: "file:/" + directory})
+    #if num_sources == 0:
+        # 7/22/23 - modified to add location attribute to collection of acquisition objects
+    #    collection.add_attributes({Constants.PROV["Location"]: "file:/" + directory})
 
     # add various attributes if they exist in BIDS dataset description file
     for key in dataset:
         # if key from dataset_description file is mapped to term in BIDS_Constants.py then add to NIDM object
         if key in BIDS_Constants.dataset_description:
-            if type(dataset[key]) is list:
+            if key == "Name":
+                # 7/22/23 - modified to add BIDS "Name" attribute to project
                 project.add_attributes(
                     {BIDS_Constants.dataset_description[key]: "".join(dataset[key])}
                 )
+            elif type(dataset[key]) is list:
+                # 7/22/23 - modified to add attributes to collection of acquisition objects
+                collection.add_attributes(
+                    {BIDS_Constants.dataset_description[key]: "".join(dataset[key])}
+                )
             else:
-                project.add_attributes(
+                # 7/22/23 - modified to add attributes to collection of acquisition objects
+                collection.add_attributes(
                     {BIDS_Constants.dataset_description[key]: dataset[key]}
                 )
 
@@ -1114,6 +1161,10 @@ def bidsmri2project(directory, args):
                 acq = AssessmentAcquisition(session=session[subjid])
                 # add acquisition entity
                 acq_entity = AssessmentObject(acquisition=acq)
+
+                # Modified 7/22/23 to add acq_entity to collection
+                provgraph.hadMember(collection,acq_entity)
+
                 # create participant dictionary indexed by subjid to get agen UUIDs for later use
                 participant[subjid] = {}
                 # add agent for this participant to the graph
@@ -1154,6 +1205,10 @@ def bidsmri2project(directory, args):
                 # associate it with all the assessment entities
                 if os.path.isfile(os.path.join(directory, "participants.json")):
                     json_sidecar = AcquisitionObject(acquisition=acq)
+
+                    # Modified 7/22/23 to add acq_entity to collection
+                    provgraph.hadMember(collection, json_sidecar)
+
                     json_sidecar.add_attributes(
                         {
                             PROV_TYPE: QualifiedName(
@@ -1295,6 +1350,7 @@ def bidsmri2project(directory, args):
                     session=ses,
                     participant=participant,
                     directory=directory,
+                    collection=collection,
                     img_session=img_session,
                 )
         # else we have no ses-* directories in the BIDS layout
@@ -1304,6 +1360,7 @@ def bidsmri2project(directory, args):
             session=Session(project),
             participant=participant,
             directory=directory,
+            collection=collection,
         )
 
     # Added temporarily to support phenotype files
@@ -1403,8 +1460,11 @@ def bidsmri2project(directory, args):
                     person=participant[subjid[1]]["person"],
                     role=Constants.NIDM_PARTICIPANT,
                 )
-                # add acquisition enttity and associate it with the acquisition activity
+                # add acquisition entity and associate it with the acquisition activity
                 acq_entity = AssessmentObject(acquisition=acq)
+
+                # Modified 7/22/23 to add acq_entity to collection
+                provgraph.hadMember(collection, acq_entity)
 
                 for key, value in row.items():
                     if not value:
@@ -1429,10 +1489,11 @@ def bidsmri2project(directory, args):
                     obj=acq_entity.get_uuid(), bids_root=directory
                 )
                 # else just add the local path to the dataset
-                if num_sources == 0:
-                    acq_entity.add_attributes(
-                        {Constants.PROV["Location"]: "file:/" + tsv_file}
-                    )
+                # 7/22/23 commented out to not add local source if no gitAnnex source found
+                #if num_sources == 0:
+                #    acq_entity.add_attributes(
+                #        {Constants.PROV["Location"]: "file:/" + tsv_file}
+                #    )
 
                 # link associated JSON file if it exists
                 data_dict = os.path.join(
@@ -1444,6 +1505,10 @@ def bidsmri2project(directory, args):
                     # if file exists, create a new entity and associate it with the appropriate activity  and a used relationship
                     # with the TSV-related entity
                     json_entity = AcquisitionObject(acquisition=acq)
+
+                    # Modified 7/22/23 to add json_entity to collection
+                    provgraph.hadMember(collection, json_entity)
+
                     json_entity.add_attributes(
                         {
                             PROV_TYPE: Constants.BIDS["sidecar_file"],
@@ -1461,10 +1526,11 @@ def bidsmri2project(directory, args):
                         bids_root=directory,
                     )
                     # else just add the local path to the dataset
-                    if num_sources == 0:
-                        json_entity.add_attributes(
-                            {Constants.PROV["Location"]: "file:/" + data_dict}
-                        )
+                    # 7/22/23 commented out so local source file isn't stored if no gitAnnex sources
+                    #if num_sources == 0:
+                    #    json_entity.add_attributes(
+                    #        {Constants.PROV["Location"]: "file:/" + data_dict}
+                    #    )
 
                     # connect json_entity with acq_entity
                     acq_entity.add_attributes(
