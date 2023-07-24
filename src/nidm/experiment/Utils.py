@@ -1792,7 +1792,7 @@ def map_variables_to_terms(
                         column_to_terms[current_tuple]["responseOptions"]["unitCode"],
                     )
 
-                if "isAbout" in json_map[json_key[0]]:
+                if "isAbout" in json_map[json_key[0]].keys():
                     # check if we have a single isAbout or multiple...
                     if isinstance(json_map[json_key[0]]["isAbout"], list):
                         # isAbout is an empty list, do concept association if user asked for it else skip
@@ -1876,7 +1876,7 @@ def map_variables_to_terms(
                     # if user ran in mode where they want to associate concepts and this isn't the participant
                     # id field then associate concepts.
                     if match_participant_id_field(
-                        json_map[json_key[0]]["sourceVariable"]
+                        json_map[json_key[0]]["source_variable"]
                     ):
                         column_to_terms[current_tuple]["isAbout"] = []
                         column_to_terms[current_tuple]["isAbout"].append(
