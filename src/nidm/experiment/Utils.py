@@ -1870,7 +1870,7 @@ def map_variables_to_terms(
                                 )
 
                         print(
-                            f"isAbout: @id = {column_to_terms[current_tuple]['isAbout']['@id']}, label = {column_to_terms[current_tuple]['isAbout']['label']}"
+                            f"isAbout: @id = {column_to_terms[current_tuple]['isAbout'][0]['@id']}, label = {column_to_terms[current_tuple]['isAbout'][0]['label']}"
                         )
                 else:
                     # if user ran in mode where they want to associate concepts and this isn't the participant
