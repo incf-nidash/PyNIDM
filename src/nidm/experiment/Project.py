@@ -130,7 +130,6 @@ class Project(pm.ProvActivity, Core):
             # dataelement.add_attributes({pm.QualifiedName(pm.Namespace("dct", Constants.DCT), 'isPartOf'): self})
             return True
 
-
     def __str__(self):
         return "NIDM-Experiment Project Class"
 

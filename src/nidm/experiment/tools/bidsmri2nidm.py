@@ -28,12 +28,12 @@ from nidm.experiment import (
     Project,
     Session,
 )
+from nidm.experiment.Core import getUUID
 from nidm.experiment.Utils import (
     add_attributes_with_cde,
     addGitAnnexSources,
     map_variables_to_terms,
 )
-from nidm.experiment.Core import getUUID
 
 
 def getRelPathToBIDS(filepath, bids_root):
@@ -231,7 +231,13 @@ def addbidsignore(directory, filename_to_add):
 
 
 def addimagingsessions(
-    bids_layout, subject_id, session, participant, directory, collection, img_session=None
+    bids_layout,
+    subject_id,
+    session,
+    participant,
+    directory,
+    collection,
+    img_session=None,
 ):
     """
     This function adds imaging acquistions to the NIDM file and deals with BIDS structures potentially having
@@ -992,15 +998,15 @@ def bidsmri2project(directory, args):
     provgraph = project.getGraph()
     collection = provgraph.collection(Constants.NIIRI[getUUID()])
     # 7/22/23 add type as bids:Dataset
-    collection.add_attributes({PROV_TYPE: QualifiedName(
-                                Namespace("bids", Constants.BIDS), "Dataset"
-                            )})
+    collection.add_attributes(
+        {PROV_TYPE: QualifiedName(Namespace("bids", Constants.BIDS), "Dataset")}
+    )
 
     # if there are git annex sources then add them
     num_sources = addGitAnnexSources(obj=project.get_uuid(), bids_root=directory)
     # else just add the local path to the dataset
-    #if num_sources == 0:
-        # 7/22/23 - modified to add location attribute to collection of acquisition objects
+    # if num_sources == 0:
+    # 7/22/23 - modified to add location attribute to collection of acquisition objects
     #    collection.add_attributes({Constants.PROV["Location"]: "file:/" + directory})
 
     # add various attributes if they exist in BIDS dataset description file
@@ -1163,7 +1169,7 @@ def bidsmri2project(directory, args):
                 acq_entity = AssessmentObject(acquisition=acq)
 
                 # Modified 7/22/23 to add acq_entity to collection
-                provgraph.hadMember(collection,acq_entity)
+                provgraph.hadMember(collection, acq_entity)
 
                 # create participant dictionary indexed by subjid to get agen UUIDs for later use
                 participant[subjid] = {}
@@ -1490,7 +1496,7 @@ def bidsmri2project(directory, args):
                 )
                 # else just add the local path to the dataset
                 # 7/22/23 commented out to not add local source if no gitAnnex source found
-                #if num_sources == 0:
+                # if num_sources == 0:
                 #    acq_entity.add_attributes(
                 #        {Constants.PROV["Location"]: "file:/" + tsv_file}
                 #    )
@@ -1527,7 +1533,7 @@ def bidsmri2project(directory, args):
                     )
                     # else just add the local path to the dataset
                     # 7/22/23 commented out so local source file isn't stored if no gitAnnex sources
-                    #if num_sources == 0:
+                    # if num_sources == 0:
                     #    json_entity.add_attributes(
                     #        {Constants.PROV["Location"]: "file:/" + data_dict}
                     #    )
