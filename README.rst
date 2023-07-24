@@ -42,6 +42,26 @@ your user space and use the pull request GitHub feature to submit code for
 review.  Please provide a reasonably detailed description of what was changed
 and why in the pull request.
 
+To establish development environment, we recommend to install the
+clone of this repository in development mode with development tools
+installed via
+
+.. code:: bash
+
+	$ pip install -e .[devel]
+
+We also recommend using
+`pre-commit <https://github.com/pre-commit/pre-commit>`_ for ensuring
+that your contributions would conform our conventions for code quality
+etc. You can enable ``pre-commit`` by running once in your clone
+
+.. code:: bash
+
+	$ pre-commit install
+
+which would then ensure that all commits would be subject to `black
+<https://pypi.org/project/black/>`_ code reformatting etc.
+
 Reporting Issues or Problems
 ============================
 If you encounter a bug, you can directly report it in the issues section.
