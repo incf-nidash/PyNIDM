@@ -1,5 +1,6 @@
 [codespell]
 skip = .git,*.pdf,*.svg,*.js,*.ttl
+ignore-regex = Splitted.*is not a word
 # Commun - abbreviation in publication venue
 # nd - some css within .rst
 # Groth - name
