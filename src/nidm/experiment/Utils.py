@@ -1393,6 +1393,30 @@ def match_participant_id_field(source_variable):
     )
 
 
+def load_bids_native_json_sidecar(json_file):
+    """
+    This function will load a bids native json file and return a dictionary keyed by the variable name associated
+    with a variable in the accompanying TSV data file
+
+    :param json_file: a BIDS-compliant json sidecar file
+    :return: dictionary with keys=variable names in the companion TSV file (assumed to be named the same per BIDS
+        standard filenames and metadata associated with variable stored in sub-dictionaries
+
+    """
+
+
+def load_nidm_native_json_sidecar(json_file):
+    """
+    This function will load a NIDM native json-ld annotation file and return a dictionary keyed by
+    the variable name and filename of the data file associated with those annotations (see ..core.Constants import DD)
+
+    :param json_file: a NIDM-compliant json sidecar file
+    :return: dictionary with keys=variable names in the companion data file (assumed to be named the same per BIDS
+        standard filenames and metadata associated with variable stored in sub-dictionaries
+
+    """
+
+
 def map_variables_to_terms(
     df,
     directory,
