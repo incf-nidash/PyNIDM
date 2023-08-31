@@ -1393,7 +1393,6 @@ def match_participant_id_field(source_variable):
     )
 
 
-
 def keys_exists(dictionary, keys):
     nested_dict = dictionary
 
@@ -1403,6 +1402,7 @@ def keys_exists(dictionary, keys):
         except KeyError:
             return False
     return True
+
 
 def map_variables_to_terms(
     df,
@@ -1504,33 +1504,43 @@ def map_variables_to_terms(
 
                 # 8/31/23 added to account for more than one json annotation entry for the same variable
                 if len(annotation_keys) > 1:
-                    print("The supplied JSON files has more than one entry for variable: %s " % column )
-                    print("Either stop this program, fix the JSON file and re-run or you will be asked to "
-                          "annotate this variable interactively")
-                    json_key=None
+                    print(
+                        "The supplied JSON files has more than one entry for variable: %s "
+                        % column
+                    )
+                    print(
+                        "Either stop this program, fix the JSON file and re-run or you will be asked to "
+                        "annotate this variable interactively"
+                    )
+                    json_key = None
                 elif len(annotation_keys) == 1:
-                    json_key=' '.join(map(str, annotation_keys))
+                    json_key = " ".join(map(str, annotation_keys))
                 else:
-                    json_key=None
+                    json_key = None
 
             except IndexError:
                 # get json key from typical BIDS variant where key is variable name
-                annotation_keys = [key for key in json_map if column.lstrip().rstrip() == key]
+                annotation_keys = [
+                    key for key in json_map if column.lstrip().rstrip() == key
+                ]
 
                 # 8/31/23 added to account for more than one json annotation entry for the same variable
                 if len(annotation_keys) > 1:
-                    print("The supplied JSON files has more than one entry for variable: %s " % column)
-                    print("Either stop this program, fix the JSON file and re-run or you will be asked to "
-                          "annotate this variable interactively")
+                    print(
+                        "The supplied JSON files has more than one entry for variable: %s "
+                        % column
+                    )
+                    print(
+                        "Either stop this program, fix the JSON file and re-run or you will be asked to "
+                        "annotate this variable interactively"
+                    )
                     json_key = None
                 elif len(annotation_keys) == 1:
-                    json_key = ' '.join(map(str, annotation_keys))
+                    json_key = " ".join(map(str, annotation_keys))
                 else:
                     json_key = None
 
-
             if json_map is not None and (json_key is not None):
-
                 print(f"json_key={json_key}, column={column}")
 
                 column_to_terms[current_tuple] = {}
@@ -1559,13 +1569,13 @@ def map_variables_to_terms(
                 # added this bit to account for BIDS json files using "Description" whereas we use "description"
                 # everywhere else
                 if "description" in json_map[json_key].keys():
-                    column_to_terms[current_tuple]["description"] = json_map[
-                        json_key
-                    ]["description"]
+                    column_to_terms[current_tuple]["description"] = json_map[json_key][
+                        "description"
+                    ]
                 elif "Description" in json_map[json_key].keys():
-                    column_to_terms[current_tuple]["description"] = json_map[
-                        json_key
-                    ]["Description"]
+                    column_to_terms[current_tuple]["description"] = json_map[json_key][
+                        "Description"
+                    ]
                 else:
                     column_to_terms[current_tuple]["description"] = ""
                 # column_to_terms[current_tuple]['variable'] = json_map[json_key[0]]['variable']
@@ -1886,9 +1896,7 @@ def map_variables_to_terms(
                                 column_to_terms[current_tuple]["isAbout"].append(
                                     {
                                         "@id": json_map[json_key]["isAbout"]["url"],
-                                        "label": json_map[json_key]["isAbout"][
-                                            "label"
-                                        ],
+                                        "label": json_map[json_key]["isAbout"]["label"],
                                     }
                                 )
                             else:
@@ -1900,9 +1908,7 @@ def map_variables_to_terms(
                                 column_to_terms[current_tuple]["isAbout"].append(
                                     {
                                         "@id": json_map[json_key]["isAbout"]["@id"],
-                                        "label": json_map[json_key]["isAbout"][
-                                            "label"
-                                        ],
+                                        "label": json_map[json_key]["isAbout"]["label"],
                                     }
                                 )
                             else:
@@ -1910,8 +1916,7 @@ def map_variables_to_terms(
                                     {"@id": json_map[json_key]["isAbout"]["@id"]}
                                 )
 
-                        for isabout_entry in column_to_terms[current_tuple]['isAbout']:
-
+                        for isabout_entry in column_to_terms[current_tuple]["isAbout"]:
                             print(
                                 f"isAbout: @id = {isabout_entry['@id']}, label = {isabout_entry['label']}"
                             )
