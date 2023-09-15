@@ -326,7 +326,9 @@ def test_GetProjectAttributes(abide: ProjectData) -> None:
     project_attributes = nidm.experiment.Navigate.GetProjectAttributes(
         files, project_uuid
     )
-    assert ("prov:Location" in project_attributes) or ("Location" in project_attributes)
+    # 8/31/23 - commented out test because we remove local prov:Location if datalad remotes aren't available
+    # so this test will fail under those circumstances
+    #assert ("prov:Location" in project_attributes) or ("Location" in project_attributes)
     assert ("dctypes:title" in project_attributes) or ("title" in project_attributes)
     assert (
         "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" in project_attributes
