@@ -1,3 +1,15 @@
+# v4.1.0 (Sat Jul 22 2023)
+
+#### 🚀 Enhancement
+
+- updated nidm model to collections of entities [#378](https://github.com/incf-nidash/PyNIDM/pull/378) ([@dbkeator](https://github.com/dbkeator))
+
+#### Authors: 1
+
+- David Keator ([@dbkeator](https://github.com/dbkeator))
+
+---
+
 # v4.0.0 (Tue May 30 2023)
 
 #### 💥 Breaking Change

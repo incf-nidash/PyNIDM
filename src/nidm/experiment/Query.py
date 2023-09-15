@@ -1356,11 +1356,11 @@ def OpenGraph(file):
 
     BLOCKSIZE = 65536
     hasher = hashlib.md5()
-    with open(file, "rb") as myfile:
-        buf = myfile.read(BLOCKSIZE)
+    with open(file, "rb") as f:
+        buf = f.read(BLOCKSIZE)
         while len(buf) > 0:
             hasher.update(buf)
-            buf = myfile.read(BLOCKSIZE)
+            buf = f.read(BLOCKSIZE)
     digest = hasher.hexdigest()
 
     pickle_file = f"{tempfile.gettempdir()}/rdf_graph.{digest}.pickle"
