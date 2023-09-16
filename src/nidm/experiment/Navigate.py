@@ -118,7 +118,7 @@ def expandID(id, namespace):  # noqa: A002
     if id.find("http") < 0:
         return namespace[id]
     # it has a http, but isn't a URIRef so convert it
-    if type(id) == str:
+    if type(id) is str:
         return URIRef(id)
 
     return id
