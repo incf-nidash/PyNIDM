@@ -350,7 +350,7 @@ class RestParser:
                     if (
                         type(result[key]) is list
                         and len(result[key]) > 0
-                        and type(result[key][0]) == Navigate.ActivityData
+                        and type(result[key][0]) is Navigate.ActivityData
                     ):
                         toptable.append([key, ",".join([x.uuid for x in result[key]])])
                     elif type(result[key]) is list:
