@@ -46,7 +46,7 @@ class RestParser:
         def allUUIDs(arr):
             uuid_only = True
             for s in arr:
-                if type(s) != str or not re.match(
+                if type(s) is not str or not re.match(
                     "^[0-9a-f]+-[0-9a-f]+-[0-9a-f]+-[0-9a-f]+-[0-9a-f]+$", s
                 ):
                     uuid_only = False
@@ -72,7 +72,7 @@ class RestParser:
             appendicies = []
             for key in result:
                 # format a list
-                if type(result[key]) == list:
+                if type(result[key]) is list:
                     appendix = []
                     for line in result[key]:
                         appendix.append([json.dumps(line)])
@@ -83,11 +83,11 @@ class RestParser:
                         table.append([json.dumps(key), ",".join(result[key])])
 
                 # format a string
-                elif type(result[key]) == str:
+                elif type(result[key]) is str:
                     table.append([json.dumps(key), result[key]])
 
                 # format a dictionary
-                elif type(result[key]) == dict:
+                elif type(result[key]) is dict:
                     # put any dict into it's own table at the end (sort of like an appendix)
                     appendix = []
                     for inner_key in result[key]:
@@ -97,7 +97,7 @@ class RestParser:
                 # format anything else
                 else:
                     col1 = json.dumps(key)
-                    if type(result[key]) == set:
+                    if type(result[key]) is set:
                         col2 = json.dumps(list(result[key]))
                     else:
                         col2 = json.dumps(result[key])
@@ -115,10 +115,10 @@ class RestParser:
                 rowInProgress = []
             for key in obj:
                 newrow = deepcopy(rowInProgress)
-                if depth < maxDepth and type(obj[key]) == dict:
+                if depth < maxDepth and type(obj[key]) is dict:
                     newrow.append(key)
                     flatten(obj[key], maxDepth, table, newrow, depth + 1)
-                elif type(obj[key]) == str:
+                elif type(obj[key]) is str:
                     newrow.append(key)
                     newrow.append(obj[key])
                     table.append(newrow)
@@ -319,9 +319,9 @@ class RestParser:
                     toptable.append([key, result[key]])
 
             for key in special_keys:
-                if type(result[key]) == dict:
+                if type(result[key]) is dict:
                     toptable.append([key, ",".join(result[key].keys())])
-                elif type(result[key]) == list:
+                elif type(result[key]) is list:
                     toptable.append([key, ",".join(result[key])])
                 else:
                     toptable.append([key, json.dumps(result[key])])
@@ -345,15 +345,15 @@ class RestParser:
 
             for key in special_keys:
                 if key in result:
-                    if type(result[key]) == dict:
+                    if type(result[key]) is dict:
                         toptable.append([key, ",".join(result[key].keys())])
                     if (
-                        type(result[key]) == list
+                        type(result[key]) is list
                         and len(result[key]) > 0
-                        and type(result[key][0]) == Navigate.ActivityData
+                        and type(result[key][0]) is Navigate.ActivityData
                     ):
                         toptable.append([key, ",".join([x.uuid for x in result[key]])])
-                    elif type(result[key]) == list:
+                    elif type(result[key]) is list:
                         toptable.append([key, ",".join])
                     else:
                         toptable.append([key, json.dumps(result[key])])
@@ -950,9 +950,9 @@ class RestParser:
             return json_str
 
         elif self.output_format == RestParser.CLI_FORMAT:
-            if type(result) == dict:
+            if type(result) is dict:
                 return self.dictFormat(result, headers)
-            if type(result) == list:
+            if type(result) is list:
                 return self.arrayFormat(result, headers)
             else:
                 return str(result)

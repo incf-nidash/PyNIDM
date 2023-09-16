@@ -19,7 +19,7 @@ from statsmodels.formula.api import ols
 from nidm.experiment.Query import GetProjectsUUID
 from nidm.experiment.tools.click_base import cli
 from nidm.experiment.tools.rest import RestParser
-from .utils import Reporter
+from nidm.experiment.tools.utils import Reporter
 
 MAX_ALPHA = 700
 

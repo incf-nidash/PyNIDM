@@ -19,11 +19,15 @@ from nidm.util import urlretrieve
 def brain_vol_files(tmp_path_factory: pytest.TempPathFactory) -> list[str]:
     tmp_path = tmp_path_factory.mktemp("brain_vol_files")
     urlretrieve(
-        "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/master/datasets.datalad.org/abide/RawDataBIDS/CMU_a/nidm.ttl",
+        # commented out until latest simple2 NIDM files contain brain volumes again...
+        # "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/master/datasets.datalad.org/abide/RawDataBIDS/CMU_a/nidm.ttl",
+        "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/a7e3fa291975c08932a412d937d12199da62dd28/datasets.datalad.org/abide/RawDataBIDS/CMU_a/nidm.ttl",
         tmp_path / "cmu_a.nidm.ttl",
     )
     urlretrieve(
-        "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/master/datasets.datalad.org/abide/RawDataBIDS/Caltech/nidm.ttl",
+        # commented out until latest simple2 NIDM files contain brain volumes again...
+        # "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/master/datasets.datalad.org/abide/RawDataBIDS/Caltech/nidm.ttl",
+        "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/a7e3fa291975c08932a412d937d12199da62dd28/datasets.datalad.org/abide/RawDataBIDS/Caltech/nidm.ttl",
         tmp_path / "caltech.nidm.ttl",
     )
     return [
