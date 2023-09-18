@@ -46,7 +46,7 @@ class RestParser:
         def allUUIDs(arr):
             uuid_only = True
             for s in arr:
-                if type(s) is not str or not re.match(
+                if not isinstance(s, str) or not re.match(
                     "^[0-9a-f]+-[0-9a-f]+-[0-9a-f]+-[0-9a-f]+-[0-9a-f]+$", s
                 ):
                     uuid_only = False
