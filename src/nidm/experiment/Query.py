@@ -137,7 +137,7 @@ def GetProjectsUUID(nidm_file_list, output_file=None):
     """
     df = sparql_query_nidm(nidm_file_list, query, output_file=output_file)
 
-    return df["uuid"] if type(df["uuid"]) is list else df["uuid"].tolist()
+    return df["uuid"] if isinstance(df["uuid"], list) else df["uuid"].tolist()
 
 
 def GetProjectLocation(nidm_file_list, project_uuid, output_file=None):  # noqa: U100

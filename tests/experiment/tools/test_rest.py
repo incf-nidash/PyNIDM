@@ -186,8 +186,8 @@ def test_uri_subject_list(brain_vol: BrainVol, openneuro: OpenNeuro) -> None:
     restParser = RestParser(output_format=RestParser.OBJECT_FORMAT)
     result = restParser.run(brain_vol.files + openneuro.files, "/subjects")
 
-    assert type(result) is dict
-    assert type(result["subject"]) is list
+    assert isinstance(result, dict)
+    assert isinstance(result["subject"], list)
     assert len(result["subject"]) > 10
 
 
@@ -199,15 +199,15 @@ def test_uri_subject_list_with_fields(
         brain_vol.files + openneuro.files,
         "/subjects?fields=ilx_0100400,MagneticFieldStrength",
     )  # ilx_0100400 "is about" age
-    assert type(result) is dict
+    assert isinstance(result, dict)
 
-    assert type(result["subject"]) is list
+    assert isinstance(result["subject"], list)
     assert len(result["subject"]) > 10
 
-    assert type(result["fields"]) is dict
+    assert isinstance(result["fields"], dict)
     all_fields = []
     for sub in result["fields"]:
-        assert type(result["fields"][sub]) is dict
+        assert isinstance(result["fields"][sub], dict)
         for activity in result["fields"][sub]:
             all_fields.append(result["fields"][sub][activity].label)
             if result["fields"][sub][activity].value != "n/a":
@@ -250,7 +250,7 @@ def test_uri_project_list(tmp_path: Path) -> None:
     for uuid_ in result:
         project_uuids.append(uuid_)
 
-    assert type(result) is list
+    assert isinstance(result, list)
     assert len(project_uuids) >= 2
     assert proj1_uuid in project_uuids
     assert proj2_uuid in project_uuids
@@ -276,7 +276,7 @@ def test_uri_projects_subjects_1(rest_test: RestTest) -> None:
     restParser = RestParser()
     result = restParser.run([rest_test.path], f"/projects/{proj_uuid}/subjects")
 
-    assert type(result) is dict
+    assert isinstance(result, dict)
     assert len(result["uuid"]) == 2
 
     assert rest_test.p2_subject_uuids[0] in result["uuid"]
@@ -290,7 +290,7 @@ def test_uri_subjects(brain_vol: BrainVol) -> None:
         brain_vol.files, f"/subjects/{brain_vol.cmu_test_subject_uuid}"
     )
 
-    assert type(result) is dict
+    assert isinstance(result, dict)
     assert "uuid" in result
     assert "instruments" in result
     assert "derivatives" in result
@@ -308,7 +308,7 @@ def test_uri_projects_subjects_id(openneuro: OpenNeuro) -> None:
     uri = f"/projects/{project}/subjects/{subject}"
     result = restParser.run(openneuro.files, uri)
 
-    assert type(result) is dict
+    assert isinstance(result, dict)
     assert result["uuid"] == subject
     assert len(result["instruments"]) > 2
 
@@ -663,7 +663,7 @@ def test_multiple_project_fields(brain_vol: BrainVol) -> None:
     # fv = project['field_values']
     print(fields)
     fv = fields
-    assert type(fv) is list
+    assert isinstance(fv, list)
     fields_used = {i.label for i in fv}
     assert ("brain" in fields_used) or (
         "Brain Segmentation Volume (mm^3)" in fields_used
@@ -685,7 +685,7 @@ def test_odd_isabout_uris(brain_vol: BrainVol) -> None:
     # fv = project['field_values']
     print(fields)
     fv = fields
-    assert type(fv) is list
+    assert isinstance(fv, list)
     fields_used = {i.label for i in fv}
     assert "ADOS_TOTAL" in fields_used
 
@@ -704,7 +704,7 @@ def test_project_fields_deriv(brain_vol: BrainVol) -> None:
     assert len(project) > 0
     # fv = project['field_values']
     fv = project
-    assert type(fv) is list
+    assert isinstance(fv, list)
     fields_used = {i.label for i in fv}
     assert ("brain" in fields_used) or (
         "Brain Segmentation Volume (mm^3)" in fields_used
@@ -727,7 +727,7 @@ def test_project_fields_instruments(brain_vol: BrainVol) -> None:
     assert len(project) > 0
     # fv = project['field_values']
     fv = project
-    assert type(fv) is list
+    assert isinstance(fv, list)
     fields_used = {i.label for i in fv}
     assert field in fields_used
 
