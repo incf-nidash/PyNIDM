@@ -1394,14 +1394,7 @@ def match_participant_id_field(source_variable):
 
 
 def keys_exists(dictionary, keys):
-    nested_dict = dictionary
-
-    for key in keys:
-        try:
-            nested_dict = nested_dict[key]
-        except KeyError:
-            return False
-    return True
+    return set(keys).issubset(dictionary)
 
 
 def map_variables_to_terms(
