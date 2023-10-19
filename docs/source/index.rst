@@ -99,7 +99,7 @@ API key for your account.
 
    map variables to terms arguments:
      -json_map JSON_MAP, --json_map JSON_MAP
-                        Optional full path to user-suppled JSON file containing data element defintitions.
+                        Optional full path to user-suppled JSON file containing data element definitions.
 
 
 CSV File to NIDM Conversion
