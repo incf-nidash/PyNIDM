@@ -1,5 +1,5 @@
-from nidm import my_isinstance
 from __future__ import annotations
+from nidm import my_isinstance
 import pytest
 from nidm.experiment.tools.rest import RestParser
 from nidm.util import urlretrieve

@@ -1,5 +1,5 @@
-from nidm import my_isinstance
 from __future__ import annotations
+from nidm import my_isinstance
 from dataclasses import dataclass
 from typing import Optional
 import pytest
