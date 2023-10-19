@@ -1,3 +1,4 @@
+from nidm import my_isinstance
 from io import StringIO
 import json
 from pathlib import Path

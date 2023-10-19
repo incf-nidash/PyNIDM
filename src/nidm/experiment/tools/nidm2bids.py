@@ -1,3 +1,4 @@
+from nidm import my_isinstance
 """
 This program will convert a NIDM-Experiment RDF document to a BIDS dataset.
 The program will query the NIDM-Experiment document for subjects, MRI scans,

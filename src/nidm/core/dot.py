@@ -1,3 +1,4 @@
+from nidm import my_isinstance
 """Graphical visualisation support for provONE.model.
 
 This module produces graphical visualisation for ProvONE graphs.

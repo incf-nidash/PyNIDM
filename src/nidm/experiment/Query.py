@@ -1,3 +1,4 @@
+from nidm import my_isinstance
 """This program provides query functionality for NIDM-Experiment files"""
 
 import functools

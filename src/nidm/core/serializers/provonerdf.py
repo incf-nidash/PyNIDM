@@ -1,3 +1,4 @@
+from nidm import my_isinstance
 """PROVONE-RDF serializers for ProvONEDocument
 """
 import base64

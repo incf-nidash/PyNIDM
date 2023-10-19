@@ -1,3 +1,4 @@
+from nidm import my_isinstance
 import collections
 import functools
 from rdflib import URIRef

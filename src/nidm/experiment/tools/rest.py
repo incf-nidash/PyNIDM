@@ -1,3 +1,4 @@
+from nidm import my_isinstance
 from copy import deepcopy
 import functools
 import json

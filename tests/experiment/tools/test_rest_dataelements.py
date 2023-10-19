@@ -1,3 +1,4 @@
+from nidm import my_isinstance
 from __future__ import annotations
 import pytest
 from nidm.experiment.tools.rest import RestParser

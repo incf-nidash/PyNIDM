@@ -1,3 +1,4 @@
+from nidm import my_isinstance
 from collections import OrderedDict
 from io import StringIO
 import json

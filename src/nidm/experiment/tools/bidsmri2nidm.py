@@ -1,3 +1,4 @@
+from nidm import my_isinstance
 """
 This program will convert a BIDS MRI dataset to a NIDM-Experiment RDF document.
 It will parse phenotype information and simply store variables/values and link

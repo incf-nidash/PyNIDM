@@ -1,3 +1,4 @@
+from nidm import my_isinstance
 import sys
 from nidm.core import Constants
 from nidm.experiment import Navigate

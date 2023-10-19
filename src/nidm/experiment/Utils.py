@@ -1,3 +1,4 @@
+from nidm import my_isinstance
 from binascii import crc32
 import getpass
 import json
