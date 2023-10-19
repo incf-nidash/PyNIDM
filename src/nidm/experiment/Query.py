@@ -137,7 +137,7 @@ def GetProjectsUUID(nidm_file_list, output_file=None):
     """
     df = sparql_query_nidm(nidm_file_list, query, output_file=output_file)
 
-    return df["uuid"] if isinstance(df["uuid"], list) else df["uuid"].tolist()
+    return df["uuid"] if my_isinstance(df["uuid"], list) else df["uuid"].tolist()
 
 
 def GetProjectLocation(nidm_file_list, project_uuid, output_file=None):  # noqa: U100
@@ -1128,7 +1128,7 @@ def compressForJSONResponse(data) -> dict:
     """
     new_dict = {}
 
-    if isinstance(data, dict):
+    if my_isinstance(data, dict):
         for key, value in data.items():
             new_dict[matchPrefix(key)] = compressForJSONResponse(value)
     else:
@@ -1337,7 +1337,7 @@ def OpenGraph(file):
     """
 
     # if someone passed me a RDF graph rather than a file, just send it back
-    if isinstance(file, rdflib.graph.Graph):
+    if my_isinstance(file, rdflib.graph.Graph):
         return file
 
     # If we have a Blazegraph instance, load the data then do the rest

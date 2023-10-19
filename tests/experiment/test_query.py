@@ -316,7 +316,7 @@ def test_getProjectAcquisitionObjects(abide: ProjectData) -> None:
     project_uuid = str(project_list[0])
     objects = Query.getProjectAcquisitionObjects(files, project_uuid)
 
-    assert isinstance(objects, list)
+    assert my_isinstance(objects, list)
 
 
 def test_GetProjectAttributes(abide: ProjectData) -> None:

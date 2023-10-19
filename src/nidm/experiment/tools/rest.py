@@ -46,7 +46,7 @@ class RestParser:
         def allUUIDs(arr):
             uuid_only = True
             for s in arr:
-                if not isinstance(s, str) or not re.match(
+                if not my_isinstance(s, str) or not re.match(
                     "^[0-9a-f]+-[0-9a-f]+-[0-9a-f]+-[0-9a-f]+-[0-9a-f]+$", s
                 ):
                     uuid_only = False
@@ -72,7 +72,7 @@ class RestParser:
             appendicies = []
             for key in result:
                 # format a list
-                if isinstance(result[key], list):
+                if my_isinstance(result[key], list):
                     appendix = []
                     for line in result[key]:
                         appendix.append([json.dumps(line)])
@@ -83,11 +83,11 @@ class RestParser:
                         table.append([json.dumps(key), ",".join(result[key])])
 
                 # format a string
-                elif isinstance(result[key], str):
+                elif my_isinstance(result[key], str):
                     table.append([json.dumps(key), result[key]])
 
                 # format a dictionary
-                elif isinstance(result[key], dict):
+                elif my_isinstance(result[key], dict):
                     # put any dict into it's own table at the end (sort of like an appendix)
                     appendix = []
                     for inner_key in result[key]:
@@ -97,7 +97,7 @@ class RestParser:
                 # format anything else
                 else:
                     col1 = json.dumps(key)
-                    if isinstance(result[key], set):
+                    if my_isinstance(result[key], set):
                         col2 = json.dumps(list(result[key]))
                     else:
                         col2 = json.dumps(result[key])
@@ -115,10 +115,10 @@ class RestParser:
                 rowInProgress = []
             for key in obj:
                 newrow = deepcopy(rowInProgress)
-                if depth < maxDepth and isinstance(obj[key], dict):
+                if depth < maxDepth and my_isinstance(obj[key], dict):
                     newrow.append(key)
                     flatten(obj[key], maxDepth, table, newrow, depth + 1)
-                elif isinstance(obj[key], str):
+                elif my_isinstance(obj[key], str):
                     newrow.append(key)
                     newrow.append(obj[key])
                     table.append(newrow)
@@ -319,9 +319,9 @@ class RestParser:
                     toptable.append([key, result[key]])
 
             for key in special_keys:
-                if isinstance(result[key], dict):
+                if my_isinstance(result[key], dict):
                     toptable.append([key, ",".join(result[key].keys())])
-                elif isinstance(result[key], list):
+                elif my_isinstance(result[key], list):
                     toptable.append([key, ",".join(result[key])])
                 else:
                     toptable.append([key, json.dumps(result[key])])
@@ -345,15 +345,15 @@ class RestParser:
 
             for key in special_keys:
                 if key in result:
-                    if isinstance(result[key], dict):
+                    if my_isinstance(result[key], dict):
                         toptable.append([key, ",".join(result[key].keys())])
                     if (
-                        isinstance(result[key], list)
+                        my_isinstance(result[key], list)
                         and len(result[key]) > 0
-                        and isinstance(result[key][0], Navigate.ActivityData)
+                        and my_isinstance(result[key][0], Navigate.ActivityData)
                     ):
                         toptable.append([key, ",".join([x.uuid for x in result[key]])])
-                    elif isinstance(result[key], list):
+                    elif my_isinstance(result[key], list):
                         toptable.append([key, ",".join])
                     else:
                         toptable.append([key, json.dumps(result[key])])
@@ -950,9 +950,9 @@ class RestParser:
             return json_str
 
         elif self.output_format == RestParser.CLI_FORMAT:
-            if isinstance(result, dict):
+            if my_isinstance(result, dict):
                 return self.dictFormat(result, headers)
-            if isinstance(result, list):
+            if my_isinstance(result, list):
                 return self.arrayFormat(result, headers)
             else:
                 return str(result)

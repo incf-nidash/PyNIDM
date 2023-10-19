@@ -583,7 +583,7 @@ def add_metadata_for_subject(rdf_graph, subject_uri, namespaces, nidm_obj):
             else:
                 # check if this is a qname and if so expand it
                 # added to handle when a value is a qname.  this should expand it....
-                if (":" in objects) and isinstance(objects, URIRef):
+                if (":" in objects) and my_isinstance(objects, URIRef):
                     objects = from_n3(objects)
                 # check if objects is a url and if so store it as a URIRef else a Literal
                 if validators.url(objects):
@@ -1438,7 +1438,7 @@ def map_variables_to_terms(
             # if not then it's a json structure already
             json_map = json_source
             # added check to make sure json_map is valid dictionary
-            if not isinstance(json_map, dict):
+            if not my_isinstance(json_map, dict):
                 print(
                     "ERROR: Invalid JSON file supplied.  Please check your JSON file with a validator first!"
                 )
@@ -1837,7 +1837,7 @@ def map_variables_to_terms(
 
                 if "isAbout" in json_map[json_key].keys():
                     # check if we have a single isAbout or multiple...
-                    if isinstance(json_map[json_key]["isAbout"], list):
+                    if my_isinstance(json_map[json_key]["isAbout"], list):
                         # isAbout is an empty list, do concept association if user asked for it else skip
                         if not json_map[json_key]["isAbout"]:
                             if associate_concepts:
@@ -2752,7 +2752,7 @@ def DD_to_nidm(dd_struct, dataset_identifier=None):
                 # for each isAbout entry, create new prov:Entity, store metadata and link it to the collection
 
                 # if we have multiple isAbouts then it will be stored as a list of dicts
-                if isinstance(value, list):
+                if my_isinstance(value, list):
                     for subdict in value:
                         for isabout_key, isabout_value in subdict.items():
                             if isabout_key in ("@id", "url"):

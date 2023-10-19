@@ -279,10 +279,10 @@ def provone_to_dot(
                 % (
                     attr.uri,
                     escape(str(attr)),
-                    f' href="{value.uri}"' if isinstance(value, Identifier) else "",
+                    f' href="{value.uri}"' if my_isinstance(value, Identifier) else "",
                     escape(
                         str(value)
-                        if not isinstance(value, datetime)
+                        if not my_isinstance(value, datetime)
                         else str(value.isoformat())
                     ),
                 )

@@ -132,13 +132,13 @@ class Core:
         )
 
     def getDataType(self, var):
-        if isinstance(var, int):
+        if my_isinstance(var, int):
             return pm.XSD_INTEGER
-        elif isinstance(var, float):
+        elif my_isinstance(var, float):
             return pm.XSD_FLOAT
-        elif isinstance(var, str):
+        elif my_isinstance(var, str):
             return pm.XSD_STRING
-        elif isinstance(var, list):
+        elif my_isinstance(var, list):
             return list
         else:
             print("datatype not found...")
@@ -168,9 +168,9 @@ class Core:
             person.add_attributes({pm.PROV_TYPE: pm.PROV["Person"]})
 
         # connect self to person serving as role
-        # if(isinstance(self,pm.ProvActivity)):
+        # if(my_isinstance(self,pm.ProvActivity)):
         #    self.wasAssociatedWith(person)
-        # elif(isinstance(self,pm.ProvEntity)):
+        # elif(my_isinstance(self,pm.ProvEntity)):
         #    self.wasAttributedTo(person)
 
         return person
@@ -193,7 +193,7 @@ class Core:
         # import inspect
         # class_tree = inspect.getclasstree([self.__class__])
 
-        # if(isinstance(self, pm.ProvActivity)):
+        # if(my_isinstance(self, pm.ProvActivity)):
 
         # associate person with activity for qualified association
         assoc = self.graph.association(
@@ -588,13 +588,13 @@ class Core:
             # context[key]['@id']= value.uri
 
             # context[key]['@type']='@id'
-            if isinstance(value.uri, str):
+            if my_isinstance(value.uri, str):
                 context[key] = value.uri
             # added for some weird namespaces where key is URIRef and value is Namespace
             # seems to only apply to PROV and NIDM qualified names.
             # has something to do with read_nidm function in Utils and add_metadata_for_subject
             # when it comes across a NIDM or PROV term.
-            elif isinstance(key, URIRef):
+            elif my_isinstance(key, URIRef):
                 continue
             else:
                 context[key] = str(value.uri)

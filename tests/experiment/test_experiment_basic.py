@@ -68,7 +68,7 @@ def test_project_noparameters():
     proj = Project()
 
     # checking if we created ProvDocument
-    assert isinstance(proj.bundle, Constants.NIDMDocument)
+    assert my_isinstance(proj.bundle, Constants.NIDMDocument)
     assert issubclass(type(proj.bundle), prov.model.ProvDocument)
 
     # checking graph namespace
@@ -89,7 +89,7 @@ def test_project_emptygraph():
     proj = Project(empty_graph=True)
 
     # checking if we created ProvDocument
-    assert isinstance(proj.bundle, Constants.NIDMDocument)
+    assert my_isinstance(proj.bundle, Constants.NIDMDocument)
 
     # checking graph namespace
     namesp = [i.prefix for i in proj.graph.namespaces]
@@ -107,7 +107,7 @@ def test_project_uuid():
     proj = Project(uuid="my_uuid")
 
     # checking if we created ProvDocument
-    assert isinstance(proj.bundle, Constants.NIDMDocument)
+    assert my_isinstance(proj.bundle, Constants.NIDMDocument)
     assert issubclass(type(proj.bundle), prov.model.ProvDocument)
 
     # checking graph namespace
@@ -133,7 +133,7 @@ def test_project_att():
     )
 
     # checking if we created ProvDocument
-    assert isinstance(proj.bundle, Constants.NIDMDocument)
+    assert my_isinstance(proj.bundle, Constants.NIDMDocument)
     assert issubclass(type(proj.bundle), prov.model.ProvDocument)
 
     # checking graph namespace
@@ -157,7 +157,7 @@ def test_session_noparameters():
     Session(proj)
 
     # checking if we created ProvDocument
-    assert isinstance(proj.bundle, Constants.NIDMDocument)
+    assert my_isinstance(proj.bundle, Constants.NIDMDocument)
     assert issubclass(type(proj.bundle), prov.model.ProvDocument)
 
     # checking if one session is added
@@ -208,7 +208,7 @@ def test_project_trig_serialization():
 
     # save as trig file with graph identifier Constants.NIDM_Project
     test = project.serializeTrig(identifier=Constants.NIIRI["_996"])
-    if not isinstance(test, str):
+    if not my_isinstance(test, str):
         outfile.write(test.decode("ASCII"))
     else:
         outfile.write(test)

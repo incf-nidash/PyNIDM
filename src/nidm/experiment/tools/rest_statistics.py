@@ -33,7 +33,7 @@ def GetProjectsComputedMetadata(nidm_file_list):
 
             for a in activities:
                 data = Navigate.getActivityData(tuple(nidm_file_list), a)
-                if isinstance(data, Navigate.ActivityData):
+                if my_isinstance(data, Navigate.ActivityData):
                     for x in data.data:
                         if x.isAbout == Constants.NIDM_IS_ABOUT_AGE:
                             if (

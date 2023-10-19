@@ -186,7 +186,7 @@ def GetDataElementMetadata(nidm_graph, de_uuid):
             de[current_tuple]["isAbout"] = []
 
             # check whether there are multiple 'isAbout' entries
-            if isinstance(value, "list"):
+            if my_isinstance(value, "list"):
                 # if this is a list we have to loop through the entries and store the url and labels
                 for entry in value:
                     # query for label for this isAbout URL

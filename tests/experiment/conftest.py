@@ -52,7 +52,7 @@ def brain_vol(brain_vol_files: list[str]) -> BrainVol:
     for p in projects:
         proj_info = restParser.run(brain_vol_files, f"/projects/{p}")
         if (
-            isinstance(proj_info, dict)
+            my_isinstance(proj_info, dict)
             and proj_info.get("dctypes:title") == "ABIDE - CMU_a"
         ):
             cmu_test_project_uuid = p

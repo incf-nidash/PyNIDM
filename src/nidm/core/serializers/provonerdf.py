@@ -114,7 +114,7 @@ class ProvONERDFSerializer(Serializer):
             # Right now this is a bytestream. If the object to stream to is
             # a text object is must be decoded. We assume utf-8 here which
             # should be fine for almost every case.
-            if isinstance(stream, io.TextIOBase):
+            if my_isinstance(stream, io.TextIOBase):
                 stream.write(buf.read().decode("utf-8"))
             else:
                 stream.write(buf.read())
@@ -142,15 +142,15 @@ class ProvONERDFSerializer(Serializer):
         return self.document.valid_qualified_name(value)
 
     def encode_rdf_representation(self, value):
-        if isinstance(value, URIRef):
+        if my_isinstance(value, URIRef):
             return value
-        elif isinstance(value, pm.Literal):
+        elif my_isinstance(value, pm.Literal):
             return literal_rdf_representation(value)
-        elif isinstance(value, datetime.datetime):
+        elif my_isinstance(value, datetime.datetime):
             return RDFLiteral(value.isoformat(), datatype=XSD["dateTime"])
-        elif isinstance(value, pm.QualifiedName):
+        elif my_isinstance(value, pm.QualifiedName):
             return URIRef(value.uri)
-        elif isinstance(value, pm.Identifier):
+        elif my_isinstance(value, pm.Identifier):
             return RDFLiteral(value.uri, datatype=XSD["anyURI"])
         elif type(value) in LITERAL_XSDTYPE_MAP:
             return RDFLiteral(value, datatype=LITERAL_XSDTYPE_MAP[type(value)])
@@ -158,7 +158,7 @@ class ProvONERDFSerializer(Serializer):
             return RDFLiteral(value)
 
     def decode_rdf_representation(self, literal, graph):
-        if isinstance(literal, RDFLiteral):
+        if my_isinstance(literal, RDFLiteral):
             value = literal.value if literal.value is not None else literal
             datatype = literal.datatype if hasattr(literal, "datatype") else None
             langtag = literal.language if hasattr(literal, "language") else None
@@ -186,7 +186,7 @@ class ProvONERDFSerializer(Serializer):
                 # It will be automatically converted when added to a record by
                 # _auto_literal_conversion()
                 return pm.Literal(value, self.valid_identifier(datatype), langtag)
-        elif isinstance(literal, URIRef):
+        elif my_isinstance(literal, URIRef):
             rval = self.valid_identifier(literal)
             if rval is None:
                 prefix, iri, _ = graph.namespace_manager.compute_qname(literal)
@@ -344,7 +344,7 @@ class ProvONERDFSerializer(Serializer):
                                 pred = RDF.type
                             elif attr == PROV["label"]:
                                 pred = RDFS.label
-                            elif isinstance(attr, pm.QualifiedName):
+                            elif my_isinstance(attr, pm.QualifiedName):
                                 pred = URIRef(attr.uri)
                             else:
                                 pred = self.encode_rdf_representation(attr)
@@ -405,15 +405,15 @@ class ProvONERDFSerializer(Serializer):
                         continue
                     if value is None:
                         continue
-                    if isinstance(value, pm.ProvRecord):
+                    if my_isinstance(value, pm.ProvRecord):
                         obj = URIRef(str(real_or_anon_id(value)))
                     else:
                         #  Assuming this is a datetime value
                         obj = self.encode_rdf_representation(value)
                     if attr == PROV["location"]:
                         pred = URIRef(PROV["atLocation"].uri)
-                        if False and isinstance(value, (URIRef, pm.QualifiedName)):
-                            if isinstance(value, pm.QualifiedName):
+                        if False and my_isinstance(value, (URIRef, pm.QualifiedName)):
+                            if my_isinstance(value, pm.QualifiedName):
                                 value = URIRef(value.uri)
                             container.add((identifier, pred, value))
                         else:
@@ -439,7 +439,7 @@ class ProvONERDFSerializer(Serializer):
             document.add_namespace(prefix, str(url))
         if hasattr(content, "contexts"):
             for graph in content.contexts():
-                if isinstance(graph.identifier, BNode):
+                if my_isinstance(graph.identifier, BNode):
                     self.decode_container(graph, document)
                 else:
                     bundle_id = str(graph.identifier)
@@ -490,7 +490,7 @@ class ProvONERDFSerializer(Serializer):
             obj = str(stmt[2])
             if obj in PROV_CLS_MAP:
                 if (
-                    not isinstance(stmt[0], BNode)
+                    not my_isinstance(stmt[0], BNode)
                     and self.valid_identifier(id_) is None
                 ):
                     prefix, iri, _ = graph.namespace_manager.compute_qname(id_)
@@ -511,7 +511,7 @@ class ProvONERDFSerializer(Serializer):
                     and (
                         prov_obj.uri == obj
                         or isderivation
-                        or isinstance(stmt[0], BNode)
+                        or my_isinstance(stmt[0], BNode)
                     )
                 ):
                     ids[id_] = prov_obj
@@ -523,7 +523,7 @@ class ProvONERDFSerializer(Serializer):
                         [(key, []) for key in klass.FORMAL_ATTRIBUTES]
                     )
                     add_attr = False or (
-                        (isinstance(stmt[0], BNode) or isderivation)
+                        (my_isinstance(stmt[0], BNode) or isderivation)
                         and prov_obj.uri != obj
                     )
                 if add_attr:

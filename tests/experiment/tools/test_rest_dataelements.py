@@ -51,7 +51,7 @@ def test_dataelement_list(
     rest_parser = RestParser(output_format=RestParser.OBJECT_FORMAT)
     result = rest_parser.run(openneuro_files, "/dataelements")
 
-    assert isinstance(result, dict)
+    assert my_isinstance(result, dict)
     assert "data_elements" in result
     assert "uuid" in result["data_elements"]
     assert "label" in result["data_elements"]
@@ -75,7 +75,7 @@ def test_dataelement_list(
 
     # now check for derivatives
     result = rest_parser.run(brain_vol_files, "/dataelements")
-    assert isinstance(result, dict)
+    assert my_isinstance(result, dict)
     assert (
         "Left-WM-hypointensities Volume_mm3 (mm^3)" in result["data_elements"]["label"]
     )
