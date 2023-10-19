@@ -588,13 +588,12 @@ class Core:
             # context[key]['@id']= value.uri
 
             # context[key]['@type']='@id'
-            if isinstance(value.uri, str):
-                context[key] = value.uri
+
             # added for some weird namespaces where key is URIRef and value is Namespace
             # seems to only apply to PROV and NIDM qualified names.
             # has something to do with read_nidm function in Utils and add_metadata_for_subject
             # when it comes across a NIDM or PROV term.
-            elif isinstance(key, URIRef):
+            if isinstance(key, URIRef):
                 continue
             else:
                 context[key] = str(value.uri)
