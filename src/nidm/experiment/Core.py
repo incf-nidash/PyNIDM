@@ -132,13 +132,13 @@ class Core:
         )
 
     def getDataType(self, var):
-        if type(var) is int:
+        if isinstance(var, int):
             return pm.XSD_INTEGER
-        elif type(var) is float:
+        elif isinstance(var, float):
             return pm.XSD_FLOAT
-        elif type(var) is str:
+        elif isinstance(var, str):
             return pm.XSD_STRING
-        elif type(var) is list:
+        elif isinstance(var, list):
             return list
         else:
             print("datatype not found...")
@@ -588,13 +588,12 @@ class Core:
             # context[key]['@id']= value.uri
 
             # context[key]['@type']='@id'
-            if type(value.uri) is str:
-                context[key] = value.uri
+
             # added for some weird namespaces where key is URIRef and value is Namespace
             # seems to only apply to PROV and NIDM qualified names.
             # has something to do with read_nidm function in Utils and add_metadata_for_subject
             # when it comes across a NIDM or PROV term.
-            elif type(key) is URIRef:
+            if isinstance(key, URIRef):
                 continue
             else:
                 context[key] = str(value.uri)

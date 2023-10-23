@@ -370,7 +370,7 @@ def addimagingsessions(
             if len(json_data.info) > 0:
                 for key in json_data.info.items():
                     if key in BIDS_Constants.json_keys:
-                        if type(json_data.info[key]) is list:
+                        if isinstance(json_data.info[key], list):
                             acq_obj.add_attributes(
                                 {
                                     BIDS_Constants.json_keys[
@@ -425,7 +425,7 @@ def addimagingsessions(
             for key in dataset:
                 # if key from T1w.json file is mapped to term in BIDS_Constants.py then add to NIDM object
                 if key in BIDS_Constants.json_keys:
-                    if type(dataset[key]) is list:
+                    if isinstance(dataset[key], list):
                         acq_obj.add_attributes(
                             {BIDS_Constants.json_keys[key]: "".join(dataset[key])}
                         )
@@ -524,7 +524,7 @@ def addimagingsessions(
             if len(json_data.info) > 0:
                 for key in json_data.info.items():
                     if key in BIDS_Constants.json_keys:
-                        if type(json_data.info[key]) is list:
+                        if isinstance(json_data.info[key], list):
                             acq_obj.add_attributes(
                                 {
                                     BIDS_Constants.json_keys[
@@ -628,7 +628,7 @@ def addimagingsessions(
             for key in dataset:
                 # if key from task-rest_bold.json file is mapped to term in BIDS_Constants.py then add to NIDM object
                 if key in BIDS_Constants.json_keys:
-                    if type(dataset[key]) is list:
+                    if isinstance(dataset[key], list):
                         acq_obj.add_attributes(
                             {
                                 BIDS_Constants.json_keys[key]: ",".join(
@@ -722,7 +722,7 @@ def addimagingsessions(
             if len(json_data.info) > 0:
                 for key in json_data.info.items():
                     if key in BIDS_Constants.json_keys:
-                        if type(json_data.info[key]) is list:
+                        if isinstance(json_data.info[key], list):
                             acq_obj.add_attributes(
                                 {
                                     BIDS_Constants.json_keys[
@@ -826,7 +826,7 @@ def addimagingsessions(
             if len(json_data.info) > 0:
                 for key in json_data.info.items():
                     if key in BIDS_Constants.json_keys:
-                        if type(json_data.info[key]) is list:
+                        if isinstance(json_data.info[key], list):
                             acq_obj.add_attributes(
                                 {
                                     BIDS_Constants.json_keys[
@@ -1018,7 +1018,7 @@ def bidsmri2project(directory, args):
                 project.add_attributes(
                     {BIDS_Constants.dataset_description[key]: "".join(dataset[key])}
                 )
-            elif type(dataset[key]) is list:
+            elif isinstance(dataset[key], list):
                 # 7/22/23 - modified to add attributes to collection of acquisition objects
                 collection.add_attributes(
                     {BIDS_Constants.dataset_description[key]: "".join(dataset[key])}
