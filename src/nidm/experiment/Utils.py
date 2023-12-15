@@ -1420,6 +1420,11 @@ def map_variables_to_terms(
     :return:return dictionary mapping variable names (i.e. columns) to terms
     """
 
+    # 12/15/23: indicator variable to identify if annotations were made with the pynidm tools. If not, and this
+    # is a bids-nidm conversion, and the user supplied a bids-compliant json sidecar file, save the original
+    # file.
+    annot_made = False
+
     # dictionary mapping column name to preferred term
     column_to_terms = {}
 
@@ -1549,11 +1554,13 @@ def map_variables_to_terms(
                         column_to_terms[current_tuple]["label"] = json_map[json_key][
                             "sourceVariable"
                         ]
+                    # this is probably a BIDS json file so use the json_key as the label
                     else:
-                        column_to_terms[current_tuple]["label"] = ""
+                        column_to_terms[current_tuple]["label"] = json_key
                         print(
-                            "No label or source_variable or sourceVariable keys found in json mapping file for variable "
-                            f"{json_key}. Consider adding these to the json file as they are important"
+                            "No label or source_variable/SourceVariable key found in json mapping file for variable "
+                            f"{json_key}. This is ok if this is a BIDS json sidecar file."
+                            "Otherwise, consider adding a label to the json file."
                         )
                 else:
                     column_to_terms[current_tuple]["label"] = json_map[json_key][
@@ -1849,6 +1856,7 @@ def map_variables_to_terms(
                                     ilx_obj,
                                     nidm_owl_graph=nidm_owl_graph,
                                 )
+                                annot_made = True
                                 # write annotations to json file so user can start up again if not doing whole file
                                 write_json_mapping_file(
                                     column_to_terms, output_file, bids
@@ -1917,7 +1925,8 @@ def map_variables_to_terms(
                     # if user ran in mode where they want to associate concepts and this isn't the participant
                     # id field then associate concepts.
                     if match_participant_id_field(
-                        json_map[json_key]["source_variable"]
+                        # json_map[json_key]["source_variable"]
+                        column_to_terms[current_tuple]["source_variable"]
                     ):
                         column_to_terms[current_tuple]["isAbout"] = []
                         column_to_terms[current_tuple]["isAbout"].append(
@@ -1936,6 +1945,7 @@ def map_variables_to_terms(
                             ilx_obj,
                             nidm_owl_graph=nidm_owl_graph,
                         )
+                        annot_made = True
                         # write annotations to json file so user can start up again if not doing whole file
                         write_json_mapping_file(column_to_terms, output_file, bids)
 
@@ -1990,6 +2000,8 @@ def map_variables_to_terms(
             column_to_terms[current_tuple] = {}
             # enter user interaction function to get data dictionary annotations from user
             annotate_data_element(column, current_tuple, column_to_terms)
+            # 12/15/23
+            annot_made = True
         # then ask user to find a concept if they selected to do so
         if associate_concepts:
             # provide user with opportunity to associate a concept with this annotation
@@ -2000,6 +2012,7 @@ def map_variables_to_terms(
                 ilx_obj,
                 nidm_owl_graph=nidm_owl_graph,
             )
+            annot_made = True
             # write annotations to json file so user can start up again if not doing whole file
             write_json_mapping_file(column_to_terms, output_file, bids)
 
@@ -2062,8 +2075,12 @@ def map_variables_to_terms(
             column_to_terms[current_tuple]["url"] = ilx_output.iri
         except Exception:
             print("WARNING: WIP: Data element not submitted to InterLex.  ")
-    # write annotations to json file since data element annotations are complete
-    write_json_mapping_file(column_to_terms, output_file, bids)
+
+    # 12/15/23: If doing a BIDS-NIDM conversion and the user supplied a BIDS-compliant json sidecar file
+    # and no annotations were made, leave original BIDS json file as it is...
+    if annot_made:
+        # write annotations to json file since data element annotations are complete
+        write_json_mapping_file(column_to_terms, output_file, bids)
 
     # get CDEs for data dictionary and NIDM graph entity of data
     cde = DD_to_nidm(column_to_terms, dataset_identifier=dataset_identifier)
