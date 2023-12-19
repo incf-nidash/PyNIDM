@@ -1417,6 +1417,13 @@ def map_variables_to_terms(
     :param output_file: output filename to save variable-> term mappings
     :param directory: if output_file parameter is set to None then use this directory to store default JSON mapping file
     if doing variable->term mappings
+    :param: bids: if bids is set to True then a BIDS-compliant sidecar file will be written if annotations are made
+    :param: owl_file: if a web-ontology language (OWL) file is supplied then it will be used to look for terms while
+    annotating otherwise the default NIDM terminology will be used.
+    :param associate_concepts: if this is set to True then concept association will be performed for each variable
+    otherwise it will not.
+    :param: dataset_identifier: unique identifier to identify a dataset such as a project in OpenNeuro
+    which is used in the NIDM records as a namespace to go along with a unique ID generated for the NIDM RDF graphs
     :return:return dictionary mapping variable names (i.e. columns) to terms
     """
 
