@@ -1,10 +1,11 @@
 from dataclasses import dataclass
 import json
+from os.path import join
 from pathlib import Path
 import pandas as pd
 import pytest
 from nidm.experiment.Utils import map_variables_to_terms, write_json_mapping_file
-from os.path import join
+
 
 @dataclass
 class Setup:
@@ -153,7 +154,7 @@ def setup() -> Setup:
         data=data,
         reproschema_json_map=reproschema_json_map,
         bids_sidecar=bids_sidecar,
-        bids_sidecar_simple = bids_sidecar_simple,
+        bids_sidecar_simple=bids_sidecar_simple,
     )
 
 
@@ -171,8 +172,6 @@ def test_map_vars_to_terms_BIDS(setup: Setup, tmp_path: Path) -> None:
         assessment_name="test",
         bids=True,
     )
-
-
 
     # check whether JSON mapping structure returned from map_variables_to_terms matches the
     # reproshema structure
@@ -228,7 +227,9 @@ def test_map_vars_to_terms_BIDS(setup: Setup, tmp_path: Path) -> None:
     # original.
 
     # write annotations to json file since data element annotations are complete
-    write_json_mapping_file(column_to_terms, join(str(tmp_path), "nidm_annotations.json"), True)
+    write_json_mapping_file(
+        column_to_terms, join(str(tmp_path), "nidm_annotations.json"), True
+    )
 
     # now check the JSON sidecar file created by map_variables_to_terms which should match BIDS format
     with open(tmp_path / "nidm_annotations.json", encoding="utf-8") as fp:
@@ -270,6 +271,7 @@ def test_map_vars_to_terms_BIDS(setup: Setup, tmp_path: Path) -> None:
 
     assert len(results) == 20
 
+
 def test_map_vars_to_terms_BIDS_simple(setup: Setup, tmp_path: Path) -> None:
     """
     This function will test the Utils.py "map_vars_to_terms" function with a BIDS-formatted
@@ -286,15 +288,12 @@ def test_map_vars_to_terms_BIDS_simple(setup: Setup, tmp_path: Path) -> None:
         bids=True,
     )
 
-
-
     # check whether JSON mapping structure returned from map_variables_to_terms matches the
     # reproshema structure
     assert "DD(source='test', variable='age')" in column_to_terms
     assert "DD(source='test', variable='sex')" in column_to_terms
     assert "description" in column_to_terms["DD(source='test', variable='age')"]
     assert "description" in column_to_terms["DD(source='test', variable='sex')"]
-
 
     # force writing of column_to_terms structure because here we're not doing annotations and so
     # map_variables_to_terms won't write it out since we supplied one for it to open...thus it already exists
@@ -303,7 +302,9 @@ def test_map_vars_to_terms_BIDS_simple(setup: Setup, tmp_path: Path) -> None:
     # original.
 
     # write annotations to json file since data element annotations are complete
-    write_json_mapping_file(column_to_terms, join(str(tmp_path), "nidm_annotations.json"), True)
+    write_json_mapping_file(
+        column_to_terms, join(str(tmp_path), "nidm_annotations.json"), True
+    )
 
     # now check the JSON sidecar file created by map_variables_to_terms which should match BIDS format
     with open(tmp_path / "nidm_annotations.json", encoding="utf-8") as fp:
@@ -311,8 +312,8 @@ def test_map_vars_to_terms_BIDS_simple(setup: Setup, tmp_path: Path) -> None:
 
     assert "age" in bids_sidecar.keys()
     assert "sex" in bids_sidecar.keys()
-    assert "description" in bids_sidecar['age']
-    assert "description" in bids_sidecar['sex']
+    assert "description" in bids_sidecar["age"]
+    assert "description" in bids_sidecar["sex"]
 
     # check the CDE dataelement graph for correct information
     query = """
@@ -332,6 +333,7 @@ def test_map_vars_to_terms_BIDS_simple(setup: Setup, tmp_path: Path) -> None:
         results.append(list(row))
 
     assert len(results) == 16
+
 
 def test_map_vars_to_terms_reproschema(setup: Setup, tmp_path: Path) -> None:
     """
@@ -400,7 +402,9 @@ def test_map_vars_to_terms_reproschema(setup: Setup, tmp_path: Path) -> None:
     # original.
 
     # write annotations to json file since data element annotations are complete
-    write_json_mapping_file(column_to_terms, join(str(tmp_path), "nidm_annotations.json"), False)
+    write_json_mapping_file(
+        column_to_terms, join(str(tmp_path), "nidm_annotations.json"), False
+    )
 
     # now check the JSON mapping file created by map_variables_to_terms which should match Reproschema format
     with open(tmp_path / "nidm_annotations_annotations.json", encoding="utf-8") as fp:
