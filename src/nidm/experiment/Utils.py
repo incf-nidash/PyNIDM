@@ -1409,21 +1409,20 @@ def map_variables_to_terms(
     dataset_identifier=None,
 ):
     """
-
     :param df: data frame with first row containing variable names
     :param assessment_name: Name for the assessment to use in storing JSON mapping dictionary keys
     :param json_source: optional json document either in file or structure
             with variable names as keys and minimal fields "definition","label","url"
     :param output_file: output filename to save variable-> term mappings
     :param directory: if output_file parameter is set to None then use this directory to store default JSON mapping file
-    if doing variable->term mappings
+            if doing variable->term mappings
     :param: bids: if bids is set to True then a BIDS-compliant sidecar file will be written if annotations are made
     :param: owl_file: if a web-ontology language (OWL) file is supplied then it will be used to look for terms while
-    annotating otherwise the default NIDM terminology will be used.
+            annotating otherwise the default NIDM terminology will be used.
     :param associate_concepts: if this is set to True then concept association will be performed for each variable
-    otherwise it will not.
+            otherwise it will not.
     :param: dataset_identifier: unique identifier to identify a dataset such as a project in OpenNeuro
-    which is used in the NIDM records as a namespace to go along with a unique ID generated for the NIDM RDF graphs
+            which is used in the NIDM records as a namespace to go along with a unique ID generated for the NIDM RDF graphs
     :return:return dictionary mapping variable names (i.e. columns) to terms
     """
 
@@ -1826,6 +1825,7 @@ def map_variables_to_terms(
                         "maxValue:",
                         column_to_terms[current_tuple]["responseOptions"]["maxValue"],
                     )
+
                 if "hasUnit" in json_map[json_key]:
                     # upgrade 'hasUnit' to 'responseOptions'->'unitCode
                     if "responseOptions" not in column_to_terms[current_tuple].keys():
