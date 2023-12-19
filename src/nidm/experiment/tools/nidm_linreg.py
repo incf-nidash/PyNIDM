@@ -328,7 +328,7 @@ def data_aggregation(reporter):  # all data from all the files is collected
                     + ". The model cannot run because this will skew the data. Try checking your spelling or use nidm_query.py to see other possible variables."
                 )
                 for i, nf in enumerate(not_found_list):
-                    reporter.print(f"{i+1}. {nf}")
+                    reporter.print(f"{i + 1}. {nf}")
                 not_found_list.clear()
                 not_found_count += 1
                 print()

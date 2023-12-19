@@ -1,9 +1,10 @@
 from dataclasses import dataclass
 import json
+from os.path import join
 from pathlib import Path
 import pandas as pd
 import pytest
-from nidm.experiment.Utils import map_variables_to_terms
+from nidm.experiment.Utils import map_variables_to_terms, write_json_mapping_file
 
 
 @dataclass
@@ -11,6 +12,7 @@ class Setup:
     data: pd.DataFrame
     reproschema_json_map: dict
     bids_sidecar: dict
+    bids_sidecar_simple: dict
 
 
 @pytest.fixture(scope="module")
@@ -135,11 +137,24 @@ def setup() -> Setup:
         }
         """
     )
+    bids_sidecar_simple = json.loads(
+        """
+        {
+            "age": {
+                "description": "age of participant"
+                },
+            "sex": {
+                "description": "biological sex of participant"
+            }
+        }
+        """
+    )
 
     return Setup(
         data=data,
         reproschema_json_map=reproschema_json_map,
         bids_sidecar=bids_sidecar,
+        bids_sidecar_simple=bids_sidecar_simple,
     )
 
 
@@ -149,6 +164,7 @@ def test_map_vars_to_terms_BIDS(setup: Setup, tmp_path: Path) -> None:
     JSON sidecar file
     """
 
+    # test BIDS sidecar json file with all pynidm annotations
     column_to_terms, cde = map_variables_to_terms(
         df=setup.data,
         json_source=setup.bids_sidecar,
@@ -204,6 +220,17 @@ def test_map_vars_to_terms_BIDS(setup: Setup, tmp_path: Path) -> None:
         ]["Male"]
     )
 
+    # force writing of column_to_terms structure because here we're not doing annotations and so
+    # map_variables_to_terms won't write it out since we supplied one for it to open...thus it already exists
+    # and no annotations were made so it should exist in its original form.
+    # By explicitly writing it out here, after running map_variables_to_terms, we can assure it's the same as the
+    # original.
+
+    # write annotations to json file since data element annotations are complete
+    write_json_mapping_file(
+        column_to_terms, join(str(tmp_path), "nidm_annotations.json"), True
+    )
+
     # now check the JSON sidecar file created by map_variables_to_terms which should match BIDS format
     with open(tmp_path / "nidm_annotations.json", encoding="utf-8") as fp:
         bids_sidecar = json.load(fp)
@@ -243,6 +270,69 @@ def test_map_vars_to_terms_BIDS(setup: Setup, tmp_path: Path) -> None:
         results.append(list(row))
 
     assert len(results) == 20
+
+
+def test_map_vars_to_terms_BIDS_simple(setup: Setup, tmp_path: Path) -> None:
+    """
+    This function will test the Utils.py "map_vars_to_terms" function with a BIDS-formatted
+    JSON sidecar file
+    """
+
+    # test BIDS sidecar json file with all pynidm annotations
+    column_to_terms, cde = map_variables_to_terms(
+        df=setup.data,
+        json_source=setup.bids_sidecar_simple,
+        directory=str(tmp_path),
+        assessment_name="test",
+        associate_concepts=False,
+        bids=True,
+    )
+
+    # check whether JSON mapping structure returned from map_variables_to_terms matches the
+    # reproshema structure
+    assert "DD(source='test', variable='age')" in column_to_terms
+    assert "DD(source='test', variable='sex')" in column_to_terms
+    assert "description" in column_to_terms["DD(source='test', variable='age')"]
+    assert "description" in column_to_terms["DD(source='test', variable='sex')"]
+
+    # force writing of column_to_terms structure because here we're not doing annotations and so
+    # map_variables_to_terms won't write it out since we supplied one for it to open...thus it already exists
+    # and no annotations were made so it should exist in its original form.
+    # By explicitly writing it out here, after running map_variables_to_terms, we can assure it's the same as the
+    # original.
+
+    # write annotations to json file since data element annotations are complete
+    write_json_mapping_file(
+        column_to_terms, join(str(tmp_path), "nidm_annotations.json"), True
+    )
+
+    # now check the JSON sidecar file created by map_variables_to_terms which should match BIDS format
+    with open(tmp_path / "nidm_annotations.json", encoding="utf-8") as fp:
+        bids_sidecar = json.load(fp)
+
+    assert "age" in bids_sidecar.keys()
+    assert "sex" in bids_sidecar.keys()
+    assert "description" in bids_sidecar["age"]
+    assert "description" in bids_sidecar["sex"]
+
+    # check the CDE dataelement graph for correct information
+    query = """
+        prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+        select distinct ?uuid ?DataElements ?property ?value
+            where {
+
+                ?uuid a/rdfs:subClassOf* nidm:DataElement ;
+                    ?property ?value .
+
+        }"""
+    qres = cde.query(query)
+
+    results = []
+    for row in qres:
+        results.append(list(row))
+
+    assert len(results) == 16
 
 
 def test_map_vars_to_terms_reproschema(setup: Setup, tmp_path: Path) -> None:
@@ -303,6 +393,17 @@ def test_map_vars_to_terms_reproschema(setup: Setup, tmp_path: Path) -> None:
         == column_to_terms["DD(source='test', variable='sex')"]["responseOptions"][
             "choices"
         ]["Male"]
+    )
+
+    # force writing of column_to_terms structure because here we're not doing annotations and so
+    # map_variables_to_terms won't write it out since we supplied one for it to open...thus it already exists
+    # and no annotations were made so it should exist in its original form.
+    # By explicitly writing it out here, after running map_variables_to_terms, we can assure it's the same as the
+    # original.
+
+    # write annotations to json file since data element annotations are complete
+    write_json_mapping_file(
+        column_to_terms, join(str(tmp_path), "nidm_annotations.json"), False
     )
 
     # now check the JSON mapping file created by map_variables_to_terms which should match Reproschema format
