@@ -1,0 +1,1220 @@
+{
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='subject_id')": {
+        "label": "subject_id",
+        "description": "subject/participant identifier",
+        "source_variable": "subject_id",
+        "responseOptions": {
+            "valueType": "http://www.w3.org/2001/XMLSchema#string"
+        },
+        "isAbout": [
+            {
+                "@id": "https://ndar.nih.gov/api/datadictionary/v2/dataelement/src_subject_id",
+                "label": "src_subject_id"
+            }
+        ]
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='global_signal')": {
+        "label": "global_signal",
+        "description": "Global signal: the average signal within the brain mask.",
+        "source_variable": "global_signal",
+        "responseOptions": {
+            "valueType": "http://uri.interlex.org/ilx_0794754",
+            "minValue": null,
+            "maxValue": null
+        },
+        "isAbout": [
+            {
+                "@id": "http://uri.interlex.org/ilx_0101431"
+            }
+        ]
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='global_signal_derivative1')": {
+        "label": "global_signal_derivative1",
+        "description": "Global signal: the first derivative of the average signal within the brain mask.",
+        "source_variable": "global_signal_derivative1",
+        "responseOptions": {
+            "valueType": "",
+            "minValue": null,
+            "maxValue": null
+        }
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='global_signal_power2')": {
+        "label": "global_signal_power2",
+        "description": "",
+        "source_variable": "global_signal_power2",
+        "responseOptions": {
+            "valueType": "",
+            "minValue": null,
+            "maxValue": null
+        }
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='global_signal_derivative1_power2')": {
+        "label": "global_signal_derivative1_power2",
+        "description": "",
+        "source_variable": "global_signal_derivative1_power2",
+        "responseOptions": {
+            "valueType": "",
+            "minValue": null,
+            "maxValue": null
+        }
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='csf')": {
+        "label": "csf",
+        "description": "Global signal: the average signal within anatomically-derived eroded CSF mask.",
+        "source_variable": "csf",
+        "responseOptions": {
+            "valueType": "http://uri.interlex.org/ilx_0794754",
+            "minValue": null,
+            "maxValue": null
+        },
+        "isAbout": [
+            {
+                "@id": "http://uri.interlex.org/ilx_0101997"
+            }
+        ]
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='csf_derivative1')": {
+        "label": "csf_derivative1",
+        "description": "Global signal: the first derivative of the average signal within anatomically-derived eroded CSF mask.",
+        "source_variable": "csf_derivative1",
+        "responseOptions": {
+            "valueType": "",
+            "minValue": null,
+            "maxValue": null
+        }
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='csf_power2')": {
+        "label": "csf_power2",
+        "description": "",
+        "source_variable": "csf_power2",
+        "responseOptions": {
+            "valueType": "",
+            "minValue": null,
+            "maxValue": null
+        }
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='csf_derivative1_power2')": {
+        "label": "csf_derivative1_power2",
+        "description": "",
+        "source_variable": "csf_derivative1_power2",
+        "responseOptions": {
+            "valueType": "",
+            "minValue": null,
+            "maxValue": null
+        }
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='white_matter')": {
+        "label": "white_matter",
+        "description": "Global signal: the average signal within the anatomically-derived eroded WM masks.",
+        "source_variable": "white_matter",
+        "responseOptions": {
+            "valueType": "http://uri.interlex.org/ilx_0794754",
+            "minValue": null,
+            "maxValue": null
+        },
+        "isAbout": [
+            {
+                "@id": "http://uri.interlex.org/ilx_0112630"
+            }
+        ]
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='white_matter_derivative1')": {
+        "label": "white_matter_derivative1",
+        "description": "Global signal: the first derivative of the average signal within the anatomically-derived eroded WM masks.",
+        "source_variable": "white_matter_derivative1",
+        "responseOptions": {
+            "valueType": "",
+            "minValue": null,
+            "maxValue": null
+        }
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='white_matter_derivative1_power2')": {
+        "label": "white_matter_derivative1_power2",
+        "description": "",
+        "source_variable": "white_matter_derivative1_power2",
+        "responseOptions": {
+            "valueType": "",
+            "minValue": null,
+            "maxValue": null
+        }
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='white_matter_power2')": {
+        "label": "white_matter_power2",
+        "description": "",
+        "source_variable": "white_matter_power2",
+        "responseOptions": {
+            "valueType": "",
+            "minValue": null,
+            "maxValue": null
+        }
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='csf_wm')": {
+        "label": "csf_wm",
+        "description": "",
+        "source_variable": "csf_wm",
+        "responseOptions": {
+            "valueType": "",
+            "minValue": null,
+            "maxValue": null
+        }
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='tcompcor')": {
+        "label": "tcompcor",
+        "description": "",
+        "source_variable": "tcompcor",
+        "responseOptions": {
+            "valueType": "",
+            "minValue": null,
+            "maxValue": null
+        }
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='std_dvars')": {
+        "label": "std_dvars",
+        "description": "",
+        "source_variable": "std_dvars",
+        "responseOptions": {
+            "valueType": "",
+            "minValue": null,
+            "maxValue": null
+        }
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='dvars')": {
+        "label": "dvars",
+        "description": "",
+        "source_variable": "dvars",
+        "responseOptions": {
+            "valueType": "",
+            "minValue": null,
+            "maxValue": null
+        }
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='framewise_displacement')": {
+        "label": "framewise_displacement",
+        "description": "A quantification of the estimated bulk-head motion calculated using formula proposed by [Power2012].",
+        "source_variable": "framewise_displacement",
+        "responseOptions": {
+            "valueType": "http://uri.interlex.org/ilx_0794754",
+            "minValue": -250,
+            "maxValue": 250
+        },
+        "isAbout": [
+            {
+                "@id": "http://uri.interlex.org/ilx_0104909"
+            }
+        ]
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='rmsd')": {
+        "label": "rmsd",
+        "description": "",
+        "source_variable": "rmsd",
+        "responseOptions": {
+            "valueType": "",
+            "minValue": null,
+            "maxValue": null
+        }
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='t_comp_cor_00')": {
+        "label": "t_comp_cor_00",
+        "description": "",
+        "source_variable": "t_comp_cor_00",
+        "responseOptions": {
+            "valueType": "",
+            "minValue": null,
+            "maxValue": null
+        }
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='t_comp_cor_01')": {
+        "label": "t_comp_cor_01",
+        "description": "",
+        "source_variable": "t_comp_cor_01",
+        "responseOptions": {
+            "valueType": "",
+            "minValue": null,
+            "maxValue": null
+        }
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='t_comp_cor_02')": {
+        "label": "t_comp_cor_02",
+        "description": "",
+        "source_variable": "t_comp_cor_02",
+        "responseOptions": {
+            "valueType": "",
+            "minValue": null,
+            "maxValue": null
+        }
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='t_comp_cor_03')": {
+        "responseOptions": {
+            "unitCode": "",
+            "minValue": "",
+            "maxValue": "",
+            "valueType": "http://www.w3.org/2001/XMLSchema#float"
+        },
+        "label": "t_comp_cor_03",
+        "description": "",
+        "source_variable": "t_comp_cor_03",
+        "associatedWith": "NIDM"
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='t_comp_cor_04')": {
+        "responseOptions": {
+            "unitCode": "",
+            "minValue": "",
+            "maxValue": "",
+            "valueType": "http://www.w3.org/2001/XMLSchema#float"
+        },
+        "label": "t_comp_cor_04",
+        "description": "",
+        "source_variable": "t_comp_cor_04",
+        "associatedWith": "NIDM"
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='t_comp_cor_05')": {
+        "responseOptions": {
+            "unitCode": "",
+            "minValue": "",
+            "maxValue": "",
+            "valueType": "http://www.w3.org/2001/XMLSchema#float"
+        },
+        "label": "t_comp_cor_05",
+        "description": "",
+        "source_variable": "t_comp_cor_05",
+        "associatedWith": "NIDM"
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='t_comp_cor_06')": {
+        "responseOptions": {
+            "unitCode": "",
+            "minValue": "",
+            "maxValue": "",
+            "valueType": "http://www.w3.org/2001/XMLSchema#float"
+        },
+        "label": "t_comp_cor_06",
+        "description": "",
+        "source_variable": "t_comp_cor_06",
+        "associatedWith": "NIDM"
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='t_comp_cor_07')": {
+        "responseOptions": {
+            "unitCode": "",
+            "minValue": "",
+            "maxValue": "",
+            "valueType": "http://www.w3.org/2001/XMLSchema#float"
+        },
+        "label": "t_comp_cor_07",
+        "description": "",
+        "source_variable": "t_comp_cor_07",
+        "associatedWith": "NIDM"
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='c_comp_cor_00')": {
+        "label": "c_comp_cor_00",
+        "description": "",
+        "source_variable": "c_comp_cor_00",
+        "responseOptions": {
+            "valueType": "",
+            "minValue": null,
+            "maxValue": null
+        }
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='c_comp_cor_01')": {
+        "label": "c_comp_cor_01",
+        "description": "",
+        "source_variable": "c_comp_cor_01",
+        "responseOptions": {
+            "valueType": "",
+            "minValue": null,
+            "maxValue": null
+        }
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='c_comp_cor_02')": {
+        "label": "c_comp_cor_02",
+        "description": "",
+        "source_variable": "c_comp_cor_02",
+        "responseOptions": {
+            "valueType": "",
+            "minValue": null,
+            "maxValue": null
+        }
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='c_comp_cor_03')": {
+        "label": "c_comp_cor_03",
+        "description": "",
+        "source_variable": "c_comp_cor_03",
+        "responseOptions": {
+            "valueType": "",
+            "minValue": null,
+            "maxValue": null
+        }
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='c_comp_cor_04')": {
+        "label": "c_comp_cor_04",
+        "description": "",
+        "source_variable": "c_comp_cor_04",
+        "responseOptions": {
+            "valueType": "",
+            "minValue": null,
+            "maxValue": null
+        }
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='c_comp_cor_05')": {
+        "responseOptions": {
+            "unitCode": "",
+            "minValue": "",
+            "maxValue": "",
+            "valueType": "http://www.w3.org/2001/XMLSchema#float"
+        },
+        "label": "c_comp_cor_05",
+        "description": "",
+        "source_variable": "c_comp_cor_05",
+        "associatedWith": "NIDM"
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='c_comp_cor_06')": {
+        "responseOptions": {
+            "unitCode": "",
+            "minValue": "",
+            "maxValue": "",
+            "valueType": "http://www.w3.org/2001/XMLSchema#float"
+        },
+        "label": "c_comp_cor_06",
+        "description": "",
+        "source_variable": "c_comp_cor_06",
+        "associatedWith": "NIDM"
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='c_comp_cor_07')": {
+        "responseOptions": {
+            "unitCode": "",
+            "minValue": "",
+            "maxValue": "",
+            "valueType": "http://www.w3.org/2001/XMLSchema#float"
+        },
+        "label": "c_comp_cor_07",
+        "description": "",
+        "source_variable": "c_comp_cor_07",
+        "associatedWith": "NIDM"
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='c_comp_cor_08')": {
+        "responseOptions": {
+            "unitCode": "",
+            "minValue": "",
+            "maxValue": "",
+            "valueType": "http://www.w3.org/2001/XMLSchema#float"
+        },
+        "label": "c_comp_cor_08",
+        "description": "",
+        "source_variable": "c_comp_cor_08",
+        "associatedWith": "NIDM"
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='c_comp_cor_09')": {
+        "responseOptions": {
+            "unitCode": "",
+            "minValue": "",
+            "maxValue": "",
+            "valueType": "http://www.w3.org/2001/XMLSchema#float"
+        },
+        "label": "c_comp_cor_09",
+        "description": "",
+        "source_variable": "c_comp_cor_09",
+        "associatedWith": "NIDM"
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='c_comp_cor_10')": {
+        "responseOptions": {
+            "unitCode": "",
+            "minValue": "",
+            "maxValue": "",
+            "valueType": "http://www.w3.org/2001/XMLSchema#float"
+        },
+        "label": "c_comp_cor_10",
+        "description": "",
+        "source_variable": "c_comp_cor_10",
+        "associatedWith": "NIDM"
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='c_comp_cor_11')": {
+        "responseOptions": {
+            "unitCode": "",
+            "minValue": "",
+            "maxValue": "",
+            "valueType": "http://www.w3.org/2001/XMLSchema#float"
+        },
+        "label": "c_comp_cor_11",
+        "description": "",
+        "source_variable": "c_comp_cor_11",
+        "associatedWith": "NIDM"
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='c_comp_cor_12')": {
+        "responseOptions": {
+            "unitCode": "",
+            "minValue": "",
+            "maxValue": "",
+            "valueType": "http://www.w3.org/2001/XMLSchema#float"
+        },
+        "label": "c_comp_cor_12",
+        "description": "",
+        "source_variable": "c_comp_cor_12",
+        "associatedWith": "NIDM"
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='c_comp_cor_13')": {
+        "responseOptions": {
+            "unitCode": "",
+            "minValue": "",
+            "maxValue": "",
+            "valueType": "http://www.w3.org/2001/XMLSchema#float"
+        },
+        "label": "c_comp_cor_13",
+        "description": "",
+        "source_variable": "c_comp_cor_13",
+        "associatedWith": "NIDM"
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='c_comp_cor_14')": {
+        "responseOptions": {
+            "unitCode": "",
+            "minValue": "",
+            "maxValue": "",
+            "valueType": "http://www.w3.org/2001/XMLSchema#float"
+        },
+        "label": "c_comp_cor_14",
+        "description": "",
+        "source_variable": "c_comp_cor_14",
+        "associatedWith": "NIDM"
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='c_comp_cor_15')": {
+        "responseOptions": {
+            "unitCode": "",
+            "minValue": "",
+            "maxValue": "",
+            "valueType": "http://www.w3.org/2001/XMLSchema#float"
+        },
+        "label": "c_comp_cor_15",
+        "description": "",
+        "source_variable": "c_comp_cor_15",
+        "associatedWith": "NIDM"
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='c_comp_cor_16')": {
+        "responseOptions": {
+            "unitCode": "",
+            "minValue": "",
+            "maxValue": "",
+            "valueType": "http://www.w3.org/2001/XMLSchema#float"
+        },
+        "label": "c_comp_cor_16",
+        "description": "",
+        "source_variable": "c_comp_cor_16",
+        "associatedWith": "NIDM"
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='c_comp_cor_17')": {
+        "responseOptions": {
+            "unitCode": "",
+            "minValue": "",
+            "maxValue": "",
+            "valueType": "http://www.w3.org/2001/XMLSchema#float"
+        },
+        "label": "c_comp_cor_17",
+        "description": "",
+        "source_variable": "c_comp_cor_17",
+        "associatedWith": "NIDM"
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='c_comp_cor_18')": {
+        "responseOptions": {
+            "unitCode": "",
+            "minValue": "",
+            "maxValue": "",
+            "valueType": "http://www.w3.org/2001/XMLSchema#float"
+        },
+        "label": "c_comp_cor_18",
+        "description": "",
+        "source_variable": "c_comp_cor_18",
+        "associatedWith": "NIDM"
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='c_comp_cor_19')": {
+        "responseOptions": {
+            "unitCode": "",
+            "minValue": "",
+            "maxValue": "",
+            "valueType": "http://www.w3.org/2001/XMLSchema#float"
+        },
+        "label": "c_comp_cor_19",
+        "description": "",
+        "source_variable": "c_comp_cor_19",
+        "associatedWith": "NIDM"
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='c_comp_cor_20')": {
+        "responseOptions": {
+            "unitCode": "",
+            "minValue": "",
+            "maxValue": "",
+            "valueType": "http://www.w3.org/2001/XMLSchema#float"
+        },
+        "label": "c_comp_cor_20",
+        "description": "",
+        "source_variable": "c_comp_cor_20",
+        "associatedWith": "NIDM"
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='c_comp_cor_21')": {
+        "responseOptions": {
+            "unitCode": "",
+            "minValue": "",
+            "maxValue": "",
+            "valueType": "http://www.w3.org/2001/XMLSchema#float"
+        },
+        "label": "c_comp_cor_21",
+        "description": "",
+        "source_variable": "c_comp_cor_21",
+        "associatedWith": "NIDM"
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='c_comp_cor_22')": {
+        "responseOptions": {
+            "unitCode": "",
+            "minValue": "",
+            "maxValue": "",
+            "valueType": "http://www.w3.org/2001/XMLSchema#float"
+        },
+        "label": "c_comp_cor_22",
+        "description": "",
+        "source_variable": "c_comp_cor_22",
+        "associatedWith": "NIDM"
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='c_comp_cor_23')": {
+        "responseOptions": {
+            "unitCode": "",
+            "minValue": "",
+            "maxValue": "",
+            "valueType": "http://www.w3.org/2001/XMLSchema#float"
+        },
+        "label": "c_comp_cor_23",
+        "description": "",
+        "source_variable": "c_comp_cor_23",
+        "associatedWith": "NIDM"
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='c_comp_cor_24')": {
+        "responseOptions": {
+            "unitCode": "",
+            "minValue": "",
+            "maxValue": "",
+            "valueType": "http://www.w3.org/2001/XMLSchema#float"
+        },
+        "label": "c_comp_cor_24",
+        "description": "",
+        "source_variable": "c_comp_cor_24",
+        "associatedWith": "NIDM"
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='c_comp_cor_25')": {
+        "responseOptions": {
+            "unitCode": "",
+            "minValue": "",
+            "maxValue": "",
+            "valueType": "http://www.w3.org/2001/XMLSchema#float"
+        },
+        "label": "c_comp_cor_25",
+        "description": "",
+        "source_variable": "c_comp_cor_25",
+        "associatedWith": "NIDM"
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='c_comp_cor_26')": {
+        "responseOptions": {
+            "unitCode": "",
+            "minValue": "",
+            "maxValue": "",
+            "valueType": "http://www.w3.org/2001/XMLSchema#float"
+        },
+        "label": "c_comp_cor_26",
+        "description": "",
+        "source_variable": "c_comp_cor_26",
+        "associatedWith": "NIDM"
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='c_comp_cor_27')": {
+        "responseOptions": {
+            "unitCode": "",
+            "minValue": "",
+            "maxValue": "",
+            "valueType": "http://www.w3.org/2001/XMLSchema#float"
+        },
+        "label": "c_comp_cor_27",
+        "description": "",
+        "source_variable": "c_comp_cor_27",
+        "associatedWith": "NIDM"
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='c_comp_cor_28')": {
+        "responseOptions": {
+            "unitCode": "",
+            "minValue": "",
+            "maxValue": "",
+            "valueType": "http://www.w3.org/2001/XMLSchema#float"
+        },
+        "label": "c_comp_cor_28",
+        "description": "",
+        "source_variable": "c_comp_cor_28",
+        "associatedWith": "NIDM"
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='c_comp_cor_29')": {
+        "responseOptions": {
+            "unitCode": "",
+            "minValue": "",
+            "maxValue": "",
+            "valueType": "http://www.w3.org/2001/XMLSchema#float"
+        },
+        "label": "c_comp_cor_29",
+        "description": "",
+        "source_variable": "c_comp_cor_29",
+        "associatedWith": "NIDM"
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='c_comp_cor_30')": {
+        "responseOptions": {
+            "unitCode": "",
+            "minValue": "",
+            "maxValue": "",
+            "valueType": "http://www.w3.org/2001/XMLSchema#float"
+        },
+        "label": "c_comp_cor_30",
+        "description": "",
+        "source_variable": "c_comp_cor_30",
+        "associatedWith": "NIDM"
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='c_comp_cor_31')": {
+        "responseOptions": {
+            "unitCode": "",
+            "minValue": "",
+            "maxValue": "",
+            "valueType": "http://www.w3.org/2001/XMLSchema#float"
+        },
+        "label": "c_comp_cor_31",
+        "description": "",
+        "source_variable": "c_comp_cor_31",
+        "associatedWith": "NIDM"
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='c_comp_cor_32')": {
+        "responseOptions": {
+            "unitCode": "",
+            "minValue": "",
+            "maxValue": "",
+            "valueType": "http://www.w3.org/2001/XMLSchema#float"
+        },
+        "label": "c_comp_cor_32",
+        "description": "",
+        "source_variable": "c_comp_cor_32",
+        "associatedWith": "NIDM"
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='w_comp_cor_00')": {
+        "label": "w_comp_cor_00",
+        "description": "",
+        "source_variable": "w_comp_cor_00",
+        "responseOptions": {
+            "valueType": "",
+            "minValue": null,
+            "maxValue": null
+        }
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='a_comp_cor_00')": {
+        "label": "a_comp_cor_00",
+        "description": "",
+        "source_variable": "a_comp_cor_00",
+        "responseOptions": {
+            "valueType": "",
+            "minValue": null,
+            "maxValue": null
+        }
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='a_comp_cor_01')": {
+        "label": "a_comp_cor_01",
+        "description": "",
+        "source_variable": "a_comp_cor_01",
+        "responseOptions": {
+            "valueType": "",
+            "minValue": null,
+            "maxValue": null
+        }
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='a_comp_cor_02')": {
+        "label": "a_comp_cor_02",
+        "description": "",
+        "source_variable": "a_comp_cor_02",
+        "responseOptions": {
+            "valueType": "",
+            "minValue": null,
+            "maxValue": null
+        }
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='a_comp_cor_03')": {
+        "label": "a_comp_cor_03",
+        "description": "",
+        "source_variable": "a_comp_cor_03",
+        "responseOptions": {
+            "valueType": "",
+            "minValue": null,
+            "maxValue": null
+        }
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='a_comp_cor_04')": {
+        "label": "a_comp_cor_04",
+        "description": "",
+        "source_variable": "a_comp_cor_04",
+        "responseOptions": {
+            "valueType": "",
+            "minValue": null,
+            "maxValue": null
+        }
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='a_comp_cor_05')": {
+        "label": "a_comp_cor_05",
+        "description": "",
+        "source_variable": "a_comp_cor_05",
+        "responseOptions": {
+            "valueType": "",
+            "minValue": null,
+            "maxValue": null
+        }
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='a_comp_cor_06')": {
+        "label": "a_comp_cor_06",
+        "description": "",
+        "source_variable": "a_comp_cor_06",
+        "responseOptions": {
+            "valueType": "",
+            "minValue": null,
+            "maxValue": null
+        }
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='a_comp_cor_07')": {
+        "label": "a_comp_cor_07",
+        "description": "",
+        "source_variable": "a_comp_cor_07",
+        "responseOptions": {
+            "valueType": "",
+            "minValue": null,
+            "maxValue": null
+        }
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='a_comp_cor_08')": {
+        "label": "a_comp_cor_08",
+        "description": "",
+        "source_variable": "a_comp_cor_08",
+        "responseOptions": {
+            "valueType": "",
+            "minValue": null,
+            "maxValue": null
+        }
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='a_comp_cor_09')": {
+        "label": "a_comp_cor_09",
+        "description": "",
+        "source_variable": "a_comp_cor_09",
+        "responseOptions": {
+            "valueType": "",
+            "minValue": null,
+            "maxValue": null
+        }
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='a_comp_cor_10')": {
+        "label": "a_comp_cor_10",
+        "description": "",
+        "source_variable": "a_comp_cor_10",
+        "responseOptions": {
+            "valueType": "",
+            "minValue": null,
+            "maxValue": null
+        }
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='a_comp_cor_11')": {
+        "label": "a_comp_cor_11",
+        "description": "",
+        "source_variable": "a_comp_cor_11",
+        "responseOptions": {
+            "valueType": "",
+            "minValue": null,
+            "maxValue": null
+        }
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='a_comp_cor_12')": {
+        "label": "a_comp_cor_12",
+        "description": "",
+        "source_variable": "a_comp_cor_12",
+        "responseOptions": {
+            "valueType": "",
+            "minValue": null,
+            "maxValue": null
+        }
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='a_comp_cor_13')": {
+        "responseOptions": {
+            "unitCode": "",
+            "minValue": "",
+            "maxValue": "",
+            "valueType": "http://www.w3.org/2001/XMLSchema#float"
+        },
+        "label": "a_comp_cor_13",
+        "description": "",
+        "source_variable": "a_comp_cor_13",
+        "associatedWith": "NIDM"
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='a_comp_cor_14')": {
+        "responseOptions": {
+            "unitCode": "",
+            "minValue": "",
+            "maxValue": "",
+            "valueType": "http://www.w3.org/2001/XMLSchema#float"
+        },
+        "label": "a_comp_cor_14",
+        "description": "",
+        "source_variable": "a_comp_cor_14",
+        "associatedWith": "NIDM"
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='a_comp_cor_15')": {
+        "responseOptions": {
+            "unitCode": "",
+            "minValue": "",
+            "maxValue": "",
+            "valueType": "http://www.w3.org/2001/XMLSchema#float"
+        },
+        "label": "a_comp_cor_15",
+        "description": "",
+        "source_variable": "a_comp_cor_15",
+        "associatedWith": "NIDM"
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='a_comp_cor_16')": {
+        "responseOptions": {
+            "unitCode": "",
+            "minValue": "",
+            "maxValue": "",
+            "valueType": "http://www.w3.org/2001/XMLSchema#float"
+        },
+        "label": "a_comp_cor_16",
+        "description": "",
+        "source_variable": "a_comp_cor_16",
+        "associatedWith": "NIDM"
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='cosine00')": {
+        "label": "cosine00",
+        "description": "",
+        "source_variable": "cosine00",
+        "responseOptions": {
+            "valueType": "",
+            "minValue": null,
+            "maxValue": null
+        }
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='cosine01')": {
+        "label": "cosine01",
+        "description": "",
+        "source_variable": "cosine01",
+        "responseOptions": {
+            "valueType": "",
+            "minValue": null,
+            "maxValue": null
+        }
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='cosine02')": {
+        "responseOptions": {
+            "unitCode": "",
+            "minValue": "",
+            "maxValue": "",
+            "valueType": "http://www.w3.org/2001/XMLSchema#float"
+        },
+        "label": "cosine02",
+        "description": "",
+        "source_variable": "cosine02",
+        "associatedWith": "NIDM"
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='trans_x')": {
+        "label": "trans_x",
+        "description": "Estimated head-motion parameter: translation in the 'x' direction.",
+        "source_variable": "trans_x",
+        "responseOptions": {
+            "valueType": "http://uri.interlex.org/ilx_0794754",
+            "minValue": -250,
+            "maxValue": 250
+        },
+        "isAbout": [
+            {
+                "@id": "http://uri.interlex.org/ilx_0104909"
+            },
+            {
+                "@id": "http://uri.interlex.org/ilx_0794751"
+            }
+        ]
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='trans_x_derivative1')": {
+        "label": "trans_x_derivative1",
+        "description": "Estimated head-motion parameter: first derivative of the translation in the 'x' direction.",
+        "source_variable": "trans_x_derivative1",
+        "responseOptions": {
+            "valueType": "",
+            "minValue": null,
+            "maxValue": null
+        }
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='trans_x_derivative1_power2')": {
+        "label": "trans_x_derivative1_power2",
+        "description": "",
+        "source_variable": "trans_x_derivative1_power2",
+        "responseOptions": {
+            "valueType": "",
+            "minValue": null,
+            "maxValue": null
+        }
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='trans_x_power2')": {
+        "label": "trans_x_power2",
+        "description": "",
+        "source_variable": "trans_x_power2",
+        "responseOptions": {
+            "valueType": "",
+            "minValue": null,
+            "maxValue": null
+        }
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='trans_y')": {
+        "label": "trans_y",
+        "description": "Estimated head-motion parameter: translation in the 'y' direction.",
+        "source_variable": "trans_y",
+        "responseOptions": {
+            "valueType": "http://uri.interlex.org/ilx_0794754",
+            "minValue": -250,
+            "maxValue": 250
+        },
+        "isAbout": [
+            {
+                "@id": "http://uri.interlex.org/ilx_0104909"
+            },
+            {
+                "@id": "http://uri.interlex.org/ilx_0794752"
+            }
+        ]
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='trans_y_derivative1')": {
+        "label": "trans_y_derivative1",
+        "description": "Estimated head-motion parameter: first derivative of the translation in the 'xy direction.",
+        "source_variable": "trans_y_derivative1",
+        "responseOptions": {
+            "valueType": "",
+            "minValue": null,
+            "maxValue": null
+        }
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='trans_y_derivative1_power2')": {
+        "label": "trans_y_derivative1_power2",
+        "description": "",
+        "source_variable": "trans_y_derivative1_power2",
+        "responseOptions": {
+            "valueType": "",
+            "minValue": null,
+            "maxValue": null
+        }
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='trans_y_power2')": {
+        "label": "trans_y_power2",
+        "description": "",
+        "source_variable": "trans_y_power2",
+        "responseOptions": {
+            "valueType": "",
+            "minValue": null,
+            "maxValue": null
+        }
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='trans_z')": {
+        "label": "trans_z",
+        "description": "Estimated head-motion parameter: translation in the 'z' direction.",
+        "source_variable": "trans_z",
+        "responseOptions": {
+            "valueType": "http://uri.interlex.org/ilx_0794754",
+            "minValue": -250,
+            "maxValue": 250
+        },
+        "isAbout": [
+            {
+                "@id": "http://uri.interlex.org/ilx_0104909"
+            },
+            {
+                "@id": "http://uri.interlex.org/ilx_0794753"
+            }
+        ]
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='trans_z_derivative1')": {
+        "label": "trans_z_derivative1",
+        "description": "Estimated head-motion parameter: first derivative of the translation in the 'z' direction.",
+        "source_variable": "trans_z_derivative1",
+        "responseOptions": {
+            "valueType": "",
+            "minValue": null,
+            "maxValue": null
+        }
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='trans_z_power2')": {
+        "label": "trans_z_power2",
+        "description": "",
+        "source_variable": "trans_z_power2",
+        "responseOptions": {
+            "valueType": "",
+            "minValue": null,
+            "maxValue": null
+        }
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='trans_z_derivative1_power2')": {
+        "label": "trans_z_derivative1_power2",
+        "description": "",
+        "source_variable": "trans_z_derivative1_power2",
+        "responseOptions": {
+            "valueType": "",
+            "minValue": null,
+            "maxValue": null
+        }
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='rot_x')": {
+        "label": "rot_x",
+        "description": "Estimated head-motion parameter: rotation about the 'x' axis.",
+        "source_variable": "rot_x",
+        "responseOptions": {
+            "valueType": "http://uri.interlex.org/ilx_0794754",
+            "minValue": -360,
+            "maxValue": 360
+        },
+        "isAbout": [
+            {
+                "@id": "http://uri.interlex.org/ilx_0104909"
+            },
+            {
+                "@id": "http://uri.interlex.org/ilx_0794751"
+            }
+        ]
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='rot_x_derivative1')": {
+        "label": "rot_x_derivative1",
+        "description": "Estimated head-motion parameter: first derivative of the rotation about the 'x' axis.",
+        "source_variable": "rot_x_derivative1",
+        "responseOptions": {
+            "valueType": "",
+            "minValue": null,
+            "maxValue": null
+        }
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='rot_x_derivative1_power2')": {
+        "label": "rot_x_derivative1_power2",
+        "description": "",
+        "source_variable": "rot_x_derivative1_power2",
+        "responseOptions": {
+            "valueType": "",
+            "minValue": null,
+            "maxValue": null
+        }
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='rot_x_power2')": {
+        "label": "rot_x_power2",
+        "description": "",
+        "source_variable": "rot_x_power2",
+        "responseOptions": {
+            "valueType": "",
+            "minValue": null,
+            "maxValue": null
+        }
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='rot_y')": {
+        "label": "rot_y",
+        "description": "Estimated head-motion parameter: rotation about the 'y' axis.",
+        "source_variable": "rot_y",
+        "responseOptions": {
+            "valueType": "http://uri.interlex.org/ilx_0794754",
+            "minValue": -360,
+            "maxValue": 360
+        },
+        "isAbout": [
+            {
+                "@id": "http://uri.interlex.org/ilx_0104909"
+            },
+            {
+                "@id": "http://uri.interlex.org/ilx_0794752"
+            }
+        ]
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='rot_y_derivative1')": {
+        "label": "rot_y_derivative1",
+        "description": "Estimated head-motion parameter: first derivative of the rotation about the 'y' axis.",
+        "source_variable": "rot_y_derivative1",
+        "responseOptions": {
+            "valueType": "",
+            "minValue": null,
+            "maxValue": null
+        }
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='rot_y_derivative1_power2')": {
+        "label": "rot_y_derivative1_power2",
+        "description": "",
+        "source_variable": "rot_y_derivative1_power2",
+        "responseOptions": {
+            "valueType": "",
+            "minValue": null,
+            "maxValue": null
+        }
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='rot_y_power2')": {
+        "label": "rot_y_power2",
+        "description": "",
+        "source_variable": "rot_y_power2",
+        "responseOptions": {
+            "valueType": "",
+            "minValue": null,
+            "maxValue": null
+        }
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='rot_z')": {
+        "label": "rot_z",
+        "description": "Estimated head-motion parameter: rotation about the 'z' axis.",
+        "source_variable": "rot_z",
+        "responseOptions": {
+            "valueType": "http://uri.interlex.org/ilx_0794754",
+            "minValue": -360,
+            "maxValue": 360
+        },
+        "isAbout": [
+            {
+                "@id": "http://uri.interlex.org/ilx_0104909"
+            },
+            {
+                "@id": "http://uri.interlex.org/ilx_0794753"
+            }
+        ]
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='rot_z_derivative1')": {
+        "label": "rot_z_derivative1",
+        "description": "Estimated head-motion parameter: first derivative of the rotation about the 'z' axis.",
+        "source_variable": "rot_z_derivative1",
+        "responseOptions": {
+            "valueType": "",
+            "minValue": null,
+            "maxValue": null
+        }
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='rot_z_derivative1_power2')": {
+        "label": "rot_z_derivative1_power2",
+        "description": "",
+        "source_variable": "rot_z_derivative1_power2",
+        "responseOptions": {
+            "valueType": "",
+            "minValue": null,
+            "maxValue": null
+        }
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='rot_z_power2')": {
+        "label": "rot_z_power2",
+        "description": "",
+        "source_variable": "rot_z_power2",
+        "responseOptions": {
+            "valueType": "",
+            "minValue": null,
+            "maxValue": null
+        }
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='motion_outlier00')": {
+        "label": "motion_outlier00",
+        "description": "",
+        "source_variable": "motion_outlier00",
+        "responseOptions": {
+            "valueType": "",
+            "minValue": null,
+            "maxValue": null
+        }
+    },
+    "DD(source='fmriprep_results_wo_ses_run_task.csv', variable='motion_outlier01')": {
+        "label": "motion_outlier01",
+        "description": "",
+        "source_variable": "motion_outlier01",
+        "responseOptions": {
+            "valueType": "",
+            "minValue": null,
+            "maxValue": null
+        }
+    }
+}

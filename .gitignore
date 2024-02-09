@@ -18,3 +18,4 @@ docs/build/
 htmlcov/*
 pytest-of-root/*
 test.ttl
+*.nii.gz
