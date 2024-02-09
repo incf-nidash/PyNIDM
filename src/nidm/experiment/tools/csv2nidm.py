@@ -193,16 +193,23 @@ def main():
         id_field = None
         for key, value in column_to_terms.items():
             if "isAbout" in value:
-                for isabout_key, isabout_value in value["isAbout"].items():
-                    if isabout_key in ("url", "@id"):
-                        if isabout_value == Constants.NIDM_SUBJECTID._uri:
-                            key_tuple = eval(key)
-                            # id_field=key
-                            id_field = key_tuple.variable
-                            # make sure id_field is a string for zero-padded subject ids
-                            # re-read data file with constraint that key field is read as string
-                            df = pd.read_csv(args.csv_file, dtype={id_field: str})
-                            break
+                for concept in value["isAbout"]:
+                    for isabout_key, isabout_value in concept.items():
+                        if isabout_key in ("url", "@id"):
+                            if isabout_value == Constants.NIDM_SUBJECTID._uri:
+                                # get variable name from NIDM JSON file format:
+                                # DD(source=assessment_name, variable=column)
+                                id_field = (
+                                    key.split("variable")[1]
+                                    .split("=")[1]
+                                    .split(")")[0]
+                                    .lstrip("'")
+                                    .rstrip("'")
+                                )
+                                # make sure id_field is a string for zero-padded subject ids
+                                # re-read data file with constraint that key field is read as string
+                                df = pd.read_csv(args.csv_file, dtype={id_field: str})
+                                break
 
         # if we couldn't find a subject ID field in column_to_terms, ask user
         if id_field is None:
