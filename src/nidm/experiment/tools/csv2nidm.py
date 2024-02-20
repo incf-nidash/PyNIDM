@@ -109,7 +109,7 @@ def main():
     parser.add_argument(
         "-out",
         dest="output_file",
-        required=True,
+        required=False,
         help="Full path with filename to save NIDM file",
     )
     args = parser.parse_args()
@@ -133,6 +133,24 @@ def main():
         )
         print("no NIDM file created!")
         sys.exit(1)
+
+    # added to require -out parameter if no -nidm parameter
+    if args.nidm_file is None:
+        if args.output_file is None:
+            print(
+                "ERROR: You must supply either an existing -nidm file to add "
+                "metadata to or the -out output NIDM filename! "
+            )
+            parser.print_help()
+            sys.exit(1)
+        else:
+            # set output file directory to location args.output_file
+            output_dir = dirname(args.output_file)
+
+    else:
+        # set output file directory to location of existing NIDM file
+        output_dir = dirname(args.nidm_file)
+
     # temp = csv.reader(args.csv_file)
     # df = pd.DataFrame(temp)
 
@@ -145,7 +163,7 @@ def main():
         column_to_terms, cde = map_variables_to_terms(
             df=df,
             assessment_name=basename(args.csv_file),
-            directory=dirname(args.output_file),
+            directory=output_dir,
             output_file=args.output_file,
             json_source=json_map,
             dataset_identifier=args.dataset_identifier,
@@ -155,7 +173,7 @@ def main():
         column_to_terms, cde = map_variables_to_terms(
             df=df,
             assessment_name=basename(args.csv_file),
-            directory=dirname(args.output_file),
+            directory=output_dir,
             output_file=args.output_file,
             json_source=json_map,
             associate_concepts=False,

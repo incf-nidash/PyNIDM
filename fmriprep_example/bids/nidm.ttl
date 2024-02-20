@@ -1,4 +1,5 @@
 @prefix bids: <http://bids.neuroimaging.io/> .
+@prefix crypto: <http://id.loc.gov/vocabulary/preservation/cryptographicHashFunctions#> .
 @prefix dcmitype: <http://purl.org/dc/dcmitype/> .
 @prefix dct: <http://purl.org/dc/terms/> .
 @prefix ilx: <http://uri.interlex.org/> .
@@ -6,69 +7,425 @@
 @prefix nfo: <http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#> .
 @prefix nidm: <http://purl.org/nidash/nidm#> .
 @prefix niiri: <http://iri.nidash.org/> .
-@prefix onli: <http://neurolog.unice.fr/ontoneurolog/v3.0/instrument.owl#> .
+@prefix onli_1: <http://neurolog.unice.fr/ontoneurolog/v3.0/instrument.owl#> .
 @prefix prov: <http://www.w3.org/ns/prov#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix sio: <http://semanticscience.org/ontology/sio.owl#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-niiri:age_16u067k a nidm:PersonalDataElement,
-        prov:Entity ;
-    rdfs:label "age" ;
-    dct:description "Age in years" ;
-    nidm:sourceVariable "age" ;
-    ilx:ilx_0739289 "NIDM" .
-
-niiri:ef0246d0-c7a3-11ee-b512-acde48001122 a bids:Dataset,
-        prov:Collection,
-        prov:Entity ;
-    bids:BIDSVersion "1.9.0"^^xsd:string ;
-    dct:license "Creative Commons, Attribution-NonCommercial-Share Alike License"^^xsd:string ;
-    prov:hadMember niiri:f5882880-c7a3-11ee-b512-acde48001122,
-        niiri:f58847a2-c7a3-11ee-b512-acde48001122 .
-
-niiri:f58adfbc-c7a3-11ee-b512-acde48001122 a nidm:Session,
-        prov:Activity ;
-    bids:session_number "1"^^xsd:string ;
-    dct:isPartOf niiri:ef02405e-c7a3-11ee-b512-acde48001122 .
-
-niiri:f58bd9b2-c7a3-11ee-b512-acde48001122 a nidm:Session,
-        prov:Activity ;
-    dct:isPartOf niiri:ef02405e-c7a3-11ee-b512-acde48001122 .
-
-niiri:f58820d8-c7a3-11ee-b512-acde48001122 a nidm:Session,
-        prov:Activity ;
-    dct:isPartOf niiri:ef02405e-c7a3-11ee-b512-acde48001122 .
-
-niiri:f5882880-c7a3-11ee-b512-acde48001122 a onli:assessment-instrument,
+niiri:a390e74c-d01b-11ee-acf2-acde48001122 a onli_1:assessment-instrument,
         nidm:AcquisitionObject,
         prov:Entity ;
-    niiri:age_16u067k "30"^^xsd:string ;
+    niiri:csf_3o6hfjd 1.304639e+04 ;
+    niiri:csf_derivative1_35qn1f2 1.256272e+00 ;
+    niiri:csf_derivative1_power2_2sh2eph 9.26237e+03 ;
+    niiri:csf_power2_1gr1c4b 1.702204e+08 ;
+    niiri:csf_wm_32966pq 1.334051e+04 ;
+    niiri:dvars_2vho12e 4.161996e+01 ;
+    niiri:framewise_displacement_1maqhkj 1.361275e-01 ;
+    niiri:global_signal_35o5ci4 1.169541e+04 ;
+    niiri:global_signal_derivative1_1s2t86l 1.181615e+00 ;
+    niiri:global_signal_derivative1_power2_26b4fq6 5.237478e+03 ;
+    niiri:global_signal_power2_3a5bmv6 "136789056" ;
+    niiri:motion_outlier00_3eo0qch 5e-03 ;
+    niiri:motion_outlier01_14chmk2 5e-03 ;
+    niiri:rmsd_3d34of1 8.221276e-02 ;
+    niiri:rot_x_15ok86m 6.123318e-03 ;
+    niiri:rot_x_derivative1_22kbgaq 5.66e-05 ;
+    niiri:rot_x_derivative1_power2_39e8rqb 4.12e-06 ;
+    niiri:rot_x_power2_mq1dmf 5.05e-05 ;
+    niiri:rot_y_64eoai -3.65058e-04 ;
+    niiri:rot_y_derivative1_313u3ur 1.49e-07 ;
+    niiri:rot_y_derivative1_power2_o6urv8 1.17e-07 ;
+    niiri:rot_y_power2_vqs282 2.34e-07 ;
+    niiri:rot_z_derivative1_1o9it88 2.21e-06 ;
+    niiri:rot_z_derivative1_power2_2a0fpgr 6.32e-08 ;
+    niiri:rot_z_power2_3ghr5aq 7.89e-07 ;
+    niiri:rot_z_td0i7h 8.34839e-04 ;
+    niiri:std_dvars_3a86th4 1.133837e+00 ;
+    niiri:tcompcor_3av9hve 9.960584e+03 ;
+    niiri:trans_x_3mg7ids -1.19e-02 ;
+    niiri:trans_x_derivative1_1qe9nvp 1.59e-07 ;
+    niiri:trans_x_derivative1_power2_6b4sdq 3.93e-05 ;
+    niiri:trans_x_power2_3bu9sne 1.75e-04 ;
+    niiri:trans_y_215hujp 8.271785e-02 ;
+    niiri:trans_y_derivative1_3p9qf6e 4.58564e-04 ;
+    niiri:trans_y_derivative1_power2_2ti2qdl 3.390507e-03 ;
+    niiri:trans_y_power2_92djur 9.323941e-03 ;
+    niiri:trans_z_d8o2p7 -6.399195e-02 ;
+    niiri:trans_z_derivative1_3aaruh2 -7.30329e-04 ;
+    niiri:trans_z_derivative1_power2_2k6osa1 3.950218e-03 ;
+    niiri:trans_z_power2_lq7vfp 7.613083e-03 ;
+    niiri:white_matter_3j1r755 1.158281e+04 ;
+    niiri:white_matter_derivative1_3k2creh -1.705896e+00 ;
+    niiri:white_matter_derivative1_power2_26bcrr2 1.141789e+05 ;
+    niiri:white_matter_power2_3vcgrtf 1.342203e+08 ;
+    nfo:filename "fmriprep_results_wo_ses_run_task.csv"^^xsd:string ;
+    prov:Location "file://Users/dbkeator/Documents/Coding/PyNIDM/fmriprep_example/fmriprep_results_wo_ses_run_task.csv"^^xsd:string ;
+    prov:wasGeneratedBy niiri:a390e21a-d01b-11ee-acf2-acde48001122 .
+
+niiri:ab8f8576-d01b-11ee-a8f3-acde48001122 a nidm:Session,
+        prov:Activity ;
+    dct:isPartOf niiri:e57fb5ac-d01b-11ee-a8f3-acde48001122 .
+
+niiri:age_3gurs21 a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "age"^^xsd:string ;
+    dct:description "Age in years"^^xsd:string ;
+    nidm:sourceVariable "age"^^xsd:string ;
+    ilx:ilx_0739289 "NIDM"^^xsd:string .
+
+niiri:csf_3o6hfjd a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "csf" ;
+    dct:description "Global signal: the average signal within anatomically-derived eroded CSF mask." ;
+    nidm:isAbout ilx:ilx_0101997 ;
+    nidm:sourceVariable "csf" .
+
+niiri:csf_derivative1_35qn1f2 a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "csf_derivative1" ;
+    dct:description "Global signal: the first derivative of the average signal within anatomically-derived eroded CSF mask." ;
+    nidm:sourceVariable "csf_derivative1" .
+
+niiri:csf_derivative1_power2_2sh2eph a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "csf_derivative1_power2" ;
+    dct:description "" ;
+    nidm:sourceVariable "csf_derivative1_power2" .
+
+niiri:csf_power2_1gr1c4b a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "csf_power2" ;
+    dct:description "" ;
+    nidm:sourceVariable "csf_power2" .
+
+niiri:csf_wm_32966pq a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "csf_wm" ;
+    dct:description "" ;
+    nidm:sourceVariable "csf_wm" .
+
+niiri:db6d45ce-d01b-11ee-a8f3-acde48001122 a nidm:AcquisitionObject,
+        prov:Entity ;
+    crypto:sha512 "e4ccb66a056d55e981bc374210a2a996d025e2b5f7a67a74c9d9f1a035e3a961718ed46ab1f963dd1233ee5a423b4a84f05594af2b569a4ac5d87e6f54c15c90"^^xsd:string ;
+    nidm:hadAcquisitionModality nidm:MagneticResonanceImaging ;
+    nidm:hadImageContrastType nidm:FlowWeighted ;
+    nidm:hadImageUsageType nidm:Functional ;
+    nfo:filename "sub-XXX/ses-1/func/sub-XXX_ses-1_task-rest_bold.nii.gz"^^xsd:string ;
+    prov:Location "file://Users/dbkeator/Documents/Coding/PyNIDM/fmriprep_example/bids/sub-XXX/ses-1/func/sub-XXX_ses-1_task-rest_bold.nii.gz"^^xsd:string ;
+    prov:wasGeneratedBy niiri:cb6d27ec-d01b-11ee-a8f3-acde48001122 .
+
+niiri:dvars_2vho12e a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "dvars" ;
+    dct:description "" ;
+    nidm:sourceVariable "dvars" .
+
+niiri:fb6935d8-d01b-11ee-a8f3-acde48001122 a onli_1:assessment-instrument,
+        nidm:AcquisitionObject,
+        prov:Entity ;
+    niiri:age_3gurs21 "30"^^xsd:string ;
     nfo:filename "/Users/dbkeator/Documents/Coding/PyNIDM/fmriprep_example/bids/participants.tsv"^^xsd:string ;
     prov:Location "file://Users/dbkeator/Documents/Coding/PyNIDM/fmriprep_example/bids/participants.tsv"^^xsd:string ;
-    prov:wasGeneratedBy niiri:f5882542-c7a3-11ee-b512-acde48001122 ;
-    prov:wasInfluencedBy niiri:f58847a2-c7a3-11ee-b512-acde48001122 .
+    prov:wasGeneratedBy niiri:ab6931fa-d01b-11ee-a8f3-acde48001122 ;
+    prov:wasInfluencedBy niiri:fb695324-d01b-11ee-a8f3-acde48001122 .
 
-niiri:f5882d3a-c7a3-11ee-b512-acde48001122 a prov:Agent,
+niiri:framewise_displacement_1maqhkj a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "framewise_displacement" ;
+    dct:description "A quantification of the estimated bulk-head motion calculated using formula proposed by [Power2012]." ;
+    nidm:isAbout ilx:ilx_0104909 ;
+    nidm:sourceVariable "framewise_displacement" .
+
+niiri:global_signal_35o5ci4 a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "global_signal" ;
+    dct:description "Global signal: the average signal within the brain mask." ;
+    nidm:isAbout ilx:ilx_0101431 ;
+    nidm:sourceVariable "global_signal" .
+
+niiri:global_signal_derivative1_1s2t86l a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "global_signal_derivative1" ;
+    dct:description "Global signal: the first derivative of the average signal within the brain mask." ;
+    nidm:sourceVariable "global_signal_derivative1" .
+
+niiri:global_signal_derivative1_power2_26b4fq6 a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "global_signal_derivative1_power2" ;
+    dct:description "" ;
+    nidm:sourceVariable "global_signal_derivative1_power2" .
+
+niiri:global_signal_power2_3a5bmv6 a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "global_signal_power2" ;
+    dct:description "" ;
+    nidm:sourceVariable "global_signal_power2" .
+
+niiri:motion_outlier00_3eo0qch a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "motion_outlier00" ;
+    dct:description "" ;
+    nidm:sourceVariable "motion_outlier00" .
+
+niiri:motion_outlier01_14chmk2 a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "motion_outlier01" ;
+    dct:description "" ;
+    nidm:sourceVariable "motion_outlier01" .
+
+niiri:rmsd_3d34of1 a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "rmsd" ;
+    dct:description "" ;
+    nidm:sourceVariable "rmsd" .
+
+niiri:rot_x_15ok86m a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "rot_x" ;
+    dct:description "Estimated head-motion parameter: rotation about the 'x' axis." ;
+    nidm:isAbout ilx:ilx_0104909,
+        ilx:ilx_0794751 ;
+    nidm:sourceVariable "rot_x" .
+
+niiri:rot_x_derivative1_22kbgaq a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "rot_x_derivative1" ;
+    dct:description "Estimated head-motion parameter: first derivative of the rotation about the 'x' axis." ;
+    nidm:sourceVariable "rot_x_derivative1" .
+
+niiri:rot_x_derivative1_power2_39e8rqb a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "rot_x_derivative1_power2" ;
+    dct:description "" ;
+    nidm:sourceVariable "rot_x_derivative1_power2" .
+
+niiri:rot_x_power2_mq1dmf a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "rot_x_power2" ;
+    dct:description "" ;
+    nidm:sourceVariable "rot_x_power2" .
+
+niiri:rot_y_64eoai a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "rot_y" ;
+    dct:description "Estimated head-motion parameter: rotation about the 'y' axis." ;
+    nidm:isAbout ilx:ilx_0104909,
+        ilx:ilx_0794752 ;
+    nidm:sourceVariable "rot_y" .
+
+niiri:rot_y_derivative1_313u3ur a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "rot_y_derivative1" ;
+    dct:description "Estimated head-motion parameter: first derivative of the rotation about the 'y' axis." ;
+    nidm:sourceVariable "rot_y_derivative1" .
+
+niiri:rot_y_derivative1_power2_o6urv8 a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "rot_y_derivative1_power2" ;
+    dct:description "" ;
+    nidm:sourceVariable "rot_y_derivative1_power2" .
+
+niiri:rot_y_power2_vqs282 a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "rot_y_power2" ;
+    dct:description "" ;
+    nidm:sourceVariable "rot_y_power2" .
+
+niiri:rot_z_derivative1_1o9it88 a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "rot_z_derivative1" ;
+    dct:description "Estimated head-motion parameter: first derivative of the rotation about the 'z' axis." ;
+    nidm:sourceVariable "rot_z_derivative1" .
+
+niiri:rot_z_derivative1_power2_2a0fpgr a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "rot_z_derivative1_power2" ;
+    dct:description "" ;
+    nidm:sourceVariable "rot_z_derivative1_power2" .
+
+niiri:rot_z_power2_3ghr5aq a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "rot_z_power2" ;
+    dct:description "" ;
+    nidm:sourceVariable "rot_z_power2" .
+
+niiri:rot_z_td0i7h a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "rot_z" ;
+    dct:description "Estimated head-motion parameter: rotation about the 'z' axis." ;
+    nidm:isAbout ilx:ilx_0104909,
+        ilx:ilx_0794753 ;
+    nidm:sourceVariable "rot_z" .
+
+niiri:std_dvars_3a86th4 a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "std_dvars" ;
+    dct:description "" ;
+    nidm:sourceVariable "std_dvars" .
+
+niiri:subject_id_dq7bnu a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "subject_id" ;
+    dct:description "subject/participant identifier" ;
+    nidm:isAbout ndar:src_subject_id ;
+    nidm:sourceVariable "subject_id" .
+
+niiri:tcompcor_3av9hve a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "tcompcor" ;
+    dct:description "" ;
+    nidm:sourceVariable "tcompcor" .
+
+niiri:trans_x_3mg7ids a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "trans_x" ;
+    dct:description "Estimated head-motion parameter: translation in the 'x' direction." ;
+    nidm:isAbout ilx:ilx_0104909,
+        ilx:ilx_0794751 ;
+    nidm:sourceVariable "trans_x" .
+
+niiri:trans_x_derivative1_1qe9nvp a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "trans_x_derivative1" ;
+    dct:description "Estimated head-motion parameter: first derivative of the translation in the 'x' direction." ;
+    nidm:sourceVariable "trans_x_derivative1" .
+
+niiri:trans_x_derivative1_power2_6b4sdq a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "trans_x_derivative1_power2" ;
+    dct:description "" ;
+    nidm:sourceVariable "trans_x_derivative1_power2" .
+
+niiri:trans_x_power2_3bu9sne a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "trans_x_power2" ;
+    dct:description "" ;
+    nidm:sourceVariable "trans_x_power2" .
+
+niiri:trans_y_215hujp a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "trans_y" ;
+    dct:description "Estimated head-motion parameter: translation in the 'y' direction." ;
+    nidm:isAbout ilx:ilx_0104909,
+        ilx:ilx_0794752 ;
+    nidm:sourceVariable "trans_y" .
+
+niiri:trans_y_derivative1_3p9qf6e a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "trans_y_derivative1" ;
+    dct:description "Estimated head-motion parameter: first derivative of the translation in the 'xy direction." ;
+    nidm:sourceVariable "trans_y_derivative1" .
+
+niiri:trans_y_derivative1_power2_2ti2qdl a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "trans_y_derivative1_power2" ;
+    dct:description "" ;
+    nidm:sourceVariable "trans_y_derivative1_power2" .
+
+niiri:trans_y_power2_92djur a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "trans_y_power2" ;
+    dct:description "" ;
+    nidm:sourceVariable "trans_y_power2" .
+
+niiri:trans_z_d8o2p7 a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "trans_z" ;
+    dct:description "Estimated head-motion parameter: translation in the 'z' direction." ;
+    nidm:isAbout ilx:ilx_0104909,
+        ilx:ilx_0794753 ;
+    nidm:sourceVariable "trans_z" .
+
+niiri:trans_z_derivative1_3aaruh2 a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "trans_z_derivative1" ;
+    dct:description "Estimated head-motion parameter: first derivative of the translation in the 'z' direction." ;
+    nidm:sourceVariable "trans_z_derivative1" .
+
+niiri:trans_z_derivative1_power2_2k6osa1 a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "trans_z_derivative1_power2" ;
+    dct:description "" ;
+    nidm:sourceVariable "trans_z_derivative1_power2" .
+
+niiri:trans_z_power2_lq7vfp a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "trans_z_power2" ;
+    dct:description "" ;
+    nidm:sourceVariable "trans_z_power2" .
+
+niiri:white_matter_3j1r755 a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "white_matter" ;
+    dct:description "Global signal: the average signal within the anatomically-derived eroded WM masks." ;
+    nidm:isAbout ilx:ilx_0112630 ;
+    nidm:sourceVariable "white_matter" .
+
+niiri:white_matter_derivative1_3k2creh a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "white_matter_derivative1" ;
+    dct:description "Global signal: the first derivative of the average signal within the anatomically-derived eroded WM masks." ;
+    nidm:sourceVariable "white_matter_derivative1" .
+
+niiri:white_matter_derivative1_power2_26bcrr2 a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "white_matter_derivative1_power2" ;
+    dct:description "" ;
+    nidm:sourceVariable "white_matter_derivative1_power2" .
+
+niiri:white_matter_power2_3vcgrtf a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "white_matter_power2" ;
+    dct:description "" ;
+    nidm:sourceVariable "white_matter_power2" .
+
+niiri:a390e21a-d01b-11ee-acf2-acde48001122 a onli_1:instrument-based-assessment,
+        nidm:Acquisition,
+        prov:Activity ;
+    dct:isPartOf niiri:f390dda6-d01b-11ee-acf2-acde48001122 ;
+    prov:qualifiedAssociation [ a prov:Association ;
+            prov:agent niiri:cb693b14-d01b-11ee-a8f3-acde48001122 ;
+            prov:hadRole sio:Subject ] .
+
+niiri:ab692d54-d01b-11ee-a8f3-acde48001122 a nidm:Session,
+        prov:Activity ;
+    dct:isPartOf niiri:e57fb5ac-d01b-11ee-a8f3-acde48001122 .
+
+niiri:ab6931fa-d01b-11ee-a8f3-acde48001122 a onli_1:instrument-based-assessment,
+        nidm:Acquisition,
+        prov:Activity ;
+    dct:isPartOf niiri:ab692d54-d01b-11ee-a8f3-acde48001122 ;
+    prov:qualifiedAssociation [ a prov:Association ;
+            prov:agent niiri:cb693b14-d01b-11ee-a8f3-acde48001122 ;
+            prov:hadRole sio:Subject ] .
+
+niiri:cb6d27ec-d01b-11ee-a8f3-acde48001122 a nidm:Acquisition,
+        prov:Activity ;
+    dct:isPartOf niiri:eb6c354e-d01b-11ee-a8f3-acde48001122 ;
+    prov:qualifiedAssociation [ a prov:Association ;
+            prov:agent niiri:cb693b14-d01b-11ee-a8f3-acde48001122 ;
+            prov:hadRole sio:Subject ] .
+
+niiri:eb6c354e-d01b-11ee-a8f3-acde48001122 a nidm:Session,
+        prov:Activity ;
+    bids:session_number "1"^^xsd:string ;
+    dct:isPartOf niiri:e57fb5ac-d01b-11ee-a8f3-acde48001122 .
+
+niiri:f390dda6-d01b-11ee-acf2-acde48001122 a nidm:Session,
+        prov:Activity ;
+    dct:isPartOf niiri:e57fb5ac-d01b-11ee-a8f3-acde48001122 .
+
+ndar:src_subject_id a prov:Entity ;
+    rdfs:label "src_subject_id" .
+
+niiri:cb693b14-d01b-11ee-a8f3-acde48001122 a prov:Agent,
         prov:Person ;
     ndar:src_subject_id "XXX"^^xsd:string .
 
-nidm:PersonalDataElement rdfs:subClassOf nidm:DataElement .
-
-niiri:f5882542-c7a3-11ee-b512-acde48001122 a onli:instrument-based-assessment,
-        nidm:Acquisition,
-        prov:Activity ;
-    dct:isPartOf niiri:f58820d8-c7a3-11ee-b512-acde48001122 ;
-    prov:qualifiedAssociation [ a prov:Association ;
-            prov:agent niiri:f5882d3a-c7a3-11ee-b512-acde48001122 ;
-            prov:hadRole sio:Subject ] .
-
-niiri:f58847a2-c7a3-11ee-b512-acde48001122 a bids:sidecar_file,
-        prov:Entity ;
-    nfo:filename "/Users/dbkeator/Documents/Coding/PyNIDM/fmriprep_example/bids/participants.json"^^xsd:string ;
-    prov:Location "file://Users/dbkeator/Documents/Coding/PyNIDM/fmriprep_example/bids/participants.json"^^xsd:string ;
-    prov:wasGeneratedBy niiri:f5882542-c7a3-11ee-b512-acde48001122 .
-
-niiri:ef02405e-c7a3-11ee-b512-acde48001122 a nidm:Project,
+niiri:e57fb5ac-d01b-11ee-a8f3-acde48001122 a nidm:Project,
         prov:Activity ;
     dcmitype:title "TEST-fmriprep"^^xsd:string .
+
+nidm:PersonalDataElement rdfs:subClassOf nidm:DataElement .
