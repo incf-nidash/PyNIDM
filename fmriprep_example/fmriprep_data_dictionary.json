@@ -310,6 +310,51 @@
       "minValue": null,
       "maxValue": null
    },
+   "t_comp_cor_03": {
+      "label": "t_comp_cor_03",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "t_comp_cor_04": {
+      "label": "t_comp_cor_04",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "t_comp_cor_05": {
+      "label": "t_comp_cor_05",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "t_comp_cor_06": {
+      "label": "t_comp_cor_06",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "t_comp_cor_07": {
+      "label": "t_comp_cor_07",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
    "c_comp_cor_00": {
       "label": "c_comp_cor_00",
       "description": "",

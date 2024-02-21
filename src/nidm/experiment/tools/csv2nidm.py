@@ -17,7 +17,11 @@ import pandas as pd
 from rdflib import Graph
 from nidm.core import Constants
 from nidm.experiment import AssessmentAcquisition, AssessmentObject, Project, Session
-from nidm.experiment.Query import GetParticipantIDs
+from nidm.experiment.Query import (
+    GetAcqusitionEntityMetadataFromSession,
+    GetParticipantIDs,
+    GetParticipantSessionsMetadata,
+)
 from nidm.experiment.Utils import (
     add_attributes_with_cde,
     addGitAnnexSources,
@@ -112,6 +116,24 @@ def main():
         required=False,
         help="Full path with filename to save NIDM file",
     )
+    # added to support optional -derivative derived data group of arguments which includes the software metadata
+    parser.add_argument(
+        "-derivative",
+        dest="derivative",
+        required=False,
+        help="If set, indicates CSV file provided is derivative data which includes columns 'ses','task','run'"
+        "which will be used to identify the subject scan session, run, and verify against the task if an existing "
+        "nidm file is provided and was made from bids (bidsmri2nidm). Otherwise these additional columns"
+        "(ses, task,run) will be ignored.  After the -derivative parameter one must provide the software metadata"
+        "CSV file which includes columns: title, description, version, url, cmdline, platform, ID"
+        "These software metadata columns can have empty entries and are defined as follows:"
+        "title: Title of the software"
+        "description: Description of the software"
+        "version: Version of the software"
+        "url: Link to software"
+        "cmdline: Command line used to run the software generating the results in the provided CSV"
+        "ID: A url link to the term in a terminology resource (e.g. InterLex) for the software",
+    )
     args = parser.parse_args()
 
     # if we have a redcap datadictionary then convert it straight away to a json representation
@@ -125,7 +147,6 @@ def main():
         df = pd.read_csv(args.csv_file)
     elif args.csv_file.endswith(".tsv"):
         df = pd.read_csv(args.csv_file, sep="\t", engine="python")
-
     else:
         print(
             "ERROR: input file must have .csv (comma-separated) or .tsv (tab separated) extensions/"
@@ -150,6 +171,51 @@ def main():
     else:
         # set output file directory to location of existing NIDM file
         output_dir = dirname(args.nidm_file)
+
+    # added to support CSV files that are derivatives representing processing of some scans
+    if args.derivative:
+        # first check if supplied CSV file in the -csv parameter has the derivative columns 'ses','task','run'
+        if (
+            ("ses" not in df.columns)
+            or ("task" not in df.columns)
+            or ("run" not in df.columns)
+        ):
+            print(
+                "ERROR: -csv data file must have 'ses','task', and 'run' columns (even if empty) when the "
+                "-derivative parameter is provided.  See usage: "
+            )
+            parser.print_help()
+            sys.exit(1)
+        else:
+            # remove -derivatives required columns 'ses','task','run' from CSV file
+            # so map_variables_to_terms function doesn't complain about the columns not being annotated
+            df = df.drop(["ses", "task", "run"], axis=1)
+
+            # load derivatives software metadata file and check it has the required columns
+            if args.csv_file.endswith(".csv"):
+                software_metadata = pd.read_csv(args.derivative)
+            elif args.csv_file.endswith(".tsv"):
+                software_metadata = pd.read_csv(
+                    args.derivative, sep="\t", engine="python"
+                )
+
+            # check for required columns
+            required_cols = [
+                "title",
+                "description",
+                "version",
+                "url",
+                "cmdline",
+                "platform",
+                "ID",
+            ]
+            if not (set(required_cols).issubset(software_metadata.columns)):
+                print(
+                    "ERROR: -derivative software metadata file must contain columns title, description, "
+                    "version, url, cmdline, platform, ID (even if empty).  See usage: "
+                )
+                parser.print_help()
+                sys.exit(1)
 
     # temp = csv.reader(args.csv_file)
     # df = pd.DataFrame(temp)
@@ -203,9 +269,6 @@ def main():
         project = read_nidm(args.nidm_file)
         # with open("/Users/dbkeator/Downloads/test.ttl","w", encoding="utf-8") as f:
         #    f.write(project.serializeTurtle())
-
-        # get list of session objects
-        project.get_sessions()
 
         # look at column_to_terms dictionary for NIDM URL for subject id  (Constants.NIDM_SUBJECTID)
         id_field = None
@@ -282,12 +345,70 @@ def main():
             ]
 
             # if there was data about this subject in the NIDM file already (i.e. an agent already exists with this subject id)
-            # then add this CSV assessment data to NIDM file, else skip it....
+            # then add this CSV assessment (or derivative) data to NIDM file, else skip it....
             if len(csv_row.index) != 0:
                 logging.info("found participant in CSV file")
 
-                # create a new session for this assessment
-                new_session = Session(project=project)
+                # added to support derivatives
+                if args.derivative:
+                    # here we need to locate the session with bids:session_number equal to ses_task_run_df['ses'] for
+                    # this subject and then the acquisition with 'task' and optional 'run' so we can link the derivatives
+                    # to these data.  If all ('ses','run','task') are blank then we simply create a new session and
+                    # continue
+
+                    # get list of session objects we'll need to match up a derivative with a session / scan acquisition
+                    session_metadata = GetParticipantSessionsMetadata(
+                        [args.nidm_file], str(row[1]).lstrip("0")
+                    )
+
+                    # find session number matching session provided in args.csv_file which has been moved to
+                    # ses_task_run_df
+                    for _, row in session_metadata.iterrows():
+                        # csv_row is the current row being processed.  Check the session_number against the ses column
+                        if row["p"] == Constants.BIDS["session_number"]:
+                            # get sessions list from csv_row.  Note, there should only be 1 entry with this subject
+                            # ID in the input (args.csv_file).  If there are multiple with the same subject ID then
+                            # we'll error out.
+                            session_list = csv_row["ses"].to_list()
+                            if len(session_list) > 1:
+                                logging.error(
+                                    "More than one entry in -csv (CSV file) supplied has the same subject"
+                                    "ID.  This is not supported!"
+                                )
+                                exit(1)
+                            if int(row["o"]) == session_list[0]:
+                                # found the session number so now get the acquisition entities linked to this session
+                                # to match up the 'task' and 'run' information so derived data is linked correctly
+                                derivative_session = row["session_uuid"]
+
+                                acquistion_metadata = (
+                                    GetAcqusitionEntityMetadataFromSession(
+                                        [args.nidm_file], derivative_session
+                                    )
+                                )
+
+                                # WIP: need to check if csv_row['task'] is empty or not...also need to check run
+
+                                # now find which acquisition has the task specified in args.csv_file for the
+                                # subject currently being processed
+                                task_list = csv_row["task"].to_list()
+                                if len(task_list) > 1:
+                                    logging.error(
+                                        "More than one entry in -csv (CSV file) supplied has the same subject"
+                                        "ID.  This is not supported!"
+                                    )
+                                    exit(1)
+                                for (
+                                    _,
+                                    acq_row,
+                                ) in acquistion_metadata.iterrows():
+                                    if str(acq_row["o"]) == task_list[0]:
+                                        derivative_image_entity = acq_row["acq_entity"]
+                                        print(derivative_image_entity)
+
+                else:
+                    # create a new session for this assessment
+                    new_session = Session(project=project)
 
                 # NIDM document session uuid
                 # session_uuid = row[0]
