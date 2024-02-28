@@ -51,6 +51,87 @@ from nidm.experiment.Utils import (
 #        list.config(width=width+w)
 
 
+def find_session_for_subjectid(session_num, subjectid, nidm_file):
+    """
+    This function will search the supplied nidm_file for subjectid in agents and then get all sessions linked to this
+    agent and search for a session with session number matching session_num.
+    :param: session_num = string of session number searching for
+    :param: subjectid = string subject id of subject interested in
+    :param: nidm_file = NIDM file to search
+    :return: session uuid containing session number for this subject
+    """
+
+    # get list of session objects we'll need to match up a derivative with a session / scan acquisition
+    session_metadata = GetParticipantSessionsMetadata([nidm_file], subjectid)
+
+    # find session number matching session provided in args.csv_file
+    # initially set derivative_sesion to None in case we don't find it
+    derivative_session = None
+    for _, row in session_metadata.iterrows():
+        # csv_row is the current row being processed.  Check the session_number against the ses column
+        if row["p"] == Constants.BIDS["session_number"]:
+            if str(row["o"]) == session_num:
+                # found the session number so now get the acquisition entities linked to this session
+                # to match up the 'task' and 'run' information so derived data is linked correctly
+                derivative_session = row["session_uuid"]
+
+    return derivative_session
+
+
+def match_acquistion_task_run_from_session(session_uuid, task, run, nidm_file):
+    """
+    This function will use the supplied session_uuid from the NIDM file and find the acquisition entity with
+    metadata matching the supplied task.
+    :param: session_uuid = NIDM file session uuid to search for acquisitions associated with
+    :param: task = string task name to search acquisition entity metadata for
+    :param: run = string run number to search acquisition entity metadata for
+    :param: nidm_file = NIDM file to search
+    """
+
+    # now get acquisition metadata linked to the identified session
+    acquisition_metadata = GetAcqusitionEntityMetadataFromSession(
+        [nidm_file], session_uuid
+    )
+
+    # set derivative_image_entity to None in case we can't find an acquisition entity for the supplied task
+    derivative_acq_entity = None
+
+    # if a valid task name was supplied to this function
+    if task is not None:
+        for _, task_row in acquisition_metadata.iterrows():
+            # check tasks match for this acquisition and if so, assume it's the correct
+            # acquisition used in the derivative data
+            if str(task_row["o"]) == task:
+                # if a valid run number was supplied to this function
+                if run is not None:
+                    for _, run_row in acquisition_metadata.iterrows():
+                        # if run in this acquisition entity matching task
+                        if run_row["o"] != run:
+                            # wrong acquisition entity so set to None
+                            derivative_acq_entity = None
+
+                        else:
+                            derivative_acq_entity = run_row["acq_entity"]
+                # no run number provided so assume matching task is correct acquistion entity
+                else:
+                    derivative_acq_entity = task_row["acq_entity"]
+
+    else:
+        # maybe they supplied a run and not the task so we now try and match by run only
+        # if a valid run number was supplied to this function
+        if run is not None:
+            for _, run_row in acquisition_metadata.iterrows():
+                # if run in this acquisition entity matching task
+                if run_row["o"] != run:
+                    # wrong acquisition entity so set to None
+                    derivative_acq_entity = None
+
+                else:
+                    derivative_acq_entity = run_row["acq_entity"]
+
+    return derivative_acq_entity
+
+
 def main():
     parser = ArgumentParser(
         description="This program will load in a CSV file and iterate over the header \
@@ -356,55 +437,69 @@ def main():
                     # to these data.  If all ('ses','run','task') are blank then we simply create a new session and
                     # continue
 
-                    # get list of session objects we'll need to match up a derivative with a session / scan acquisition
-                    session_metadata = GetParticipantSessionsMetadata(
-                        [args.nidm_file], str(row[1]).lstrip("0")
+                    # get sessions list from csv_row.  Note, there should only be 1 entry with this subject
+                    # ID in the input (args.csv_file).  If there are multiple with the same subject ID then
+                    # we'll error out.
+                    temp = csv_row["ses"].to_list()
+                    if len(temp) > 1:
+                        logging.error(
+                            "In looking for session, more than one entry in -csv (CSV file) supplied has "
+                            "the same subject ID.  This is not supported!"
+                        )
+                        exit(1)
+                    else:
+                        # store session number from csv_row for later use
+                        session_num = "".join(map(str, temp))
+                        # check if session_num is empty and if so, set to None
+                        # since we converted to a string we'll use string comparisons for 'nan'
+                        if session_num == "nan":
+                            session_num = None
+
+                    # now find session NIDM object for this subject
+                    derivative_session = find_session_for_subjectid(
+                        session_num, str(row[1]).lstrip("0"), args.nidm_file
                     )
 
-                    # find session number matching session provided in args.csv_file which has been moved to
-                    # ses_task_run_df
-                    for _, row in session_metadata.iterrows():
-                        # csv_row is the current row being processed.  Check the session_number against the ses column
-                        if row["p"] == Constants.BIDS["session_number"]:
-                            # get sessions list from csv_row.  Note, there should only be 1 entry with this subject
-                            # ID in the input (args.csv_file).  If there are multiple with the same subject ID then
-                            # we'll error out.
-                            session_list = csv_row["ses"].to_list()
-                            if len(session_list) > 1:
-                                logging.error(
-                                    "More than one entry in -csv (CSV file) supplied has the same subject"
-                                    "ID.  This is not supported!"
-                                )
-                                exit(1)
-                            if int(row["o"]) == session_list[0]:
-                                # found the session number so now get the acquisition entities linked to this session
-                                # to match up the 'task' and 'run' information so derived data is linked correctly
-                                derivative_session = row["session_uuid"]
+                    # get task list from args.csv_file for the
+                    # subject currently being processed
+                    temp = csv_row["task"].to_list()
+                    if len(temp) > 1:
+                        logging.error(
+                            "In looking for task, more than one entry in -csv (CSV file) supplied has "
+                            "the same subject ID.  This is not supported!"
+                        )
+                        exit(1)
+                    else:
+                        task = "".join(map(str, temp))
 
-                                acquistion_metadata = (
-                                    GetAcqusitionEntityMetadataFromSession(
-                                        [args.nidm_file], derivative_session
-                                    )
-                                )
+                        # check if task is empty and if so, set to None
+                        if task == "nan":
+                            task = None
 
-                                # WIP: need to check if csv_row['task'] is empty or not...also need to check run
+                    # get run list from args.csv_file for the
+                    # subject currently being processed
+                    temp = csv_row["run"].to_list()
+                    if len(temp) > 1:
+                        logging.error(
+                            "In looking for run, more than one entry in -csv (CSV file) supplied has "
+                            "the same subject ID.  This is not supported!"
+                        )
+                        exit(1)
+                    else:
+                        run = "".join(map(str, temp))
 
-                                # now find which acquisition has the task specified in args.csv_file for the
-                                # subject currently being processed
-                                task_list = csv_row["task"].to_list()
-                                if len(task_list) > 1:
-                                    logging.error(
-                                        "More than one entry in -csv (CSV file) supplied has the same subject"
-                                        "ID.  This is not supported!"
-                                    )
-                                    exit(1)
-                                for (
-                                    _,
-                                    acq_row,
-                                ) in acquistion_metadata.iterrows():
-                                    if str(acq_row["o"]) == task_list[0]:
-                                        derivative_image_entity = acq_row["acq_entity"]
-                                        print(derivative_image_entity)
+                        # check if run is empty and if so, set to None
+                        if run == "nan":
+                            run = None
+
+                    # now find acquisition entity matching the supplied task
+                    derivative_acq_entity = match_acquistion_task_run_from_session(
+                        derivative_session, task, run, args.nidm_file
+                    )
+
+                    # check if we have a valid derivative_session, if so, use it.  If not, then skip this
+                    # derived entry
+                    print(derivative_acq_entity)
 
                 else:
                     # create a new session for this assessment
