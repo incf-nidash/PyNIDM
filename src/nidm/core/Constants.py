@@ -334,6 +334,7 @@ NIDM_ASSESSMENT_ACQUISITION = QualifiedName(
 NIDM_ACQUISITION_ENTITY = QualifiedName(
     provNamespace("nidm", NIDM), "AcquisitionObject"
 )
+NIDM_ACQUISITION_RUN = QualifiedName(provNamespace("nidm", NIDM), "run")
 
 NIDM_PROJECT_SOURCE = QualifiedName(provNamespace("dctypes", DCTYPES), "source")
 NIDM_HAD_NUMERICAL_VALUE = QualifiedName(

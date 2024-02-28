@@ -43,7 +43,7 @@ scans = {
 # JSON file keys
 json_keys = {
     # Image terms
-    "run": Constants.NIDM_ACQUISITION_ENTITY,
+    "run": Constants.NIDM_ACQUISITION_RUN,
     "ImageType": Constants.DICOM["ImageType"],
     "ManufacturerModelName": Constants.DICOM["ManufacturerModelName"],
     "Manufacturer": Constants.DICOM["Manufacturer"],
