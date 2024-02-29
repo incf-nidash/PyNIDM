@@ -16,7 +16,7 @@ import sys
 import pandas as pd
 from rdflib import Graph
 from nidm.core import Constants
-from nidm.experiment import AssessmentAcquisition, AssessmentObject, Project, Session
+from nidm.experiment import AssessmentAcquisition, AssessmentObject, Project, Session, Derivative, DerivativeObject
 from nidm.experiment.Query import (
     GetAcqusitionEntityMetadataFromSession,
     GetParticipantIDs,
@@ -499,7 +499,39 @@ def main():
 
                     # check if we have a valid derivative_session, if so, use it.  If not, then skip this
                     # derived entry
-                    print(derivative_acq_entity)
+
+                    if derivative_acq_entity is not None:
+                        # what do we do if we didn't find an acquisition entity?  Add derived data but with no
+                        # linkage to original image?
+                        # create a new session for this assessment
+                        new_session = Session(project=project)
+
+                        # create a derivative activity
+                        der = Derivative(project=project)
+
+                        # create a derivative entity
+                        der_entity = DerivativeObject(derivative=der)
+
+                        # add metadata to der_entity
+
+                        add_attributes_with_cde(der_entity, cde, row_variable, row_data)
+                        # store other data from row with columns_to_term mappings
+                        for row_variable in csv_row:
+                            # check if row_variable is subject id, if so skip it
+                            if (row_variable == id_field) or (row_variable in ['ses','task','run']):
+                                continue
+                            else:
+                                if not csv_row[row_variable].values[0]:
+                                    continue
+
+                                add_attributes_with_cde(
+                                    der_entity,
+                                    cde,
+                                    row_variable,
+                                    csv_row[row_variable].values[0],
+                                )
+                        # link derivative activity to derivative_acq_entity with prov:used
+
 
                 else:
                     # create a new session for this assessment
