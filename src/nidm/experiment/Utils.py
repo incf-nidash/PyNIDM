@@ -1407,6 +1407,7 @@ def map_variables_to_terms(
     owl_file="nidm",
     associate_concepts=True,
     dataset_identifier=None,
+    cde_namespace=None,
 ):
     """
     :param df: data frame with first row containing variable names
@@ -2090,7 +2091,11 @@ def map_variables_to_terms(
         write_json_mapping_file(column_to_terms, output_file, bids)
 
     # get CDEs for data dictionary and NIDM graph entity of data
-    cde = DD_to_nidm(column_to_terms, dataset_identifier=dataset_identifier)
+    cde = DD_to_nidm(
+        column_to_terms,
+        dataset_identifier=dataset_identifier,
+        cde_namespace=cde_namespace,
+    )
 
     return [column_to_terms, cde]
 
@@ -2646,7 +2651,7 @@ def annotate_data_element(source_variable, current_tuple, source_variable_annota
     print("-" * 87)
 
 
-def DD_UUID(element, dd_struct, dataset_identifier=None):
+def DD_UUID(element, dd_struct, dataset_identifier=None, cde_namespace=None):
     """
     This function will produce a hash of the data dictionary (personal data element) properties defined
     by the user for use as a UUID.  The data dictionary key is a tuple identifying the file and variable
@@ -2654,6 +2659,9 @@ def DD_UUID(element, dd_struct, dataset_identifier=None):
     personal data element precisely match then the same UUID will be generated.
     :param element: element in dd_struct to create UUID for within the dd_struct
     :param dd_struct: data dictionary json structure
+    :dataset_identifier:
+    :cde_namespace: a rdflib Namespace object for metadata being added. In case of derivatives, you may want to set this
+        otherwise all namespaces will be set to default NIDM one: Constants.NIIRI
     :return: hash of
     """
 
@@ -2687,16 +2695,21 @@ def DD_UUID(element, dd_struct, dataset_identifier=None):
 
     crc32hash = base_repr(crc32(str(property_string).encode()), 32).lower()
     niiri_ns = Namespace(Constants.NIIRI)
-    cde_id = URIRef(niiri_ns + safe_string(variable_name) + "_" + str(crc32hash))
+    cde_ns = Namespace(cde_namespace)
+    if cde_namespace is None:
+        cde_id = URIRef(niiri_ns + safe_string(variable_name) + "_" + str(crc32hash))
+    else:
+        cde_id = URIRef(cde_ns + safe_string(variable_name) + "_" + str(crc32hash))
     return cde_id
 
 
-def DD_to_nidm(dd_struct, dataset_identifier=None):
+def DD_to_nidm(dd_struct, dataset_identifier=None, cde_namespace=None):
     """
 
     Takes a DD json structure and returns nidm CDE-style graph to be added to NIDM documents
     :param DD:
-    :return: NIDM graph
+    :param cde_namespace: a rdflib Namespace object for metadata being added. In case of derivatives, you may want to set this
+        otherwise all namespaces will be set to default NIDM one: Constants.NIIRI
     """
 
     # create empty graph for CDEs
@@ -2735,7 +2748,12 @@ def DD_to_nidm(dd_struct, dataset_identifier=None):
                 # crc32hash = base_repr(crc32(str(key).encode()),32).lower()
                 # md5hash = hashlib.md5(str(key).encode()).hexdigest()
 
-                cde_id = DD_UUID(key, dd_struct, dataset_identifier)
+                cde_id = DD_UUID(
+                    element=key,
+                    dd_struct=dd_struct,
+                    dataset_identifier=dataset_identifier,
+                    cde_namespace=cde_namespace,
+                )
                 # cde_id = URIRef(niiri_ns + safe_string(item) + "_" + str(crc32hash))
                 g.add((cde_id, RDF.type, Constants.NIDM["PersonalDataElement"]))
                 g.add((cde_id, RDF.type, Constants.PROV["Entity"]))

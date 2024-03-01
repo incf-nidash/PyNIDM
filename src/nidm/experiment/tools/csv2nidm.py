@@ -14,9 +14,16 @@ from os.path import basename, dirname, join
 from shutil import copy2
 import sys
 import pandas as pd
-from rdflib import Graph
+from rdflib import Graph, Namespace
 from nidm.core import Constants
-from nidm.experiment import AssessmentAcquisition, AssessmentObject, Project, Session, Derivative, DerivativeObject
+from nidm.experiment import (
+    AssessmentAcquisition,
+    AssessmentObject,
+    Derivative,
+    DerivativeObject,
+    Project,
+    Session,
+)
 from nidm.experiment.Query import (
     GetAcqusitionEntityMetadataFromSession,
     GetParticipantIDs,
@@ -298,34 +305,60 @@ def main():
                 parser.print_help()
                 sys.exit(1)
 
-    # temp = csv.reader(args.csv_file)
-    # df = pd.DataFrame(temp)
-
-    # maps variables in CSV file to terms
-    # if args.owl is not False:
-    #    column_to_terms = map_variables_to_terms(df=df, apikey=args.key, directory=dirname(args.output_file), output_file=args.output_file, json_file=args.json_map, owl_file=args.owl)
-    # else:
+    # code to associate variables in CSV file with data dictionary entries...otherwise go interactive in data dictionary
+    # creation
     # if user did not specify -no_concepts then associate concepts interactively with user
     if not args.no_concepts:
-        column_to_terms, cde = map_variables_to_terms(
-            df=df,
-            assessment_name=basename(args.csv_file),
-            directory=output_dir,
-            output_file=args.output_file,
-            json_source=json_map,
-            dataset_identifier=args.dataset_identifier,
-        )
+        # if we're encoding a derivative then we'll want to collect the url of the software product to use for
+        # cde prefixes
+        if args.derivative:
+            column_to_terms, cde = map_variables_to_terms(
+                df=df,
+                assessment_name=basename(args.csv_file),
+                directory=output_dir,
+                output_file=args.output_file,
+                json_source=json_map,
+                dataset_identifier=args.dataset_identifier,
+                cde_namespace=Namespace(
+                    software_metadata["url"].to_string(index=False)
+                ),
+            )
+        else:
+            column_to_terms, cde = map_variables_to_terms(
+                df=df,
+                assessment_name=basename(args.csv_file),
+                directory=output_dir,
+                output_file=args.output_file,
+                json_source=json_map,
+                dataset_identifier=args.dataset_identifier,
+            )
     # run without concept mappings
     else:
-        column_to_terms, cde = map_variables_to_terms(
-            df=df,
-            assessment_name=basename(args.csv_file),
-            directory=output_dir,
-            output_file=args.output_file,
-            json_source=json_map,
-            associate_concepts=False,
-            dataset_identifier=args.dataset_identifier,
-        )
+        # if we're encoding a derivative then we'll want to collect the url of the software product to use for
+        # cde prefixes
+        if args.derivative:
+            column_to_terms, cde = map_variables_to_terms(
+                df=df,
+                assessment_name=basename(args.csv_file),
+                directory=output_dir,
+                output_file=args.output_file,
+                json_source=json_map,
+                associate_concepts=False,
+                dataset_identifier=args.dataset_identifier,
+                cde_namespace=Namespace(
+                    software_metadata["url"].to_string(index=False)
+                ),
+            )
+        else:
+            column_to_terms, cde = map_variables_to_terms(
+                df=df,
+                assessment_name=basename(args.csv_file),
+                directory=output_dir,
+                output_file=args.output_file,
+                json_source=json_map,
+                associate_concepts=False,
+                dataset_identifier=args.dataset_identifier,
+            )
 
     if args.logfile is not None:
         logging.basicConfig(
@@ -501,24 +534,50 @@ def main():
                     # derived entry
 
                     if derivative_acq_entity is not None:
+                        # add namespace for derived data software
+                        project.addNamespace(
+                            project.safe_string(
+                                software_metadata["title"].to_string(index=False)
+                            ),
+                            software_metadata["url"].to_string(index=False),
+                        )
+
                         # what do we do if we didn't find an acquisition entity?  Add derived data but with no
                         # linkage to original image?
                         # create a new session for this assessment
                         new_session = Session(project=project)
 
+                        # create a namespace for this derivative software
+                        # soft_namespace = Namespace(software_metadata['title'])
+
+                        # create agent for this derivative software
+                        # add_person(self, uuid=None, attributes=None, add_default_type=True)
+                        # can use 'add_person' function here which adds an agent, set add_default_type to False
+                        # so it doesn't add the type prov:Person and instead we can add the software metadata
+                        # soft_agent = project.add_person(attributes=({}),add_default_type=False)
+
                         # create a derivative activity
                         der = Derivative(project=project)
+
+                        # add qualified association with subject
+                        der.add_qualified_association(
+                            person=row[0], role=Constants.NIDM_PARTICIPANT
+                        )
+
+                        # create agent for software tool and metadata
+                        # der.add_attributes({Constants.NIDM_NEUROIMAGING_ANALYSIS_SOFTWARE:})
 
                         # create a derivative entity
                         der_entity = DerivativeObject(derivative=der)
 
                         # add metadata to der_entity
 
-                        add_attributes_with_cde(der_entity, cde, row_variable, row_data)
                         # store other data from row with columns_to_term mappings
                         for row_variable in csv_row:
                             # check if row_variable is subject id, if so skip it
-                            if (row_variable == id_field) or (row_variable in ['ses','task','run']):
+                            if (row_variable == id_field) or (
+                                row_variable in ["ses", "task", "run"]
+                            ):
                                 continue
                             else:
                                 if not csv_row[row_variable].values[0]:
@@ -531,7 +590,6 @@ def main():
                                     csv_row[row_variable].values[0],
                                 )
                         # link derivative activity to derivative_acq_entity with prov:used
-
 
                 else:
                     # create a new session for this assessment
