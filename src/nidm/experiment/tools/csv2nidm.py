@@ -14,7 +14,7 @@ from os.path import basename, dirname, join
 from shutil import copy2
 import sys
 import pandas as pd
-from rdflib import Graph, Namespace
+from rdflib import Graph
 from nidm.core import Constants
 from nidm.experiment import (
     AssessmentAcquisition,
@@ -319,9 +319,11 @@ def main():
                 output_file=args.output_file,
                 json_source=json_map,
                 dataset_identifier=args.dataset_identifier,
-                cde_namespace=Namespace(
-                    software_metadata["url"].to_string(index=False)
-                ),
+                cde_namespace={
+                    software_metadata["title"]
+                    .to_string(index=False): software_metadata["url"]
+                    .to_string(index=False)
+                },
             )
         else:
             column_to_terms, cde = map_variables_to_terms(
@@ -345,9 +347,11 @@ def main():
                 json_source=json_map,
                 associate_concepts=False,
                 dataset_identifier=args.dataset_identifier,
-                cde_namespace=Namespace(
-                    software_metadata["url"].to_string(index=False)
-                ),
+                cde_namespace={
+                    software_metadata["title"]
+                    .to_string(index=False): software_metadata["url"]
+                    .to_string(index=False)
+                },
             )
         else:
             column_to_terms, cde = map_variables_to_terms(

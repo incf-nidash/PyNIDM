@@ -1424,6 +1424,8 @@ def map_variables_to_terms(
             otherwise it will not.
     :param: dataset_identifier: unique identifier to identify a dataset such as a project in OpenNeuro
             which is used in the NIDM records as a namespace to go along with a unique ID generated for the NIDM RDF graphs
+    :param: cde_namespace: Dictionary where key is prefix and value is URL for namespace to use for data elements found
+            in supplied dataframe and optional json_source data dictionary.
     :return:return dictionary mapping variable names (i.e. columns) to terms
     """
 
@@ -2660,8 +2662,8 @@ def DD_UUID(element, dd_struct, dataset_identifier=None, cde_namespace=None):
     :param element: element in dd_struct to create UUID for within the dd_struct
     :param dd_struct: data dictionary json structure
     :dataset_identifier:
-    :cde_namespace: a rdflib Namespace object for metadata being added. In case of derivatives, you may want to set this
-        otherwise all namespaces will be set to default NIDM one: Constants.NIIRI
+    :param: cde_namespace: Dictionary where key is prefix and value is URL for namespace to use for data elements found
+            in supplied dataframe and optional json_source data dictionary.
     :return: hash of
     """
 
@@ -2695,7 +2697,8 @@ def DD_UUID(element, dd_struct, dataset_identifier=None, cde_namespace=None):
 
     crc32hash = base_repr(crc32(str(property_string).encode()), 32).lower()
     niiri_ns = Namespace(Constants.NIIRI)
-    cde_ns = Namespace(cde_namespace)
+    # get URL from cde_namespace dictionary and use for elements
+    cde_ns = [elem for elem in cde_namespace.values()][0]
     if cde_namespace is None:
         cde_id = URIRef(niiri_ns + safe_string(variable_name) + "_" + str(crc32hash))
     else:
@@ -2708,8 +2711,8 @@ def DD_to_nidm(dd_struct, dataset_identifier=None, cde_namespace=None):
 
     Takes a DD json structure and returns nidm CDE-style graph to be added to NIDM documents
     :param DD:
-    :param cde_namespace: a rdflib Namespace object for metadata being added. In case of derivatives, you may want to set this
-        otherwise all namespaces will be set to default NIDM one: Constants.NIIRI
+    :param: cde_namespace: Dictionary where key is prefix and value is URL for namespace to use for data elements found
+            in supplied dataframe and optional json_source data dictionary.
     """
 
     # create empty graph for CDEs
@@ -2718,10 +2721,24 @@ def DD_to_nidm(dd_struct, dataset_identifier=None, cde_namespace=None):
     g.bind(prefix="dct", namespace=Constants.DCT)
     g.bind(prefix="bids", namespace=Constants.BIDS)
 
+    nidm_ns = Namespace(Constants.NIDM)
+    g.bind(prefix="nidm", namespace=nidm_ns)
+    niiri_ns = Namespace(Constants.NIIRI)
+    g.bind(prefix="niiri", namespace=niiri_ns)
+    ilx_ns = Namespace(Constants.INTERLEX)
+    g.bind(prefix="ilx", namespace=ilx_ns)
+
+    # bind cde_namespace if supplied
+    if cde_namespace is not None:
+        g.bind(
+            prefix=[elem for elem in cde_namespace.keys()][0],
+            namespace=Namespace([elem for elem in cde_namespace.values()][0]),
+        )
+
     # key_num = 0
     # for each named tuple key in data dictionary
     for key in dd_struct:
-        # bind a namespace for the the data dictionary source field of the key tuple
+        # bind a namespace for the data dictionary source field of the key tuple
         # for each source variable create entity where the namespace is the source and ID is the variable
         # e.g. calgary:FISCAL_4, aims:FIAIM_9
         #
@@ -2734,13 +2751,6 @@ def DD_to_nidm(dd_struct, dataset_identifier=None, cde_namespace=None):
             if subkey == "variable":
                 # item_ns = Namespace(dd_struct[str(key_tuple)]["url"]+"/")
                 # g.bind(prefix=safe_string(item), namespace=item_ns)
-
-                nidm_ns = Namespace(Constants.NIDM)
-                g.bind(prefix="nidm", namespace=nidm_ns)
-                niiri_ns = Namespace(Constants.NIIRI)
-                g.bind(prefix="niiri", namespace=niiri_ns)
-                ilx_ns = Namespace(Constants.INTERLEX)
-                g.bind(prefix="ilx", namespace=ilx_ns)
 
                 # cde_id = item_ns[str(key_num).zfill(4)]
 
