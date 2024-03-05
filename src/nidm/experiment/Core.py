@@ -285,7 +285,7 @@ class Core:
             if datatype is not None:
                 id.add_attributes(
                     {
-                        self.namespaces[tple["prefix"]][tple["term"]]: pm.Literal(
+                        self.graph.namespaces[tple["prefix"]][tple["term"]]: pm.Literal(
                             tple["value"], datatype=datatype
                         )
                     }
@@ -293,7 +293,7 @@ class Core:
             else:
                 id.add_attributes(
                     {
-                        self.namespaces[tple["prefix"]][tple["term"]]: pm.Literal(
+                        self.graph.namespaces[tple["prefix"]][tple["term"]]: pm.Literal(
                             tple["value"]
                         )
                     }
@@ -566,6 +566,34 @@ class Core:
 
                                 dot.add_edge(
                                     Edge(acquisition_node, session_node, **style)
+                                )
+
+        for derivative in self._derivatives:
+            print(derivative)
+            for key, value in dot.obj_dict["nodes"].items():
+                # get node number in DOT graph for Project
+                if derivative.identifier.uri in str(
+                    value[0]["attributes"].get("URL", "")
+                ):
+                    derivative_node = key
+                    # print(f"session node = {key}")
+
+                    # add to DOT structure edge between project_node and session_node
+                    dot.add_edge(Edge(derivative_node, project_node, **style))
+
+                    # for each Acquisition in Session class ._acquisitions list, find node numbers in DOT graph
+                    for acquisition in derivative.get_acquisitions():
+                        # search through the nodes again to figure out node number for acquisition
+                        for key, value in dot.obj_dict["nodes"].items():
+                            # get node number in DOT graph for Project
+                            if acquisition.identifier.uri in str(
+                                value[0]["attributes"].get("URL", "")
+                            ):
+                                acquisition_node = key
+                                # print(f"acquisition node = {key}")
+
+                                dot.add_edge(
+                                    Edge(acquisition_node, derivative_node, **style)
                                 )
 
         # add some logic to find nodes with dct:hasPart relation and add those edges to graph...prov_to_dot ignores these

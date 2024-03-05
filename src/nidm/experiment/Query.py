@@ -245,11 +245,11 @@ def GetAcqusitionEntityMetadataFromSession(nidm_file_list, session_uuid):
                 prefix ndar: <https://ndar.nih.gov/api/datadictionary/v2/dataelement/>
                 prefix xsd: <http://www.w3.org/2001/XMLSchema#>
 
-                select distinct ?acq_entity ?p ?o
+                select distinct ?acq_activity ?acq_entity ?p ?o
 
                 where {{
 
-                        ?acq_act dct:isPartOf <{session_uuid}> .
+                        ?acq_activity dct:isPartOf <{session_uuid}> .
                         ?acq_entity prov:wasGeneratedBy ?acq_act ;
                             ?p ?o .
 

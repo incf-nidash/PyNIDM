@@ -2697,8 +2697,10 @@ def DD_UUID(element, dd_struct, dataset_identifier=None, cde_namespace=None):
 
     crc32hash = base_repr(crc32(str(property_string).encode()), 32).lower()
     niiri_ns = Namespace(Constants.NIIRI)
-    # get URL from cde_namespace dictionary and use for elements
-    cde_ns = [elem for elem in cde_namespace.values()][0]
+    # if user provided a namespace for CDEs, use it...
+    if cde_namespace is not None:
+        # get URL from cde_namespace dictionary and use for elements
+        cde_ns = [elem for elem in cde_namespace.values()][0]
     if cde_namespace is None:
         cde_id = URIRef(niiri_ns + safe_string(variable_name) + "_" + str(crc32hash))
     else:

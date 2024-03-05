@@ -14,7 +14,7 @@ from os.path import basename, dirname, join
 from shutil import copy2
 import sys
 import pandas as pd
-from rdflib import Graph
+from rdflib import RDF, Graph
 from nidm.core import Constants
 from nidm.experiment import (
     AssessmentAcquisition,
@@ -93,6 +93,7 @@ def match_acquistion_task_run_from_session(session_uuid, task, run, nidm_file):
     :param: task = string task name to search acquisition entity metadata for
     :param: run = string run number to search acquisition entity metadata for
     :param: nidm_file = NIDM file to search
+    :return: Returns UUID of acquisition activity and entity matching task and run
     """
 
     # now get acquisition metadata linked to the identified session
@@ -102,6 +103,7 @@ def match_acquistion_task_run_from_session(session_uuid, task, run, nidm_file):
 
     # set derivative_image_entity to None in case we can't find an acquisition entity for the supplied task
     derivative_acq_entity = None
+    acquisition_act = None
 
     # if a valid task name was supplied to this function
     if task is not None:
@@ -119,9 +121,11 @@ def match_acquistion_task_run_from_session(session_uuid, task, run, nidm_file):
 
                         else:
                             derivative_acq_entity = run_row["acq_entity"]
+                            acquisition_act = run_row["acq_activity"]
                 # no run number provided so assume matching task is correct acquistion entity
                 else:
                     derivative_acq_entity = task_row["acq_entity"]
+                    acquisition_act = task_row["acq_activity"]
 
     else:
         # maybe they supplied a run and not the task so we now try and match by run only
@@ -135,8 +139,9 @@ def match_acquistion_task_run_from_session(session_uuid, task, run, nidm_file):
 
                 else:
                     derivative_acq_entity = run_row["acq_entity"]
+                    acquisition_act = run_row["acq_activity"]
 
-    return derivative_acq_entity
+    return derivative_acq_entity, acquisition_act
 
 
 def main():
@@ -530,14 +535,17 @@ def main():
                             run = None
 
                     # now find acquisition entity matching the supplied task
-                    derivative_acq_entity = match_acquistion_task_run_from_session(
+                    (
+                        source_acq_entity,
+                        source_activity,
+                    ) = match_acquistion_task_run_from_session(
                         derivative_session, task, run, args.nidm_file
                     )
 
                     # check if we have a valid derivative_session, if so, use it.  If not, then skip this
                     # derived entry
 
-                    if derivative_acq_entity is not None:
+                    if source_acq_entity is not None:
                         # add namespace for derived data software
                         project.addNamespace(
                             project.safe_string(
@@ -561,11 +569,9 @@ def main():
                         # soft_agent = project.add_person(attributes=({}),add_default_type=False)
 
                         # create a derivative activity
-                        der = Derivative(project=project)
-
-                        # add qualified association with subject
-                        der.add_qualified_association(
-                            person=row[0], role=Constants.NIDM_PARTICIPANT
+                        der = Derivative(
+                            project=project,
+                            attributes={RDF["type"]: Constants.NIDM["derivative"]},
                         )
 
                         # create agent for software tool and metadata
@@ -594,66 +600,118 @@ def main():
                                     csv_row[row_variable].values[0],
                                 )
                         # link derivative activity to derivative_acq_entity with prov:used
+                        der.add_attributes({Constants.PROV["used"]: source_activity})
+
+                        # add cmdline and platform to derivative activity
+                        der.add_attributes(
+                            {
+                                software_metadata["url"].to_string(index=False)
+                                + "cmdline": software_metadata["cmdline"].to_string(
+                                    index=False
+                                ),
+                                software_metadata["url"].to_string(index=False)
+                                + "platform": software_metadata["platform"].to_string(
+                                    index=False
+                                ),
+                            }
+                        )
+
+                        # create software metadata agent
+                        software_agent = project.add_person(
+                            attributes={RDF["type"]: Constants.PROV["SoftwareAgent"]},
+                            add_default_type=False,
+                        )
+
+                        # add qualified association with subject
+                        der.add_qualified_association(
+                            person=row[0], role=Constants.NIDM_PARTICIPANT
+                        )
+
+                        # add qualified association with software agent
+                        der.add_qualified_association(
+                            person=software_agent,
+                            role=Constants.NIDM_NEUROIMAGING_ANALYSIS_SOFTWARE,
+                        )
+                        # add software metadata to software_agent
+                        # uri:"http://ncitt.ncit.nih.gov/", prefix:"ncit", term:"age", value:15
+                        # project.addAttributesWithNamespaces(software_agent,[{"uri":Constants.DCTYPES,
+                        #                                "prefix": "dctypes", "term": "title","value":
+                        #                                    software_metadata["title"].to_string(index=False)}])
+
+                        project.addAttributes(
+                            software_agent,
+                            {
+                                "dctypes:title": software_metadata["title"].to_string(
+                                    index=False
+                                )
+                            },
+                        )
+                        project.addAttributes(
+                            software_agent,
+                            {
+                                "dct:description": software_metadata[
+                                    "description"
+                                ].to_string(index=False),
+                                "dct:hasVersion": software_metadata[
+                                    "version"
+                                ].to_string(index=False),
+                                "sio:URL": software_metadata["url"].to_string(
+                                    index=False
+                                ),
+                            },
+                        )
 
                 else:
                     # create a new session for this assessment
                     new_session = Session(project=project)
 
-                # NIDM document session uuid
-                # session_uuid = row[0]
-
-                # temporary list of string-based URIs of session objects from API
-                # temp = [o.identifier._uri for o in session_objs]
-                # get session object from existing NIDM file that is associated with a specific subject id
-                # nidm_session = (i for i,x in enumerate([o.identifier._uri for o in session_objs]) if x == str(session_uuid))
-                # nidm_session = session_objs[temp.index(str(session_uuid))]
-                # for nidm_session in session_objs:
-                #    if nidm_session.identifier._uri == str(session_uuid):
-                # add an assessment acquisition for the phenotype data to session and associate with agent
-                # acq=AssessmentAcquisition(session=nidm_session)
-                acq = AssessmentAcquisition(session=new_session)
-                # add acquisition entity for assessment
-                acq_entity = AssessmentObject(acquisition=acq)
-                # add qualified association with existing agent
-                acq.add_qualified_association(
-                    person=row[0], role=Constants.NIDM_PARTICIPANT
-                )
-
-                # add git-annex info if exists
-                num_sources = addGitAnnexSources(
-                    obj=acq_entity,
-                    filepath=args.csv_file,
-                    bids_root=dirname(args.csv_file),
-                )
-                # if there aren't any git annex sources then just store the local directory information
-                if num_sources == 0:
-                    # WIP: add absolute location of BIDS directory on disk for later finding of files
-                    acq_entity.add_attributes(
-                        {Constants.PROV["Location"]: "file:/" + args.csv_file}
+                # if this isn't derivative data...
+                if not args.derivative:
+                    # add an assessment acquisition for the phenotype data to session and associate with agent
+                    # acq=AssessmentAcquisition(session=nidm_session)
+                    acq = AssessmentAcquisition(session=new_session)
+                    # add acquisition entity for assessment
+                    acq_entity = AssessmentObject(acquisition=acq)
+                    # add qualified association with existing agent
+                    acq.add_qualified_association(
+                        person=row[0], role=Constants.NIDM_PARTICIPANT
                     )
 
-                # store file to acq_entity
-                acq_entity.add_attributes(
-                    {Constants.NIDM_FILENAME: basename(args.csv_file)}
-                )
-
-                # store other data from row with columns_to_term mappings
-                for row_variable in csv_row:
-                    # check if row_variable is subject id, if so skip it
-                    if row_variable == id_field:
-                        continue
-                    else:
-                        if not csv_row[row_variable].values[0]:
-                            continue
-
-                        add_attributes_with_cde(
-                            acq_entity,
-                            cde,
-                            row_variable,
-                            csv_row[row_variable].values[0],
+                    # add git-annex info if exists
+                    num_sources = addGitAnnexSources(
+                        obj=acq_entity,
+                        filepath=args.csv_file,
+                        bids_root=dirname(args.csv_file),
+                    )
+                    # if there aren't any git annex sources then just store the local directory information
+                    if num_sources == 0:
+                        # WIP: add absolute location of BIDS directory on disk for later finding of files
+                        acq_entity.add_attributes(
+                            {Constants.PROV["Location"]: "file:/" + args.csv_file}
                         )
 
-                continue
+                    # store file to acq_entity
+                    acq_entity.add_attributes(
+                        {Constants.NIDM_FILENAME: basename(args.csv_file)}
+                    )
+
+                    # store other data from row with columns_to_term mappings
+                    for row_variable in csv_row:
+                        # check if row_variable is subject id, if so skip it
+                        if row_variable == id_field:
+                            continue
+                        else:
+                            if not csv_row[row_variable].values[0]:
+                                continue
+
+                            add_attributes_with_cde(
+                                acq_entity,
+                                cde,
+                                row_variable,
+                                csv_row[row_variable].values[0],
+                            )
+
+                    continue
 
         print("Adding CDEs to graph....")
         # convert to rdflib Graph and add CDEs
