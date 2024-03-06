@@ -14,6 +14,7 @@ from os.path import basename, dirname, join
 from shutil import copy2
 import sys
 import pandas as pd
+from prov.model import QualifiedName
 from rdflib import RDF, Graph
 from nidm.core import Constants
 from nidm.experiment import (
@@ -571,7 +572,9 @@ def main():
                         # create a derivative activity
                         der = Derivative(
                             project=project,
-                            attributes={RDF["type"]: Constants.NIDM["derivative"]},
+                            attributes={
+                                RDF["type"]: QualifiedName(Constants.NIDM, "Derivative")
+                            },
                         )
 
                         # create agent for software tool and metadata
@@ -600,7 +603,13 @@ def main():
                                     csv_row[row_variable].values[0],
                                 )
                         # link derivative activity to derivative_acq_entity with prov:used
-                        der.add_attributes({Constants.PROV["used"]: source_activity})
+                        der.add_attributes(
+                            {
+                                Constants.PROV["used"]: QualifiedName(
+                                    Constants.NIIRI, source_activity.rsplit("/", 1)[1]
+                                )
+                            }
+                        )
 
                         # add cmdline and platform to derivative activity
                         der.add_attributes(
@@ -618,19 +627,33 @@ def main():
 
                         # create software metadata agent
                         software_agent = project.add_person(
-                            attributes={RDF["type"]: Constants.PROV["SoftwareAgent"]},
+                            attributes={
+                                RDF["type"]: QualifiedName(
+                                    Constants.PROV, "SoftwareAgent"
+                                )
+                            },
                             add_default_type=False,
                         )
 
                         # add qualified association with subject
                         der.add_qualified_association(
-                            person=row[0], role=Constants.NIDM_PARTICIPANT
+                            person=row[0], role=QualifiedName(Constants.SIO, "Subject")
                         )
 
                         # add qualified association with software agent
+                        # would prefer to use Constants.NIDM_NEUROIMAGING_ANALYSIS_SOFTWARE here as the role
+                        # but Constants.py has that as a rdflib Namespace but here we're adding data to a provDocument
+                        # so using prov's QualifiedName and can't figure out how to convert rdflib Namespace to a prov
+                        # qualified name...probably a matter of parsing the uri into two parts, one for prefix and the
+                        # other for uri for prov QualifiedName function.
                         der.add_qualified_association(
                             person=software_agent,
-                            role=Constants.NIDM_NEUROIMAGING_ANALYSIS_SOFTWARE,
+                            role=QualifiedName(
+                                Constants.NIDM,
+                                Constants.NIDM_NEUROIMAGING_ANALYSIS_SOFTWARE.rsplit(
+                                    "#", 1
+                                )[1],
+                            ),
                         )
                         # add software metadata to software_agent
                         # uri:"http://ncitt.ncit.nih.gov/", prefix:"ncit", term:"age", value:15
@@ -638,6 +661,8 @@ def main():
                         #                                "prefix": "dctypes", "term": "title","value":
                         #                                    software_metadata["title"].to_string(index=False)}])
 
+                        # add dctypes namespace
+                        project.addNamespace(prefix="dctypes", uri=Constants.DCTYPES)
                         project.addAttributes(
                             software_agent,
                             {

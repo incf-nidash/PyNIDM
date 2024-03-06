@@ -17,7 +17,7 @@ class Derivative(pm.ProvActivity, Core):
     """
 
     # constructor
-    def __init__(self, project, attributes=None, uuid=None):
+    def __init__(self, project, attributes=None, uuid=None, add_default_type=True):
         """
         Default constructor, creates a derivative activity
 
@@ -41,6 +41,9 @@ class Derivative(pm.ProvActivity, Core):
             super().__init__(project.graph, pm.Identifier(uuid), attributes)
 
         project.graph._add_record(self)
+
+        if add_default_type:
+            self.add_attributes({pm.PROV_TYPE: Constants.NIDM_DERIVATIVE_ACTIVITY})
 
         # list to store acquisition objects associated with this activity
         self._derivative_objects = []

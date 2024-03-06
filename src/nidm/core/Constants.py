@@ -336,6 +336,9 @@ NIDM_ACQUISITION_ENTITY = QualifiedName(
 )
 NIDM_ACQUISITION_RUN = QualifiedName(provNamespace("nidm", NIDM), "run")
 
+NIDM_DERIVATIVE_ACTIVITY = QualifiedName(provNamespace("nidm", NIDM), "Derivative")
+NIDM_DERIVATIVE_ENTITY = QualifiedName(provNamespace("nidm", NIDM), "DerivativeObject")
+
 NIDM_PROJECT_SOURCE = QualifiedName(provNamespace("dctypes", DCTYPES), "source")
 NIDM_HAD_NUMERICAL_VALUE = QualifiedName(
     provNamespace("nidm", NIDM), "hadNumericalValue"

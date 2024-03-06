@@ -109,9 +109,20 @@ class Project(pm.ProvActivity, Core):
             self._derivatives.extend([derivative])
             # create links in graph
             # session.add_attributes({str("dct:isPartOf"):self})
-            derivative.add_attributes(
-                {pm.QualifiedName(pm.Namespace("dct", Constants.DCT), "isPartOf"): self}
-            )
+
+            # check if DCT namespace is already added else add it
+            if self.checkNamespacePrefix("dct"):
+                derivative.add_attributes(
+                    {pm.QualifiedName(Constants.DCT, "isPartOf"): self}
+                )
+            else:
+                derivative.add_attributes(
+                    {
+                        pm.QualifiedName(
+                            pm.Namespace("dct", Constants.DCT), "isPartOf"
+                        ): self
+                    }
+                )
             return True
 
     def add_dataelements(self, dataelement):

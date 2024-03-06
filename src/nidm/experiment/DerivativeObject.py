@@ -16,7 +16,7 @@ class DerivativeObject(pm.ProvEntity, Core):
     """
 
     # constructor
-    def __init__(self, derivative, attributes=None, uuid=None):
+    def __init__(self, derivative, attributes=None, uuid=None, add_default_type=True):
         """
         Default constructor, creates an derivative object and links to derivative activity object
 
@@ -38,6 +38,9 @@ class DerivativeObject(pm.ProvEntity, Core):
             super().__init__(derivative.graph, pm.Identifier(uuid), attributes)
 
         derivative.graph._add_record(self)
+
+        if add_default_type:
+            self.add_attributes({pm.PROV_TYPE: Constants.NIDM_DERIVATIVE_ENTITY})
 
         # carry graph object around
         self.graph = derivative.graph
