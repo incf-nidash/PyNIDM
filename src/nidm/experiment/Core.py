@@ -567,34 +567,19 @@ class Core:
                                 dot.add_edge(
                                     Edge(acquisition_node, session_node, **style)
                                 )
-
-        for derivative in self._derivatives:
-            print(derivative)
+        # for each derivative activity, add edge to project for isPartOf
+        for derivative_activity in self._derivatives:
+            print(derivative_activity)
             for key, value in dot.obj_dict["nodes"].items():
                 # get node number in DOT graph for Project
-                if derivative.identifier.uri in str(
+                if derivative_activity.identifier.uri in str(
                     value[0]["attributes"].get("URL", "")
                 ):
-                    derivative_node = key
+                    derivative_activity_node = key
                     # print(f"session node = {key}")
 
                     # add to DOT structure edge between project_node and session_node
-                    dot.add_edge(Edge(derivative_node, project_node, **style))
-
-                    # for each Acquisition in Session class ._acquisitions list, find node numbers in DOT graph
-                    for acquisition in derivative.get_acquisitions():
-                        # search through the nodes again to figure out node number for acquisition
-                        for key, value in dot.obj_dict["nodes"].items():
-                            # get node number in DOT graph for Project
-                            if acquisition.identifier.uri in str(
-                                value[0]["attributes"].get("URL", "")
-                            ):
-                                acquisition_node = key
-                                # print(f"acquisition node = {key}")
-
-                                dot.add_edge(
-                                    Edge(acquisition_node, derivative_node, **style)
-                                )
+                    dot.add_edge(Edge(derivative_activity_node, project_node, **style))
 
         # add some logic to find nodes with dct:hasPart relation and add those edges to graph...prov_to_dot ignores these
         if format != "None":

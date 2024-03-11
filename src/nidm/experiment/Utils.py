@@ -393,7 +393,7 @@ def read_nidm(nidmDoc):
     # add all nidm:DataElements in graph
     qres = rdf_graph_parse.query(query)
     for row in qres:
-        print(row)
+        print(f"Reading data element: {row}")
         # instantiate a data element class assigning it the existing uuid
         de = DataElement(project=project, uuid=row["uuid"], add_default_type=False)
         # get the rest of the attributes for this data element and store
@@ -436,7 +436,7 @@ def read_nidm(nidmDoc):
             prefix prov: <http://www.w3.org/ns/prov#>
             select distinct ?uuid ?parent_act
             where {
-                {?uuid a nidm:Derivative ;
+                {?uuid a nidm:DerivativeObject ;
                     prov:wasGeneratedBy ?parent_act .}
                     UNION
                     {?uuid a nidm:FSStatsCollection ;
@@ -523,7 +523,8 @@ def add_metadata_for_subject(rdf_graph, subject_uri, namespaces, nidm_obj):
                 search_uri=URIRef(obj_nm), namespaces=namespaces
             )
             # if obj_nm is not in namespaces then it must just be part of some URI in the triple
-            # so just add it as a prov.Identifier
+            # so just add it as a prov.Identifier..note, prov and xsd namespaces automatically added from
+            # inheritance of provDocument
             if (
                 (not found_uri)
                 and (obj_nm != Constants.PROV)
@@ -2900,7 +2901,7 @@ def add_attributes_with_cde(prov_object, cde, row_variable, value):
                                 prefix=cde_prefix, uri=entity_id.rsplit("/", 1)[0] + "/"
                             ),
                             entity_id.rsplit("/", 1)[-1],
-                        ): value
+                        ): get_RDFliteral_type(value)
                     }
                 )
                 # prov_object.add_attributes({QualifiedName(Constants.NIIRI,entity_id):value})
