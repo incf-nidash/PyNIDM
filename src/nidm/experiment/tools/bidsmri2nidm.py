@@ -32,6 +32,7 @@ from nidm.experiment.Core import getUUID
 from nidm.experiment.Utils import (
     add_attributes_with_cde,
     addGitAnnexSources,
+    get_RDFliteral_type,
     map_variables_to_terms,
 )
 
@@ -638,7 +639,11 @@ def addimagingsessions(
                         )
                     else:
                         acq_obj.add_attributes(
-                            {BIDS_Constants.json_keys[key]: dataset[key]}
+                            {
+                                BIDS_Constants.json_keys[key]: get_RDFliteral_type(
+                                    Literal(dataset[key])
+                                )
+                            }
                         )
 
         # DBK added for ASL support 3/16/21
@@ -1325,7 +1330,7 @@ def bidsmri2project(directory, args):
                             prov_object=acq_entity,
                             cde=cde,
                             row_variable=key,
-                            value=value,
+                            value=Literal(value),
                         )
 
     # create acquisition objects for each scan for each subject
@@ -1482,7 +1487,7 @@ def bidsmri2project(directory, args):
                             prov_object=acq_entity,
                             cde=cde_tmp,
                             row_variable=key,
-                            value=value,
+                            value=Literal(value),
                         )
 
                 # link TSV file
