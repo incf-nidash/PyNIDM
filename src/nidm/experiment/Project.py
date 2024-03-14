@@ -82,9 +82,18 @@ class Project(pm.ProvActivity, Core):
             self._sessions.extend([session])
             # create links in graph
             # session.add_attributes({str("dct:isPartOf"):self})
-            session.add_attributes(
-                {pm.QualifiedName(pm.Namespace("dct", Constants.DCT), "isPartOf"): self}
-            )
+            if self.checkNamespacePrefix("dct"):
+                dct_namespace = self.graph.valid_qualified_name("dct:isPartOf")
+                session.add_attributes({dct_namespace: self})
+
+            else:
+                session.add_attributes(
+                    {
+                        pm.QualifiedName(
+                            pm.Namespace("dct", Constants.DCT), "isPartOf"
+                        ): self
+                    }
+                )
             return True
 
     def get_sessions(self):
@@ -105,16 +114,15 @@ class Project(pm.ProvActivity, Core):
         if derivative in self._derivatives:
             return False
         else:
-            # add session to self.sessions list
+            # add derivative to self._derivatives list
             self._derivatives.extend([derivative])
             # create links in graph
             # session.add_attributes({str("dct:isPartOf"):self})
 
             # check if DCT namespace is already added else add it
             if self.checkNamespacePrefix("dct"):
-                derivative.add_attributes(
-                    {pm.QualifiedName(Constants.DCT, "isPartOf"): self}
-                )
+                dct_namespace = self.graph.valid_qualified_name("dct:isPartOf")
+                derivative.add_attributes({dct_namespace: self})
             else:
                 derivative.add_attributes(
                     {

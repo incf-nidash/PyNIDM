@@ -15,7 +15,8 @@ from shutil import copy2
 import sys
 import pandas as pd
 from prov.model import QualifiedName
-from rdflib import RDF, Graph
+from rdflib import RDF, Graph, Literal
+from rdflib.namespace import split_uri
 from nidm.core import Constants
 from nidm.experiment import (
     AssessmentAcquisition,
@@ -385,11 +386,18 @@ def main():
 
     # If user has added an existing NIDM file as a command line parameter then add to existing file for subjects who exist in the NIDM file
     if args.nidm_file:
-        print("Adding to NIDM file...")
+        if args.logfile:
+            logging.info("Adding to NIDM file...")
+        else:
+            print("Adding to NIDM file...")
         # get subjectID list for later
         qres = GetParticipantIDs([args.nidm_file])
 
         # read in NIDM file
+        if args.logfile:
+            logging.info("Reading NIDM file...")
+        else:
+            print("Reading NIDM file...")
         project = read_nidm(args.nidm_file)
         # with open("/Users/dbkeator/Downloads/test.ttl","w", encoding="utf-8") as f:
         #    f.write(project.serializeTurtle())
@@ -456,7 +464,10 @@ def main():
         # qres = rdf_graph.query(query)
 
         for _, row in qres.iterrows():
-            logging.info("participant in NIDM file %s \t %s", row[0], row[1])
+            if args.logfile:
+                logging.info("participant in NIDM file " + row[0] + "\t" + row[1])
+            else:
+                print(f"participant in NIDM file {row[0]} \t {row[1]}")
             # find row in CSV file with subject id matching agent from NIDM file
 
             # csv_row = df.loc[df[id_field]==type(df[id_field][0])(row[1])]
@@ -471,7 +482,10 @@ def main():
             # if there was data about this subject in the NIDM file already (i.e. an agent already exists with this subject id)
             # then add this CSV assessment (or derivative) data to NIDM file, else skip it....
             if len(csv_row.index) != 0:
-                logging.info("found participant in CSV file")
+                if args.logfile:
+                    logging.info("found participant in CSV file")
+                else:
+                    print("found participant in CSV file")
 
                 # added to support derivatives
                 if args.derivative:
@@ -485,10 +499,16 @@ def main():
                     # we'll error out.
                     temp = csv_row["ses"].to_list()
                     if len(temp) > 1:
-                        logging.error(
-                            "In looking for session, more than one entry in -csv (CSV file) supplied has "
-                            "the same subject ID.  This is not supported!"
-                        )
+                        if args.logfile:
+                            logging.error(
+                                "In looking for session, more than one entry in -csv (CSV file) supplied has "
+                                "the same subject ID.  This is not supported!"
+                            )
+                        else:
+                            print(
+                                "In looking for session, more than one entry in -csv (CSV file) supplied has "
+                                "the same subject ID.  This is not supported!"
+                            )
                         exit(1)
                     else:
                         # store session number from csv_row for later use
@@ -507,10 +527,16 @@ def main():
                     # subject currently being processed
                     temp = csv_row["task"].to_list()
                     if len(temp) > 1:
-                        logging.error(
-                            "In looking for task, more than one entry in -csv (CSV file) supplied has "
-                            "the same subject ID.  This is not supported!"
-                        )
+                        if args.logfile:
+                            logging.error(
+                                "In looking for task, more than one entry in -csv (CSV file) supplied has "
+                                "the same subject ID.  This is not supported!"
+                            )
+                        else:
+                            print(
+                                "In looking for task, more than one entry in -csv (CSV file) supplied has "
+                                "the same subject ID.  This is not supported!"
+                            )
                         exit(1)
                     else:
                         task = "".join(map(str, temp))
@@ -523,10 +549,16 @@ def main():
                     # subject currently being processed
                     temp = csv_row["run"].to_list()
                     if len(temp) > 1:
-                        logging.error(
-                            "In looking for run, more than one entry in -csv (CSV file) supplied has "
-                            "the same subject ID.  This is not supported!"
-                        )
+                        if args.logfile:
+                            logging.error(
+                                "In looking for run, more than one entry in -csv (CSV file) supplied has "
+                                "the same subject ID.  This is not supported!"
+                            )
+                        else:
+                            print(
+                                "In looking for run, more than one entry in -csv (CSV file) supplied has "
+                                "the same subject ID.  This is not supported!"
+                            )
                         exit(1)
                     else:
                         run = "".join(map(str, temp))
@@ -572,9 +604,6 @@ def main():
                         # create a derivative activity
                         der = Derivative(
                             project=project,
-                            attributes={
-                                RDF["type"]: QualifiedName(Constants.NIDM, "Derivative")
-                            },
                         )
 
                         # create agent for software tool and metadata
@@ -600,13 +629,14 @@ def main():
                                     der_entity,
                                     cde,
                                     row_variable,
-                                    csv_row[row_variable].values[0],
+                                    Literal(csv_row[row_variable].values[0]),
                                 )
                         # link derivative activity to derivative_acq_entity with prov:used
+                        namespace, name = split_uri(source_activity)
                         der.add_attributes(
                             {
                                 Constants.PROV["used"]: QualifiedName(
-                                    Constants.NIIRI, source_activity.rsplit("/", 1)[1]
+                                    Constants.NIIRI, name
                                 )
                             }
                         )
@@ -646,14 +676,12 @@ def main():
                         # so using prov's QualifiedName and can't figure out how to convert rdflib Namespace to a prov
                         # qualified name...probably a matter of parsing the uri into two parts, one for prefix and the
                         # other for uri for prov QualifiedName function.
+                        namespace, name = split_uri(
+                            Constants.NIDM_NEUROIMAGING_ANALYSIS_SOFTWARE
+                        )
                         der.add_qualified_association(
                             person=software_agent,
-                            role=QualifiedName(
-                                Constants.NIDM,
-                                Constants.NIDM_NEUROIMAGING_ANALYSIS_SOFTWARE.rsplit(
-                                    "#", 1
-                                )[1],
-                            ),
+                            role=QualifiedName(Constants.NIDM, name),
                         )
                         # add software metadata to software_agent
                         # uri:"http://ncitt.ncit.nih.gov/", prefix:"ncit", term:"age", value:15
@@ -662,15 +690,16 @@ def main():
                         #                                    software_metadata["title"].to_string(index=False)}])
 
                         # add dctypes namespace
-                        project.addNamespace(prefix="dctypes", uri=Constants.DCTYPES)
+                        # project.addNamespace(prefix="dctypes", uri=Constants.DCTYPES)
                         project.addAttributes(
                             software_agent,
                             {
-                                "dctypes:title": software_metadata["title"].to_string(
+                                "dcmitype:title": software_metadata["title"].to_string(
                                     index=False
                                 )
                             },
                         )
+                        # project.addNamespace(prefix="dct", uri=Constants.DCT)
                         project.addAttributes(
                             software_agent,
                             {
@@ -737,20 +766,31 @@ def main():
                             )
 
                     continue
-
-        print("Adding CDEs to graph....")
+        if args.logfile:
+            logging.info("Adding CDEs to graph....")
+        else:
+            print("Adding CDEs to graph....")
         # convert to rdflib Graph and add CDEs
         rdf_graph = Graph()
         rdf_graph.parse(source=StringIO(project.serializeTurtle()), format="turtle")
         rdf_graph = rdf_graph + cde
 
-        print("Backing up original NIDM file...")
+        if args.logfile:
+            logging.info("Backing up original NIDM file...")
+        else:
+            print("Backing up original NIDM file...")
         copy2(src=args.nidm_file, dst=args.nidm_file + ".bak")
-        print("Writing NIDM file....")
+        if args.logfile:
+            logging.info("Writing NIDM file....")
+        else:
+            print("Writing NIDM file....")
         rdf_graph.serialize(destination=args.nidm_file, format="turtle")
 
     else:
-        print("Creating NIDM file...")
+        if args.logfile:
+            logging.info("Creating NIDM file...")
+        else:
+            print("Creating NIDM file...")
         # If user did not choose to add this data to an existing NIDM file then create a new one for the CSV data
         # create empty project
         project = Project()
@@ -860,7 +900,10 @@ def main():
         rdf_graph.parse(source=StringIO(project.serializeTurtle()), format="turtle")
         rdf_graph = rdf_graph + cde
 
-        print("Writing NIDM file....")
+        if args.logfile:
+            logging.info("Writing NIDM file....")
+        else:
+            print("Writing NIDM file....")
         rdf_graph.serialize(destination=args.output_file, format="turtle")
 
 

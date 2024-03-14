@@ -393,7 +393,7 @@ def read_nidm(nidmDoc):
     # add all nidm:DataElements in graph
     qres = rdf_graph_parse.query(query)
     for row in qres:
-        print(f"Reading data element: {row}")
+        # print(f"Reading data element: {row}")
         # instantiate a data element class assigning it the existing uuid
         de = DataElement(project=project, uuid=row["uuid"], add_default_type=False)
         # get the rest of the attributes for this data element and store
@@ -2702,6 +2702,7 @@ def DD_UUID(element, dd_struct, dataset_identifier=None, cde_namespace=None):
     if cde_namespace is not None:
         # get URL from cde_namespace dictionary and use for elements
         cde_ns = [elem for elem in cde_namespace.values()][0]
+
     if cde_namespace is None:
         cde_id = URIRef(niiri_ns + safe_string(variable_name) + "_" + str(crc32hash))
     else:
