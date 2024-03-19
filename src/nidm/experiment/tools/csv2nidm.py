@@ -60,6 +60,57 @@ from nidm.experiment.Utils import (
 #        list.config(width=width+w)
 
 
+def ask_idfield(df):
+    """
+    This function will ask the user which column in the supplied csv file (df) is the id field because we were unable
+    to automatically detect it.
+    :param: df = data frame of supplied csv file to csv2nidm (i.e. args.csv_file loaded as dataframe)
+    : return id_field column name
+    """
+
+    # if we couldn't find a subject ID field in column_to_terms, ask user
+    option = 1
+    for column in df.columns:
+        print(f"{option}: {column}")
+        option = option + 1
+    selection = input("Please select the subject ID field from the list above: ")
+    # Make sure user selected one of the options.  If not present user with selection input again
+    while (not selection.isdigit()) or (int(selection) > int(option)):
+        # Wait for user input
+        selection = input("Please select the subject ID field from the list above: \t")
+    id_field = df.columns[int(selection) - 1]
+
+    return id_field
+
+
+def detect_idfield(dd):
+    """This function will attempt to find the id field in the supplied data dictionary
+    :param: dd = data dictionary returned from map_variables_to_terms function in Utils.py
+    :return: id field if found else None
+    """
+
+    # look at column_to_terms dictionary for NIDM URL for subject id  (Constants.NIDM_SUBJECTID)
+    id_field = None
+    for key, value in dd.items():
+        if "isAbout" in value:
+            for concept in value["isAbout"]:
+                for isabout_key, isabout_value in concept.items():
+                    if isabout_key in ("url", "@id"):
+                        if isabout_value == Constants.NIDM_SUBJECTID._uri:
+                            # get variable name from NIDM JSON file format:
+                            # DD(source=assessment_name, variable=column)
+                            id_field = (
+                                key.split("variable")[1]
+                                .split("=")[1]
+                                .split(")")[0]
+                                .lstrip("'")
+                                .rstrip("'")
+                            )
+
+                            break
+    return id_field
+
+
 def find_session_for_subjectid(session_num, subjectid, nidm_file):
     """
     This function will search the supplied nidm_file for subjectid in agents and then get all sessions linked to this
@@ -402,50 +453,23 @@ def main():
         # with open("/Users/dbkeator/Downloads/test.ttl","w", encoding="utf-8") as f:
         #    f.write(project.serializeTurtle())
 
-        # look at column_to_terms dictionary for NIDM URL for subject id  (Constants.NIDM_SUBJECTID)
-        id_field = None
-        for key, value in column_to_terms.items():
-            if "isAbout" in value:
-                for concept in value["isAbout"]:
-                    for isabout_key, isabout_value in concept.items():
-                        if isabout_key in ("url", "@id"):
-                            if isabout_value == Constants.NIDM_SUBJECTID._uri:
-                                # get variable name from NIDM JSON file format:
-                                # DD(source=assessment_name, variable=column)
-                                id_field = (
-                                    key.split("variable")[1]
-                                    .split("=")[1]
-                                    .split(")")[0]
-                                    .lstrip("'")
-                                    .rstrip("'")
-                                )
-                                # make sure id_field is a string for zero-padded subject ids
-                                # re-read data file with constraint that key field is read as string
-                                df = pd.read_csv(args.csv_file, dtype={id_field: str})
-                                break
+        id_field = detect_idfield(column_to_terms, args.csv_file)
 
         # if we couldn't find a subject ID field in column_to_terms, ask user
         if id_field is None:
-            option = 1
-            for column in df.columns:
-                print(f"{option}: {column}")
-                option = option + 1
-            selection = input(
-                "Please select the subject ID field from the list above: "
-            )
-            # Make sure user selected one of the options.  If not present user with selection input again
-            while (not selection.isdigit()) or (int(selection) > int(option)):
-                # Wait for user input
-                selection = input(
-                    "Please select the subject ID field from the list above: \t"
-                )
-            id_field = df.columns[int(selection) - 1]
+            # ask user for id field
+            id_field = ask_idfield(df)
+
             # make sure id_field is a string for zero-padded subject ids
             # re-read data file with constraint that key field is read as string
             if args.csv_file.endswith(".csv"):
                 df = pd.read_csv(args.csv_file, dtype={id_field: str})
             else:
                 df = pd.read_csv(args.csv_file, dtype={id_field: str}, sep="\t")
+        else:
+            # make sure id_field is a string for zero-padded subject ids
+            # re-read data file with constraint that key field is read as string
+            df = pd.read_csv(args.csv_file, dtype={id_field: str})
 
         # ## use RDFLib here for temporary graph making query easier
         # rdf_graph = Graph()
@@ -470,7 +494,6 @@ def main():
                 print(f"participant in NIDM file {row[0]} \t {row[1]}")
             # find row in CSV file with subject id matching agent from NIDM file
 
-            # csv_row = df.loc[df[id_field]==type(df[id_field][0])(row[1])]
             # find row in CSV file with matching subject id to the agent in the NIDM file
             # be careful about data types...simply type-change dataframe subject id column and query to strings.
             # here we're removing the leading 0's from IDs because pandas.read_csv strips those unless you know ahead of
@@ -587,11 +610,6 @@ def main():
                             software_metadata["url"].to_string(index=False),
                         )
 
-                        # what do we do if we didn't find an acquisition entity?  Add derived data but with no
-                        # linkage to original image?
-                        # create a new session for this assessment
-                        new_session = Session(project=project)
-
                         # create a namespace for this derivative software
                         # soft_namespace = Namespace(software_metadata['title'])
 
@@ -659,7 +677,7 @@ def main():
                         software_agent = project.add_person(
                             attributes={
                                 RDF["type"]: QualifiedName(
-                                    Constants.PROV, "SoftwareAgent"
+                                    Constants.NIDM, "SoftwareAgent"
                                 )
                             },
                             add_default_type=False,
@@ -689,8 +707,8 @@ def main():
                         #                                "prefix": "dctypes", "term": "title","value":
                         #                                    software_metadata["title"].to_string(index=False)}])
 
-                        # add dctypes namespace
-                        # project.addNamespace(prefix="dctypes", uri=Constants.DCTYPES)
+                        # add dcmitype namespace
+                        project.addNamespace(prefix="dcmitype", uri=Constants.DCTYPES)
                         project.addAttributes(
                             software_agent,
                             {
@@ -699,7 +717,7 @@ def main():
                                 )
                             },
                         )
-                        # project.addNamespace(prefix="dct", uri=Constants.DCT)
+                        project.addNamespace(prefix="dct", uri=Constants.DCT)
                         project.addAttributes(
                             software_agent,
                             {
@@ -799,101 +817,183 @@ def main():
         project.add_attributes({Constants.NIDM_FILENAME: args.csv_file})
 
         # look at column_to_terms dictionary for NIDM URL for subject id  (Constants.NIDM_SUBJECTID)
-        id_field = None
-        for key, value in column_to_terms.items():
-            # using isAbout concept association to associate subject identifier variable from csv with a known term
-            # for subject IDs
-            if "isAbout" in value:
-                # iterate over isAbout list entries and look for Constants.NIDM_SUBJECTID
-                for entries in value["isAbout"]:
-                    if Constants.NIDM_SUBJECTID.uri == entries["@id"]:
-                        key_tuple = eval(key)
-                        id_field = key_tuple.variable
-                        # make sure id_field is a string for zero-padded subject ids
-                        # re-read data file with constraint that key field is read as string
-                        if args.csv_file.endswith(".csv"):
-                            df = pd.read_csv(args.csv_file, dtype={id_field: str})
-                        else:
-                            df = pd.read_csv(
-                                args.csv_file, dtype={id_field: str}, sep="\t"
-                            )
-                        break
+        id_field = detect_idfield(column_to_terms, args.csv_file)
 
-        # if we couldn't find a subject ID field in column_to_terms, ask user
         if id_field is None:
-            option = 1
-            for column in df.columns:
-                print(f"{option}: {column}")
-                option = option + 1
-            selection = input(
-                "Please select the subject ID field from the list above: "
-            )
-            # Make sure user selected one of the options.  If not present user with selection input again
-            while (not selection.isdigit()) or (int(selection) > int(option)):
-                # Wait for user input
-                selection = input(
-                    "Please select the subject ID field from the list above: \t"
-                )
-            id_field = df.columns[int(selection) - 1]
+            # ask user for id field
+            id_field = ask_idfield(df)
+
             # make sure id_field is a string for zero-padded subject ids
             # re-read data file with constraint that key field is read as string
             if args.csv_file.endswith(".csv"):
                 df = pd.read_csv(args.csv_file, dtype={id_field: str})
             else:
                 df = pd.read_csv(args.csv_file, dtype={id_field: str}, sep="\t")
+        else:
+            # make sure id_field is a string for zero-padded subject ids
+            # re-read data file with constraint that key field is read as string
+            df = pd.read_csv(args.csv_file, dtype={id_field: str})
 
         # iterate over rows and store in NIDM file
         for _, csv_row in df.iterrows():
-            # create a session object
-            session = Session(project)
-
-            # create and acquisition activity and entity
-            acq = AssessmentAcquisition(session)
-            acq_entity = AssessmentObject(acq)
-
-            # create prov:Agent for subject
-            # acq.add_person(attributes=({Constants.NIDM_SUBJECTID:row['participant_id']}))
-
-            # add git-annex info if exists
-            num_sources = addGitAnnexSources(
-                obj=acq_entity,
-                filepath=args.csv_file,
-                bids_root=os.path.dirname(args.csv_file),
-            )
-            # if there aren't any git annex sources then just store the local directory information
-            if num_sources == 0:
-                # WIP: add absolute location of BIDS directory on disk for later finding of files
-                acq_entity.add_attributes(
-                    {Constants.PROV["Location"]: "file:/" + args.csv_file}
+            # added to support derivatives
+            if args.derivative:
+                # create a derivative activity
+                der = Derivative(
+                    project=project,
                 )
 
-            # store file to acq_entity
-            acq_entity.add_attributes(
-                {Constants.NIDM_FILENAME: basename(args.csv_file)}
-            )
+                # create a derivative entity
+                der_entity = DerivativeObject(derivative=der)
 
-            # store other data from row with columns_to_term mappings
-            for row_variable, row_data in csv_row.iteritems():
-                if not row_data:
-                    continue
+                # add metadata to der_entity
 
-                # check if row_variable is subject id, if so skip it
-                if row_variable == id_field:
-                    ### WIP: Check if agent already exists with the same ID.  If so, use it else create a new agent
+                # store other data from row with columns_to_term mappings
+                for row_variable, row_data in csv_row.iteritems():
+                    # check if row_variable is subject id, if so skip it
+                    if (row_variable == id_field) or (
+                        row_variable in ["ses", "task", "run"]
+                    ):
+                        continue
 
-                    # add qualified association with person
-                    acq.add_qualified_association(
-                        person=acq.add_person(
-                            attributes=({Constants.NIDM_SUBJECTID: str(row_data)})
-                        ),
-                        role=Constants.NIDM_PARTICIPANT,
+                    # add data for this variable to derivative entity
+                    add_attributes_with_cde(
+                        der_entity,
+                        cde,
+                        row_variable,
+                        Literal(row_data),
                     )
 
-                    continue
-                else:
-                    add_attributes_with_cde(acq_entity, cde, row_variable, row_data)
+                    # add cmdline and platform to derivative activity
+                    der.add_attributes(
+                        {
+                            software_metadata["url"].to_string(index=False)
+                            + "cmdline": software_metadata["cmdline"].to_string(
+                                index=False
+                            ),
+                            software_metadata["url"].to_string(index=False)
+                            + "platform": software_metadata["platform"].to_string(
+                                index=False
+                            ),
+                        }
+                    )
 
-                    # print(project.serializeTurtle())
+                    # create subject agent
+                    subject_agent = project.add_person(
+                        attributes=({Constants.NIDM_SUBJECTID: str(csv_row[id_field])})
+                    )
+
+                    # create software metadata agent
+                    software_agent = project.add_person(
+                        attributes={
+                            RDF["type"]: QualifiedName(Constants.NIDM, "SoftwareAgent")
+                        },
+                        add_default_type=False,
+                    )
+
+                    # add qualified association with subject
+                    der.add_qualified_association(
+                        person=subject_agent,
+                        role=QualifiedName(Constants.SIO, "Subject"),
+                    )
+
+                    # add qualified association with software agent
+                    # would prefer to use Constants.NIDM_NEUROIMAGING_ANALYSIS_SOFTWARE here as the role
+                    # but Constants.py has that as a rdflib Namespace but here we're adding data to a provDocument
+                    # so using prov's QualifiedName and can't figure out how to convert rdflib Namespace to a prov
+                    # qualified name...probably a matter of parsing the uri into two parts, one for prefix and the
+                    # other for uri for prov QualifiedName function.
+                    namespace, name = split_uri(
+                        Constants.NIDM_NEUROIMAGING_ANALYSIS_SOFTWARE
+                    )
+                    der.add_qualified_association(
+                        person=software_agent,
+                        role=QualifiedName(Constants.NIDM, name),
+                    )
+                    # add software metadata to software_agent
+                    # uri:"http://ncitt.ncit.nih.gov/", prefix:"ncit", term:"age", value:15
+                    # project.addAttributesWithNamespaces(software_agent,[{"uri":Constants.DCTYPES,
+                    #                                "prefix": "dctypes", "term": "title","value":
+                    #                                    software_metadata["title"].to_string(index=False)}])
+
+                    # add dctypes namespace
+                    # project.addNamespace(prefix="dctypes", uri=Constants.DCTYPES)
+                    project.addAttributes(
+                        software_agent,
+                        {
+                            "dcmitype:title": software_metadata["title"].to_string(
+                                index=False
+                            )
+                        },
+                    )
+                    # project.addNamespace(prefix="dct", uri=Constants.DCT)
+                    project.addAttributes(
+                        software_agent,
+                        {
+                            "dct:description": software_metadata[
+                                "description"
+                            ].to_string(index=False),
+                            "dct:hasVersion": software_metadata["version"].to_string(
+                                index=False
+                            ),
+                            "sio:URL": software_metadata["url"].to_string(index=False),
+                        },
+                    )
+
+            # not a derivative, assume an assessment
+            else:
+                # create a session object
+                session = Session(project)
+
+                # create and acquisition activity and entity
+                acq = AssessmentAcquisition(session)
+                acq_entity = AssessmentObject(acq)
+
+                # create prov:Agent for subject
+                # acq.add_person(attributes=({Constants.NIDM_SUBJECTID:row['participant_id']}))
+
+                # add git-annex info if exists
+                num_sources = addGitAnnexSources(
+                    obj=acq_entity,
+                    filepath=args.csv_file,
+                    bids_root=os.path.dirname(args.csv_file),
+                )
+                # if there aren't any git annex sources then just store the local directory information
+                if num_sources == 0:
+                    # WIP: add absolute location of BIDS directory on disk for later finding of files
+                    acq_entity.add_attributes(
+                        {Constants.PROV["Location"]: "file:/" + args.csv_file}
+                    )
+
+                # store file to acq_entity
+                acq_entity.add_attributes(
+                    {Constants.NIDM_FILENAME: basename(args.csv_file)}
+                )
+
+                # store other data from row with columns_to_term mappings
+                for row_variable, row_data in csv_row.iteritems():
+                    if not row_data:
+                        continue
+
+                    # check if row_variable is subject id, if so skip it
+                    if row_variable == id_field:
+                        ### WIP: Check if agent already exists with the same ID.  If so, use it else create a new agent
+
+                        # add qualified association with person
+                        acq.add_qualified_association(
+                            person=acq.add_person(
+                                attributes=({Constants.NIDM_SUBJECTID: str(row_data)})
+                            ),
+                            role=Constants.NIDM_PARTICIPANT,
+                        )
+
+                        continue
+                    else:
+                        add_attributes_with_cde(
+                            acq_entity, cde, row_variable, Literal(row_data)
+                        )
+
+                        # print(project.serializeTurtle())
 
         # convert to rdflib Graph and add CDEs
         rdf_graph = Graph()
