@@ -86,7 +86,7 @@ namespaces = {
     "foaf": FOAF,
     "vc": VC,
     "dicom": DICOM,
-    "dctypes": DCTYPES,
+    "dcmitype": DCTYPES,
     "ncit": NCIT,
     "dcat": DCAT,
     "birnlex": BIRNLEX,

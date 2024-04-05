@@ -81,6 +81,11 @@ class Core:
         for name, namespace in cls.namespaces.items():
             cls.graph.add_namespace(name, namespace)
 
+    def find_namespace_with_uri(self, uri):
+        for namespace in self.graph.namespaces:
+            if str(namespace.uri) == str(uri):
+                return namespace
+
     def get_uuid(self):
         """
         returns UUID of self
@@ -98,7 +103,7 @@ class Core:
         """
         Returns namespace dictionary {namespace_id, URL}
         """
-        return self.namespaces
+        return self.graph._namespaces
 
     def addNamespace(self, prefix, uri):
         """
@@ -154,14 +159,10 @@ class Core:
 
         if uuid is not None:
             # add Person agent with existing uuid
-            person = self.graph.agent(
-                Constants.namespaces["niiri"][uuid], other_attributes=attributes
-            )
+            person = self.graph.agent("niiri:" + uuid, other_attributes=attributes)
         else:
             # add Person agent
-            person = self.graph.agent(
-                Constants.namespaces["niiri"][getUUID()], other_attributes=attributes
-            )
+            person = self.graph.agent("niiri:" + getUUID(), other_attributes=attributes)
 
         if add_default_type:
             # add minimal attributes to person
@@ -197,7 +198,9 @@ class Core:
 
         # associate person with activity for qualified association
         assoc = self.graph.association(
-            agent=person, activity=self, other_attributes={pm.PROV_ROLE: role}
+            agent=person,
+            activity="niiri:" + self.get_uuid(),
+            other_attributes={pm.PROV_ROLE: role},
         )
 
         # add wasAssociatedWith association

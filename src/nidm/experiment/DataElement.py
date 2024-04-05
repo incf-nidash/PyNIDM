@@ -35,7 +35,11 @@ class DataElement(pm.ProvEntity, Core):
                 attributes,
             )
         else:
-            super().__init__(project.graph, pm.Identifier(uuid), attributes)
+            niiri_ns = project.find_namespace_with_uri(str(Constants.NIIRI))
+
+            super().__init__(
+                project.graph, pm.QualifiedName(niiri_ns, uuid), attributes
+            )
 
         project.graph._add_record(self)
 

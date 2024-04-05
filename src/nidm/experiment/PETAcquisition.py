@@ -23,7 +23,12 @@ class PETAcquisition(Acquisition):
 
         """
         # execute default parent class constructor
-        super().__init__(session, attributes, uuid)
+        super().__init__(
+            session=session,
+            attributes=attributes,
+            uuid=uuid,
+            add_default_type=add_default_type,
+        )
         # acquisition.graph._add_record(self)
 
         if add_default_type:

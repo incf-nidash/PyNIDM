@@ -103,7 +103,8 @@ def read_nidm(nidmDoc):
             # add namespaces to prov graph
             for name, namespace in rdf_graph_parse.namespaces():
                 # skip these default namespaces in prov Document
-                if name not in ("prov", "xsd", "nidm", "niiri"):
+                # if name not in ("prov", "xsd", "nidm", "niiri"):
+                if name not in ("prov", "xsd"):
                     project.graph.add_namespace(name, namespace)
 
         else:
@@ -118,7 +119,8 @@ def read_nidm(nidmDoc):
         # add namespaces to prov graph
         for name, namespace in rdf_graph_parse.namespaces():
             # skip these default namespaces in prov Document
-            if name not in ("prov", "xsd", "nidm", "niiri"):
+            # if name not in ("prov", "xsd", "nidm", "niiri"):
+            if name not in ("prov", "xsd"):
                 project.graph.add_namespace(name, namespace)
 
         # Cycle through Project metadata adding to prov graph
@@ -395,7 +397,8 @@ def read_nidm(nidmDoc):
     for row in qres:
         # print(f"Reading data element: {row}")
         # instantiate a data element class assigning it the existing uuid
-        de = DataElement(project=project, uuid=row["uuid"], add_default_type=False)
+        obj_nm, obj_term = split_uri(row["uuid"])
+        de = DataElement(project=project, uuid=obj_term, add_default_type=False)
         # get the rest of the attributes for this data element and store
         add_metadata_for_subject(
             rdf_graph_parse, row["uuid"], project.graph.namespaces, de
@@ -457,7 +460,7 @@ def read_nidm(nidmDoc):
         # if the parent activity of the derivative object (entity) doesn't exist in the graph then create it
         if row["parent_act"] not in project.derivatives:
             deriv_act = Derivative(project=project, uuid=row["parent_act"])
-            # add additional tripes
+            # add additional triples
             add_metadata_for_subject(
                 rdf_graph_parse, row["parent_act"], project.graph.namespaces, deriv_act
             )
@@ -549,17 +552,21 @@ def add_metadata_for_subject(rdf_graph, subject_uri, namespaces, nidm_obj):
                         Constants.PROV["Entity"],
                     ):
                         continue
-                    # special case if obj_nm is prov, xsd, or nidm namespaces.  These are added
+                    # special case if obj_nm is prov, xsd, namespaces.  These are added
                     # automatically by provDocument so they aren't accessible via the namespaces list
                     # so we check explicitly here
                     if obj_nm == str(Constants.PROV):
                         nidm_obj.add_attributes(
-                            {predicate: QualifiedName(Constants.PROV[obj_term])}
+                            {
+                                predicate: QualifiedName(
+                                    localpart=obj_term, namespace=Constants.PROV
+                                )
+                            }
                         )
-                    elif obj_nm == str(Constants.NIDM):
-                        nidm_obj.add_attributes(
-                            {predicate: QualifiedName(Constants.NIDM[obj_term])}
-                        )
+                    # elif obj_nm == str(Constants.NIDM):
+                    #    nidm_obj.add_attributes(
+                    #        {predicate: pm.QualifiedName(namespace=Namespace(obj_nm), localpart=obj_term)}
+                    #    )
                     else:
                         found_uri = find_in_namespaces(
                             search_uri=URIRef(obj_nm), namespaces=namespaces
@@ -607,13 +614,14 @@ def add_metadata_for_subject(rdf_graph, subject_uri, namespaces, nidm_obj):
                 for agent_obj in r.objects(predicate=Constants.PROV["agent"]):
                     # check if person exists already in graph, if not create it
                     if agent_obj.identifier not in nidm_obj.graph.get_records():
+                        obj_nm, obj_term = split_uri(agent_obj.identifier)
                         person = nidm_obj.add_person(
-                            uuid=agent_obj.identifier, add_default_type=False
+                            uuid=obj_term, add_default_type=False
                         )
                         # add rest of metadata about person
                         add_metadata_for_subject(
                             rdf_graph=rdf_graph,
-                            subject_uri=agent_obj.identifier,
+                            subject_uri="niiri:" + obj_term,
                             namespaces=namespaces,
                             nidm_obj=person,
                         )

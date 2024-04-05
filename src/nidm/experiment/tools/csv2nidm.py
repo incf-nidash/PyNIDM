@@ -453,7 +453,7 @@ def main():
         # with open("/Users/dbkeator/Downloads/test.ttl","w", encoding="utf-8") as f:
         #    f.write(project.serializeTurtle())
 
-        id_field = detect_idfield(column_to_terms, args.csv_file)
+        id_field = detect_idfield(column_to_terms)
 
         # if we couldn't find a subject ID field in column_to_terms, ask user
         if id_field is None:
@@ -707,8 +707,14 @@ def main():
                         #                                "prefix": "dctypes", "term": "title","value":
                         #                                    software_metadata["title"].to_string(index=False)}])
 
-                        # add dcmitype namespace
-                        project.addNamespace(prefix="dcmitype", uri=Constants.DCTYPES)
+                        # see if namespace for dcmitype exists, if not add it
+                        # add namespaces to prov graph
+                        current_namespaces = project.getNamespace()
+                        if "dcmitype" not in current_namespaces.keys():
+                            # add dcmitype namespace
+                            project.addNamespace(
+                                prefix="dcmitype", uri=Constants.DCTYPES
+                            )
                         project.addAttributes(
                             software_agent,
                             {
@@ -817,7 +823,7 @@ def main():
         project.add_attributes({Constants.NIDM_FILENAME: args.csv_file})
 
         # look at column_to_terms dictionary for NIDM URL for subject id  (Constants.NIDM_SUBJECTID)
-        id_field = detect_idfield(column_to_terms, args.csv_file)
+        id_field = detect_idfield(column_to_terms)
 
         if id_field is None:
             # ask user for id field
@@ -864,81 +870,83 @@ def main():
                         Literal(row_data),
                     )
 
-                    # add cmdline and platform to derivative activity
-                    der.add_attributes(
-                        {
-                            software_metadata["url"].to_string(index=False)
-                            + "cmdline": software_metadata["cmdline"].to_string(
-                                index=False
-                            ),
-                            software_metadata["url"].to_string(index=False)
-                            + "platform": software_metadata["platform"].to_string(
-                                index=False
-                            ),
-                        }
-                    )
+                # add cmdline and platform to derivative activity
+                der.add_attributes(
+                    {
+                        software_metadata["url"].to_string(index=False)
+                        + "cmdline": software_metadata["cmdline"].to_string(
+                            index=False
+                        ),
+                        software_metadata["url"].to_string(index=False)
+                        + "platform": software_metadata["platform"].to_string(
+                            index=False
+                        ),
+                    }
+                )
 
-                    # create subject agent
-                    subject_agent = project.add_person(
-                        attributes=({Constants.NIDM_SUBJECTID: str(csv_row[id_field])})
-                    )
+                # create subject agent
+                subject_agent = project.add_person(
+                    attributes=({Constants.NIDM_SUBJECTID: str(csv_row[id_field])})
+                )
 
-                    # create software metadata agent
-                    software_agent = project.add_person(
-                        attributes={
-                            RDF["type"]: QualifiedName(Constants.NIDM, "SoftwareAgent")
-                        },
-                        add_default_type=False,
-                    )
+                # create software metadata agent
+                software_agent = project.add_person(
+                    attributes={
+                        QualifiedName(Constants.RDFS, "type"): QualifiedName(
+                            Constants.NIDM, "SoftwareAgent"
+                        )
+                    },
+                    add_default_type=False,
+                )
 
-                    # add qualified association with subject
-                    der.add_qualified_association(
-                        person=subject_agent,
-                        role=QualifiedName(Constants.SIO, "Subject"),
-                    )
+                # add qualified association with subject
+                der.add_qualified_association(
+                    person=subject_agent,
+                    role=QualifiedName(Constants.SIO, "Subject"),
+                )
 
-                    # add qualified association with software agent
-                    # would prefer to use Constants.NIDM_NEUROIMAGING_ANALYSIS_SOFTWARE here as the role
-                    # but Constants.py has that as a rdflib Namespace but here we're adding data to a provDocument
-                    # so using prov's QualifiedName and can't figure out how to convert rdflib Namespace to a prov
-                    # qualified name...probably a matter of parsing the uri into two parts, one for prefix and the
-                    # other for uri for prov QualifiedName function.
-                    namespace, name = split_uri(
-                        Constants.NIDM_NEUROIMAGING_ANALYSIS_SOFTWARE
-                    )
-                    der.add_qualified_association(
-                        person=software_agent,
-                        role=QualifiedName(Constants.NIDM, name),
-                    )
-                    # add software metadata to software_agent
-                    # uri:"http://ncitt.ncit.nih.gov/", prefix:"ncit", term:"age", value:15
-                    # project.addAttributesWithNamespaces(software_agent,[{"uri":Constants.DCTYPES,
-                    #                                "prefix": "dctypes", "term": "title","value":
-                    #                                    software_metadata["title"].to_string(index=False)}])
+                # add qualified association with software agent
+                # would prefer to use Constants.NIDM_NEUROIMAGING_ANALYSIS_SOFTWARE here as the role
+                # but Constants.py has that as a rdflib Namespace but here we're adding data to a provDocument
+                # so using prov's QualifiedName and can't figure out how to convert rdflib Namespace to a prov
+                # qualified name...probably a matter of parsing the uri into two parts, one for prefix and the
+                # other for uri for prov QualifiedName function.
+                namespace, name = split_uri(
+                    Constants.NIDM_NEUROIMAGING_ANALYSIS_SOFTWARE
+                )
+                der.add_qualified_association(
+                    person=software_agent,
+                    role=QualifiedName(Constants.NIDM, name),
+                )
+                # add software metadata to software_agent
+                # uri:"http://ncitt.ncit.nih.gov/", prefix:"ncit", term:"age", value:15
+                # project.addAttributesWithNamespaces(software_agent,[{"uri":Constants.DCTYPES,
+                #                                "prefix": "dctypes", "term": "title","value":
+                #                                    software_metadata["title"].to_string(index=False)}])
 
-                    # add dctypes namespace
-                    # project.addNamespace(prefix="dctypes", uri=Constants.DCTYPES)
-                    project.addAttributes(
-                        software_agent,
-                        {
-                            "dcmitype:title": software_metadata["title"].to_string(
-                                index=False
-                            )
-                        },
-                    )
-                    # project.addNamespace(prefix="dct", uri=Constants.DCT)
-                    project.addAttributes(
-                        software_agent,
-                        {
-                            "dct:description": software_metadata[
-                                "description"
-                            ].to_string(index=False),
-                            "dct:hasVersion": software_metadata["version"].to_string(
-                                index=False
-                            ),
-                            "sio:URL": software_metadata["url"].to_string(index=False),
-                        },
-                    )
+                # add dctypes namespace
+                # project.addNamespace(prefix="dcmitype", uri=Constants.DCTYPES)
+                project.addAttributes(
+                    software_agent,
+                    {
+                        "dcmitype:title": software_metadata["title"].to_string(
+                            index=False
+                        )
+                    },
+                )
+                # project.addNamespace(prefix="dct", uri=Constants.DCT)
+                project.addAttributes(
+                    software_agent,
+                    {
+                        "dct:description": software_metadata["description"].to_string(
+                            index=False
+                        ),
+                        "dct:hasVersion": software_metadata["version"].to_string(
+                            index=False
+                        ),
+                        "sio:URL": software_metadata["url"].to_string(index=False),
+                    },
+                )
 
             # not a derivative, assume an assessment
             else:
