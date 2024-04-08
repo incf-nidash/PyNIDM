@@ -957,26 +957,61 @@ def main():
                 #                                    software_metadata["title"].to_string(index=False)}])
 
                 # add dctypes namespace
+
+                # check if dct namespace needs to be added
+                dcmitype_ns = project.find_namespace_with_uri(str(Constants.DCTYPES))
+
+                # if we need to add this namespace
+                if dcmitype_ns is False:
+                    # add dcmitype namespace
+                    project.addNamespace(prefix="dcmitype", uri=str(Constants.DCTYPES))
+
+                    dcmitype_ns = project.find_namespace_with_uri(
+                        str(Constants.DCTYPES)
+                    )
+
                 # project.addNamespace(prefix="dcmitype", uri=Constants.DCTYPES)
                 project.addAttributes(
                     software_agent,
                     {
-                        "dcmitype:title": software_metadata["title"].to_string(
-                            index=False
-                        )
+                        QualifiedName(dcmitype_ns, "title"): software_metadata[
+                            "title"
+                        ].to_string(index=False)
                     },
                 )
-                # project.addNamespace(prefix="dct", uri=Constants.DCT)
+
+                # check if dct namespace needs to be added
+                dct_ns = project.find_namespace_with_uri(str(Constants.DCT))
+
+                # if we need to add this namespace
+                if dct_ns is False:
+                    # add dcmitype namespace
+                    project.addNamespace(prefix="dct", uri=str(Constants.DCT))
+
+                    dct_ns = project.find_namespace_with_uri(str(Constants.DCT))
+
+                # find sio namespace in project
+                sio_ns = project.find_namespace_with_uri(str(Constants.SIO))
+
+                # if we need to add this namespace
+                if sio_ns is False:
+                    # add dcmitype namespace
+                    project.addNamespace(prefix="sio", uri=str(Constants.SIO))
+
+                    sio_ns = project.find_namespace_with_uri(str(Constants.SIO))
+
                 project.addAttributes(
                     software_agent,
                     {
-                        "dct:description": software_metadata["description"].to_string(
-                            index=False
-                        ),
-                        "dct:hasVersion": software_metadata["version"].to_string(
-                            index=False
-                        ),
-                        "sio:URL": software_metadata["url"].to_string(index=False),
+                        QualifiedName(dct_ns, "description"): software_metadata[
+                            "description"
+                        ].to_string(index=False),
+                        QualifiedName(dct_ns, "hasVersion"): software_metadata[
+                            "version"
+                        ].to_string(index=False),
+                        QualifiedName(sio_ns, "URL"): software_metadata[
+                            "url"
+                        ].to_string(index=False),
                     },
                 )
 
