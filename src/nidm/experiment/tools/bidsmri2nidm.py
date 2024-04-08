@@ -1365,14 +1365,15 @@ def bidsmri2project(directory, args):
                     img_session=img_session,
                 )
         # else we have no ses-* directories in the BIDS layout
-        addimagingsessions(
-            bids_layout=bids_layout,
-            subject_id=subject_id,
-            session=Session(project),
-            participant=participant,
-            directory=directory,
-            collection=collection,
-        )
+        else:
+            addimagingsessions(
+                bids_layout=bids_layout,
+                subject_id=subject_id,
+                session=Session(project),
+                participant=participant,
+                directory=directory,
+                collection=collection,
+            )
 
     # Added temporarily to support phenotype files
     # for each *.tsv / *.json file pair in the phenotypes directory
