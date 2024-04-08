@@ -424,9 +424,46 @@ def read_nidm(nidmDoc):
         # print(query2)
         qres2 = rdf_graph_parse.query(query2)
 
+        # find rdfs namespace in graph otherwise add it
+        rdfs_ns = project.find_namespace_with_uri(str(Constants.RDFS))
+
+        if rdfs_ns is False:
+            # add namespace
+            # add dcmitype namespace
+            project.addNamespace(prefix="rdfs", uri=str(Constants.RDFS))
+
+            rdfs_ns = project.find_namespace_with_uri(str(Constants.RDFS))
+
         # add this tuple to graph
         for row2 in qres2:
-            project.graph.entity(row2[0], {"rdfs:label": row2[1]})
+            # first we need to make a valid qualified name identifier for this isAbout.
+            # so split row2[0] which is entire uri into two parts
+            ns, term = split_uri(row2[0])
+
+            # now check if namespace (ns) exists in graph, else add it
+            term_ns = project.find_namespace_with_uri(str(ns))
+
+            if term_ns is not False:
+                project.graph.entity(
+                    pm.QualifiedName(term_ns, term),
+                    {pm.QualifiedName(rdfs_ns, "label"): row2[1]},
+                )
+
+            else:
+                # what do we do here with some uri which we don't have an existing prefix?
+                # we'll just create one using 'der' string for derivative stuff and a random number
+                prefix = "der_" + getUUID()
+
+                # now add namespace
+                project.addNamespace(prefix=prefix, uri=str(ns))
+
+                term_ns = project.find_namespace_with_uri(str(ns))
+
+                # now use this new namespace identifier for term
+                project.graph.entity(
+                    pm.QualifiedName(term_ns, term),
+                    {pm.QualifiedName(rdfs_ns, "label"): row2[1]},
+                )
 
     # check for Derivatives.
     # WIP: Currently FSL, Freesurfer, and ANTS tools add these derivatives as nidm:FSStatsCollection,

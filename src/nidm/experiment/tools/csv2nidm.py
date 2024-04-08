@@ -651,12 +651,12 @@ def main():
                                 )
                         # link derivative activity to derivative_acq_entity with prov:used
                         namespace, name = split_uri(source_activity)
+
+                        # find niiri namespace in project
+                        niiri_ns = project.find_namespace_with_uri(str(Constants.NIIRI))
+
                         der.add_attributes(
-                            {
-                                Constants.PROV["used"]: QualifiedName(
-                                    Constants.NIIRI, name
-                                )
-                            }
+                            {Constants.PROV["used"]: QualifiedName(niiri_ns, name)}
                         )
 
                         # add cmdline and platform to derivative activity
@@ -674,18 +674,31 @@ def main():
                         )
 
                         # create software metadata agent
+
+                        # find nidm namespace
+                        nidm_ns = project.find_namespace_with_uri(str(Constants.NIDM))
+
                         software_agent = project.add_person(
                             attributes={
-                                RDF["type"]: QualifiedName(
-                                    Constants.NIDM, "SoftwareAgent"
-                                )
+                                RDF["type"]: QualifiedName(nidm_ns, "SoftwareAgent")
                             },
                             add_default_type=False,
                         )
 
                         # add qualified association with subject
+
+                        # find sio namespace in project
+                        sio_ns = project.find_namespace_with_uri(str(Constants.SIO))
+
+                        # if we need to add this namespace
+                        if sio_ns is False:
+                            # add dcmitype namespace
+                            project.addNamespace(prefix="sio", uri=str(Constants.SIO))
+
+                            sio_ns = project.find_namespace_with_uri(str(Constants.SIO))
+
                         der.add_qualified_association(
-                            person=row[0], role=QualifiedName(Constants.SIO, "Subject")
+                            person=row[0], role=QualifiedName(sio_ns, "Subject")
                         )
 
                         # add qualified association with software agent
@@ -699,7 +712,7 @@ def main():
                         )
                         der.add_qualified_association(
                             person=software_agent,
-                            role=QualifiedName(Constants.NIDM, name),
+                            role=QualifiedName(nidm_ns, name),
                         )
                         # add software metadata to software_agent
                         # uri:"http://ncitt.ncit.nih.gov/", prefix:"ncit", term:"age", value:15
@@ -709,33 +722,52 @@ def main():
 
                         # see if namespace for dcmitype exists, if not add it
                         # add namespaces to prov graph
-                        current_namespaces = project.getNamespace()
-                        if "dcmitype" not in current_namespaces.keys():
+                        dcmitype_ns = project.find_namespace_with_uri(
+                            str(Constants.DCTYPES)
+                        )
+
+                        # if we need to add this namespace
+                        if dcmitype_ns is False:
                             # add dcmitype namespace
                             project.addNamespace(
-                                prefix="dcmitype", uri=Constants.DCTYPES
+                                prefix="dcmitype", uri=str(Constants.DCTYPES)
                             )
+
+                            dcmitype_ns = project.find_namespace_with_uri(
+                                str(Constants.DCTYPES)
+                            )
+
                         project.addAttributes(
                             software_agent,
                             {
-                                "dcmitype:title": software_metadata["title"].to_string(
-                                    index=False
-                                )
+                                QualifiedName(dcmitype_ns, "title"): software_metadata[
+                                    "title"
+                                ].to_string(index=False)
                             },
                         )
-                        project.addNamespace(prefix="dct", uri=Constants.DCT)
+
+                        # check if dct namespace needs to be added
+                        dct_ns = project.find_namespace_with_uri(str(Constants.DCT))
+
+                        # if we need to add this namespace
+                        if dct_ns is False:
+                            # add dcmitype namespace
+                            project.addNamespace(prefix="dct", uri=str(Constants.DCT))
+
+                            dct_ns = project.find_namespace_with_uri(str(Constants.DCT))
+
                         project.addAttributes(
                             software_agent,
                             {
-                                "dct:description": software_metadata[
+                                QualifiedName(dct_ns, "description"): software_metadata[
                                     "description"
                                 ].to_string(index=False),
-                                "dct:hasVersion": software_metadata[
+                                QualifiedName(dct_ns, "hasVersion"): software_metadata[
                                     "version"
                                 ].to_string(index=False),
-                                "sio:URL": software_metadata["url"].to_string(
-                                    index=False
-                                ),
+                                QualifiedName(sio_ns, "URL"): software_metadata[
+                                    "url"
+                                ].to_string(index=False),
                             },
                         )
 

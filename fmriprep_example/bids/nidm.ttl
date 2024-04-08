@@ -5,7 +5,6 @@
 @prefix dicom: <http://neurolex.org/wiki/Category:DICOM_term/> .
 @prefix fmriprep: <https://fmriprep.org/en/stable/> .
 @prefix ilx: <http://uri.interlex.org/> .
-@prefix ndar: <https://ndar.nih.gov/api/datadictionary/v2/dataelement/> .
 @prefix nfo: <http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#> .
 @prefix nidm: <http://purl.org/nidash/nidm#> .
 @prefix niiri: <http://iri.nidash.org/> .
@@ -15,23 +14,71 @@
 @prefix sio: <http://semanticscience.org/ontology/sio.owl#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-niiri:age_3daicjp a nidm:PersonalDataElement,
+niiri:age_20irr3t a nidm:PersonalDataElement,
         prov:Entity ;
     rdfs:label "age"^^xsd:string ;
     dct:description "Age in years"^^xsd:string ;
     nidm:sourceVariable "age"^^xsd:string ;
     ilx:ilx_0739289 "NIDM"^^xsd:string .
 
-niiri:deadbfe2-e230-11ee-9373-acde48001122 a onli:assessment-instrument,
+niiri:bbe9ad9a-f5d0-11ee-aad6-acde48001122 a nidm:DerivativeObject,
+        prov:Entity ;
+    prov:wasGeneratedBy niiri:fbe9a80e-f5d0-11ee-aad6-acde48001122 ;
+    fmriprep:csf_1ao6agc "13046.38785"^^xsd:float ;
+    fmriprep:csf_derivative1_1p294bi "1.256272012"^^xsd:float ;
+    fmriprep:csf_derivative1_power2_2c1d524 "9262.37018"^^xsd:float ;
+    fmriprep:csf_power2_14di3b5 "170220378.9"^^xsd:float ;
+    fmriprep:csf_wm_1q6pdij "13340.51033"^^xsd:float ;
+    fmriprep:dvars_32oj33 "41.61996417"^^xsd:float ;
+    fmriprep:framewise_displacement_25upf6a "0.136127494"^^xsd:float ;
+    fmriprep:global_signal_240ifj0 "11695.41454"^^xsd:float ;
+    fmriprep:global_signal_derivative1_i0s2c9 "1.181615268"^^xsd:float ;
+    fmriprep:global_signal_derivative1_power2_4aa3eh "5237.478104"^^xsd:float ;
+    fmriprep:global_signal_power2_24n7fij "136789056"^^xsd:string ;
+    fmriprep:motion_outlier00_kmjl0h "0.005"^^xsd:float ;
+    fmriprep:motion_outlier01_oqulc9 "0.005"^^xsd:float ;
+    fmriprep:rmsd_1njm7fe "0.082212762"^^xsd:float ;
+    fmriprep:rot_x_289on9p "0.006123318"^^xsd:float ;
+    fmriprep:rot_x_derivative1_1lp27s5 "5.66e-05"^^xsd:float ;
+    fmriprep:rot_x_derivative1_power2_29ladjg "4.12e-06"^^xsd:float ;
+    fmriprep:rot_x_power2_29a22fg "5.05e-05"^^xsd:float ;
+    fmriprep:rot_y_2lmc5pc "-0.000365058"^^xsd:float ;
+    fmriprep:rot_y_derivative1_b12au4 "1.49e-07"^^xsd:float ;
+    fmriprep:rot_y_derivative1_power2_1nb77l4 "1.17e-07"^^xsd:float ;
+    fmriprep:rot_y_power2_3vfg63d "2.34e-07"^^xsd:float ;
+    fmriprep:rot_z_2v0pd55 "0.000834839"^^xsd:float ;
+    fmriprep:rot_z_derivative1_26dfhpj "2.21e-06"^^xsd:float ;
+    fmriprep:rot_z_derivative1_power2_1nvbqja "6.32e-08"^^xsd:float ;
+    fmriprep:rot_z_power2_1v57b56 "7.89e-07"^^xsd:float ;
+    fmriprep:std_dvars_1v5v6lh "1.133837266"^^xsd:float ;
+    fmriprep:tcompcor_3rlg8m5 "9960.583748"^^xsd:float ;
+    fmriprep:trans_x_derivative1_344r53r "1.59e-07"^^xsd:float ;
+    fmriprep:trans_x_derivative1_power2_32u2gi5 "3.93e-05"^^xsd:float ;
+    fmriprep:trans_x_i560i0 "-0.0119"^^xsd:float ;
+    fmriprep:trans_x_power2_eegncm "0.000175"^^xsd:float ;
+    fmriprep:trans_y_2sg9tcm "0.082717853"^^xsd:float ;
+    fmriprep:trans_y_derivative1_3jffshv "0.000458564"^^xsd:float ;
+    fmriprep:trans_y_derivative1_power2_3148aub "0.003390507"^^xsd:float ;
+    fmriprep:trans_y_power2_3b8uffe "0.009323941"^^xsd:float ;
+    fmriprep:trans_z_1lrggod "-0.063991952"^^xsd:float ;
+    fmriprep:trans_z_derivative1_22vb9l0 "-0.000730329"^^xsd:float ;
+    fmriprep:trans_z_derivative1_power2_101sk1i "0.003950218"^^xsd:float ;
+    fmriprep:trans_z_power2_3islcjp "0.007613083"^^xsd:float ;
+    fmriprep:white_matter_derivative1_3crjst1 "-1.705896017"^^xsd:float ;
+    fmriprep:white_matter_derivative1_power2_13oodii "114178.9214"^^xsd:float ;
+    fmriprep:white_matter_p31k9h "11582.81264"^^xsd:float ;
+    fmriprep:white_matter_power2_3a9aqig "134220263.8"^^xsd:float .
+
+niiri:d5f35f0e-f5d0-11ee-ac4b-acde48001122 a onli:assessment-instrument,
         nidm:AcquisitionObject,
         prov:Entity ;
-    niiri:age_3daicjp "30"^^xsd:string ;
-    nfo:filename "participants.tsv"^^xsd:string ;
+    niiri:age_20irr3t "30"^^xsd:string ;
+    nfo:filename "/Users/dbkeator/Documents/Coding/PyNIDM/fmriprep_example/bids/participants.tsv"^^xsd:string ;
     prov:Location "file://Users/dbkeator/Documents/Coding/PyNIDM/fmriprep_example/bids/participants.tsv"^^xsd:string ;
-    prov:wasGeneratedBy niiri:deadbbd2-e230-11ee-9373-acde48001122 ;
-    prov:wasInfluencedBy niiri:deaddf04-e230-11ee-9373-acde48001122 .
+    prov:wasGeneratedBy niiri:e5f35b94-f5d0-11ee-ac4b-acde48001122 ;
+    prov:wasInfluencedBy niiri:a5f379bc-f5d0-11ee-ac4b-acde48001122 .
 
-niiri:deb28b3a-e230-11ee-9373-acde48001122 a nidm:AcquisitionObject,
+niiri:e5f7f802-f5d0-11ee-ac4b-acde48001122 a nidm:AcquisitionObject,
         prov:Entity ;
     bids:EchoTime "0.03"^^xsd:float ;
     bids:FlipAngle 73 ;
@@ -48,154 +95,102 @@ niiri:deb28b3a-e230-11ee-9373-acde48001122 a nidm:AcquisitionObject,
     nidm:hadAcquisitionModality nidm:MagneticResonanceImaging ;
     nidm:hadImageContrastType nidm:FlowWeighted ;
     nidm:hadImageUsageType nidm:Functional ;
-    nfo:filename "/sub-XXX/ses-1/func/sub-XXX_ses-1_task-rest_bold.nii.gz"^^xsd:string ;
+    nfo:filename "sub-XXX/ses-1/func/sub-XXX_ses-1_task-rest_bold.nii.gz"^^xsd:string ;
     prov:Location "file://Users/dbkeator/Documents/Coding/PyNIDM/fmriprep_example/bids/sub-XXX/ses-1/func/sub-XXX_ses-1_task-rest_bold.nii.gz"^^xsd:string ;
-    prov:wasGeneratedBy niiri:deb25804-e230-11ee-9373-acde48001122 .
+    prov:wasGeneratedBy niiri:b5f7c968-f5d0-11ee-ac4b-acde48001122 .
 
-niiri:ded553c2-e230-11ee-9373-acde48001122 a nidm:Session,
+niiri:f61759c2-f5d0-11ee-ac4b-acde48001122 a nidm:Session,
         prov:Activity ;
-    dct:isPartOf niiri:d7f26bee-e230-11ee-9373-acde48001122 .
+    dct:isPartOf niiri:cfc91e98-f5d0-11ee-ac4b-acde48001122 .
 
-niiri:ee0398d6-e230-11ee-927c-acde48001122 a nidm:Session,
-        prov:Activity ;
-    dct:isPartOf niiri:d7f26bee-e230-11ee-9373-acde48001122 .
-
-niiri:ee039e30-e230-11ee-927c-acde48001122 a nidm:DerivativeObject,
-        prov:Entity ;
-    prov:wasGeneratedBy niiri:ee039c32-e230-11ee-927c-acde48001122 ;
-    fmriprep:csf_3svt9fi "13046.38785"^^xsd:float ;
-    fmriprep:csf_derivative1_3ph46lk "1.256272012"^^xsd:float ;
-    fmriprep:csf_derivative1_power2_3356iqt "9262.37018"^^xsd:float ;
-    fmriprep:csf_power2_2b6u1m4 "170220378.9"^^xsd:float ;
-    fmriprep:csf_wm_c5gse1 "13340.51033"^^xsd:float ;
-    fmriprep:dvars_3amb0uk "41.61996417"^^xsd:float ;
-    fmriprep:framewise_displacement_8itp2h "0.136127494"^^xsd:float ;
-    fmriprep:global_signal_188en3r "11695.41454"^^xsd:float ;
-    fmriprep:global_signal_derivative1_1tv5op "1.181615268"^^xsd:float ;
-    fmriprep:global_signal_derivative1_power2_ljgf7n "5237.478104"^^xsd:float ;
-    fmriprep:global_signal_power2_2kd0ns4 "136789056"^^xsd:string ;
-    fmriprep:motion_outlier00_3eli7be "0.005"^^xsd:float ;
-    fmriprep:motion_outlier01_1fqugfp "0.005"^^xsd:float ;
-    fmriprep:rmsd_24fthdm "0.082212762"^^xsd:float ;
-    fmriprep:rot_x_23md9qh "0.006123318"^^xsd:float ;
-    fmriprep:rot_x_derivative1_2a7l38h "5.66e-05"^^xsd:float ;
-    fmriprep:rot_x_derivative1_power2_29v7ff6 "4.12e-06"^^xsd:float ;
-    fmriprep:rot_x_power2_1995bh0 "5.05e-05"^^xsd:float ;
-    fmriprep:rot_y_3eitabk "-0.000365058"^^xsd:float ;
-    fmriprep:rot_y_derivative1_1thv10k "1.49e-07"^^xsd:float ;
-    fmriprep:rot_y_derivative1_power2_3ugmtoq "1.17e-07"^^xsd:float ;
-    fmriprep:rot_y_power2_3nin7fu "2.34e-07"^^xsd:float ;
-    fmriprep:rot_z_2n224vg "0.000834839"^^xsd:float ;
-    fmriprep:rot_z_derivative1_1u42ru2 "2.21e-06"^^xsd:float ;
-    fmriprep:rot_z_derivative1_power2_36f5c33 "6.32e-08"^^xsd:float ;
-    fmriprep:rot_z_power2_6d4eik "7.89e-07"^^xsd:float ;
-    fmriprep:std_dvars_3h7gats "1.133837266"^^xsd:float ;
-    fmriprep:tcompcor_1jda910 "9960.583748"^^xsd:float ;
-    fmriprep:trans_x_2omorc4 "-0.0119"^^xsd:float ;
-    fmriprep:trans_x_derivative1_2eg67q3 "1.59e-07"^^xsd:float ;
-    fmriprep:trans_x_derivative1_power2_3bkdcti "3.93e-05"^^xsd:float ;
-    fmriprep:trans_x_power2_3ukjfr4 "0.000175"^^xsd:float ;
-    fmriprep:trans_y_29bum5 "0.082717853"^^xsd:float ;
-    fmriprep:trans_y_derivative1_2qebmv1 "0.000458564"^^xsd:float ;
-    fmriprep:trans_y_derivative1_power2_2m1cfbm "0.003390507"^^xsd:float ;
-    fmriprep:trans_y_power2_2t057ee "0.009323941"^^xsd:float ;
-    fmriprep:trans_z_derivative1_n4j8q1 "-0.000730329"^^xsd:float ;
-    fmriprep:trans_z_derivative1_power2_3ia7t3r "0.003950218"^^xsd:float ;
-    fmriprep:trans_z_oikm1e "-0.063991952"^^xsd:float ;
-    fmriprep:trans_z_power2_1jqi2er "0.007613083"^^xsd:float ;
-    fmriprep:white_matter_4pq7uv "11582.81264"^^xsd:float ;
-    fmriprep:white_matter_derivative1_gc546m "-1.705896017"^^xsd:float ;
-    fmriprep:white_matter_derivative1_power2_21qd89s "114178.9214"^^xsd:float ;
-    fmriprep:white_matter_power2_3jrd92r "134220263.8"^^xsd:float .
-
-fmriprep:csf_3svt9fi a nidm:PersonalDataElement,
+fmriprep:csf_1ao6agc a nidm:PersonalDataElement,
         prov:Entity ;
     rdfs:label "csf" ;
     dct:description "Global signal: the average signal within anatomically-derived eroded CSF mask." ;
     nidm:isAbout ilx:ilx_0101997 ;
     nidm:sourceVariable "csf" .
 
-fmriprep:csf_derivative1_3ph46lk a nidm:PersonalDataElement,
+fmriprep:csf_derivative1_1p294bi a nidm:PersonalDataElement,
         prov:Entity ;
     rdfs:label "csf_derivative1" ;
     dct:description "Global signal: the first derivative of the average signal within anatomically-derived eroded CSF mask." ;
     nidm:sourceVariable "csf_derivative1" .
 
-fmriprep:csf_derivative1_power2_3356iqt a nidm:PersonalDataElement,
+fmriprep:csf_derivative1_power2_2c1d524 a nidm:PersonalDataElement,
         prov:Entity ;
     rdfs:label "csf_derivative1_power2" ;
     dct:description "" ;
     nidm:sourceVariable "csf_derivative1_power2" .
 
-fmriprep:csf_power2_2b6u1m4 a nidm:PersonalDataElement,
+fmriprep:csf_power2_14di3b5 a nidm:PersonalDataElement,
         prov:Entity ;
     rdfs:label "csf_power2" ;
     dct:description "" ;
     nidm:sourceVariable "csf_power2" .
 
-fmriprep:csf_wm_c5gse1 a nidm:PersonalDataElement,
+fmriprep:csf_wm_1q6pdij a nidm:PersonalDataElement,
         prov:Entity ;
     rdfs:label "csf_wm" ;
     dct:description "" ;
     nidm:sourceVariable "csf_wm" .
 
-fmriprep:dvars_3amb0uk a nidm:PersonalDataElement,
+fmriprep:dvars_32oj33 a nidm:PersonalDataElement,
         prov:Entity ;
     rdfs:label "dvars" ;
     dct:description "" ;
     nidm:sourceVariable "dvars" .
 
-fmriprep:framewise_displacement_8itp2h a nidm:PersonalDataElement,
+fmriprep:framewise_displacement_25upf6a a nidm:PersonalDataElement,
         prov:Entity ;
     rdfs:label "framewise_displacement" ;
     dct:description "A quantification of the estimated bulk-head motion calculated using formula proposed by [Power2012]." ;
     nidm:isAbout ilx:ilx_0104909 ;
     nidm:sourceVariable "framewise_displacement" .
 
-fmriprep:global_signal_188en3r a nidm:PersonalDataElement,
+fmriprep:global_signal_240ifj0 a nidm:PersonalDataElement,
         prov:Entity ;
     rdfs:label "global_signal" ;
     dct:description "Global signal: the average signal within the brain mask." ;
     nidm:isAbout ilx:ilx_0101431 ;
     nidm:sourceVariable "global_signal" .
 
-fmriprep:global_signal_derivative1_1tv5op a nidm:PersonalDataElement,
+fmriprep:global_signal_derivative1_i0s2c9 a nidm:PersonalDataElement,
         prov:Entity ;
     rdfs:label "global_signal_derivative1" ;
     dct:description "Global signal: the first derivative of the average signal within the brain mask." ;
     nidm:sourceVariable "global_signal_derivative1" .
 
-fmriprep:global_signal_derivative1_power2_ljgf7n a nidm:PersonalDataElement,
+fmriprep:global_signal_derivative1_power2_4aa3eh a nidm:PersonalDataElement,
         prov:Entity ;
     rdfs:label "global_signal_derivative1_power2" ;
     dct:description "" ;
     nidm:sourceVariable "global_signal_derivative1_power2" .
 
-fmriprep:global_signal_power2_2kd0ns4 a nidm:PersonalDataElement,
+fmriprep:global_signal_power2_24n7fij a nidm:PersonalDataElement,
         prov:Entity ;
     rdfs:label "global_signal_power2" ;
     dct:description "" ;
     nidm:sourceVariable "global_signal_power2" .
 
-fmriprep:motion_outlier00_3eli7be a nidm:PersonalDataElement,
+fmriprep:motion_outlier00_kmjl0h a nidm:PersonalDataElement,
         prov:Entity ;
     rdfs:label "motion_outlier00" ;
     dct:description "" ;
     nidm:sourceVariable "motion_outlier00" .
 
-fmriprep:motion_outlier01_1fqugfp a nidm:PersonalDataElement,
+fmriprep:motion_outlier01_oqulc9 a nidm:PersonalDataElement,
         prov:Entity ;
     rdfs:label "motion_outlier01" ;
     dct:description "" ;
     nidm:sourceVariable "motion_outlier01" .
 
-fmriprep:rmsd_24fthdm a nidm:PersonalDataElement,
+fmriprep:rmsd_1njm7fe a nidm:PersonalDataElement,
         prov:Entity ;
     rdfs:label "rmsd" ;
     dct:description "" ;
     nidm:sourceVariable "rmsd" .
 
-fmriprep:rot_x_23md9qh a nidm:PersonalDataElement,
+fmriprep:rot_x_289on9p a nidm:PersonalDataElement,
         prov:Entity ;
     rdfs:label "rot_x" ;
     dct:description "Estimated head-motion parameter: rotation about the 'x' axis." ;
@@ -203,25 +198,25 @@ fmriprep:rot_x_23md9qh a nidm:PersonalDataElement,
         ilx:ilx_0794751 ;
     nidm:sourceVariable "rot_x" .
 
-fmriprep:rot_x_derivative1_2a7l38h a nidm:PersonalDataElement,
+fmriprep:rot_x_derivative1_1lp27s5 a nidm:PersonalDataElement,
         prov:Entity ;
     rdfs:label "rot_x_derivative1" ;
     dct:description "Estimated head-motion parameter: first derivative of the rotation about the 'x' axis." ;
     nidm:sourceVariable "rot_x_derivative1" .
 
-fmriprep:rot_x_derivative1_power2_29v7ff6 a nidm:PersonalDataElement,
+fmriprep:rot_x_derivative1_power2_29ladjg a nidm:PersonalDataElement,
         prov:Entity ;
     rdfs:label "rot_x_derivative1_power2" ;
     dct:description "" ;
     nidm:sourceVariable "rot_x_derivative1_power2" .
 
-fmriprep:rot_x_power2_1995bh0 a nidm:PersonalDataElement,
+fmriprep:rot_x_power2_29a22fg a nidm:PersonalDataElement,
         prov:Entity ;
     rdfs:label "rot_x_power2" ;
     dct:description "" ;
     nidm:sourceVariable "rot_x_power2" .
 
-fmriprep:rot_y_3eitabk a nidm:PersonalDataElement,
+fmriprep:rot_y_2lmc5pc a nidm:PersonalDataElement,
         prov:Entity ;
     rdfs:label "rot_y" ;
     dct:description "Estimated head-motion parameter: rotation about the 'y' axis." ;
@@ -229,25 +224,25 @@ fmriprep:rot_y_3eitabk a nidm:PersonalDataElement,
         ilx:ilx_0794752 ;
     nidm:sourceVariable "rot_y" .
 
-fmriprep:rot_y_derivative1_1thv10k a nidm:PersonalDataElement,
+fmriprep:rot_y_derivative1_b12au4 a nidm:PersonalDataElement,
         prov:Entity ;
     rdfs:label "rot_y_derivative1" ;
     dct:description "Estimated head-motion parameter: first derivative of the rotation about the 'y' axis." ;
     nidm:sourceVariable "rot_y_derivative1" .
 
-fmriprep:rot_y_derivative1_power2_3ugmtoq a nidm:PersonalDataElement,
+fmriprep:rot_y_derivative1_power2_1nb77l4 a nidm:PersonalDataElement,
         prov:Entity ;
     rdfs:label "rot_y_derivative1_power2" ;
     dct:description "" ;
     nidm:sourceVariable "rot_y_derivative1_power2" .
 
-fmriprep:rot_y_power2_3nin7fu a nidm:PersonalDataElement,
+fmriprep:rot_y_power2_3vfg63d a nidm:PersonalDataElement,
         prov:Entity ;
     rdfs:label "rot_y_power2" ;
     dct:description "" ;
     nidm:sourceVariable "rot_y_power2" .
 
-fmriprep:rot_z_2n224vg a nidm:PersonalDataElement,
+fmriprep:rot_z_2v0pd55 a nidm:PersonalDataElement,
         prov:Entity ;
     rdfs:label "rot_z" ;
     dct:description "Estimated head-motion parameter: rotation about the 'z' axis." ;
@@ -255,44 +250,56 @@ fmriprep:rot_z_2n224vg a nidm:PersonalDataElement,
         ilx:ilx_0794753 ;
     nidm:sourceVariable "rot_z" .
 
-fmriprep:rot_z_derivative1_1u42ru2 a nidm:PersonalDataElement,
+fmriprep:rot_z_derivative1_26dfhpj a nidm:PersonalDataElement,
         prov:Entity ;
     rdfs:label "rot_z_derivative1" ;
     dct:description "Estimated head-motion parameter: first derivative of the rotation about the 'z' axis." ;
     nidm:sourceVariable "rot_z_derivative1" .
 
-fmriprep:rot_z_derivative1_power2_36f5c33 a nidm:PersonalDataElement,
+fmriprep:rot_z_derivative1_power2_1nvbqja a nidm:PersonalDataElement,
         prov:Entity ;
     rdfs:label "rot_z_derivative1_power2" ;
     dct:description "" ;
     nidm:sourceVariable "rot_z_derivative1_power2" .
 
-fmriprep:rot_z_power2_6d4eik a nidm:PersonalDataElement,
+fmriprep:rot_z_power2_1v57b56 a nidm:PersonalDataElement,
         prov:Entity ;
     rdfs:label "rot_z_power2" ;
     dct:description "" ;
     nidm:sourceVariable "rot_z_power2" .
 
-fmriprep:std_dvars_3h7gats a nidm:PersonalDataElement,
+fmriprep:std_dvars_1v5v6lh a nidm:PersonalDataElement,
         prov:Entity ;
     rdfs:label "std_dvars" ;
     dct:description "" ;
     nidm:sourceVariable "std_dvars" .
 
-fmriprep:subject_id_3htvipl a nidm:PersonalDataElement,
+fmriprep:subject_id_1ismvpa a nidm:PersonalDataElement,
         prov:Entity ;
     rdfs:label "subject_id" ;
     dct:description "subject/participant identifier" ;
-    nidm:isAbout ndar:src_subject_id ;
+    nidm:isAbout <https://ndar.nih.gov/api/datadictionary/v2/dataelement/src_subject_id> ;
     nidm:sourceVariable "subject_id" .
 
-fmriprep:tcompcor_1jda910 a nidm:PersonalDataElement,
+fmriprep:tcompcor_3rlg8m5 a nidm:PersonalDataElement,
         prov:Entity ;
     rdfs:label "tcompcor" ;
     dct:description "" ;
     nidm:sourceVariable "tcompcor" .
 
-fmriprep:trans_x_2omorc4 a nidm:PersonalDataElement,
+fmriprep:trans_x_derivative1_344r53r a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "trans_x_derivative1" ;
+    dct:description "Estimated head-motion parameter: first derivative of the translation in the 'x' direction." ;
+    nidm:sourceVariable "trans_x_derivative1" .
+
+fmriprep:trans_x_derivative1_power2_32u2gi5 a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "trans_x_derivative1_power2" ;
+    dct:description "" ;
+    nidm:sourceVariable "trans_x_derivative1_power2" .
+
+fmriprep:trans_x_i560i0 a nidm:PersonalDataElement,
         prov:Entity ;
     rdfs:label "trans_x" ;
     dct:description "Estimated head-motion parameter: translation in the 'x' direction." ;
@@ -300,25 +307,13 @@ fmriprep:trans_x_2omorc4 a nidm:PersonalDataElement,
         ilx:ilx_0794751 ;
     nidm:sourceVariable "trans_x" .
 
-fmriprep:trans_x_derivative1_2eg67q3 a nidm:PersonalDataElement,
-        prov:Entity ;
-    rdfs:label "trans_x_derivative1" ;
-    dct:description "Estimated head-motion parameter: first derivative of the translation in the 'x' direction." ;
-    nidm:sourceVariable "trans_x_derivative1" .
-
-fmriprep:trans_x_derivative1_power2_3bkdcti a nidm:PersonalDataElement,
-        prov:Entity ;
-    rdfs:label "trans_x_derivative1_power2" ;
-    dct:description "" ;
-    nidm:sourceVariable "trans_x_derivative1_power2" .
-
-fmriprep:trans_x_power2_3ukjfr4 a nidm:PersonalDataElement,
+fmriprep:trans_x_power2_eegncm a nidm:PersonalDataElement,
         prov:Entity ;
     rdfs:label "trans_x_power2" ;
     dct:description "" ;
     nidm:sourceVariable "trans_x_power2" .
 
-fmriprep:trans_y_29bum5 a nidm:PersonalDataElement,
+fmriprep:trans_y_2sg9tcm a nidm:PersonalDataElement,
         prov:Entity ;
     rdfs:label "trans_y" ;
     dct:description "Estimated head-motion parameter: translation in the 'y' direction." ;
@@ -326,37 +321,25 @@ fmriprep:trans_y_29bum5 a nidm:PersonalDataElement,
         ilx:ilx_0794752 ;
     nidm:sourceVariable "trans_y" .
 
-fmriprep:trans_y_derivative1_2qebmv1 a nidm:PersonalDataElement,
+fmriprep:trans_y_derivative1_3jffshv a nidm:PersonalDataElement,
         prov:Entity ;
     rdfs:label "trans_y_derivative1" ;
     dct:description "Estimated head-motion parameter: first derivative of the translation in the 'xy direction." ;
     nidm:sourceVariable "trans_y_derivative1" .
 
-fmriprep:trans_y_derivative1_power2_2m1cfbm a nidm:PersonalDataElement,
+fmriprep:trans_y_derivative1_power2_3148aub a nidm:PersonalDataElement,
         prov:Entity ;
     rdfs:label "trans_y_derivative1_power2" ;
     dct:description "" ;
     nidm:sourceVariable "trans_y_derivative1_power2" .
 
-fmriprep:trans_y_power2_2t057ee a nidm:PersonalDataElement,
+fmriprep:trans_y_power2_3b8uffe a nidm:PersonalDataElement,
         prov:Entity ;
     rdfs:label "trans_y_power2" ;
     dct:description "" ;
     nidm:sourceVariable "trans_y_power2" .
 
-fmriprep:trans_z_derivative1_n4j8q1 a nidm:PersonalDataElement,
-        prov:Entity ;
-    rdfs:label "trans_z_derivative1" ;
-    dct:description "Estimated head-motion parameter: first derivative of the translation in the 'z' direction." ;
-    nidm:sourceVariable "trans_z_derivative1" .
-
-fmriprep:trans_z_derivative1_power2_3ia7t3r a nidm:PersonalDataElement,
-        prov:Entity ;
-    rdfs:label "trans_z_derivative1_power2" ;
-    dct:description "" ;
-    nidm:sourceVariable "trans_z_derivative1_power2" .
-
-fmriprep:trans_z_oikm1e a nidm:PersonalDataElement,
+fmriprep:trans_z_1lrggod a nidm:PersonalDataElement,
         prov:Entity ;
     rdfs:label "trans_z" ;
     dct:description "Estimated head-motion parameter: translation in the 'z' direction." ;
@@ -364,89 +347,99 @@ fmriprep:trans_z_oikm1e a nidm:PersonalDataElement,
         ilx:ilx_0794753 ;
     nidm:sourceVariable "trans_z" .
 
-fmriprep:trans_z_power2_1jqi2er a nidm:PersonalDataElement,
+fmriprep:trans_z_derivative1_22vb9l0 a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "trans_z_derivative1" ;
+    dct:description "Estimated head-motion parameter: first derivative of the translation in the 'z' direction." ;
+    nidm:sourceVariable "trans_z_derivative1" .
+
+fmriprep:trans_z_derivative1_power2_101sk1i a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "trans_z_derivative1_power2" ;
+    dct:description "" ;
+    nidm:sourceVariable "trans_z_derivative1_power2" .
+
+fmriprep:trans_z_power2_3islcjp a nidm:PersonalDataElement,
         prov:Entity ;
     rdfs:label "trans_z_power2" ;
     dct:description "" ;
     nidm:sourceVariable "trans_z_power2" .
 
-fmriprep:white_matter_4pq7uv a nidm:PersonalDataElement,
+fmriprep:white_matter_derivative1_3crjst1 a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "white_matter_derivative1" ;
+    dct:description "Global signal: the first derivative of the average signal within the anatomically-derived eroded WM masks." ;
+    nidm:sourceVariable "white_matter_derivative1" .
+
+fmriprep:white_matter_derivative1_power2_13oodii a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "white_matter_derivative1_power2" ;
+    dct:description "" ;
+    nidm:sourceVariable "white_matter_derivative1_power2" .
+
+fmriprep:white_matter_p31k9h a nidm:PersonalDataElement,
         prov:Entity ;
     rdfs:label "white_matter" ;
     dct:description "Global signal: the average signal within the anatomically-derived eroded WM masks." ;
     nidm:isAbout ilx:ilx_0112630 ;
     nidm:sourceVariable "white_matter" .
 
-fmriprep:white_matter_derivative1_gc546m a nidm:PersonalDataElement,
-        prov:Entity ;
-    rdfs:label "white_matter_derivative1" ;
-    dct:description "Global signal: the first derivative of the average signal within the anatomically-derived eroded WM masks." ;
-    nidm:sourceVariable "white_matter_derivative1" .
-
-fmriprep:white_matter_derivative1_power2_21qd89s a nidm:PersonalDataElement,
-        prov:Entity ;
-    rdfs:label "white_matter_derivative1_power2" ;
-    dct:description "" ;
-    nidm:sourceVariable "white_matter_derivative1_power2" .
-
-fmriprep:white_matter_power2_3jrd92r a nidm:PersonalDataElement,
+fmriprep:white_matter_power2_3a9aqig a nidm:PersonalDataElement,
         prov:Entity ;
     rdfs:label "white_matter_power2" ;
     dct:description "" ;
     nidm:sourceVariable "white_matter_power2" .
 
-niiri:deadb63c-e230-11ee-9373-acde48001122 a nidm:Session,
-        prov:Activity ;
-    dct:isPartOf niiri:d7f26bee-e230-11ee-9373-acde48001122 .
-
-niiri:deadbbd2-e230-11ee-9373-acde48001122 a onli:instrument-based-assessment,
-        nidm:Acquisition,
-        prov:Activity ;
-    dct:isPartOf niiri:deadb63c-e230-11ee-9373-acde48001122 ;
-    prov:qualifiedAssociation [ a prov:Association ;
-            prov:agent niiri:deadc578-e230-11ee-9373-acde48001122 ;
-            prov:hadRole sio:Subject ] .
-
-niiri:deb15558-e230-11ee-9373-acde48001122 a nidm:Session,
+niiri:c5f6d24c-f5d0-11ee-ac4b-acde48001122 a nidm:Session,
         prov:Activity ;
     bids:session_number "1"^^xsd:string ;
-    dct:isPartOf niiri:d7f26bee-e230-11ee-9373-acde48001122 .
+    dct:isPartOf niiri:cfc91e98-f5d0-11ee-ac4b-acde48001122 .
 
-niiri:ee039c32-e230-11ee-927c-acde48001122 a nidm:Derivative,
+niiri:d5f356da-f5d0-11ee-ac4b-acde48001122 a nidm:Session,
         prov:Activity ;
-    dct:isPartOf niiri:d7f26bee-e230-11ee-9373-acde48001122 ;
-    prov:qualifiedAssociation [ a prov:Association ;
-            prov:agent niiri:deadc578-e230-11ee-9373-acde48001122 ;
-            prov:hadRole sio:Subject ],
-        [ a prov:Association ;
-            prov:agent niiri:ee054352-e230-11ee-927c-acde48001122 ;
-            prov:hadRole nidm:NIDM_0000164 ] ;
-    prov:used niiri:deb25804-e230-11ee-9373-acde48001122 ;
-    fmriprep:cmdline "/opt/conda/bin/nibabies /data /out participant ..."^^xsd:string ;
-    fmriprep:platform "NaN"^^xsd:string .
+    dct:isPartOf niiri:cfc91e98-f5d0-11ee-ac4b-acde48001122 .
 
-niiri:ee054352-e230-11ee-927c-acde48001122 a prov:Agent,
-        prov:SoftwareAgent ;
+niiri:dbebcb84-f5d0-11ee-aad6-acde48001122 a nidm:SoftwareAgent,
+        prov:Agent ;
     dcmitype:title "fmriprep"^^xsd:string ;
     dct:description "fMRIPrep is a NiPreps (NeuroImaging PREProcessi..."^^xsd:string ;
     dct:hasVersion "23.0.0"^^xsd:string ;
     sio:URL "https://fmriprep.org/en/stable/"^^xsd:string .
 
-ndar:src_subject_id a prov:Entity ;
-    rdfs:label "src_subject_id" .
-
-niiri:deb25804-e230-11ee-9373-acde48001122 a nidm:Acquisition,
+niiri:e5f35b94-f5d0-11ee-ac4b-acde48001122 a onli:instrument-based-assessment,
+        nidm:Acquisition,
         prov:Activity ;
-    dct:isPartOf niiri:deb15558-e230-11ee-9373-acde48001122 ;
+    dct:isPartOf niiri:d5f356da-f5d0-11ee-ac4b-acde48001122 ;
     prov:qualifiedAssociation [ a prov:Association ;
-            prov:agent niiri:deadc578-e230-11ee-9373-acde48001122 ;
+            prov:agent niiri:b5f36418-f5d0-11ee-ac4b-acde48001122 ;
             prov:hadRole sio:Subject ] .
 
-niiri:deadc578-e230-11ee-9373-acde48001122 a prov:Agent,
-        prov:Person ;
-    ndar:src_subject_id "XXX"^^xsd:string .
+niiri:fbe9a80e-f5d0-11ee-aad6-acde48001122 a nidm:Derivative,
+        prov:Activity ;
+    dct:isPartOf niiri:cfc91e98-f5d0-11ee-ac4b-acde48001122 ;
+    prov:qualifiedAssociation [ a prov:Association ;
+            prov:agent niiri:dbebcb84-f5d0-11ee-aad6-acde48001122 ;
+            prov:hadRole nidm:NIDM_0000164 ],
+        [ a prov:Association ;
+            prov:agent niiri:b5f36418-f5d0-11ee-ac4b-acde48001122 ;
+            prov:hadRole sio:Subject ] ;
+    prov:used niiri:b5f7c968-f5d0-11ee-ac4b-acde48001122 ;
+    fmriprep:cmdline "/opt/conda/bin/nibabies /data /out participant ..."^^xsd:string ;
+    fmriprep:platform "NaN"^^xsd:string .
 
-niiri:d7f26bee-e230-11ee-9373-acde48001122 a nidm:Project,
+<https://ndar.nih.gov/api/datadictionary/v2/dataelement/src_subject_id> a prov:Entity ;
+    rdfs:label "src_subject_id" .
+
+niiri:b5f7c968-f5d0-11ee-ac4b-acde48001122 a nidm:Acquisition,
+        prov:Activity ;
+    dct:isPartOf niiri:c5f6d24c-f5d0-11ee-ac4b-acde48001122 ;
+    prov:qualifiedAssociation [ a prov:Association ;
+            prov:agent niiri:b5f36418-f5d0-11ee-ac4b-acde48001122 ;
+            prov:hadRole sio:Subject ] .
+
+niiri:b5f36418-f5d0-11ee-ac4b-acde48001122 a prov:Agent .
+
+niiri:cfc91e98-f5d0-11ee-ac4b-acde48001122 a nidm:Project,
         prov:Activity ;
     dcmitype:title "TEST-fmriprep"^^xsd:string .
 

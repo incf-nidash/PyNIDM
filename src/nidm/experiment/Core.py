@@ -85,6 +85,8 @@ class Core:
         for namespace in self.graph.namespaces:
             if str(namespace.uri) == str(uri):
                 return namespace
+        else:
+            return False
 
     def get_uuid(self):
         """
@@ -316,12 +318,27 @@ class Core:
             # is the key already mapped to a URL (i.e. using one of the constants from Constants.py) or is it in prefix:term form?
             # if not validators.url(key):
             # check if namespace prefix already exists in graph or #if we're using a Constants reference
-            if not self.checkNamespacePrefix(key.split(":")[0]):
-                raise TypeError(
-                    "Namespace prefix "
-                    + key
-                    + " not in graph, use addAttributesWithNamespaces or manually add!"
-                )
+            # these should be of type pm.QualifiedName otherwise they might be a string version of a qualified name
+            # which should be changed but for now we're supporting these types that look like "nidm:Derivative"
+            if isinstance(key, pm.QualifiedName):
+                # check if the namespace is in self.graph
+                ns = self.find_namespace_with_uri(str(key.namespace.uri))
+                if ns is False:
+                    # namespace isn't in graph so give an error
+                    raise TypeError(
+                        "Namespace prefix "
+                        + key.prefix
+                        + ", "
+                        + key.namespace.uri
+                        + " not in graph, use addAttributesWithNamespaces or manually add!"
+                    )
+            elif isinstance(key, str):
+                if not self.checkNamespacePrefix(key.split(":")[0]):
+                    raise TypeError(
+                        "Namespace prefix "
+                        + key
+                        + " not in graph, use addAttributesWithNamespaces or manually add!"
+                    )
             # figure out datatype of literal
             datatype = self.getDataType(attributes[key])
             # if (not validators.url(key)):

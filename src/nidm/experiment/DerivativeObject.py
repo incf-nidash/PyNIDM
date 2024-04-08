@@ -28,19 +28,43 @@ class DerivativeObject(pm.ProvEntity, Core):
         """
 
         if uuid is None:
-            # execute default parent class constructor
-            super().__init__(
-                derivative.graph,
-                pm.QualifiedName(pm.Namespace("niiri", Constants.NIIRI), getUUID()),
-                attributes,
-            )
+            # since derivatives are likely added to an existing NIDM file, here we explicitly
+            # check for the  NIIRI namespace and only add it if necessary...otherwise the
+            # prefix gets duplicated and ends up with an _1 in the resulting NIDM file.
+            niiri_ns = derivative.find_namespace_with_uri(str(Constants.NIIRI))
+
+            if niiri_ns is not False:
+                super().__init__(
+                    derivative.graph,
+                    pm.QualifiedName(niiri_ns, getUUID()),
+                    attributes,
+                )
+
+            else:
+                # execute default parent class constructor
+                super().__init__(
+                    derivative.graph,
+                    pm.QualifiedName(pm.Namespace("niiri", Constants.NIIRI), getUUID()),
+                    attributes,
+                )
+
         else:
             super().__init__(derivative.graph, pm.Identifier(uuid), attributes)
 
         derivative.graph._add_record(self)
 
         if add_default_type:
-            self.add_attributes({pm.PROV_TYPE: Constants.NIDM_DERIVATIVE_ENTITY})
+            # since derivatives are likely added to an existing NIDM file, here we explicitly
+            # check for the  NIDM namespace and only add it if necessary...otherwise the
+            # prefix gets duplicated and ends up with an _1 in the resulting NIDM file.
+            nidm_ns = derivative.find_namespace_with_uri(str(Constants.NIDM))
+
+            if nidm_ns is not False:
+                self.add_attributes(
+                    {pm.PROV_TYPE: pm.QualifiedName(nidm_ns, "DerivativeObject")}
+                )
+            else:
+                self.add_attributes({pm.PROV_TYPE: Constants.NIDM_DERIVATIVE_ENTITY})
 
         # carry graph object around
         self.graph = derivative.graph
