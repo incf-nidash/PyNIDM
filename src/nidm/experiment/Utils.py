@@ -3034,3 +3034,103 @@ def validate_uuid(uuid_string):
         return False
 
     return True
+
+
+def csv_dd_to_json_dd(csv_df):
+    """
+    This function will take the supplied csv_df dataframe, expecting column names:
+        source_variable	label	description	valueType	measureOf	isAbout	unitCode	minValue	maxValue
+
+    For multiple isAbout entries, use a ';' to separate them in a single column within the csv file dataframe
+
+    It will then iterate over the rows and store the various metadata as a json-formatted data dictionary consistent
+    with NIDM and ReproSchema data dictionaries and return it
+
+            {
+           "global_signal": {
+              "label": "global_signal",
+              "description": "Global signal: the average signal within the brain mask.",
+              "valueType": "http://uri.interlex.org/ilx_0794754",
+              "measureOf": "http://uri.interlex.org/ilx_0105536",
+              "isAbout": [
+                {
+                    "@id":"http://uri.interlex.org/ilx_0101431"
+                }
+              ],
+              "unitCode": "",
+              "minValue": null,
+              "maxValue": null
+           },
+    :param csv_df: pandas dataframe of a properly formatted (see above)
+    :return: json formatted data dictionary or -1 if error
+
+    """
+
+    # first check the required columns are in this csv_df or else return error
+    required_cols = [
+        "source_variable",
+        "label",
+        "description",
+        "valueType",
+        "measureOf",
+        "isAbout",
+        "unitCode",
+        "minValue",
+        "maxValue",
+    ]
+
+    for col in required_cols:
+        if col not in csv_df.columns:
+            print(f"Required column: {col} not in supplied csv data dictionary.")
+            return -1
+
+    # create empty json data dictionary
+    json_dd = {}
+
+    # iterate over rows and store in NIDM file
+    for _, csv_row in csv_df.iterrows():
+        # create entry for this source_variable
+        # make sure key has quotes around it and prevent double quotes if original data contained
+        # quotes
+        key = '"' + csv_row["source_variable"].lstrip('"').rstrip('"') + '"'
+
+        json_dd[key] = {}
+
+        # store rest of metadata if value isn't null
+        if not csv_row["label"].isnull():
+            json_dd[key]["label"] = '"' + csv_row["label"].lstrip('"').rstrip('"') + '"'
+        if not csv_row["description"].isnull():
+            json_dd[key]["description"] = (
+                '"' + csv_row["description"].lstrip('"').rstrip('"') + '"'
+            )
+        if not csv_row["valueType"].isnull():
+            json_dd[key]["valueType"] = (
+                '"' + csv_row["valueType"].lstrip('"').rstrip('"') + '"'
+            )
+        if not csv_row["measureOf"].isnull():
+            json_dd[key]["measureOf"] = (
+                '"' + csv_row["measureOf"].lstrip('"').rstrip('"') + '"'
+            )
+        if not csv_row["unitCode"].isnull():
+            json_dd[key]["unitCode"] = (
+                '"' + csv_row["unitCode"].lstrip('"').rstrip('"') + '"'
+            )
+        if not csv_row["minValue"].isnull():
+            json_dd[key]["minValue"] = (
+                '"' + csv_row["minValue"].lstrip('"').rstrip('"') + '"'
+            )
+        if not csv_row["maxValue"].isnull():
+            json_dd[key]["maxValue"] = (
+                '"' + csv_row["maxValue"].lstrip('"').rstrip('"') + '"'
+            )
+
+        if not csv_row["isAbout"].isnull():
+            # now iterate over isAbout terms which could be 1 or more, separated with a ';'
+            isabout_terms = csv_row["isAbout"]
+
+            # set up isAbout list
+            json_dd[key]["isAbout"] = []
+            for term in isabout_terms.split(";"):
+                json_dd[key]["isAbout"].append({"@id": term})
+
+        return json_dd

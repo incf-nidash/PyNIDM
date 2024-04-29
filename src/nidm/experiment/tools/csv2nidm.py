@@ -34,6 +34,7 @@ from nidm.experiment.Query import (
 from nidm.experiment.Utils import (
     add_attributes_with_cde,
     addGitAnnexSources,
+    csv_dd_to_json_dd,
     map_variables_to_terms,
     read_nidm,
     redcap_datadictionary_to_json,
@@ -217,7 +218,24 @@ def main():
         "-json_map",
         dest="json_map",
         required=False,
-        help="Full path to user-suppled JSON file containing variable-term mappings.",
+        help="Full path to user-supplied JSON file containing variable-term mappings.",
+    )
+    dd_group.add_argument(
+        "-csv_map",
+        dest="csv_map",
+        required=False,
+        help="Full path to user-supplied CSV-version of data dictionary containing the following "
+        "required columns: "
+        "source_variable,"
+        "label,"
+        "description,"
+        "valueType,"
+        "measureOf,"
+        "isAbout(For multiple isAbout entries, use a ';' to separate them in a single column "
+        "within the csv file dataframe),"
+        "unitCode,"
+        "minValue,"
+        "maxValue,",
     )
     dd_group.add_argument(
         "-redcap",
@@ -285,8 +303,12 @@ def main():
     # if we have a redcap datadictionary then convert it straight away to a json representation
     if args.redcap:
         json_map = redcap_datadictionary_to_json(args.redcap, basename(args.csv_file))
-    else:
+    elif args.json_map:
         json_map = args.json_map
+    else:
+        # convert csv_map to a json version
+        json_map = csv_dd_to_json_dd(pd.read_csv(args.csv_map))
+
     # open CSV file and load into
     # DBK added to accommodate TSV files with tab separator 3/15/21
     if args.csv_file.endswith(".csv"):
