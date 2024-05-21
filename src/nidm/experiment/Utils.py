@@ -8,6 +8,7 @@ from uuid import UUID
 from cognitiveatlas.api import get_concept, get_disorder
 from datalad.support.annexrepo import AnnexRepo
 from github import Github, GithubException
+import numpy as np
 from numpy import base_repr
 import ontquery as oq
 import pandas as pd
@@ -658,7 +659,7 @@ def add_metadata_for_subject(rdf_graph, subject_uri, namespaces, nidm_obj):
                         # add rest of metadata about person
                         add_metadata_for_subject(
                             rdf_graph=rdf_graph,
-                            subject_uri="niiri:" + obj_term,
+                            subject_uri=agent_obj.identifier,
                             namespaces=namespaces,
                             nidm_obj=person,
                         )
@@ -3036,7 +3037,7 @@ def validate_uuid(uuid_string):
     return True
 
 
-def csv_dd_to_json_dd(csv_df):
+def csv_dd_to_json_dd(csv_file):
     """
     This function will take the supplied csv_df dataframe, expecting column names:
         source_variable	label	description	valueType	measureOf	isAbout	unitCode	minValue	maxValue
@@ -3066,6 +3067,9 @@ def csv_dd_to_json_dd(csv_df):
 
     """
 
+    # open csv_file
+    csv_df = pd.read_csv(csv_file)
+
     # first check the required columns are in this csv_df or else return error
     required_cols = [
         "source_variable",
@@ -3092,45 +3096,63 @@ def csv_dd_to_json_dd(csv_df):
         # create entry for this source_variable
         # make sure key has quotes around it and prevent double quotes if original data contained
         # quotes
-        key = '"' + csv_row["source_variable"].lstrip('"').rstrip('"') + '"'
+        # var = csv_row['source_variable'].lstrip('"').rstrip('"')
+        # key = f"DD(source={os.path.basename(csv_file)}, variable={var})"
+        key = csv_row["source_variable"].strip('"')
 
         json_dd[key] = {}
 
         # store rest of metadata if value isn't null
-        if not csv_row["label"].isnull():
-            json_dd[key]["label"] = '"' + csv_row["label"].lstrip('"').rstrip('"') + '"'
-        if not csv_row["description"].isnull():
-            json_dd[key]["description"] = (
-                '"' + csv_row["description"].lstrip('"').rstrip('"') + '"'
-            )
-        if not csv_row["valueType"].isnull():
-            json_dd[key]["valueType"] = (
-                '"' + csv_row["valueType"].lstrip('"').rstrip('"') + '"'
-            )
-        if not csv_row["measureOf"].isnull():
-            json_dd[key]["measureOf"] = (
-                '"' + csv_row["measureOf"].lstrip('"').rstrip('"') + '"'
-            )
-        if not csv_row["unitCode"].isnull():
-            json_dd[key]["unitCode"] = (
-                '"' + csv_row["unitCode"].lstrip('"').rstrip('"') + '"'
-            )
-        if not csv_row["minValue"].isnull():
-            json_dd[key]["minValue"] = (
-                '"' + csv_row["minValue"].lstrip('"').rstrip('"') + '"'
-            )
-        if not csv_row["maxValue"].isnull():
-            json_dd[key]["maxValue"] = (
-                '"' + csv_row["maxValue"].lstrip('"').rstrip('"') + '"'
-            )
+        if isinstance(csv_row["label"], str):
+            if not csv_row["label"] == "":
+                json_dd[key]["label"] = csv_row["label"].strip('"')
+            elif not np.nan(float(csv_row["label"])):
+                json_dd[key]["label"] = csv_row["label"]
 
-        if not csv_row["isAbout"].isnull():
-            # now iterate over isAbout terms which could be 1 or more, separated with a ';'
-            isabout_terms = csv_row["isAbout"]
+        if isinstance(csv_row["description"], str):
+            if not csv_row["description"] == "":
+                json_dd[key]["description"] = csv_row["description"].strip('"')
+            elif not np.nan(float(csv_row["description"])):
+                json_dd[key]["description"] = csv_row["description"]
 
-            # set up isAbout list
-            json_dd[key]["isAbout"] = []
-            for term in isabout_terms.split(";"):
-                json_dd[key]["isAbout"].append({"@id": term})
+        if isinstance(csv_row["valueType"], str):
+            if not csv_row["valueType"] == "":
+                json_dd[key]["valueType"] = csv_row["valueType"].strip('"')
+            elif not np.nan(float(csv_row["valueType"])):
+                json_dd[key]["valueType"] = csv_row["valueType"]
 
-        return json_dd
+        if isinstance(csv_row["measureOf"], str):
+            if not csv_row["measureOf"] == "":
+                json_dd[key]["measureOf"] = csv_row["measureOf"].strip('"')
+            elif not np.nan(float(csv_row["measureOf"])):
+                json_dd[key]["measureOf"] = csv_row["measureOf"]
+
+        if isinstance(csv_row["unitCode"], str):
+            if not csv_row["unitCode"] == "":
+                json_dd[key]["unitCode"] = csv_row["unitCode"].strip('"')
+            elif not np.nan(float(csv_row["unitCode"])):
+                json_dd[key]["unitCode"] = csv_row["unitCode"]
+
+        if isinstance(csv_row["minValue"], str):
+            if not csv_row["minValue"] == "":
+                json_dd[key]["minValue"] = csv_row["minValue"].strip('"')
+            elif not np.nan(float(csv_row["minValue"])):
+                json_dd[key]["minValue"] = csv_row["minValue"]
+
+        if isinstance(csv_row["maxValue"], str):
+            if not csv_row["maxValue"] == "":
+                json_dd[key]["maxValue"] = csv_row["maxValue"].strip('"')
+            elif not np.nan(float(csv_row["maxValue"])):
+                json_dd[key]["maxValue"] = csv_row["maxValue"]
+
+        if isinstance(csv_row["isAbout"], str):
+            if not csv_row["isAbout"] == "":
+                # now iterate over isAbout terms which could be 1 or more, separated with a ';'
+                isabout_terms = csv_row["isAbout"]
+
+                # set up isAbout list
+                json_dd[key]["isAbout"] = []
+                for term in isabout_terms.split(";"):
+                    json_dd[key]["isAbout"].append({"@id": term.strip()})
+
+    return json_dd

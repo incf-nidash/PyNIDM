@@ -8,6 +8,7 @@ data will then be written to a NIDM data file.
 
 from argparse import ArgumentParser
 from io import StringIO
+import json
 import logging
 import os
 from os.path import basename, dirname, join
@@ -306,8 +307,16 @@ def main():
     elif args.json_map:
         json_map = args.json_map
     else:
-        # convert csv_map to a json version
-        json_map = csv_dd_to_json_dd(pd.read_csv(args.csv_map))
+        if ".csv" in args.csv_map:
+            # convert csv_map to a json version
+            json_map = csv_dd_to_json_dd(args.csv_map)
+
+            # load existing json file
+            with open("/Users/dbkeator/Downloads/test_json.json", "w") as f:
+                json.dump(json_map, f)
+        else:
+            print("ERROR: -csv_map parameter must be a CSV file with .csv extension...")
+            sys.exit(-1)
 
     # open CSV file and load into
     # DBK added to accommodate TSV files with tab separator 3/15/21
@@ -321,7 +330,7 @@ def main():
             "file types.  Please change your input file appropriately and re-run."
         )
         print("no NIDM file created!")
-        sys.exit(1)
+        sys.exit(-1)
 
     # added to require -out parameter if no -nidm parameter
     if args.nidm_file is None:
