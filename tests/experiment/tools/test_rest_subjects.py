@@ -27,8 +27,8 @@ def openneuro(tmp_path_factory: pytest.TempPathFactory) -> OpenNeuro:
     for p in projects2:
         proj_info = restParser.run(files, f"/projects/{p}")
         if (
-            "dctypes:title" in proj_info.keys()
-            and proj_info["dctypes:title"]
+            "dcmitype:title" in proj_info.keys()
+            and proj_info["dcmitype:title"]
             == "Developmental changes in brain function underlying the influence of reward processing on inhibitory control (Slot Reward)"
         ):
             project_uri = p

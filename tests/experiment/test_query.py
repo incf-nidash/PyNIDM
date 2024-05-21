@@ -33,8 +33,8 @@ def abide(brain_vol_files) -> ProjectData:
     for p in projects:
         proj_info = nidm.experiment.Navigate.GetProjectAttributes(files, p)
         if (
-            "dctypes:title" in proj_info
-            and proj_info["dctypes:title"] == "ABIDE - CMU_a"
+            "dcmitype:title" in proj_info
+            and proj_info["dcmitype:title"] == "ABIDE - CMU_a"
         ):
             cmu_test_project_uuid = p
             break
@@ -329,7 +329,7 @@ def test_GetProjectAttributes(abide: ProjectData) -> None:
     # 8/31/23 - commented out test because we remove local prov:Location if datalad remotes aren't available
     # so this test will fail under those circumstances
     # assert ("prov:Location" in project_attributes) or ("Location" in project_attributes)
-    assert ("dctypes:title" in project_attributes) or ("title" in project_attributes)
+    assert ("dcmitype:title" in project_attributes) or ("title" in project_attributes)
     assert (
         "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" in project_attributes
     ) or ("type" in project_attributes)
