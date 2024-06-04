@@ -288,14 +288,14 @@ def query(
         if output_file is not None:
             brainthx.to_csv(output_file)
         else:
-            print(brainvol.to_string())
+            print(brainthx.to_string())
     elif get_brainsurfacearea:
         brainsurfacearea = GetBrainSurfaceArea(nidm_file_list=nidm_file_list)
         # if output file parameter specified
         if output_file is not None:
             brainsurfacearea.to_csv(output_file)
         else:
-            print(brainvol.to_string())            
+            print(brainsurfacearea.to_string())            
     elif query_file:
         df = sparql_query_nidm(nidm_file_list.split(","), query_file, output_file)
 
