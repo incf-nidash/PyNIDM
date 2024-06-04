@@ -485,7 +485,7 @@ def main():
         #    f.write(project.serializeTurtle())
 
         id_field = detect_idfield(column_to_terms)
-
+        
         # if we couldn't find a subject ID field in column_to_terms, ask user
         if id_field is None:
             # ask user for id field
