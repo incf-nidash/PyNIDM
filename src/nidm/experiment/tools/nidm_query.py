@@ -10,6 +10,8 @@ from nidm.experiment.CDE import getCDEs
 from nidm.experiment.Query import (
     GetBrainVolumeDataElements,
     GetBrainVolumes,
+    GetBrainThickness,
+    GetBrainSurfaceArea,
     GetDataElements,
     GetInstrumentVariables,
     GetParticipantIDs,
@@ -82,6 +84,18 @@ from nidm.experiment.tools.rest import RestParser
     help="Parameter, if set, will return all brain volume data elements and values along with participant IDs in NIDM file",
 )
 @optgroup.option(
+    "--get_brainthickness",
+    "-bt",
+    is_flag=True,
+    help="Parameter, if set, will return all brain thickness data elements and values along with participant IDs in NIDM file",
+)
+@optgroup.option(
+    "--get_brainsurfacearea",
+    "-bsa",
+    is_flag=True,
+    help="Parameter, if set, will return all brain surface area data elements and values along with participant IDs in NIDM file",
+)
+@optgroup.option(
     "--get_fields",
     "-gf",
     help="This parameter will return data for only the field names in the comma separated list (e.g. -gf age,fs_00003) from all nidm files supplied",
@@ -122,6 +136,8 @@ def query(
     get_instrument_vars,
     get_dataelements,
     get_brainvols,
+    get_brainthickness,
+    get_brainsurfacearea,
     get_dataelements_brainvols,
     get_fields,
     uri,
@@ -266,6 +282,20 @@ def query(
             brainvol.to_csv(output_file)
         else:
             print(brainvol.to_string())
+    elif get_brainthickness:
+        brainthx = GetBrainThickness(nidm_file_list=nidm_file_list)
+        # if output file parameter specified
+        if output_file is not None:
+            brainthx.to_csv(output_file)
+        else:
+            print(brainvol.to_string())
+    elif get_brainsurfacearea:
+        brainsurfacearea = GetBrainSurfaceArea(nidm_file_list=nidm_file_list)
+        # if output file parameter specified
+        if output_file is not None:
+            brainsurfacearea.to_csv(output_file)
+        else:
+            print(brainvol.to_string())            
     elif query_file:
         df = sparql_query_nidm(nidm_file_list.split(","), query_file, output_file)
 
