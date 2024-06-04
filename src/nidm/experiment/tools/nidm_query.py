@@ -309,7 +309,6 @@ def query(
         os.system("pynidm query --help")
         sys.exit(1)
 
-
 # it can be used calling the script `python nidm_query.py -nl ... -q ..
 if __name__ == "__main__":
     query()
