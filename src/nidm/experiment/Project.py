@@ -80,11 +80,23 @@ class Project(pm.ProvActivity, Core):
         else:
             # add session to self.sessions list
             self._sessions.extend([session])
+            # get qname for niiri prefix and uuid...already in graph as we're adding a session and niiri added
+            # when adding parent project
+            niiri_qname = self.graph.valid_qualified_name("niiri:" + self.get_uuid())
             # create links in graph
             # session.add_attributes({str("dct:isPartOf"):self})
-            session.add_attributes(
-                {pm.QualifiedName(pm.Namespace("dct", Constants.DCT), "isPartOf"): self}
-            )
+            if self.checkNamespacePrefix("dct"):
+                dct_qname = self.graph.valid_qualified_name("dct:isPartOf")
+                session.add_attributes({dct_qname: niiri_qname})
+
+            else:
+                session.add_attributes(
+                    {
+                        pm.QualifiedName(
+                            pm.Namespace("dct", Constants.DCT), "isPartOf"
+                        ): niiri_qname
+                    }
+                )
             return True
 
     def get_sessions(self):
@@ -105,13 +117,26 @@ class Project(pm.ProvActivity, Core):
         if derivative in self._derivatives:
             return False
         else:
-            # add session to self.sessions list
+            # add derivative to self._derivatives list
             self._derivatives.extend([derivative])
             # create links in graph
             # session.add_attributes({str("dct:isPartOf"):self})
-            derivative.add_attributes(
-                {pm.QualifiedName(pm.Namespace("dct", Constants.DCT), "isPartOf"): self}
-            )
+
+            # when adding parent project
+            niiri_qname = self.graph.valid_qualified_name("niiri:" + self.get_uuid())
+
+            # check if DCT namespace is already added else add it
+            if self.checkNamespacePrefix("dct"):
+                dct_qname = self.graph.valid_qualified_name("dct:isPartOf")
+                derivative.add_attributes({dct_qname: niiri_qname})
+            else:
+                derivative.add_attributes(
+                    {
+                        pm.QualifiedName(
+                            pm.Namespace("dct", Constants.DCT), "isPartOf"
+                        ): niiri_qname
+                    }
+                )
             return True
 
     def add_dataelements(self, dataelement):

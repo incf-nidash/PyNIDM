@@ -17,7 +17,7 @@ class Derivative(pm.ProvActivity, Core):
     """
 
     # constructor
-    def __init__(self, project, attributes=None, uuid=None):
+    def __init__(self, project, attributes=None, uuid=None, add_default_type=True):
         """
         Default constructor, creates a derivative activity
 
@@ -28,19 +28,45 @@ class Derivative(pm.ProvActivity, Core):
         if uuid is None:
             self._uuid = getUUID()
 
-            # execute default parent class constructor
-            super().__init__(
-                project.graph,
-                pm.QualifiedName(
-                    pm.Namespace("niiri", Constants.NIIRI), self.get_uuid()
-                ),
-                attributes,
-            )
+            # since derivatives are likely added to an existing NIDM file, here we explicitly
+            # check for the  NIIRI namespace and only add it if necessary...otherwise the
+            # prefix gets duplicated and ends up with an _1 in the resulting NIDM file.
+            niiri_ns = project.find_namespace_with_uri(str(Constants.NIIRI))
+
+            if niiri_ns is not False:
+                # execute default parent class constructor
+                super().__init__(
+                    project.graph,
+                    pm.QualifiedName(niiri_ns, self.get_uuid()),
+                    attributes,
+                )
+            else:
+                # execute default parent class constructor
+                super().__init__(
+                    project.graph,
+                    pm.QualifiedName(
+                        pm.Namespace("niiri", Constants.NIIRI), self.get_uuid()
+                    ),
+                    attributes,
+                )
         else:
             self._uuid = uuid
             super().__init__(project.graph, pm.Identifier(uuid), attributes)
 
         project.graph._add_record(self)
+
+        if add_default_type:
+            # since derivatives are likely added to an existing NIDM file, here we explicitly
+            # check for the  NIDM namespace and only add it if necessary...otherwise the
+            # prefix gets duplicated and ends up with an _1 in the resulting NIDM file.
+            nidm_ns = project.find_namespace_with_uri(str(Constants.NIDM))
+
+            if nidm_ns is not False:
+                self.add_attributes(
+                    {pm.PROV_TYPE: pm.QualifiedName(nidm_ns, "Derivative")}
+                )
+            else:
+                self.add_attributes({pm.PROV_TYPE: Constants.NIDM_DERIVATIVE_ACTIVITY})
 
         # list to store acquisition objects associated with this activity
         self._derivative_objects = []

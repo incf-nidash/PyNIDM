@@ -1,0 +1,889 @@
+{
+   "global_signal": {
+      "label": "global_signal",
+      "description": "Global signal: the average signal within the brain mask.",
+      "valueType": "http://uri.interlex.org/ilx_0794754",
+      "measureOf": "http://uri.interlex.org/ilx_0105536",
+      "isAbout": [
+		{
+         	"@id":"http://uri.interlex.org/ilx_0101431"
+	 	}
+      ],
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "csf": {
+      "label": "csf",
+      "description": "Global signal: the average signal within anatomically-derived eroded CSF mask.",
+      "valueType": "http://uri.interlex.org/ilx_0794754",
+      "measureOf": "http://uri.interlex.org/ilx_0105536",
+      "isAbout": [
+		  {
+			  "@id":"http://uri.interlex.org/ilx_0101997"
+		  }
+      ],
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "white_matter": {
+      "label": "white_matter",
+      "description": "Global signal: the average signal within the anatomically-derived eroded WM masks.",
+      "valueType": "http://uri.interlex.org/ilx_0794754",
+      "measureOf": "http://uri.interlex.org/ilx_0105536",
+      "isAbout": [
+		  {
+			  "@id":"http://uri.interlex.org/ilx_0112630"
+		  }
+      ],
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "framewise_displacement": {
+      "label": "framewise_displacement",
+      "description": "A quantification of the estimated bulk-head motion calculated using formula proposed by [Power2012].",
+      "valueType": "http://uri.interlex.org/ilx_0794754",
+      "measureOf": "http://uri.interlex.org/ilx_0794746",
+      "isAbout": [
+		  {
+			  "@id":"http://uri.interlex.org/ilx_0104909"
+		  }
+      ],
+      "unitCode": "http://uri.interlex.org/ilx_0794749",
+      "minValue": -250,
+      "maxValue": 250
+   },
+   "trans_x": {
+      "label": "trans_x",
+      "description": "Estimated head-motion parameter: translation in the 'x' direction.",
+      "valueType": "http://uri.interlex.org/ilx_0794754",
+      "measureOf": "http://uri.interlex.org/ilx_0794747",
+      "isAbout": [
+		  {
+			  "@id":"http://uri.interlex.org/ilx_0104909"
+		  },
+		  {
+			  "@id":"http://uri.interlex.org/ilx_0794751"
+		  }
+      ],
+      "unitCode": "http://uri.interlex.org/ilx_0794749",
+      "minValue": -250,
+      "maxValue": 250
+   },
+   "trans_y": {
+      "label": "trans_y",
+      "description": "Estimated head-motion parameter: translation in the 'y' direction.",
+      "valueType": "http://uri.interlex.org/ilx_0794754",
+      "measureOf": "http://uri.interlex.org/ilx_0794747",
+      "isAbout": [
+		  {
+			  "@id":"http://uri.interlex.org/ilx_0104909"
+		  },
+		  {
+			  "@id":"http://uri.interlex.org/ilx_0794752"
+		  }
+      ],
+      "unitCode": "http://uri.interlex.org/ilx_0794749",
+      "minValue": -250,
+      "maxValue": 250
+   },
+   "trans_z": {
+      "label": "trans_z",
+      "description": "Estimated head-motion parameter: translation in the 'z' direction.",
+      "valueType": "http://uri.interlex.org/ilx_0794754",
+      "measureOf": "http://uri.interlex.org/ilx_0794747",
+      "isAbout": [
+		  {
+			  "@id":"http://uri.interlex.org/ilx_0104909"
+		  },
+		  {
+			  "@id":"http://uri.interlex.org/ilx_0794753"
+		  }
+      ],
+      "unitCode": "http://uri.interlex.org/ilx_0794749",
+      "minValue": -250,
+      "maxValue": 250
+   },
+   "rot_x": {
+      "label": "rot_x",
+      "description": "Estimated head-motion parameter: rotation about the 'x' axis.",
+      "valueType": "http://uri.interlex.org/ilx_0794754",
+      "measureOf": "http://uri.interlex.org/ilx_0794748",
+      "isAbout": [
+		  {
+			  "@id":"http://uri.interlex.org/ilx_0104909"
+		  },
+		  {
+			  "@id":"http://uri.interlex.org/ilx_0794751"
+		  }
+      ],
+      "unitCode": "http://uri.interlex.org/ilx_0794750",
+      "minValue": -360,
+      "maxValue": 360
+   },
+   "rot_y": {
+      "label": "rot_y",
+      "description": "Estimated head-motion parameter: rotation about the 'y' axis.",
+      "valueType": "http://uri.interlex.org/ilx_0794754",
+      "measureOf": "http://uri.interlex.org/ilx_0794748",
+      "isAbout": [
+		  {
+			  "@id":"http://uri.interlex.org/ilx_0104909"
+		  },
+		  {
+			  "@id":"http://uri.interlex.org/ilx_0794752"
+		  }
+      ],
+      "unitCode": "http://uri.interlex.org/ilx_0794750",
+      "minValue": -360,
+      "maxValue": 360
+   },
+   "rot_z": {
+      "label": "rot_z",
+      "description": "Estimated head-motion parameter: rotation about the 'z' axis.",
+      "valueType": "http://uri.interlex.org/ilx_0794754",
+      "measureOf": "http://uri.interlex.org/ilx_0794748",
+      "isAbout": [
+		  {
+			  "@id":"http://uri.interlex.org/ilx_0104909"
+		  },
+		  {
+			  "@id":"http://uri.interlex.org/ilx_0794753"
+		  }
+      ],
+      "unitCode": "http://uri.interlex.org/ilx_0794750",
+      "minValue": -360,
+      "maxValue": 360
+   },
+   "global_signal_derivative1": {
+      "label": "global_signal_derivative1",
+      "description": "Global signal: the first derivative of the average signal within the brain mask.",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "global_signal_power2": {
+      "label": "global_signal_power2",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "global_signal_derivative1_power2": {
+      "label": "global_signal_derivative1_power2",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "csf_derivative1": {
+      "label": "csf_derivative1",
+      "description": "Global signal: the first derivative of the average signal within anatomically-derived eroded CSF mask.",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "csf_power2": {
+      "label": "csf_power2",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "csf_derivative1_power2": {
+      "label": "csf_derivative1_power2",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "white_matter_derivative1": {
+      "label": "white_matter_derivative1",
+      "description": "Global signal: the first derivative of the average signal within the anatomically-derived eroded WM masks.",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "white_matter_power2": {
+      "label": "white_matter_power2",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "white_matter_derivative1_power2": {
+      "label": "white_matter_derivative1_power2",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "csf_wm": {
+      "label": "csf_wm",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "tcompcor": {
+      "label": "tcompcor",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "std_dvars": {
+      "label": "std_dvars",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "dvars": {
+      "label": "dvars",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "rmsd": {
+      "label": "rmsd",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "t_comp_cor_00": {
+      "label": "t_comp_cor_00",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "t_comp_cor_01": {
+      "label": "t_comp_cor_01",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "t_comp_cor_02": {
+      "label": "t_comp_cor_02",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "t_comp_cor_03": {
+      "label": "t_comp_cor_03",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "t_comp_cor_04": {
+      "label": "t_comp_cor_04",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "t_comp_cor_05": {
+      "label": "t_comp_cor_05",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "t_comp_cor_06": {
+      "label": "t_comp_cor_06",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "t_comp_cor_07": {
+      "label": "t_comp_cor_07",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "c_comp_cor_00": {
+      "label": "c_comp_cor_00",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "c_comp_cor_01": {
+      "label": "c_comp_cor_01",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "c_comp_cor_02": {
+      "label": "c_comp_cor_02",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "c_comp_cor_03": {
+      "label": "c_comp_cor_03",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "c_comp_cor_04": {
+      "label": "c_comp_cor_04",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "w_comp_cor_00": {
+      "label": "w_comp_cor_00",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "w_comp_cor_01": {
+      "label": "w_comp_cor_01",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "w_comp_cor_02": {
+      "label": "w_comp_cor_02",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "w_comp_cor_03": {
+      "label": "w_comp_cor_03",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "w_comp_cor_04": {
+      "label": "w_comp_cor_04",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "w_comp_cor_05": {
+      "label": "w_comp_cor_05",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "w_comp_cor_06": {
+      "label": "w_comp_cor_06",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "w_comp_cor_07": {
+      "label": "w_comp_cor_07",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "w_comp_cor_08": {
+      "label": "w_comp_cor_08",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "w_comp_cor_09": {
+      "label": "w_comp_cor_09",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "w_comp_cor_10": {
+      "label": "w_comp_cor_10",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "w_comp_cor_11": {
+      "label": "w_comp_cor_11",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "w_comp_cor_12": {
+      "label": "w_comp_cor_12",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "a_comp_cor_00": {
+      "label": "a_comp_cor_00",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "a_comp_cor_01": {
+      "label": "a_comp_cor_01",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "a_comp_cor_02": {
+      "label": "a_comp_cor_02",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "a_comp_cor_03": {
+      "label": "a_comp_cor_03",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "a_comp_cor_04": {
+      "label": "a_comp_cor_04",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "a_comp_cor_05": {
+      "label": "a_comp_cor_05",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "a_comp_cor_06": {
+      "label": "a_comp_cor_06",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "a_comp_cor_07": {
+      "label": "a_comp_cor_07",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "a_comp_cor_08": {
+      "label": "a_comp_cor_08",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "a_comp_cor_09": {
+      "label": "a_comp_cor_09",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "a_comp_cor_10": {
+      "label": "a_comp_cor_10",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "a_comp_cor_11": {
+      "label": "a_comp_cor_11",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "a_comp_cor_12": {
+      "label": "a_comp_cor_12",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "cosine00": {
+      "label": "cosine00",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "cosine01": {
+      "label": "cosine01",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "trans_x_derivative1": {
+      "label": "trans_x_derivative1",
+      "description": "Estimated head-motion parameter: first derivative of the translation in the 'x' direction.",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "trans_x_power2": {
+      "label": "trans_x_power2",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "trans_x_derivative1_power2": {
+      "label": "trans_x_derivative1_power2",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "trans_y_derivative1": {
+      "label": "trans_y_derivative1",
+      "description": "Estimated head-motion parameter: first derivative of the translation in the 'xy direction.",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "trans_y_derivative1_power2": {
+      "label": "trans_y_derivative1_power2",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "trans_y_power2": {
+      "label": "trans_y_power2",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "trans_z_derivative1": {
+      "label": "trans_z_derivative1",
+      "description": "Estimated head-motion parameter: first derivative of the translation in the 'z' direction.",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "trans_z_power2": {
+      "label": "trans_z_power2",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "trans_z_derivative1_power2": {
+      "label": "trans_z_derivative1_power2",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "rot_x_derivative1": {
+      "label": "rot_x_derivative1",
+      "description": "Estimated head-motion parameter: first derivative of the rotation about the 'x' axis.",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "rot_x_derivative1_power2": {
+      "label": "rot_x_derivative1_power2",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "rot_x_power2": {
+      "label": "rot_x_power2",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "rot_y_derivative1": {
+      "label": "rot_y_derivative1",
+      "description": "Estimated head-motion parameter: first derivative of the rotation about the 'y' axis.",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "rot_y_derivative1_power2": {
+      "label": "rot_y_derivative1_power2",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "rot_y_power2": {
+      "label": "rot_y_power2",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "rot_z_derivative1": {
+      "label": "rot_z_derivative1",
+      "description": "Estimated head-motion parameter: first derivative of the rotation about the 'z' axis.",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "rot_z_derivative1_power2": {
+      "label": "rot_z_derivative1_power2",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "rot_z_power2": {
+      "label": "rot_z_power2",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "motion_outlier00": {
+      "label": "motion_outlier00",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "motion_outlier01": {
+      "label": "motion_outlier01",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "motion_outlier02": {
+      "label": "motion_outlier02",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "motion_outlier03": {
+      "label": "motion_outlier03",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "motion_outlier04": {
+      "label": "motion_outlier04",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "motion_outlier05": {
+      "label": "motion_outlier05",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "motion_outlier06": {
+      "label": "motion_outlier06",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   },
+   "motion_outlier07": {
+      "label": "motion_outlier07",
+      "description": "",
+      "valueType": "",
+      "measureOf": "",
+      "unitCode": "",
+      "minValue": null,
+      "maxValue": null
+   }
+}

@@ -86,7 +86,7 @@ namespaces = {
     "foaf": FOAF,
     "vc": VC,
     "dicom": DICOM,
-    "dctypes": DCTYPES,
+    "dcmitype": DCTYPES,
     "ncit": NCIT,
     "dcat": DCAT,
     "birnlex": BIRNLEX,
@@ -315,7 +315,7 @@ NIDM_DATAELEMENT = QualifiedName(provNamespace("nidm", NIDM), "DataElement")
 NIDM_PROJECT = QualifiedName(provNamespace("nidm", NIDM), "Project")
 # NIDM_PROJECT_TYPE = QualifiedName(provNamespace("dctypes", DCTYPES),"Dataset")
 NIDM_PROJECT_IDENTIFIER = QualifiedName(provNamespace("sio", SIO), "Identifier")
-NIDM_PROJECT_NAME = QualifiedName(provNamespace("dctypes", DCTYPES), "title")
+NIDM_PROJECT_NAME = QualifiedName(provNamespace("dcmitype", DCTYPES), "title")
 NIDM_PROJECT_DESCRIPTION = QualifiedName(provNamespace("dct", DCT), "description")
 NIDM_DESCRIPTION = QualifiedName(provNamespace("dct", DCT), "description")
 NIDM_DEFINITION = QualifiedName(provNamespace("dct", DCT), "description")
@@ -334,6 +334,10 @@ NIDM_ASSESSMENT_ACQUISITION = QualifiedName(
 NIDM_ACQUISITION_ENTITY = QualifiedName(
     provNamespace("nidm", NIDM), "AcquisitionObject"
 )
+NIDM_ACQUISITION_RUN = QualifiedName(provNamespace("nidm", NIDM), "run")
+
+NIDM_DERIVATIVE_ACTIVITY = QualifiedName(provNamespace("nidm", NIDM), "Derivative")
+NIDM_DERIVATIVE_ENTITY = QualifiedName(provNamespace("nidm", NIDM), "DerivativeObject")
 
 NIDM_PROJECT_SOURCE = QualifiedName(provNamespace("dctypes", DCTYPES), "source")
 NIDM_HAD_NUMERICAL_VALUE = QualifiedName(

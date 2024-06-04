@@ -1,0 +1,93 @@
+@prefix bids: <http://bids.neuroimaging.io/> .
+@prefix crypto: <http://id.loc.gov/vocabulary/preservation/cryptographicHashFunctions#> .
+@prefix dcmitype: <http://purl.org/dc/dcmitype/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix ilx: <http://uri.interlex.org/> .
+@prefix ndar: <https://ndar.nih.gov/api/datadictionary/v2/dataelement/> .
+@prefix nfo: <http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#> .
+@prefix nidm: <http://purl.org/nidash/nidm#> .
+@prefix niiri: <http://iri.nidash.org/> .
+@prefix onli: <http://neurolog.unice.fr/ontoneurolog/v3.0/instrument.owl#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sio: <http://semanticscience.org/ontology/sio.owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+niiri:age_297ms7i a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "age" ;
+    dcterms:description "Age in years" ;
+    nidm:sourceVariable "age" ;
+    ilx:ilx_0739289 "NIDM" .
+
+niiri:c1e6bc9e-c77b-11ee-927e-acde48001122 a bids:Dataset,
+        prov:Collection,
+        prov:Entity ;
+    bids:BIDSVersion "1.9.0"^^xsd:string ;
+    dcterms:license "Creative Commons, Attribution-NonCommercial-Share Alike License"^^xsd:string ;
+    prov:hadMember niiri:c88751da-c77b-11ee-927e-acde48001122,
+        niiri:c8876468-c77b-11ee-927e-acde48001122,
+        niiri:c88a3fe4-c77b-11ee-927e-acde48001122 .
+
+niiri:c8c68788-c77b-11ee-927e-acde48001122 a nidm:Session,
+        prov:Activity ;
+    dcterms:isPartOf niiri:c1e6b30c-c77b-11ee-927e-acde48001122 .
+
+niiri:c8874c94-c77b-11ee-927e-acde48001122 a nidm:Session,
+        prov:Activity ;
+    dcterms:isPartOf niiri:c1e6b30c-c77b-11ee-927e-acde48001122 .
+
+niiri:c88751da-c77b-11ee-927e-acde48001122 a onli:assessment-instrument,
+        nidm:AcquisitionObject,
+        prov:Entity ;
+    niiri:age_297ms7i "30"^^xsd:string ;
+    nfo:filename "/Users/dbkeator/Documents/Coding/PyNIDM/fmriprep_example/bids/participants.tsv"^^xsd:string ;
+    prov:Location "file://Users/dbkeator/Documents/Coding/PyNIDM/fmriprep_example/bids/participants.tsv"^^xsd:string ;
+    prov:wasGeneratedBy niiri:c8874fa0-c77b-11ee-927e-acde48001122 ;
+    prov:wasInfluencedBy niiri:c8876468-c77b-11ee-927e-acde48001122 .
+
+niiri:c8895f8e-c77b-11ee-927e-acde48001122 a nidm:Session,
+        prov:Activity ;
+    bids:session_number "1"^^xsd:string ;
+    dcterms:isPartOf niiri:c1e6b30c-c77b-11ee-927e-acde48001122 .
+
+niiri:c88a2982-c77b-11ee-927e-acde48001122 a nidm:Acquisition,
+        prov:Activity ;
+    dcterms:isPartOf niiri:c8895f8e-c77b-11ee-927e-acde48001122 ;
+    prov:qualifiedAssociation [ a prov:Association ;
+            prov:agent niiri:c887552c-c77b-11ee-927e-acde48001122 ;
+            prov:hadRole sio:Subject ] .
+
+niiri:c88a3fe4-c77b-11ee-927e-acde48001122 a nidm:AcquisitionObject,
+        prov:Entity ;
+    crypto:sha512 "e4ccb66a056d55e981bc374210a2a996d025e2b5f7a67a74c9d9f1a035e3a961718ed46ab1f963dd1233ee5a423b4a84f05594af2b569a4ac5d87e6f54c15c90"^^xsd:string ;
+    nidm:hadAcquisitionModality nidm:MagneticResonanceImaging ;
+    nidm:hadImageContrastType nidm:FlowWeighted ;
+    nidm:hadImageUsageType nidm:Functional ;
+    nfo:filename "sub-XXX/ses-1/func/sub-XXX_ses-1_task-rest_bold.nii.gz"^^xsd:string ;
+    prov:Location "file://Users/dbkeator/Documents/Coding/PyNIDM/fmriprep_example/bids/sub-XXX/ses-1/func/sub-XXX_ses-1_task-rest_bold.nii.gz"^^xsd:string ;
+    prov:wasGeneratedBy niiri:c88a2982-c77b-11ee-927e-acde48001122 .
+
+nidm:PersonalDataElement rdfs:subClassOf nidm:DataElement .
+
+niiri:c8874fa0-c77b-11ee-927e-acde48001122 a onli:instrument-based-assessment,
+        nidm:Acquisition,
+        prov:Activity ;
+    dcterms:isPartOf niiri:c8874c94-c77b-11ee-927e-acde48001122 ;
+    prov:qualifiedAssociation [ a prov:Association ;
+            prov:agent niiri:c887552c-c77b-11ee-927e-acde48001122 ;
+            prov:hadRole sio:Subject ] .
+
+niiri:c887552c-c77b-11ee-927e-acde48001122 a prov:Agent,
+        prov:Person ;
+    ndar:src_subject_id "XXX"^^xsd:string .
+
+niiri:c8876468-c77b-11ee-927e-acde48001122 a bids:sidecar_file,
+        prov:Entity ;
+    nfo:filename "/Users/dbkeator/Documents/Coding/PyNIDM/fmriprep_example/bids/participants.json"^^xsd:string ;
+    prov:Location "file://Users/dbkeator/Documents/Coding/PyNIDM/fmriprep_example/bids/participants.json"^^xsd:string ;
+    prov:wasGeneratedBy niiri:c8874fa0-c77b-11ee-927e-acde48001122 .
+
+niiri:c1e6b30c-c77b-11ee-927e-acde48001122 a nidm:Project,
+        prov:Activity ;
+    dcmitype:title "TEST-fmriprep"^^xsd:string .

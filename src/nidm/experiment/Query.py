@@ -196,6 +196,72 @@ def testprojectmeta(nidm_file_list):
     return json.dumps(output_json)
 
 
+def GetParticipantSessionsMetadata(nidm_file_list, subject_id):
+    """
+    This function will query the nidm_file_list for subject_id which is the number assigned by the research
+     study to the participant (see query GetParticipantIDs) and return
+    session metadata
+
+    :return: dataframe of each session object linked to subject_id and all metadata in ?p ?o columns
+    """
+    query = f"""
+
+            prefix nidm: <http://purl.org/nidash/nidm#>
+            prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            prefix dct: <http://purl.org/dc/terms/>
+            prefix prov: <http://www.w3.org/ns/prov#>
+            prefix ndar: <https://ndar.nih.gov/api/datadictionary/v2/dataelement/>
+            prefix xsd: <http://www.w3.org/2001/XMLSchema#>
+
+            select distinct ?session_uuid ?p ?o
+
+            where {{
+                    ?session_uuid  a nidm:Session ;
+                        ?p ?o .
+                    ?acq_act dct:isPartOf ?session_uuid ;
+                        prov:qualifiedAssociation [prov:agent [ndar:src_subject_id "{subject_id}"^^xsd:string]] .
+
+            }}
+
+        """
+
+    df = sparql_query_nidm(nidm_file_list, query, output_file=None)
+
+    return df
+
+
+def GetAcqusitionEntityMetadataFromSession(nidm_file_list, session_uuid):
+    """
+    This function will return all metadata from Acquisition entities linked to session_uuid
+    :return: dataframe with acquisition metadata
+    """
+
+    query = f"""
+
+                prefix nidm: <http://purl.org/nidash/nidm#>
+                prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+                prefix dct: <http://purl.org/dc/terms/>
+                prefix prov: <http://www.w3.org/ns/prov#>
+                prefix ndar: <https://ndar.nih.gov/api/datadictionary/v2/dataelement/>
+                prefix xsd: <http://www.w3.org/2001/XMLSchema#>
+
+                select distinct ?acq_activity ?acq_entity ?p ?o
+
+                where {{
+
+                        ?acq_activity dct:isPartOf <{session_uuid}> .
+                        ?acq_entity prov:wasGeneratedBy ?acq_act ;
+                            ?p ?o .
+
+                }}
+
+            """
+
+    df = sparql_query_nidm(nidm_file_list, query, output_file=None)
+
+    return df
+
+
 def GetProjectSessionsMetadata(nidm_file_list, project_uuid):
     query = f"""
 

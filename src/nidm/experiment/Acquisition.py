@@ -38,11 +38,15 @@ class Acquisition(pm.ProvActivity, Core):
             )
         else:
             self._uuid = uuid
+
+            # since we're provided a uuid and we're working with NIDM documents then the niiri namespace is already in
+            # the document so just use it
+
+            niiri_ns = session.find_namespace_with_uri(str(Constants.NIIRI))
+
             super().__init__(
                 session.graph,
-                pm.QualifiedName(
-                    pm.Namespace("niiri", Constants.NIIRI), self.get_uuid()
-                ),
+                pm.QualifiedName(niiri_ns, uuid),
                 attributes,
             )
 
@@ -72,7 +76,9 @@ class Acquisition(pm.ProvActivity, Core):
         # add acquisition object to self._acquisitions list
         self._acquisition_objects.extend([acquisition_object])
         # create links in graph
-        self.graph.wasGeneratedBy(acquisition_object, self)
+        self.graph.wasGeneratedBy(
+            "niiri:" + acquisition_object.get_uuid(), "niiri:" + self.get_uuid()
+        )
 
     def get_acquisition_objects(self):
         return self._acquisition_objects

@@ -35,13 +35,14 @@ class Session(pm.ProvActivity, Core):
                 attributes,
             )
         else:
+            # since we're provided a uuid and we're working with NIDM documents then the niiri namespace is already in
+            # the document so just use it
             self._uuid = uuid
-            # execute default parent class constructor
+
+            niiri_ns = project.find_namespace_with_uri(str(Constants.NIIRI))
             super().__init__(
                 project.graph,
-                pm.QualifiedName(
-                    pm.Namespace("niiri", Constants.NIIRI), self.get_uuid()
-                ),
+                pm.QualifiedName(niiri_ns, uuid),
                 attributes,
             )
 
@@ -58,10 +59,16 @@ class Session(pm.ProvActivity, Core):
 
     def add_acquisition(self, acquisition):
         self._acquisitions.extend([acquisition])
+
+        # when adding parent project
+        niiri_qname = self.graph.valid_qualified_name("niiri:" + self.get_uuid())
+
+        if self.checkNamespacePrefix("dct"):
+            dct_qname = self.graph.valid_qualified_name("dct:isPartOf")
+        else:
+            dct_qname = pm.QualifiedName(pm.Namespace("dct", Constants.DCT), "isPartOf")
         # create links in graph
-        acquisition.add_attributes(
-            {pm.QualifiedName(pm.Namespace("dct", Constants.DCT), "isPartOf"): self}
-        )
+        acquisition.add_attributes({dct_qname: niiri_qname})
 
     def get_acquisitions(self):
         return self._acquisitions

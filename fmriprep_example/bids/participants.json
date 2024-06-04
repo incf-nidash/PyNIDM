@@ -1,0 +1,13 @@
+{
+    "age": {
+        "label": "age",
+        "description": "Age in years",
+        "source_variable": "age",
+        "associatedWith": "NIDM",
+        "valueType": "http://www.w3.org/2001/XMLSchema#float",
+        "minValue": "6.47",
+        "maxValue": "64",
+        "unitCode": "years"
+    }
+
+}

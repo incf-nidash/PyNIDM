@@ -1,0 +1,2 @@
+title,description,version,url,cmdline,platform,ID
+fmriprep,fMRIPrep is a NiPreps (NeuroImaging PREProcessing toolS) application (www.nipreps.org) for the preprocessing of task-based and resting-state functional MRI (fMRI).,23.0.0,https://fmriprep.org/en/stable/,/opt/conda/bin/nibabies /data /out participant --participant-label BB069 --age-months 6 --cifti-output --resource-monitor --stop-on-first-crash --ignore fieldmaps -w /scratch,,https://scicrunch.org/resolver/RRID:SCR_016216

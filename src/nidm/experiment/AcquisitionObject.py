@@ -39,11 +39,14 @@ class AcquisitionObject(pm.ProvEntity, Core):
             )
         else:
             self._uuid = uuid
+            # since we're provided a uuid and we're working with NIDM documents then the niiri namespace is already in
+            # the document so just use it
+
+            niiri_ns = acquisition.find_namespace_with_uri(str(Constants.NIIRI))
+
             super().__init__(
                 acquisition.graph,
-                pm.QualifiedName(
-                    pm.Namespace("niiri", Constants.NIIRI), self.get_uuid()
-                ),
+                pm.QualifiedName(niiri_ns, uuid),
                 attributes,
             )
 
@@ -53,6 +56,9 @@ class AcquisitionObject(pm.ProvEntity, Core):
         self.graph = acquisition.graph
         # create link to acquisition activity
         acquisition.add_acquisition_object(self)
+
+    def get_uuid(self):
+        return self._uuid
 
     def __str__(self):
         return "NIDM-Experiment AcquisitionObject Class"
