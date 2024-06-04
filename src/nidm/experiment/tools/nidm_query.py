@@ -295,7 +295,7 @@ def query(
         if output_file is not None:
             brainsurfacearea.to_csv(output_file)
         else:
-            print(brainsurfacearea.to_string())            
+            print(brainsurfacearea.to_string())
     elif query_file:
         df = sparql_query_nidm(nidm_file_list.split(","), query_file, output_file)
 
