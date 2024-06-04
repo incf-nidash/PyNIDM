@@ -1213,8 +1213,8 @@ def GetBrainSurfaceArea(nidm_file_list):
                                         ?measure ?volume .
 
                                         ?measure a/rdfs:subClassOf* nidm:DataElement ;
-                                                 rdfs:label ?softwareLabel;
-                                                 nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> .
+                                                rdfs:label ?softwareLabel;
+                                                nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> .
                                         OPTIONAL {?measure nidm:isAbout ?federatedLabel }.
                                         OPTIONAL {?measure nidm:hasLaterality ?laterality }.
 
