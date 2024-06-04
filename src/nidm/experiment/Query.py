@@ -1067,14 +1067,7 @@ def GetBrainVolumes(nidm_file_list):
         prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
         prefix prov: <http://www.w3.org/ns/prov#>
         prefix ndar: <https://ndar.nih.gov/api/datadictionary/v2/dataelement/>
-        prefix fsl: <http://purl.org/nidash/fsl#>
         prefix nidm: <http://purl.org/nidash/nidm#>
-        prefix onli: <http://neurolog.unice.fr/ontoneurolog/v3.0/instrument.owl#>
-        prefix freesurfer: <https://surfer.nmr.mgh.harvard.edu/>
-        prefix dx: <http://ncitt.ncit.nih.gov/Diagnosis>
-        prefix ants: <http://stnava.github.io/ANTs/>
-        prefix dct: <http://purl.org/dc/terms/>
-        prefix dctypes: <http://purl.org/dc/dcmitype/>
         prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
         select distinct ?ID ?tool ?softwareLabel ?federatedLabel ?laterality ?volume
@@ -1097,10 +1090,72 @@ def GetBrainVolumes(nidm_file_list):
 
             }
             """
-
     df = sparql_query_nidm(nidm_file_list.split(","), query, output_file=None)
     return df
 
+def GetBrainThickness(nidm_file_list):
+    query = """
+        # This query simply returns the brain thickness data without dependencies on other demographics/assessment measures.
+
+        prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        prefix prov: <http://www.w3.org/ns/prov#>
+        prefix ndar: <https://ndar.nih.gov/api/datadictionary/v2/dataelement/>
+        prefix nidm: <http://purl.org/nidash/nidm#>
+        prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+        select distinct ?ID ?tool ?softwareLabel ?federatedLabel ?laterality ?volume
+        where {
+                ?tool_act a prov:Activity ;
+                            prov:qualifiedAssociation [prov:agent [nidm:NIDM_0000164 ?tool]] .
+                        ?tool_act prov:qualifiedAssociation [prov:agent [ndar:src_subject_id ?ID]] .
+                        ?tool_entity prov:wasGeneratedBy ?tool_act ;
+                                ?measure ?volume .
+
+                                ?tool_entity prov:wasGeneratedBy ?tool_act ;
+                                        ?measure ?volume .
+
+                                        ?measure a/rdfs:subClassOf* nidm:DataElement ;
+                                                 rdfs:label ?softwareLabel;
+                                                 nidm:measureOf <http://uri.interlex.org/base/ilx_0111689> .
+                                        OPTIONAL {?measure nidm:isAbout ?federatedLabel }.
+                                        OPTIONAL {?measure nidm:hasLaterality ?laterality }.
+
+            }
+            """
+    df = sparql_query_nidm(nidm_file_list.split(","), query, output_file=None)
+    return df
+
+def GetBrainSurfaceArea(nidm_file_list):
+    query = """
+        # This query simply returns the brain surface area data without dependencies on other demographics/assessment measures.
+
+        prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        prefix prov: <http://www.w3.org/ns/prov#>
+        prefix ndar: <https://ndar.nih.gov/api/datadictionary/v2/dataelement/>
+        prefix nidm: <http://purl.org/nidash/nidm#>
+        prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+        select distinct ?ID ?tool ?softwareLabel ?federatedLabel ?laterality ?volume
+        where {
+                ?tool_act a prov:Activity ;
+                            prov:qualifiedAssociation [prov:agent [nidm:NIDM_0000164 ?tool]] .
+                        ?tool_act prov:qualifiedAssociation [prov:agent [ndar:src_subject_id ?ID]] .
+                        ?tool_entity prov:wasGeneratedBy ?tool_act ;
+                                ?measure ?volume .
+
+                                ?tool_entity prov:wasGeneratedBy ?tool_act ;
+                                        ?measure ?volume .
+
+                                        ?measure a/rdfs:subClassOf* nidm:DataElement ;
+                                                 rdfs:label ?softwareLabel;
+                                                 nidm:measureOf <http://purl.obolibrary.org/obo/PATO_0001323> .
+                                        OPTIONAL {?measure nidm:isAbout ?federatedLabel }.
+                                        OPTIONAL {?measure nidm:hasLaterality ?laterality }.
+
+            }
+            """
+    df = sparql_query_nidm(nidm_file_list.split(","), query, output_file=None)
+    return df
 
 def expandNIDMAbbreviation(shortKey) -> str:
     """
