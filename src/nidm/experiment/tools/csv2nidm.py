@@ -8,7 +8,6 @@ data will then be written to a NIDM data file.
 
 from argparse import ArgumentParser
 from io import StringIO
-import json
 import logging
 import os
 from os.path import basename, dirname, join
@@ -306,18 +305,16 @@ def main():
         json_map = redcap_datadictionary_to_json(args.redcap, basename(args.csv_file))
     elif args.json_map:
         json_map = args.json_map
-    else:
+    elif args.csv_map:
         if ".csv" in args.csv_map:
             # convert csv_map to a json version
             json_map = csv_dd_to_json_dd(args.csv_map)
 
-            # load existing json file
-            with open("/Users/dbkeator/Downloads/test_json.json", "w") as f:
-                json.dump(json_map, f)
         else:
             print("ERROR: -csv_map parameter must be a CSV file with .csv extension...")
             sys.exit(-1)
-
+    else:
+        json_map = None
     # open CSV file and load into
     # DBK added to accommodate TSV files with tab separator 3/15/21
     if args.csv_file.endswith(".csv"):
@@ -485,7 +482,7 @@ def main():
         #    f.write(project.serializeTurtle())
 
         id_field = detect_idfield(column_to_terms)
-        
+
         # if we couldn't find a subject ID field in column_to_terms, ask user
         if id_field is None:
             # ask user for id field
