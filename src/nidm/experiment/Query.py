@@ -660,7 +660,7 @@ def getProjectAcquisitionObjects(nidm_file_list, project_id):
         # find all the projects
         for project, _, _ in rdf_graph.triples((None, None, Constants.NIDM["Project"])):
             # check if it is our project
-            if str(project) == project_uuid:
+            if (str(project) == project_uuid) or (str(project) == str(project_uuid)):
                 for session, _, _ in rdf_graph.triples(
                     (None, isa, Constants.NIDM["Session"])
                 ):
