@@ -1,5 +1,6 @@
 """Tools for working with NIDM-Experiment files"""
 
+from os.path import dirname, join
 import click
 from rdflib import Graph, Literal, Namespace, URIRef, util
 from rdflib.namespace import RDF, split_uri
@@ -59,9 +60,15 @@ def update(nidm_file_list):
                     # get namespace and term from metadata_key
                     nm, term = split_uri(metadata_key)
 
-                    # add RDF namespace
-                    temp_nm = Namespace(str(Constants.namespaces[nm.split(":", 1)[0]]))
-                    graph_orig.bind(nm.split(":", 1)[0], temp_nm)
+                    # skip prov namespace as it's already added above
+                    if nm.split(":", 1)[0] != "prov":
+                        # add RDF namespace
+                        temp_nm = Namespace(
+                            str(Constants.namespaces[nm.split(":", 1)[0]])
+                        )
+                        graph_orig.bind(nm.split(":", 1)[0], temp_nm)
+                    else:
+                        temp_nm = PROV
 
                     if (metadata_key == "dcat:creator") or (
                         metadata_key == "prov:Location"
@@ -69,18 +76,19 @@ def update(nidm_file_list):
                         # now add this metadata to the collection_uuid
                         graph_orig.add(
                             (
-                                NIIRI.collection_uuid,
+                                NIIRI.term(collection_uuid),
                                 temp_nm.term(term),
                                 URIRef(
                                     proj_metadata["projects"][proj_uuid][metadata_key]
                                 ),
                             )
                         )
+
                     else:
                         # now add this metadata to the collection_uuid
                         graph_orig.add(
                             (
-                                NIIRI.collection_uuid,
+                                NIIRI.term(collection_uuid),
                                 temp_nm.term(term),
                                 Literal(
                                     proj_metadata["projects"][proj_uuid][metadata_key]
@@ -88,15 +96,21 @@ def update(nidm_file_list):
                             )
                         )
 
+                    # get namespace and term from proj_uuid
+                    proj_nm, proj_term = split_uri(proj_uuid)
+
+                    # graph_orig.remove((proj_uuid, metadata_key,
+                    #                   proj_metadata["projects"][proj_uuid][metadata_key]))
+                    graph_orig.remove((NIIRI.term(proj_term), temp_nm.term(term), None))
             # get acquisition objects
             acq_objects = getProjectAcquisitionObjects(
                 [nidm_file], project_id=str(proj_uuid.split(":", 1)[1])
             )
 
-            for acq_obj in acq_objects.keys():
-                print(acq_obj)
+            for acq_obj in acq_objects:
+                graph_orig.add((NIIRI.term(collection_uuid), PROV.hadMember, acq_obj))
 
-        # graph.serialize(out_file, format="turtle")
+        graph_orig.serialize(join(dirname(nidm_file), "nidm_new.ttl"), format="turtle")
 
 
 if __name__ == "__main__":
