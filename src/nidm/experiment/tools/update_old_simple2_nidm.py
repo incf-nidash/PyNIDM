@@ -1,6 +1,7 @@
 """Tools for working with NIDM-Experiment files"""
 
-from os.path import dirname, join
+
+import re
 import click
 from rdflib import Graph, Literal, Namespace, URIRef, util
 from rdflib.namespace import RDF, split_uri
@@ -8,6 +9,16 @@ from nidm.core import Constants
 from nidm.experiment.Core import getUUID
 from nidm.experiment.Query import GetProjectsMetadata, getProjectAcquisitionObjects
 from nidm.experiment.tools.click_base import cli
+
+
+def is_valid_url_flexible(url):
+    """Check if a string is a valid URL, including file:// URLs."""
+    url_regex = re.compile(
+        r"^(https?|ftp|file):\/\/"  # Allow http, https, ftp, and file schemes
+        r"(([a-zA-Z0-9-_.]+)(:[0-9]+)?)?"  # Domain or localhost (optional for file://)
+        r"(\/[^\s]*)?$"  # Path (required for file://)
+    )
+    return bool(url_regex.match(url))
 
 
 # adding click argument parsing
@@ -70,8 +81,9 @@ def update(nidm_file_list):
                     else:
                         temp_nm = PROV
 
-                    if (metadata_key == "dcat:creator") or (
-                        metadata_key == "prov:Location"
+                    # see if this is a valid URL and encode as one otherwise just a literal
+                    if is_valid_url_flexible(
+                        proj_metadata["projects"][proj_uuid][metadata_key]
                     ):
                         # now add this metadata to the collection_uuid
                         graph_orig.add(
@@ -83,7 +95,6 @@ def update(nidm_file_list):
                                 ),
                             )
                         )
-
                     else:
                         # now add this metadata to the collection_uuid
                         graph_orig.add(
@@ -110,7 +121,7 @@ def update(nidm_file_list):
             for acq_obj in acq_objects:
                 graph_orig.add((NIIRI.term(collection_uuid), PROV.hadMember, acq_obj))
 
-        graph_orig.serialize(join(dirname(nidm_file), "nidm_new.ttl"), format="turtle")
+        graph_orig.serialize(nidm_file, format="turtle")
 
 
 if __name__ == "__main__":
