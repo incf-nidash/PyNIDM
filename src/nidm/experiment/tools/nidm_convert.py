@@ -3,7 +3,6 @@
 from os.path import basename, join, splitext
 import click
 from rdflib import Graph, util
-from nidm.experiment.Utils import read_nidm
 from nidm.experiment.tools.click_base import cli
 
 
@@ -46,18 +45,26 @@ def convert(nidm_file_list, outtype, outdir):
             outfile = join(splitext(nidm_file)[0])
 
         if outtype == "jsonld":
-            # read in nidm file
-            project = read_nidm(nidm_file)
-            # write jsonld file with same name
-            with open(outfile + ".json", "w", encoding="utf-8") as f:
-                f.write(project.serializeJSONLD())
+            ## read in nidm file
+            # project = read_nidm(nidm_file)
+            ## write jsonld file with same name
+            # with open(outfile + ".json", "w", encoding="utf-8") as f:
+            #    f.write(project.serializeJSONLD())
+            graph = Graph()
+            graph.parse(nidm_file, format=util.guess_format(nidm_file))
+            graph.serialize(outfile + ".json", format="json-ld", indent=4)
+
         elif outtype == "turtle":
-            # graph = Graph()
-            # graph.parse(nidm_file, format=util.guess_format(nidm_file))
-            # graph.serialize(splitext(nidm_file)[0] + ".ttl", format='turtle')
-            project = read_nidm(nidm_file)
-            with open(outfile + ".ttl", "w", encoding="utf-8") as f:
-                f.write(project.serializeTurtle())
+            ## graph = Graph()
+            ## graph.parse(nidm_file, format=util.guess_format(nidm_file))
+            ## graph.serialize(splitext(nidm_file)[0] + ".ttl", format='turtle')
+            # project = read_nidm(nidm_file)
+            # with open(outfile + ".ttl", "w", encoding="utf-8") as f:
+            #    f.write(project.serializeTurtle())
+            graph = Graph()
+            graph.parse(nidm_file, format=util.guess_format(nidm_file))
+            graph.serialize(outfile + ".ttl", format="turtle", indent=4)
+
         elif outtype == "xml-rdf":
             graph = Graph()
             graph.parse(nidm_file, format=util.guess_format(nidm_file))
@@ -67,10 +74,14 @@ def convert(nidm_file_list, outtype, outdir):
             graph.parse(nidm_file, format=util.guess_format(nidm_file))
             graph.serialize(outfile + ".n3", format="n3")
         elif outtype == "trig":
-            # read in nidm file
-            project = read_nidm(nidm_file)
-            with open(outfile + ".trig", "w", encoding="utf-8") as f:
-                f.write(project.serializeTrig())
+            ## read in nidm file
+            # project = read_nidm(nidm_file)
+            # with open(outfile + ".trig", "w", encoding="utf-8") as f:
+            #    f.write(project.serializeTrig())
+            graph = Graph()
+            graph.parse(nidm_file, format=util.guess_format(nidm_file))
+            graph.serialize(outfile + ".trig", format="trig")
+
         else:
             print("Error, type is not supported at this time")
 
