@@ -1,5 +1,5 @@
 import prov.model as pm
-from .Core import Core, getUUID
+from .Core import Core, find_in_namespaces, getUUID
 from ..core import Constants
 
 
@@ -109,9 +109,56 @@ class Project(pm.ProvActivity, Core):
             self._derivatives.extend([derivative])
             # create links in graph
             # session.add_attributes({str("dct:isPartOf"):self})
-            derivative.add_attributes(
-                {pm.QualifiedName(pm.Namespace("dct", Constants.DCT), "isPartOf"): self}
+
+            # check if dct namespace is already in graph and use it otherwise create it...
+            found_dct = find_in_namespaces(
+                search_uri=str(Constants.DCT), namespaces=self.graph.namespaces
             )
+            found_niiri = find_in_namespaces(
+                search_uri=str(Constants.NIIRI), namespaces=self.graph.namespaces
+            )
+            if found_dct and found_niiri:
+                derivative.add_attributes(
+                    {found_dct["isPartOf"]: found_niiri[self.get_uuid()]}
+                )
+            elif found_dct and not found_niiri:
+                derivative.add_attributes(
+                    {
+                        found_dct["isPartOf"]: pm.QualifiedName(
+                            namespace=pm.Namespace(
+                                uri=str(Constants.NIIRI), prefix="niiri"
+                            ),
+                            localpart=self.get_uuid(),
+                        )
+                    }
+                )
+            elif not found_dct and found_niiri:
+                derivative.add_attributes(
+                    {
+                        pm.QualifiedName(
+                            namespace=pm.Namespace(
+                                uri=str(Constants.DCT), prefix="dct"
+                            ),
+                            localpart="isPartOf",
+                        ): found_niiri[self.get_uuid()]
+                    }
+                )
+            else:
+                derivative.add_attributes(
+                    {
+                        pm.QualifiedName(
+                            namespace=pm.Namespace(
+                                uri=str(Constants.DCT), prefix="dct"
+                            ),
+                            localpart="isPartOf",
+                        ): pm.QualifiedName(
+                            namespace=pm.Namespace(
+                                uri=str(Constants.NIIRI), prefix="niiri"
+                            ),
+                            localpart=self.get_uuid(),
+                        )
+                    }
+                )
             return True
 
     def add_dataelements(self, dataelement):

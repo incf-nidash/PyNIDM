@@ -27,7 +27,7 @@ from .Acquisition import Acquisition
 from .AcquisitionObject import AcquisitionObject
 from .AssessmentAcquisition import AssessmentAcquisition
 from .AssessmentObject import AssessmentObject
-from .Core import getUUID
+from .Core import find_in_namespaces, getUUID
 from .DataElement import DataElement
 from .Derivative import Derivative
 from .DerivativeObject import DerivativeObject
@@ -523,19 +523,6 @@ def get_RDFliteral_type(rdf_literal):
     else:
         # return (str(rdf_literal))
         return pm.Literal(rdf_literal, datatype=pm.XSD["string"])
-
-
-def find_in_namespaces(search_uri, namespaces):
-    """
-    Looks through namespaces for search_uri
-    :return: URI if found else False
-    """
-
-    for uris in namespaces:
-        if uris.uri == search_uri:
-            return uris
-
-    return False
 
 
 def add_metadata_for_subject(rdf_graph, subject_uri, namespaces, nidm_obj):
