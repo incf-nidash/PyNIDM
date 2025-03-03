@@ -471,6 +471,12 @@ def read_nidm(nidmDoc):
         # print(query2)
         qres2 = rdf_graph_parse.query(query2)
 
+        # check qres2 length and if zero then skip all this converting from prov to rdf and back to add
+        # data element isAbout definitions that are identified with a url and not a qualified name as required by prov
+        # but not rdf in general
+        if len(qres2) == 0:
+            continue
+
         # Step 1: Convert `project.graph` (ProvDocument) to an RDFLib Graph
         rdf_graph = Graph()
         rdf_graph.parse(
@@ -583,11 +589,25 @@ def add_metadata_for_subject(rdf_graph, subject_uri, namespaces, nidm_obj):
                     # so we check explicitly here
                     if obj_nm == str(Constants.PROV):
                         nidm_obj.add_attributes(
-                            {predicate: QualifiedName(Constants.PROV[obj_term])}
+                            {
+                                predicate: pm.QualifiedName(
+                                    namespace=pm.Namespace(
+                                        uri=Constants.PROV, prefix="prov"
+                                    ),
+                                    localpart=str(obj_term),
+                                )
+                            }
                         )
                     elif obj_nm == str(Constants.NIDM):
                         nidm_obj.add_attributes(
-                            {predicate: QualifiedName(Constants.NIDM[obj_term])}
+                            {
+                                predicate: pm.QualifiedName(
+                                    namespace=pm.Namespace(
+                                        uri=Constants.NIDM, prefix="prov"
+                                    ),
+                                    localpart=str(obj_term),
+                                )
+                            }
                         )
                     else:
                         found_uri = find_in_namespaces(
@@ -596,20 +616,27 @@ def add_metadata_for_subject(rdf_graph, subject_uri, namespaces, nidm_obj):
                         # if obj_nm is not in namespaces then it must just be part of some URI in the triple
                         # so just add it as a prov.Identifier
                         if not found_uri:
-                            nidm_obj.add_attributes({predicate: Identifier(objects)})
+                            nidm_obj.add_attributes({predicate: URIRef(objects)})
                         # else add as explicit prov.QualifiedName because it's easier to read
                         else:
                             nidm_obj.add_attributes(
                                 {predicate: pm.QualifiedName(found_uri, obj_term)}
                             )
                 except Exception:
-                    nidm_obj.add_attributes(
-                        {
-                            predicate: pm.QualifiedName(
-                                namespace=Namespace(str(objects)), localpart=""
-                            )
-                        }
+                    # here we likely have a uri without a localpart so we'll search and see if we have a namespace for
+                    # it.
+                    found_uri = find_in_namespaces(
+                        search_uri=URIRef(str(objects)), namespaces=namespaces
                     )
+
+                    # if objects is not in namespaces just add as a generic url
+                    if not found_uri:
+                        nidm_obj.add_attributes({predicate: URIRef(objects)})
+                    # else add as explicit prov.QualifiedName because it's easier to read
+                    else:
+                        nidm_obj.add_attributes(
+                            {predicate: pm.QualifiedName(found_uri, "")}
+                        )
             else:
                 # check if this is a qname and if so expand it
                 # added to handle when a value is a qname.  this should expand it....
