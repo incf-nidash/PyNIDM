@@ -25,6 +25,19 @@ def getUUID():
     return uid
 
 
+def find_in_namespaces(search_uri, namespaces):
+    """
+    Looks through namespaces for search_uri
+    :return: URI if found else False
+    """
+
+    for uris in namespaces:
+        if str(uris.uri) == str(search_uri):
+            return uris
+
+    return False
+
+
 class Core:
     """Base-class for NIDM-Experimenent
 

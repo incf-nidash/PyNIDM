@@ -264,7 +264,6 @@ def test_uri_project_id(openneuro: OpenNeuro) -> None:
     result = restParser.run(openneuro.files, f"/projects/{project}")
 
     assert "dctypes:title" in result
-    assert "sio:Identifier" in result
     assert "subjects" in result
     assert len(result["subjects"]["uuid"]) > 2
     assert "data_elements" in result

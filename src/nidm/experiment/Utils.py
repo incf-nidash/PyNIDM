@@ -1,5 +1,6 @@
 from binascii import crc32
 import getpass
+import io
 import json
 import logging
 import os
@@ -14,7 +15,7 @@ import pandas as pd
 import prov.model as pm
 from prov.model import Identifier
 from prov.model import Namespace as provNamespace
-from prov.model import QualifiedName
+from prov.model import ProvDocument, QualifiedName
 from rapidfuzz import fuzz
 from rdflib import RDF, RDFS, Graph, Literal, Namespace, URIRef, util
 from rdflib.namespace import XSD, split_uri
@@ -26,7 +27,7 @@ from .Acquisition import Acquisition
 from .AcquisitionObject import AcquisitionObject
 from .AssessmentAcquisition import AssessmentAcquisition
 from .AssessmentObject import AssessmentObject
-from .Core import getUUID
+from .Core import find_in_namespaces, getUUID
 from .DataElement import DataElement
 from .Derivative import Derivative
 from .DerivativeObject import DerivativeObject
@@ -390,41 +391,6 @@ def read_nidm(nidmDoc):
                 }
                 """
 
-    # add all nidm:DataElements in graph
-    qres = rdf_graph_parse.query(query)
-    for row in qres:
-        print(row)
-        # instantiate a data element class assigning it the existing uuid
-        de = DataElement(project=project, uuid=row["uuid"], add_default_type=False)
-        # get the rest of the attributes for this data element and store
-        add_metadata_for_subject(
-            rdf_graph_parse, row["uuid"], project.graph.namespaces, de
-        )
-
-        # now we need to check if there are labels for data element isAbout entries, if so add them.
-        query2 = f"""
-
-                prefix nidm: <http://purl.org/nidash/nidm#>
-                prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-                prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-                prefix prov: <http://www.w3.org/ns/prov#>
-
-                select distinct ?id ?label
-                where {{
-                    <{row["uuid"]}> nidm:isAbout ?id .
-
-                    ?id rdf:type prov:Entity ;
-                        rdfs:label ?label .
-                }}
-
-            """
-        # print(query2)
-        qres2 = rdf_graph_parse.query(query2)
-
-        # add this tuple to graph
-        for row2 in qres2:
-            project.graph.entity(row2[0], {"rdfs:label": row2[1]})
-
     # check for Derivatives.
     # WIP: Currently FSL, Freesurfer, and ANTS tools add these derivatives as nidm:FSStatsCollection,
     # nidm:FSLStatsCollection, or nidm:ANTSStatsCollection which are subclasses of nidm:Derivatives
@@ -474,6 +440,76 @@ def read_nidm(nidmDoc):
             rdf_graph_parse, row["uuid"], project.graph.namespaces, derivobj
         )
 
+    # add all nidm:DataElements in graph
+    qres = rdf_graph_parse.query(query)
+    for row in qres:
+        print(row)
+        # instantiate a data element class assigning it the existing uuid
+        de = DataElement(project=project, uuid=row["uuid"], add_default_type=False)
+        # get the rest of the attributes for this data element and store
+        add_metadata_for_subject(
+            rdf_graph_parse, row["uuid"], project.graph.namespaces, de
+        )
+
+        # now we need to check if there are labels for data element isAbout entries, if so add them.
+        query2 = f"""
+
+                prefix nidm: <http://purl.org/nidash/nidm#>
+                prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+                prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+                prefix prov: <http://www.w3.org/ns/prov#>
+
+                select distinct ?id ?label
+                where {{
+                    <{row["uuid"]}> nidm:isAbout ?id .
+
+                    ?id rdf:type prov:Entity ;
+                        rdfs:label ?label .
+                }}
+
+            """
+        # print(query2)
+        qres2 = rdf_graph_parse.query(query2)
+
+        # check qres2 length and if zero then skip all this converting from prov to rdf and back to add
+        # data element isAbout definitions that are identified with a url and not a qualified name as required by prov
+        # but not rdf in general
+        if len(qres2) == 0:
+            continue
+
+        # Step 1: Convert `project.graph` (ProvDocument) to an RDFLib Graph
+        rdf_graph = Graph()
+        rdf_graph.parse(
+            data=project.serializeTurtle(), format="turtle"
+        )  # Proper RDF export
+
+        # Step 2: Modify RDF Graph (Keeping Full URIs)
+        for row2 in qres2:
+            entity_uri = URIRef(str(row2[0]))  # Preserve full URI
+            label = Literal(str(row2[1]))  # Convert label to Literal
+
+            # Add triples directly to RDF graph
+            rdf_graph.add((entity_uri, RDF.type, Constants.PROV.Entity))
+            rdf_graph.add((entity_uri, RDFS.label, label))
+
+        # Step 3: Serialize modified RDF graph to an in-memory bytes buffer
+        rdf_bytes = io.BytesIO()
+        rdf_graph.serialize(
+            destination=rdf_bytes, format="turtle"
+        )  # Use "turtle" correctly
+
+        # Step 4: Convert RDF bytes to a string for `prov` to read
+        rdf_string = rdf_bytes.getvalue().decode("utf-8")
+
+        # Step 5: Create a new ProvDocument and read RDF data from the string
+        project.graph = ProvDocument()
+        project.graph = project.graph.deserialize(
+            source=io.StringIO(rdf_string), format="rdf"
+        )
+
+        # Close the BytesIO buffer (good practice)
+        rdf_bytes.close()
+
     return project
 
 
@@ -487,19 +523,6 @@ def get_RDFliteral_type(rdf_literal):
     else:
         # return (str(rdf_literal))
         return pm.Literal(rdf_literal, datatype=pm.XSD["string"])
-
-
-def find_in_namespaces(search_uri, namespaces):
-    """
-    Looks through namespaces for search_uri
-    :return: URI if found else False
-    """
-
-    for uris in namespaces:
-        if uris.uri == search_uri:
-            return uris
-
-    return False
 
 
 def add_metadata_for_subject(rdf_graph, subject_uri, namespaces, nidm_obj):
@@ -553,11 +576,25 @@ def add_metadata_for_subject(rdf_graph, subject_uri, namespaces, nidm_obj):
                     # so we check explicitly here
                     if obj_nm == str(Constants.PROV):
                         nidm_obj.add_attributes(
-                            {predicate: QualifiedName(Constants.PROV[obj_term])}
+                            {
+                                predicate: pm.QualifiedName(
+                                    namespace=pm.Namespace(
+                                        uri=Constants.PROV, prefix="prov"
+                                    ),
+                                    localpart=str(obj_term),
+                                )
+                            }
                         )
                     elif obj_nm == str(Constants.NIDM):
                         nidm_obj.add_attributes(
-                            {predicate: QualifiedName(Constants.NIDM[obj_term])}
+                            {
+                                predicate: pm.QualifiedName(
+                                    namespace=pm.Namespace(
+                                        uri=Constants.NIDM, prefix="prov"
+                                    ),
+                                    localpart=str(obj_term),
+                                )
+                            }
                         )
                     else:
                         found_uri = find_in_namespaces(
@@ -566,20 +603,27 @@ def add_metadata_for_subject(rdf_graph, subject_uri, namespaces, nidm_obj):
                         # if obj_nm is not in namespaces then it must just be part of some URI in the triple
                         # so just add it as a prov.Identifier
                         if not found_uri:
-                            nidm_obj.add_attributes({predicate: Identifier(objects)})
+                            nidm_obj.add_attributes({predicate: URIRef(objects)})
                         # else add as explicit prov.QualifiedName because it's easier to read
                         else:
                             nidm_obj.add_attributes(
                                 {predicate: pm.QualifiedName(found_uri, obj_term)}
                             )
                 except Exception:
-                    nidm_obj.add_attributes(
-                        {
-                            predicate: pm.QualifiedName(
-                                namespace=Namespace(str(objects)), localpart=""
-                            )
-                        }
+                    # here we likely have a uri without a localpart so we'll search and see if we have a namespace for
+                    # it.
+                    found_uri = find_in_namespaces(
+                        search_uri=URIRef(str(objects)), namespaces=namespaces
                     )
+
+                    # if objects is not in namespaces just add as a generic url
+                    if not found_uri:
+                        nidm_obj.add_attributes({predicate: URIRef(objects)})
+                    # else add as explicit prov.QualifiedName because it's easier to read
+                    else:
+                        nidm_obj.add_attributes(
+                            {predicate: pm.QualifiedName(found_uri, "")}
+                        )
             else:
                 # check if this is a qname and if so expand it
                 # added to handle when a value is a qname.  this should expand it....
