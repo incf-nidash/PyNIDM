@@ -525,7 +525,7 @@ def GetParticipantInstrumentDataCached(
                     for instrument in rdf_graph.subjects(
                         predicate=Constants.PROV["wasGeneratedBy"], object=acquisition
                     ):
-                        # load up all the assement data into the result
+                        # load up all the assessment data into the result
                         instrument_key = str(instrument).split("/")[-1]
                         result[instrument_key] = {}
                         for _, data_element, o in rdf_graph.triples(

@@ -409,8 +409,8 @@ def GetProjectAttributes(nidm_files_tuple, project_id):
     # elements: AcquisitionModality, ImageContrastType, ImageUsageType, Task
     sessions = getSessions(nidm_files_tuple, project_id)
     for s in sessions:
-        acquistions = getAcquisitions(nidm_files_tuple, s)
-        for a in acquistions:
+        acquisitions = getAcquisitions(nidm_files_tuple, s)
+        for a in acquisitions:
             acq_obj = getActivityData(nidm_files_tuple, a)
             for de in acq_obj.data:
                 if de.label == "hadAcquisitionModality":

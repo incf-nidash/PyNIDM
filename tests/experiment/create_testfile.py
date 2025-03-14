@@ -46,7 +46,7 @@ def main():
 
     # add person to graph
     person = acq_act.add_person(attributes={Constants.NIDM_GIVEN_NAME: "George"})
-    # add qualified association of person with role NIDM_PARTICIPANT, and associated with acquistion activity
+    # add qualified association of person with role NIDM_PARTICIPANT, and associated with acquisition activity
     acq_act.add_qualified_association(person=person, role=Constants.NIDM_PARTICIPANT)
 
     # test add Assessment acquisition activity / entity to graph and associate with session

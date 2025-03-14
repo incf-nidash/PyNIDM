@@ -149,7 +149,7 @@ def read_nidm(nidmDoc):
         # Cycle through Session metadata adding to prov graph
         add_metadata_for_subject(rdf_graph_parse, s, project.graph.namespaces, session)
 
-        # Query graph for acquistions dct:isPartOf the session
+        # Query graph for acquisitions dct:isPartOf the session
         for acq in rdf_graph_parse.subjects(
             predicate=Constants.DCT["isPartOf"], object=s
         ):
@@ -1275,7 +1275,7 @@ def authenticate_github(authed=None, credentials=None):
     function will check whether it's an active/valid authentication object.  If not, and username/token is supplied then
     an authentication object will be created.  If username + token is not supplied then the user will be prompted to input
     the information.
-    :param authed: Optional authenticaion object from PyGithub
+    :param authed: Optional authentication object from PyGithub
     :param credentials: Optional GitHub credential list username,password or username,token
     :return: GitHub authentication object or None if unsuccessful
 

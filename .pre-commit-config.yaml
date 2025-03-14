@@ -13,6 +13,7 @@ repos:
     rev: v2.2.4
     hooks:
       - id: codespell
+        args: ["--ignore-words-list=indx"]
 
   - repo: https://github.com/psf/black
     rev: 23.3.0
