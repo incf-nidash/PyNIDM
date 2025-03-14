@@ -240,7 +240,7 @@ def addimagingsessions(
     img_session=None,
 ):
     """
-    This function adds imaging acquistions to the NIDM file and deals with BIDS structures potentially having
+    This function adds imaging acquisitions to the NIDM file and deals with BIDS structures potentially having
     separate ses-* directories or not
     :param bids_layout:
     :param subject_id:
