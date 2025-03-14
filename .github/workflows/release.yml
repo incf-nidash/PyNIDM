@@ -8,48 +8,32 @@ on:
 jobs:
   auto-release:
     runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, 'ci skip') && !contains(github.event.head_commit.message, 'skip ci')"
     steps:
-      - name: Checkout source
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+      - uses: actions/checkout@v4
 
-      - name: Download auto
-        run: |
-          curl -vL -o - "$(curl -fsSL https://api.github.com/repos/intuit/auto/releases/latest | jq -r '.assets[] | select(.name == "auto-linux.gz") | .browser_download_url')" | gunzip > ~/auto
-          chmod a+x ~/auto
+      - name: Prepare repository
+        # Fetch full git history and tags
+        run: git fetch --unshallow --tags
 
-      - name: Check whether a release is due
-        id: auto-version
-        run: |
-          version="$(~/auto version)"
-          echo "version=$version" >> "$GITHUB_OUTPUT"
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Unset header
+        # checkout@v2 adds a header that makes branch protection report errors
+        # because the Github action bot is not a collaborator on the repo
+        run: git config --local --unset http.https://github.com/.extraheader
 
       - name: Set up Python
-        if: steps.auto-version.outputs.version != ''
         uses: actions/setup-python@v5
         with:
           python-version: '^3.8'
 
-      - name: Install Python dependencies
-        if: steps.auto-version.outputs.version != ''
-        run: python -m pip install build twine
+      - name: Download auto
+        run: |
+          auto_download_url="$(curl -fsSL https://api.github.com/repos/intuit/auto/releases/latest | jq -r '.assets[] | select(.name == "auto-linux.gz") | .browser_download_url')"
+          wget -O- "$auto_download_url" | gunzip > ~/auto
+          chmod a+x ~/auto
 
       - name: Create release
-        if: steps.auto-version.outputs.version != ''
-        run: ~/auto shipit
+        run: |
+          ~/auto shipit -vv
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build & upload to PyPI
-        if: steps.auto-version.outputs.version != ''
-        run: |
-          python -m build
-          twine upload dist/*
-        env:
-          TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
-          TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
-
-# vim:set sts=2:
