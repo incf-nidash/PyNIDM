@@ -1282,9 +1282,9 @@ def authenticate_github(authed=None, credentials=None):
     """
 
     print("GitHub authentication...")
-    indx = 1
+    index = 1
     maxtry = 5
-    while indx < maxtry:
+    while index < maxtry:
         if len(credentials) >= 2:
             # authenticate with token
             g = Github(credentials[0], credentials[1])
@@ -1305,9 +1305,9 @@ def authenticate_github(authed=None, credentials=None):
             break
         except GithubException:
             logging.info("error logging into your github account, please try again...")
-            indx = indx + 1
+            index = index + 1
 
-    if indx == maxtry:
+    if index == maxtry:
         logging.critical(
             "GitHub authentication failed.  Check your username / password / token and try again"
         )
