@@ -25,19 +25,6 @@ def getUUID():
     return uid
 
 
-def find_in_namespaces(search_uri, namespaces):
-    """
-    Looks through namespaces for search_uri
-    :return: URI if found else False
-    """
-
-    for uris in namespaces:
-        if str(uris.uri) == str(search_uri):
-            return uris
-
-    return False
-
-
 class Core:
     """Base-class for NIDM-Experimenent
 
@@ -94,6 +81,13 @@ class Core:
         for name, namespace in cls.namespaces.items():
             cls.graph.add_namespace(name, namespace)
 
+    def find_namespace_with_uri(self, uri):
+        for namespace in self.graph.namespaces:
+            if str(namespace.uri) == str(uri):
+                return namespace
+        else:
+            return False
+
     def get_uuid(self):
         """
         returns UUID of self
@@ -111,7 +105,7 @@ class Core:
         """
         Returns namespace dictionary {namespace_id, URL}
         """
-        return self.namespaces
+        return self.graph._namespaces
 
     def addNamespace(self, prefix, uri):
         """
@@ -167,14 +161,10 @@ class Core:
 
         if uuid is not None:
             # add Person agent with existing uuid
-            person = self.graph.agent(
-                Constants.namespaces["niiri"][uuid], other_attributes=attributes
-            )
+            person = self.graph.agent("niiri:" + uuid, other_attributes=attributes)
         else:
             # add Person agent
-            person = self.graph.agent(
-                Constants.namespaces["niiri"][getUUID()], other_attributes=attributes
-            )
+            person = self.graph.agent("niiri:" + getUUID(), other_attributes=attributes)
 
         if add_default_type:
             # add minimal attributes to person
@@ -210,7 +200,9 @@ class Core:
 
         # associate person with activity for qualified association
         assoc = self.graph.association(
-            agent=person, activity=self, other_attributes={pm.PROV_ROLE: role}
+            agent=person,
+            activity="niiri:" + self.get_uuid(),
+            other_attributes={pm.PROV_ROLE: role},
         )
 
         # add wasAssociatedWith association
@@ -298,7 +290,7 @@ class Core:
             if datatype is not None:
                 id.add_attributes(
                     {
-                        self.namespaces[tple["prefix"]][tple["term"]]: pm.Literal(
+                        self.graph.namespaces[tple["prefix"]][tple["term"]]: pm.Literal(
                             tple["value"], datatype=datatype
                         )
                     }
@@ -306,7 +298,7 @@ class Core:
             else:
                 id.add_attributes(
                     {
-                        self.namespaces[tple["prefix"]][tple["term"]]: pm.Literal(
+                        self.graph.namespaces[tple["prefix"]][tple["term"]]: pm.Literal(
                             tple["value"]
                         )
                     }
@@ -326,12 +318,27 @@ class Core:
             # is the key already mapped to a URL (i.e. using one of the constants from Constants.py) or is it in prefix:term form?
             # if not validators.url(key):
             # check if namespace prefix already exists in graph or #if we're using a Constants reference
-            if not self.checkNamespacePrefix(key.split(":")[0]):
-                raise TypeError(
-                    "Namespace prefix "
-                    + key
-                    + " not in graph, use addAttributesWithNamespaces or manually add!"
-                )
+            # these should be of type pm.QualifiedName otherwise they might be a string version of a qualified name
+            # which should be changed but for now we're supporting these types that look like "nidm:Derivative"
+            if isinstance(key, pm.QualifiedName):
+                # check if the namespace is in self.graph
+                ns = self.find_namespace_with_uri(str(key.namespace.uri))
+                if ns is False:
+                    # namespace isn't in graph so give an error
+                    raise TypeError(
+                        "Namespace prefix "
+                        + key.prefix
+                        + ", "
+                        + key.namespace.uri
+                        + " not in graph, use addAttributesWithNamespaces or manually add!"
+                    )
+            elif isinstance(key, str):
+                if not self.checkNamespacePrefix(key.split(":")[0]):
+                    raise TypeError(
+                        "Namespace prefix "
+                        + key
+                        + " not in graph, use addAttributesWithNamespaces or manually add!"
+                    )
             # figure out datatype of literal
             datatype = self.getDataType(attributes[key])
             # if (not validators.url(key)):
@@ -580,6 +587,19 @@ class Core:
                                 dot.add_edge(
                                     Edge(acquisition_node, session_node, **style)
                                 )
+        # for each derivative activity, add edge to project for isPartOf
+        for derivative_activity in self._derivatives:
+            print(derivative_activity)
+            for key, value in dot.obj_dict["nodes"].items():
+                # get node number in DOT graph for Project
+                if derivative_activity.identifier.uri in str(
+                    value[0]["attributes"].get("URL", "")
+                ):
+                    derivative_activity_node = key
+                    # print(f"session node = {key}")
+
+                    # add to DOT structure edge between project_node and session_node
+                    dot.add_edge(Edge(derivative_activity_node, project_node, **style))
 
         # add some logic to find nodes with dct:hasPart relation and add those edges to graph...prov_to_dot ignores these
         if format != "None":

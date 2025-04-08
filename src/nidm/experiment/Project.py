@@ -1,5 +1,5 @@
 import prov.model as pm
-from .Core import Core, find_in_namespaces, getUUID
+from .Core import Core, getUUID
 from ..core import Constants
 
 
@@ -80,11 +80,23 @@ class Project(pm.ProvActivity, Core):
         else:
             # add session to self.sessions list
             self._sessions.extend([session])
+            # get qname for niiri prefix and uuid...already in graph as we're adding a session and niiri added
+            # when adding parent project
+            niiri_qname = self.graph.valid_qualified_name("niiri:" + self.get_uuid())
             # create links in graph
             # session.add_attributes({str("dct:isPartOf"):self})
-            session.add_attributes(
-                {pm.QualifiedName(pm.Namespace("dct", Constants.DCT), "isPartOf"): self}
-            )
+            if self.checkNamespacePrefix("dct"):
+                dct_qname = self.graph.valid_qualified_name("dct:isPartOf")
+                session.add_attributes({dct_qname: niiri_qname})
+
+            else:
+                session.add_attributes(
+                    {
+                        pm.QualifiedName(
+                            pm.Namespace("dct", Constants.DCT), "isPartOf"
+                        ): niiri_qname
+                    }
+                )
             return True
 
     def get_sessions(self):
@@ -105,58 +117,24 @@ class Project(pm.ProvActivity, Core):
         if derivative in self._derivatives:
             return False
         else:
-            # add session to self.sessions list
+            # add derivative to self._derivatives list
             self._derivatives.extend([derivative])
             # create links in graph
             # session.add_attributes({str("dct:isPartOf"):self})
 
-            # check if dct namespace is already in graph and use it otherwise create it...
-            found_dct = find_in_namespaces(
-                search_uri=str(Constants.DCT), namespaces=self.graph.namespaces
-            )
-            found_niiri = find_in_namespaces(
-                search_uri=str(Constants.NIIRI), namespaces=self.graph.namespaces
-            )
-            if found_dct and found_niiri:
-                derivative.add_attributes(
-                    {found_dct["isPartOf"]: found_niiri[self.get_uuid()]}
-                )
-            elif found_dct and not found_niiri:
-                derivative.add_attributes(
-                    {
-                        found_dct["isPartOf"]: pm.QualifiedName(
-                            namespace=pm.Namespace(
-                                uri=str(Constants.NIIRI), prefix="niiri"
-                            ),
-                            localpart=self.get_uuid(),
-                        )
-                    }
-                )
-            elif not found_dct and found_niiri:
-                derivative.add_attributes(
-                    {
-                        pm.QualifiedName(
-                            namespace=pm.Namespace(
-                                uri=str(Constants.DCT), prefix="dct"
-                            ),
-                            localpart="isPartOf",
-                        ): found_niiri[self.get_uuid()]
-                    }
-                )
+            # when adding parent project
+            niiri_qname = self.graph.valid_qualified_name("niiri:" + self.get_uuid())
+
+            # check if DCT namespace is already added else add it
+            if self.checkNamespacePrefix("dct"):
+                dct_qname = self.graph.valid_qualified_name("dct:isPartOf")
+                derivative.add_attributes({dct_qname: niiri_qname})
             else:
                 derivative.add_attributes(
                     {
                         pm.QualifiedName(
-                            namespace=pm.Namespace(
-                                uri=str(Constants.DCT), prefix="dct"
-                            ),
-                            localpart="isPartOf",
-                        ): pm.QualifiedName(
-                            namespace=pm.Namespace(
-                                uri=str(Constants.NIIRI), prefix="niiri"
-                            ),
-                            localpart=self.get_uuid(),
-                        )
+                            pm.Namespace("dct", Constants.DCT), "isPartOf"
+                        ): niiri_qname
                     }
                 )
             return True
