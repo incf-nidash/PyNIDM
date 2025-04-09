@@ -567,9 +567,13 @@ def csv2nidm_main(args=None):
             # see if this participant ID is in the NIDM file
             found_subject = False
 
+            print(df_row[id_field])
+
             # search all subject ids in nidm file for one referenced in csv file
             for _, row in qres.iterrows():
-                if str(row[1]).lstrip("0") in df_row[id_field]:
+                if (str(row[1]).lstrip("0") in df_row[id_field].lstrip("0")) or (
+                    str(row[1]) in df_row[id_field]
+                ):
                     found_subject = True
                     if args.logfile:
                         logging.info(
@@ -584,7 +588,7 @@ def csv2nidm_main(args=None):
             # if the subject in CSV file isn't found in supplied nidm file then skip adding this derivative
             # information
             if not found_subject:
-                break
+                continue
 
             # find prov:Person associated with df_row[id_field]
             subject_uuid = GetParticipantUUIDFromSubjectID(
