@@ -1139,6 +1139,16 @@ def GetProjectDataElements(nidm_file_list, project_id):
                             cde_tuple = (predicate, dti["label"])
                             cde_set.add(cde_tuple)
 
+                # added to accommodate derivatives added by csv2nidm -derivative code.
+                for stat_collection in rdf_graph.subjects(
+                    isa, Constants.NIDM["DerivativeCollection"]
+                ):
+                    for predicate in rdf_graph.predicates(subject=stat_collection):
+                        dti = getDataTypeInfo(rdf_graph, predicate)
+                        if dti:
+                            cde_tuple = (predicate, dti["label"])
+                            cde_set.add(cde_tuple)
+
                 for cde in cde_set:
                     result["uuid"].append(cde[0])
                     result["label"].append(cde[1])

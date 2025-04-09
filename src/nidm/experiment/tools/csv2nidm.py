@@ -528,6 +528,13 @@ def csv2nidm_main(args=None):
         # with open("/Users/dkeator/Downloads/test.ttl", "w", encoding="utf-8") as f:
         #    f.write(project.serializeTurtle())
 
+        # get rdfs namespace for later use
+        rdfs_ns = project.find_namespace_with_uri(
+            uri="http://www.w3.org/2000/01/rdf-schema#"
+        )
+        # get nidm namespace for later use
+        nidm_ns = project.find_namespace_with_uri(uri="http://purl.org/nidash/nidm#")
+
         id_field = detect_idfield(column_to_terms)
 
         # if we couldn't find a subject ID field in column_to_terms, ask user
@@ -562,12 +569,14 @@ def csv2nidm_main(args=None):
         #            }"""
         # qres = rdf_graph.query(query)
 
+        # variable to identify if any new data was added to the NIDM file, if not then we leave the existing nidm
+        # file alone
+        data_added = False
+
         # iterate over rows of csv file
         for _, df_row in df.iterrows():
             # see if this participant ID is in the NIDM file
             found_subject = False
-
-            print(df_row[id_field])
 
             # search all subject ids in nidm file for one referenced in csv file
             for _, row in qres.iterrows():
@@ -589,6 +598,8 @@ def csv2nidm_main(args=None):
             # information
             if not found_subject:
                 continue
+
+            data_added = True
 
             # find prov:Person associated with df_row[id_field]
             subject_uuid = GetParticipantUUIDFromSubjectID(
@@ -669,6 +680,9 @@ def csv2nidm_main(args=None):
 
                     # create a derivative entity
                     der_entity = DerivativeObject(derivative=der)
+                    der_entity.add_attributes(
+                        {RDF.type: QualifiedName(nidm_ns, "DerivativeCollection")}
+                    )
 
                     # add metadata to der_entity
 
@@ -873,21 +887,27 @@ def csv2nidm_main(args=None):
         #    f.write(project.serializeTurtle())
         # cde.serialize(destination="/Users/dkeator/Downloads/cdes.ttl", format="turtle")
 
-        # convert to rdflib Graph and add CDEs
-        rdf_graph = Graph()
-        rdf_graph.parse(source=StringIO(project.serializeTurtle()), format="turtle")
-        rdf_graph = rdf_graph + cde
+        if data_added:
+            # convert to rdflib Graph and add CDEs
+            rdf_graph = Graph()
+            rdf_graph.parse(source=StringIO(project.serializeTurtle()), format="turtle")
+            rdf_graph = rdf_graph + cde
 
-        if args.logfile:
-            logging.info("Backing up original NIDM file...")
+            if args.logfile:
+                logging.info("Backing up original NIDM file...")
+            else:
+                print("Backing up original NIDM file...")
+            copy2(src=args.nidm_file, dst=args.nidm_file + ".bak")
+            if args.logfile:
+                logging.info("Writing NIDM file....")
+            else:
+                print("Writing NIDM file....")
+            rdf_graph.serialize(destination=args.nidm_file, format="turtle")
         else:
-            print("Backing up original NIDM file...")
-        copy2(src=args.nidm_file, dst=args.nidm_file + ".bak")
-        if args.logfile:
-            logging.info("Writing NIDM file....")
-        else:
-            print("Writing NIDM file....")
-        rdf_graph.serialize(destination=args.nidm_file, format="turtle")
+            if args.logfile:
+                logging.info("No new data added, leaving existing nidm file alone...")
+            else:
+                print("No new data added, leaving existing nidm file alone...")
 
     else:
         if args.logfile:
@@ -952,6 +972,13 @@ def csv2nidm_main(args=None):
 
                 # create a derivative entity
                 der_entity = DerivativeObject(derivative=der)
+                der_entity.add_attributes(
+                    {
+                        QualifiedName(rdfs_ns, "type"): QualifiedName(
+                            nidm_ns, "DerivativeCollection"
+                        )
+                    }
+                )
 
                 # add metadata to der_entity
 
@@ -1136,10 +1163,10 @@ def csv2nidm_main(args=None):
                         # print(project.serializeTurtle())
 
         # convert to rdflib Graph and add CDEs
-        with open(
-            "/Users/dkeator/Downloads/before_cdes.ttl", "w", encoding="utf-8"
-        ) as f:
-            f.write(project.serializeTurtle())
+        # with open(
+        #    "/Users/dkeator/Downloads/before_cdes.ttl", "w", encoding="utf-8"
+        # ) as f:
+        #    f.write(project.serializeTurtle())
         rdf_graph = Graph()
         rdf_graph.parse(source=StringIO(project.serializeTurtle()), format="turtle")
         rdf_graph = rdf_graph + cde

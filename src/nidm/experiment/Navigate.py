@@ -298,6 +298,7 @@ def isAStatCollection(nidm_file_tuples, uri):
             ((uri, isa, Constants.NIDM["FSStatsCollection"]) in rdf_graph)
             or ((uri, isa, Constants.NIDM["FSLStatsCollection"]) in rdf_graph)
             or ((uri, isa, Constants.NIDM["ANTSStatsCollection"]) in rdf_graph)
+            or ((uri, isa, Constants.NIDM["DerivativeCollection"]) in rdf_graph)
         ):
             return True
     return False
