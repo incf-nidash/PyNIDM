@@ -27,6 +27,9 @@ class AcquisitionObject(pm.ProvEntity, Core):
 
         """
 
+        # carry graph object around
+        self.graph = acquisition.graph
+
         if uuid is None:
             self._uuid = getUUID()
             # execute default parent class constructor
@@ -38,19 +41,27 @@ class AcquisitionObject(pm.ProvEntity, Core):
                 attributes,
             )
         else:
+            # check if niiri namespace is already defined
+            niiri_ns = self.find_namespace_with_uri(uri=str(Constants.NIIRI))
             self._uuid = uuid
-            super().__init__(
-                acquisition.graph,
-                pm.QualifiedName(
-                    pm.Namespace("niiri", Constants.NIIRI), self.get_uuid()
-                ),
-                attributes,
-            )
+
+            if niiri_ns is False:
+                super().__init__(
+                    acquisition.graph,
+                    pm.QualifiedName(
+                        pm.Namespace("niiri", Constants.NIIRI), self.get_uuid()
+                    ),
+                    attributes,
+                )
+            else:
+                super().__init__(
+                    acquisition.graph,
+                    pm.QualifiedName(niiri_ns, self.get_uuid()),
+                    attributes,
+                )
 
         acquisition.graph._add_record(self)
 
-        # carry graph object around
-        self.graph = acquisition.graph
         # create link to acquisition activity
         acquisition.add_acquisition_object(self)
 

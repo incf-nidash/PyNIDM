@@ -26,6 +26,7 @@ class DataElement(pm.ProvEntity, Core):
         :return: none
 
         """
+        self.graph = project.graph
 
         if uuid is None:
             # execute default parent class constructor
@@ -35,14 +36,30 @@ class DataElement(pm.ProvEntity, Core):
                 attributes,
             )
         else:
-            super().__init__(project.graph, pm.Identifier(uuid), attributes)
+            self._uuid = uuid
 
+            # check if niiri namespace is already defined
+            niiri_ns = self.find_namespace_with_uri(uri=str(Constants.NIIRI))
+
+            if niiri_ns is False:
+                super().__init__(
+                    project.graph,
+                    pm.QualifiedName(
+                        pm.Namespace("niiri", Constants.NIIRI), self.get_uuid()
+                    ),
+                    attributes,
+                )
+            else:
+                super().__init__(
+                    project.graph,
+                    pm.QualifiedName(niiri_ns, self.get_uuid()),
+                    attributes,
+                )
         project.graph._add_record(self)
 
         if add_default_type:
             self.add_attributes({pm.PROV_TYPE: Constants.NIDM_DATAELEMENT})
         project.add_dataelements(self)
-        self.graph = project.graph
 
         # list to store acquisition objects associated with this activity
         self._derivative_objects = []

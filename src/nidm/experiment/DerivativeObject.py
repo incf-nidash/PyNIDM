@@ -26,6 +26,8 @@ class DerivativeObject(pm.ProvEntity, Core):
         :return: none
 
         """
+        # carry graph object around
+        self.graph = derivative.graph
 
         if uuid is None:
             # execute default parent class constructor
@@ -35,12 +37,26 @@ class DerivativeObject(pm.ProvEntity, Core):
                 attributes,
             )
         else:
-            super().__init__(derivative.graph, pm.Identifier(uuid), attributes)
+            # check if niiri namespace is already defined
+            niiri_ns = self.find_namespace_with_uri(Constants.NIIRI)
+            self._uuid = uuid
 
+            if niiri_ns is False:
+                super().__init__(
+                    derivative.graph,
+                    pm.QualifiedName(
+                        pm.Namespace("niiri", Constants.NIIRI), self.get_uuid()
+                    ),
+                    attributes,
+                )
+            else:
+                super().__init__(
+                    derivative.graph,
+                    pm.QualifiedName(niiri_ns, self.get_uuid()),
+                    attributes,
+                )
         derivative.graph._add_record(self)
 
-        # carry graph object around
-        self.graph = derivative.graph
         # create link to acquisition activity
         derivative.add_derivative_object(self)
 

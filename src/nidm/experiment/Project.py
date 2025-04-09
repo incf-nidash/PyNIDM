@@ -46,14 +46,26 @@ class Project(pm.ProvActivity, Core):
             )
         else:
             self._uuid = uuid
-            # execute default parent class constructor
-            super().__init__(
-                self.graph,
-                pm.QualifiedName(
-                    pm.Namespace("niiri", Constants.NIIRI), self.get_uuid()
-                ),
-                attributes,
-            )
+
+            # check if niiri namespace is already defined
+            niiri_ns = self.find_namespace_with_uri(uri=str(Constants.NIIRI))
+
+            if niiri_ns is False:
+                # execute default parent class constructor
+                super().__init__(
+                    self.graph,
+                    pm.QualifiedName(
+                        pm.Namespace("niiri", Constants.NIIRI), self.get_uuid()
+                    ),
+                    attributes,
+                )
+            else:
+                # execute default parent class constructor
+                super().__init__(
+                    self.graph,
+                    pm.QualifiedName(niiri_ns, self.get_uuid()),
+                    attributes,
+                )
 
         # add record to graph
         self.graph._add_record(self)
