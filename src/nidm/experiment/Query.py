@@ -1345,12 +1345,26 @@ def GetProjectsMetadata(nidm_file_list):
 
 def GetDataElements(nidm_file_list):
     query = """
-        select distinct ?uuid ?DataElements
+        prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+prefix nidm: <http://purl.org/nidash/nidm#>
+prefix dct: <http://purl.org/dc/terms/>
+prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+select distinct ?measure_uuid ?label ?description ?concept ?source_variable ?unit ?maxValue ?minValue ?valueType ?levels
             where {
 
-                ?uuid a ?DataElements
 
-                filter( regex(str(?DataElements), "DataElement" ))
+                ?measure_uuid a/rdfs:subClassOf nidm:DataElement ;
+                              rdfs:label ?label ;
+                              dct:description ?description ;
+                              nidm:isAbout ?concept ;
+                              nidm:sourceVariable ?source_variable .
+                OPTIONAL {?measure_uuid nidm:hasUnit ?unit} .
+                OPTIONAL {?measure_uuid nidm:maxValue ?maxValue} .
+                OPTIONAL {?measure_uuid nidm:minValue ?minValue} .
+                OPTIONAL {?measure_uuid nidm:valueType ?valueType} .
+                OPTIONAL {?measure_uuid nidm:levels ?levels} .
+
 
             }"""
 
