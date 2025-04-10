@@ -14,7 +14,7 @@ from os.path import basename, dirname, join
 from shutil import copy2
 import sys
 import pandas as pd
-from prov.model import QualifiedName
+from prov.model import Identifier, QualifiedName
 from rdflib import RDF, Graph, Literal
 from rdflib.namespace import split_uri
 from nidm.core import Constants
@@ -335,7 +335,8 @@ def csv2nidm_main(args=None):
             help="If set, indicates CSV file provided is derivative data which includes columns 'ses','task','run' "
             "which will be used to identify the subject scan session, run, and verify against the task if an existing "
             "nidm file is provided and was made from bids (bidsmri2nidm). Otherwise these additional columns "
-            "(ses, task,run) will be ignored.  After the -derivative parameter one must provide the software metadata "
+            "(ses, task,run) will be ignored. Further, adding a column source_url will provide links to the "
+            "derived data.  After the -derivative parameter one must provide the software metadata "
             "CSV file which includes columns: title, description, version, url, cmdline, platform, ID "
             "These software metadata columns can have empty entries and are defined as follows: "
             "title: Title of the software"
@@ -400,9 +401,10 @@ def csv2nidm_main(args=None):
             ("ses" not in df.columns)
             or ("task" not in df.columns)
             or ("run" not in df.columns)
+            or ("source_url" not in df.columns)
         ):
             print(
-                "ERROR: -csv data file must have 'ses','task', and 'run' columns (even if empty) when the "
+                "ERROR: -csv data file must have 'ses','task', 'run', 'source_url' columns (even if empty) when the "
                 "-derivative parameter is provided.  See usage: "
             )
             parser.print_help()
@@ -410,7 +412,7 @@ def csv2nidm_main(args=None):
         else:
             # remove -derivatives required columns 'ses','task','run' from CSV file
             # so map_variables_to_terms function doesn't complain about the columns not being annotated
-            df = df.drop(["ses", "task", "run"], axis=1)
+            df = df.drop(["ses", "task", "run", "source_url"], axis=1)
 
             # load derivatives software metadata file and check it has the required columns
             if args.csv_file.endswith(".csv"):
@@ -580,17 +582,17 @@ def csv2nidm_main(args=None):
 
             # search all subject ids in nidm file for one referenced in csv file
             for _, row in qres.iterrows():
-                if (str(row[1]).lstrip("0") in df_row[id_field].lstrip("0")) or (
-                    str(row[1]) in df_row[id_field]
+                if (str(row.iloc[1]).lstrip("0") in df_row[id_field].lstrip("0")) or (
+                    str(row.iloc[1]) in df_row[id_field]
                 ):
                     found_subject = True
                     if args.logfile:
                         logging.info(
-                            f"found participant {str(row[1]).lstrip('0')} in CSV file"
+                            f"found participant {str(row.iloc[1]).lstrip('0')} in CSV file"
                         )
                     else:
                         print(
-                            f"found participant {str(row[1]).lstrip('0')} in CSV file"
+                            f"found participant {str(row.iloc[1]).lstrip('0')} in CSV file"
                         )
                     break
 
@@ -693,6 +695,14 @@ def csv2nidm_main(args=None):
                             row_variable in ["ses", "task", "run", "subject_id"]
                         ):
                             continue
+                        elif row_variable == "source_url":
+                            der_entity.add_attributes(
+                                {
+                                    Constants.PROV["Location"]: Identifier(
+                                        df_row["source_url"]
+                                    )
+                                }
+                            )
                         else:
                             # check that the df_row[row_variable] contains some data/metadata, if so
                             # add to nidm file, if not skip it.
@@ -989,7 +999,14 @@ def csv2nidm_main(args=None):
                         row_variable in ["ses", "task", "run"]
                     ):
                         continue
-
+                    elif row_variable == "source_url":
+                        der_entity.add_attributes(
+                            {
+                                Constants.PROV["Location"]: Identifier(
+                                    row_data["source_url"]
+                                )
+                            }
+                        )
                     if str(row_data) != "nan":
                         # add data for this variable to derivative entity
                         add_attributes_with_cde(
