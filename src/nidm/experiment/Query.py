@@ -1037,6 +1037,10 @@ def GetDatatypeSynonyms(nidm_file_list, project_id, datatype):
     project_data_elements = GetProjectDataElements(nidm_file_list, project_id)
     all_synonyms = set([datatype])
     for dti in project_data_elements["data_type_info"]:
+        if not isinstance(dti, dict):
+            # skip anything that isn’t a dict
+            continue
+
         # modified by DBK 7/25/2022
         # if str(datatype) in [ str(x) for x in [dti['source_variable'], dti['label'], dti['datumType'], dti['measureOf'], URITail(dti['measureOf']), str(dti['isAbout']), URITail(dti['isAbout']), dti['dataElement'], dti['dataElementURI'], dti['prefix']] ]:
         if any(
