@@ -1,6 +1,5 @@
 from binascii import crc32
 import getpass
-import io
 import json
 import logging
 import os
@@ -9,13 +8,14 @@ from uuid import UUID
 from cognitiveatlas.api import get_concept, get_disorder
 from datalad.support.annexrepo import AnnexRepo
 from github import Github, GithubException
+import numpy as np
 from numpy import base_repr
 import ontquery as oq
 import pandas as pd
 import prov.model as pm
 from prov.model import Identifier
 from prov.model import Namespace as provNamespace
-from prov.model import ProvDocument, QualifiedName
+from prov.model import QualifiedName
 from rapidfuzz import fuzz
 from rdflib import RDF, RDFS, Graph, Literal, Namespace, URIRef, util
 from rdflib.namespace import XSD, split_uri
@@ -27,7 +27,7 @@ from .Acquisition import Acquisition
 from .AcquisitionObject import AcquisitionObject
 from .AssessmentAcquisition import AssessmentAcquisition
 from .AssessmentObject import AssessmentObject
-from .Core import find_in_namespaces, getUUID
+from .Core import getUUID
 from .DataElement import DataElement
 from .Derivative import Derivative
 from .DerivativeObject import DerivativeObject
@@ -104,7 +104,8 @@ def read_nidm(nidmDoc):
             # add namespaces to prov graph
             for name, namespace in rdf_graph_parse.namespaces():
                 # skip these default namespaces in prov Document
-                if name not in ("prov", "xsd", "nidm", "niiri"):
+                # if name not in ("prov", "xsd", "nidm", "niiri"):
+                if name not in ("prov", "xsd"):
                     project.graph.add_namespace(name, namespace)
 
         else:
@@ -119,7 +120,8 @@ def read_nidm(nidmDoc):
         # add namespaces to prov graph
         for name, namespace in rdf_graph_parse.namespaces():
             # skip these default namespaces in prov Document
-            if name not in ("prov", "xsd", "nidm", "niiri"):
+            # if name not in ("prov", "xsd", "nidm", "niiri"):
+            if name not in ("prov", "xsd"):
                 project.graph.add_namespace(name, namespace)
 
         # Cycle through Project metadata adding to prov graph
@@ -391,61 +393,13 @@ def read_nidm(nidmDoc):
                 }
                 """
 
-    # check for Derivatives.
-    # WIP: Currently FSL, Freesurfer, and ANTS tools add these derivatives as nidm:FSStatsCollection,
-    # nidm:FSLStatsCollection, or nidm:ANTSStatsCollection which are subclasses of nidm:Derivatives
-    # this should probably be explicitly indicated in the graphs but currently isn't
-
-    # Query graph for any of the above Derivatives
-    query = """
-            prefix nidm: <http://purl.org/nidash/nidm#>
-            prefix prov: <http://www.w3.org/ns/prov#>
-            select distinct ?uuid ?parent_act
-            where {
-                {?uuid a nidm:Derivative ;
-                    prov:wasGeneratedBy ?parent_act .}
-                    UNION
-                    {?uuid a nidm:FSStatsCollection ;
-                    prov:wasGeneratedBy ?parent_act .}
-                    UNION
-                    {?uuid a nidm:FSLStatsCollection ;
-                    prov:wasGeneratedBy ?parent_act .}
-                    UNION
-                    {?uuid a nidm:ANTSStatsCollection ;
-                    prov:wasGeneratedBy ?parent_act .}
-            }
-
-        """
-    qres = rdf_graph_parse.query(query)
-    for row in qres:
-        # put this here so the following makes more sense
-        derivobj_uuid = row["uuid"]
-        # if the parent activity of the derivative object (entity) doesn't exist in the graph then create it
-        if row["parent_act"] not in project.derivatives:
-            deriv_act = Derivative(project=project, uuid=row["parent_act"])
-            # add additional tripes
-            add_metadata_for_subject(
-                rdf_graph_parse, row["parent_act"], project.graph.namespaces, deriv_act
-            )
-        else:
-            for d in project.get_derivatives:
-                if row["parent_act"] == d.get_uuid():
-                    deriv_act = d
-
-        # check if derivative object already created and if not create it
-        # if derivobj_uuid not in deriv_act.get_derivative_objects():
-        # now instantiate the derivative object and add all triples
-        derivobj = DerivativeObject(derivative=deriv_act, uuid=derivobj_uuid)
-        add_metadata_for_subject(
-            rdf_graph_parse, row["uuid"], project.graph.namespaces, derivobj
-        )
-
     # add all nidm:DataElements in graph
     qres = rdf_graph_parse.query(query)
     for row in qres:
-        print(row)
+        # print(f"Reading data element: {row}")
         # instantiate a data element class assigning it the existing uuid
-        de = DataElement(project=project, uuid=row["uuid"], add_default_type=False)
+        obj_nm, obj_term = split_uri(row["uuid"])
+        de = DataElement(project=project, uuid=obj_term, add_default_type=False)
         # get the rest of the attributes for this data element and store
         add_metadata_for_subject(
             rdf_graph_parse, row["uuid"], project.graph.namespaces, de
@@ -471,50 +425,110 @@ def read_nidm(nidmDoc):
         # print(query2)
         qres2 = rdf_graph_parse.query(query2)
 
-        # check qres2 length and if zero then skip all this converting from prov to rdf and back to add
-        # data element isAbout definitions that are identified with a url and not a qualified name as required by prov
-        # but not rdf in general
-        if len(qres2) == 0:
-            continue
+        # find rdfs namespace in graph otherwise add it
+        rdfs_ns = project.find_namespace_with_uri(str(Constants.RDFS))
 
-        # Step 1: Convert `project.graph` (ProvDocument) to an RDFLib Graph
-        rdf_graph = Graph()
-        rdf_graph.parse(
-            data=project.serializeTurtle(), format="turtle"
-        )  # Proper RDF export
+        if rdfs_ns is False:
+            # add namespace
+            # add dcmitype namespace
+            project.addNamespace(prefix="rdfs", uri=str(Constants.RDFS))
 
-        # Step 2: Modify RDF Graph (Keeping Full URIs)
+            rdfs_ns = project.find_namespace_with_uri(str(Constants.RDFS))
+
+        # add this tuple to graph
         for row2 in qres2:
-            entity_uri = URIRef(str(row2[0]))  # Preserve full URI
-            label = Literal(str(row2[1]))  # Convert label to Literal
+            # first we need to make a valid qualified name identifier for this isAbout.
+            # so split row2[0] which is entire uri into two parts
+            ns, term = split_uri(row2[0])
 
-            # Add triples directly to RDF graph
-            rdf_graph.add((entity_uri, RDF.type, Constants.PROV.Entity))
-            rdf_graph.add((entity_uri, RDFS.label, label))
+            # now check if namespace (ns) exists in graph, else add it
+            term_ns = project.find_namespace_with_uri(str(ns))
 
-        # Step 3: Serialize modified RDF graph to an in-memory bytes buffer
-        rdf_bytes = io.BytesIO()
-        rdf_graph.serialize(
-            destination=rdf_bytes, format="turtle"
-        )  # Use "turtle" correctly
+            if term_ns is not False:
+                project.graph.entity(
+                    pm.QualifiedName(term_ns, term),
+                    {pm.QualifiedName(rdfs_ns, "label"): row2[1]},
+                )
 
-        # Step 4: Convert RDF bytes to a string for `prov` to read
-        rdf_string = rdf_bytes.getvalue().decode("utf-8")
+            else:
+                # project.graph.entity(
+                #    pm.QualifiedName(provNamespace(None,(row2[0])),""),
+                #    {pm.QualifiedName(rdfs_ns, "label"): row2[1]},
+                # )
 
-        # Step 5: Create a new ProvDocument and read RDF data from the string
-        project.graph = ProvDocument()
-        project.graph = project.graph.deserialize(
-            source=io.StringIO(rdf_string), format="rdf"
+                project.graph.entity(
+                    pm.QualifiedName(
+                        provNamespace("term_" + term, URIRef(row2[0])), ""
+                    ),
+                    {pm.QualifiedName(rdfs_ns, "label"): row2[1]},
+                )
+
+                # project.graph.entity(
+                #    pm.Identifier(str(row2[0])),
+                #    {pm.QualifiedName(rdfs_ns, "label"): row2[1]},
+                # )
+
+                # now use this new namespace identifier for term
+                # project.graph.entity(
+                #    pm.QualifiedName(term_ns, term),
+                #    {pm.QualifiedName(rdfs_ns, "label"): row2[1]},
+                # )
+
+    # check for Derivatives.
+    # WIP: Currently FSL, Freesurfer, and ANTS tools add these derivatives as nidm:FSStatsCollection,
+    # nidm:FSLStatsCollection, or nidm:ANTSStatsCollection which are subclasses of nidm:Derivatives
+    # this should probably be explicitly indicated in the graphs but currently isn't
+
+    # Query graph for any of the above Derivatives
+    query = """
+            prefix nidm: <http://purl.org/nidash/nidm#>
+            prefix prov: <http://www.w3.org/ns/prov#>
+            select distinct ?uuid ?parent_act
+            where {
+                {?uuid a nidm:DerivativeObject ;
+                    prov:wasGeneratedBy ?parent_act .}
+                    UNION
+                    {?uuid a nidm:FSStatsCollection ;
+                    prov:wasGeneratedBy ?parent_act .}
+                    UNION
+                    {?uuid a nidm:FSLStatsCollection ;
+                    prov:wasGeneratedBy ?parent_act .}
+                    UNION
+                    {?uuid a nidm:ANTSStatsCollection ;
+                    prov:wasGeneratedBy ?parent_act .}
+            }
+
+        """
+    qres = rdf_graph_parse.query(query)
+    for row in qres:
+        # if the parent activity of the derivative object (entity) doesn't exist in the graph then create it
+        if row["parent_act"] not in project.derivatives:
+            deract_nm, deract_term = split_uri(row["parent_act"])
+            deriv_act = Derivative(project=project, uuid=deract_term)
+            # add additional triples
+            add_metadata_for_subject(
+                rdf_graph_parse, row["parent_act"], project.graph.namespaces, deriv_act
+            )
+        else:
+            for d in project.get_derivatives:
+                if row["parent_act"] == d.get_uuid():
+                    deriv_act = d
+
+        # check if derivative object already created and if not create it
+        # if derivobj_uuid not in deriv_act.get_derivative_objects():
+        # now instantiate the derivative object and add all triples
+        derobj_nm, derobj_term = split_uri(row["uuid"])
+        derobj_uuid = derobj_term
+        deriv_obj = DerivativeObject(derivative=deriv_act, uuid=derobj_uuid)
+        add_metadata_for_subject(
+            rdf_graph_parse, row["uuid"], project.graph.namespaces, deriv_obj
         )
-
-        # Close the BytesIO buffer (good practice)
-        rdf_bytes.close()
 
     return project
 
 
 def get_RDFliteral_type(rdf_literal):
-    if rdf_literal.datatype == XSD["integer"]:
+    if (rdf_literal.datatype == XSD["integer"]) or (rdf_literal.datatype == XSD["int"]):
         # return (int(rdf_literal))
         return pm.Literal(rdf_literal, datatype=pm.XSD["integer"])
     elif rdf_literal.datatype in (XSD["float"], XSD["double"]):
@@ -523,6 +537,19 @@ def get_RDFliteral_type(rdf_literal):
     else:
         # return (str(rdf_literal))
         return pm.Literal(rdf_literal, datatype=pm.XSD["string"])
+
+
+def find_in_namespaces(search_uri, namespaces):
+    """
+    Looks through namespaces for search_uri
+    :return: URI if found else False
+    """
+
+    for uris in namespaces:
+        if URIRef(uris.uri) == URIRef(search_uri):
+            return True, uris
+
+    return False, None
 
 
 def add_metadata_for_subject(rdf_graph, subject_uri, namespaces, nidm_obj):
@@ -541,16 +568,17 @@ def add_metadata_for_subject(rdf_graph, subject_uri, namespaces, nidm_obj):
         # if this isn't a qualified association, add triples
         if predicate != URIRef(Constants.PROV["qualifiedAssociation"]):
             # make predicate a qualified name
-            obj_nm, obj_term = split_uri(predicate)
-            found_uri = find_in_namespaces(
-                search_uri=URIRef(obj_nm), namespaces=namespaces
+            pred_nm, pred_term = split_uri(predicate)
+            found_uri, found_nm = find_in_namespaces(
+                search_uri=URIRef(pred_nm), namespaces=namespaces
             )
             # if obj_nm is not in namespaces then it must just be part of some URI in the triple
-            # so just add it as a prov.Identifier
+            # so just add it as a prov.Identifier..note, prov and xsd namespaces automatically added from
+            # inheritance of provDocument
             if (
                 (not found_uri)
-                and (obj_nm != Constants.PROV)
-                and (obj_nm != Constants.XSD)
+                and (pred_nm != Constants.PROV)
+                and (pred_nm != Constants.XSD)
             ):
                 predicate = pm.QualifiedName(
                     namespace=Namespace(str(predicate)), localpart=""
@@ -571,58 +599,66 @@ def add_metadata_for_subject(rdf_graph, subject_uri, namespaces, nidm_obj):
                         Constants.PROV["Entity"],
                     ):
                         continue
-                    # special case if obj_nm is prov, xsd, or nidm namespaces.  These are added
+                    # special case if obj_nm is prov, xsd, namespaces.  These are added
                     # automatically by provDocument so they aren't accessible via the namespaces list
                     # so we check explicitly here
                     if obj_nm == str(Constants.PROV):
                         nidm_obj.add_attributes(
                             {
-                                predicate: pm.QualifiedName(
-                                    namespace=pm.Namespace(
-                                        uri=Constants.PROV, prefix="prov"
+                                predicate: QualifiedName(
+                                    localpart=obj_term,
+                                    namespace=provNamespace(
+                                        "prov", str(Constants.PROV)
                                     ),
-                                    localpart=str(obj_term),
                                 )
                             }
                         )
-                    elif obj_nm == str(Constants.NIDM):
-                        nidm_obj.add_attributes(
-                            {
-                                predicate: pm.QualifiedName(
-                                    namespace=pm.Namespace(
-                                        uri=Constants.NIDM, prefix="prov"
-                                    ),
-                                    localpart=str(obj_term),
-                                )
-                            }
-                        )
+
                     else:
-                        found_uri = find_in_namespaces(
+                        found_uri, found_nm = find_in_namespaces(
                             search_uri=URIRef(obj_nm), namespaces=namespaces
                         )
                         # if obj_nm is not in namespaces then it must just be part of some URI in the triple
                         # so just add it as a prov.Identifier
                         if not found_uri:
-                            nidm_obj.add_attributes({predicate: URIRef(objects)})
+                            nidm_obj.add_attributes(
+                                {
+                                    predicate: pm.QualifiedName(
+                                        provNamespace(
+                                            "term_" + obj_term, URIRef(objects)
+                                        ),
+                                        "",
+                                    )
+                                }
+                            )
+                            # nidm_obj.add_attributes({predicate: Identifier(objects)})
+                            # nidm_obj.add_attributes({predicate: URIRef(objects)})
+                            # nidm_obj.add_attributes({predicate: objects})
                         # else add as explicit prov.QualifiedName because it's easier to read
                         else:
                             nidm_obj.add_attributes(
-                                {predicate: pm.QualifiedName(found_uri, obj_term)}
+                                {predicate: pm.QualifiedName(found_nm, obj_term)}
                             )
                 except Exception:
-                    # here we likely have a uri without a localpart so we'll search and see if we have a namespace for
-                    # it.
-                    found_uri = find_in_namespaces(
+                    # this happens when the object can't be split into a namespace and term because there isn't a
+                    # separation so we just use the url as the qualified name without localpart
+                    # in some cases this str(objects) might already be in a namespace so we need to check and if so
+                    # use it, otherwise just use the str(objects) with no prefix as the qname
+                    found_uri, found_nm = find_in_namespaces(
                         search_uri=URIRef(str(objects)), namespaces=namespaces
                     )
+                    if found_uri:
+                        nidm_obj.add_attributes(
+                            {predicate: pm.QualifiedName(found_nm, "")}
+                        )
 
-                    # if objects is not in namespaces just add as a generic url
-                    if not found_uri:
-                        nidm_obj.add_attributes({predicate: URIRef(objects)})
-                    # else add as explicit prov.QualifiedName because it's easier to read
                     else:
                         nidm_obj.add_attributes(
-                            {predicate: pm.QualifiedName(found_uri, "")}
+                            {
+                                predicate: pm.QualifiedName(
+                                    provNamespace(None, str(objects)), ""
+                                )
+                            }
                         )
             else:
                 # check if this is a qname and if so expand it
@@ -648,10 +684,11 @@ def add_metadata_for_subject(rdf_graph, subject_uri, namespaces, nidm_obj):
             if r_obj.identifier == URIRef(Constants.NIDM_PARTICIPANT.uri):
                 # get identifier for prov:agent part of the blank node
                 for agent_obj in r.objects(predicate=Constants.PROV["agent"]):
-                    # check if person exists already in graph, if not create it
+                    # check if agent exists already in graph, if not create it
                     if agent_obj.identifier not in nidm_obj.graph.get_records():
+                        obj_nm, obj_term = split_uri(agent_obj.identifier)
                         person = nidm_obj.add_person(
-                            uuid=agent_obj.identifier, add_default_type=False
+                            uuid=obj_term, add_default_type=False
                         )
                         # add rest of metadata about person
                         add_metadata_for_subject(
@@ -667,7 +704,7 @@ def add_metadata_for_subject(rdf_graph, subject_uri, namespaces, nidm_obj):
                                 person = obj
                     # create qualified names for objects
                     obj_nm, obj_term = split_uri(r_obj.identifier)
-                    found_uri = find_in_namespaces(
+                    found_uri, found_nm = find_in_namespaces(
                         search_uri=URIRef(obj_nm), namespaces=namespaces
                     )
                     # if obj_nm is not in namespaces then it must just be part of some URI in the triple
@@ -680,7 +717,7 @@ def add_metadata_for_subject(rdf_graph, subject_uri, namespaces, nidm_obj):
                         )
                     else:
                         nidm_obj.add_qualified_association(
-                            person=person, role=pm.QualifiedName(found_uri, obj_term)
+                            person=person, role=pm.QualifiedName(found_nm, obj_term)
                         )
 
             # else it's an association with another agent which isn't a participant
@@ -705,7 +742,7 @@ def add_metadata_for_subject(rdf_graph, subject_uri, namespaces, nidm_obj):
                         # create qualified names for objects
                         obj_nm, obj_term = split_uri(r_obj.identifier)
 
-                        found_uri = find_in_namespaces(
+                        found_uri, found_nm = find_in_namespaces(
                             search_uri=URIRef(obj_nm), namespaces=namespaces
                         )
                         # if obj_nm is not in namespaces then it must just be part of some URI in the triple
@@ -718,7 +755,7 @@ def add_metadata_for_subject(rdf_graph, subject_uri, namespaces, nidm_obj):
                         else:
                             nidm_obj.add_qualified_association(
                                 person=generic_agent,
-                                role=pm.QualifiedName(found_uri, obj_term),
+                                role=pm.QualifiedName(found_nm, obj_term),
                             )
 
                     except Exception:
@@ -1451,6 +1488,7 @@ def map_variables_to_terms(
     owl_file="nidm",
     associate_concepts=True,
     dataset_identifier=None,
+    cde_namespace=None,
 ):
     """
     :param df: data frame with first row containing variable names
@@ -1467,6 +1505,8 @@ def map_variables_to_terms(
             otherwise it will not.
     :param: dataset_identifier: unique identifier to identify a dataset such as a project in OpenNeuro
             which is used in the NIDM records as a namespace to go along with a unique ID generated for the NIDM RDF graphs
+    :param: cde_namespace: Dictionary where key is prefix and value is URL for namespace to use for data elements found
+            in supplied dataframe and optional json_source data dictionary.
     :return:return dictionary mapping variable names (i.e. columns) to terms
     """
 
@@ -2134,7 +2174,11 @@ def map_variables_to_terms(
         write_json_mapping_file(column_to_terms, output_file, bids)
 
     # get CDEs for data dictionary and NIDM graph entity of data
-    cde = DD_to_nidm(column_to_terms, dataset_identifier=dataset_identifier)
+    cde = DD_to_nidm(
+        column_to_terms,
+        dataset_identifier=dataset_identifier,
+        cde_namespace=cde_namespace,
+    )
 
     return [column_to_terms, cde]
 
@@ -2690,7 +2734,7 @@ def annotate_data_element(source_variable, current_tuple, source_variable_annota
     print("-" * 87)
 
 
-def DD_UUID(element, dd_struct, dataset_identifier=None):
+def DD_UUID(element, dd_struct, dataset_identifier=None, cde_namespace=None):
     """
     This function will produce a hash of the data dictionary (personal data element) properties defined
     by the user for use as a UUID.  The data dictionary key is a tuple identifying the file and variable
@@ -2698,6 +2742,9 @@ def DD_UUID(element, dd_struct, dataset_identifier=None):
     personal data element precisely match then the same UUID will be generated.
     :param element: element in dd_struct to create UUID for within the dd_struct
     :param dd_struct: data dictionary json structure
+    :dataset_identifier:
+    :param: cde_namespace: Dictionary where key is prefix and value is URL for namespace to use for data elements found
+            in supplied dataframe and optional json_source data dictionary.
     :return: hash of
     """
 
@@ -2731,16 +2778,25 @@ def DD_UUID(element, dd_struct, dataset_identifier=None):
 
     crc32hash = base_repr(crc32(str(property_string).encode()), 32).lower()
     niiri_ns = Namespace(Constants.NIIRI)
-    cde_id = URIRef(niiri_ns + safe_string(variable_name) + "_" + str(crc32hash))
+    # if user provided a namespace for CDEs, use it...
+    if cde_namespace is not None:
+        # get URL from cde_namespace dictionary and use for elements
+        cde_ns = [elem for elem in cde_namespace.values()][0]
+
+    if cde_namespace is None:
+        cde_id = URIRef(niiri_ns + safe_string(variable_name) + "_" + str(crc32hash))
+    else:
+        cde_id = URIRef(cde_ns + safe_string(variable_name) + "_" + str(crc32hash))
     return cde_id
 
 
-def DD_to_nidm(dd_struct, dataset_identifier=None):
+def DD_to_nidm(dd_struct, dataset_identifier=None, cde_namespace=None):
     """
 
     Takes a DD json structure and returns nidm CDE-style graph to be added to NIDM documents
     :param DD:
-    :return: NIDM graph
+    :param: cde_namespace: Dictionary where key is prefix and value is URL for namespace to use for data elements found
+            in supplied dataframe and optional json_source data dictionary.
     """
 
     # create empty graph for CDEs
@@ -2749,10 +2805,24 @@ def DD_to_nidm(dd_struct, dataset_identifier=None):
     g.bind(prefix="dct", namespace=Constants.DCT)
     g.bind(prefix="bids", namespace=Constants.BIDS)
 
+    nidm_ns = Namespace(Constants.NIDM)
+    g.bind(prefix="nidm", namespace=nidm_ns)
+    niiri_ns = Namespace(Constants.NIIRI)
+    g.bind(prefix="niiri", namespace=niiri_ns)
+    ilx_ns = Namespace(Constants.INTERLEX)
+    g.bind(prefix="ilx", namespace=ilx_ns)
+
+    # bind cde_namespace if supplied
+    if cde_namespace is not None:
+        g.bind(
+            prefix=[elem for elem in cde_namespace.keys()][0],
+            namespace=Namespace([elem for elem in cde_namespace.values()][0]),
+        )
+
     # key_num = 0
     # for each named tuple key in data dictionary
     for key in dd_struct:
-        # bind a namespace for the the data dictionary source field of the key tuple
+        # bind a namespace for the data dictionary source field of the key tuple
         # for each source variable create entity where the namespace is the source and ID is the variable
         # e.g. calgary:FISCAL_4, aims:FIAIM_9
         #
@@ -2761,17 +2831,14 @@ def DD_to_nidm(dd_struct, dataset_identifier=None):
 
         # add the DataElement RDF type in the source namespace
         key_tuple = eval(key)
+
+        if key_tuple.variable == "subject_id":
+            continue
+
         for subkey in key_tuple._asdict().keys():
             if subkey == "variable":
                 # item_ns = Namespace(dd_struct[str(key_tuple)]["url"]+"/")
                 # g.bind(prefix=safe_string(item), namespace=item_ns)
-
-                nidm_ns = Namespace(Constants.NIDM)
-                g.bind(prefix="nidm", namespace=nidm_ns)
-                niiri_ns = Namespace(Constants.NIIRI)
-                g.bind(prefix="niiri", namespace=niiri_ns)
-                ilx_ns = Namespace(Constants.INTERLEX)
-                g.bind(prefix="ilx", namespace=ilx_ns)
 
                 # cde_id = item_ns[str(key_num).zfill(4)]
 
@@ -2779,7 +2846,12 @@ def DD_to_nidm(dd_struct, dataset_identifier=None):
                 # crc32hash = base_repr(crc32(str(key).encode()),32).lower()
                 # md5hash = hashlib.md5(str(key).encode()).hexdigest()
 
-                cde_id = DD_UUID(key, dd_struct, dataset_identifier)
+                cde_id = DD_UUID(
+                    element=key,
+                    dd_struct=dd_struct,
+                    dataset_identifier=dataset_identifier,
+                    cde_namespace=cde_namespace,
+                )
                 # cde_id = URIRef(niiri_ns + safe_string(item) + "_" + str(crc32hash))
                 g.add((cde_id, RDF.type, Constants.NIDM["PersonalDataElement"]))
                 g.add((cde_id, RDF.type, Constants.PROV["Entity"]))
@@ -2824,13 +2896,25 @@ def DD_to_nidm(dd_struct, dataset_identifier=None):
                     for subdict in value:
                         for isabout_key, isabout_value in subdict.items():
                             if isabout_key in ("@id", "url"):
-                                last_id = isabout_value
+                                # see if isabout_value is in the namespaces and if so, use it, otherwise
+                                # make another one
+                                # found_uri, found_nm = find_in_namespaces(isabout_value,g.namespaces)
+
+                                # bind a namespace for this isabout URL
+                                isabout_nm, isabout_term = split_uri(isabout_value)
+                                term_ns = Namespace(isabout_value)
+                                g.bind(prefix="term_" + isabout_term, namespace=term_ns)
+
+                                # last_id = "term_"+isabout_term
+                                last_id = term_ns
+                                # last_id = isabout_value
                                 # add isAbout key which is the url
                                 g.add(
                                     (
                                         cde_id,
                                         Constants.NIDM["isAbout"],
-                                        URIRef(isabout_value),
+                                        # URIRef(isabout_value),
+                                        URIRef(term_ns),
                                     )
                                 )
                             elif isabout_key == "label":
@@ -2853,13 +2937,22 @@ def DD_to_nidm(dd_struct, dataset_identifier=None):
                 else:
                     for isabout_key, isabout_value in value.items():
                         if isabout_key in ("@id", "url"):
-                            last_id = isabout_value
+                            # bind a namespace for this isabout URL
+                            isabout_nm, isabout_term = split_uri(isabout_value)
+                            term_ns = Namespace(isabout_value)
+                            g.bind(prefix="term_" + isabout_term, namespace=term_ns)
+
+                            # last_id = "term_" + isabout_term
+                            last_id = term_ns
+
+                            # last_id = isabout_value
                             # add isAbout key which is the url
                             g.add(
                                 (
                                     cde_id,
                                     Constants.NIDM["isAbout"],
-                                    URIRef(isabout_value),
+                                    # URIRef(isabout_value),
+                                    term_ns,
                                 )
                             )
                         elif isabout_key == "label":
@@ -2867,7 +2960,7 @@ def DD_to_nidm(dd_struct, dataset_identifier=None):
                             g.add((URIRef(last_id), RDF.type, Constants.PROV["Entity"]))
                             g.add(
                                 (
-                                    URIRef(last_id),
+                                    term_ns,
                                     Constants.RDFS["label"],
                                     Literal(isabout_value),
                                 )
@@ -2901,24 +2994,43 @@ def add_attributes_with_cde(prov_object, cde, row_variable, value):
     )
     for s in qres:
         entity_id = s
+        # split url into parts
+        entity_nm, entity_term = split_uri(entity_id)
         # find prefix matching our url in rdflib graph...this is because we're bouncing between
-        # prov and rdflib objects
-        for prefix, namespace in cde.namespaces():
-            if namespace == URIRef(entity_id.rsplit("/", 1)[0] + "/"):
-                cde_prefix = prefix
-                # this basically stores the row_data with the predicate being the cde id from above.
-                prov_object.add_attributes(
-                    {
-                        QualifiedName(
-                            provNamespace(
-                                prefix=cde_prefix, uri=entity_id.rsplit("/", 1)[0] + "/"
-                            ),
-                            entity_id.rsplit("/", 1)[-1],
-                        ): value
-                    }
-                )
-                # prov_object.add_attributes({QualifiedName(Constants.NIIRI,entity_id):value})
-                break
+        found_uri, found_nm = find_in_namespaces(
+            search_uri=entity_nm, namespaces=prov_object.graph.namespaces
+        )
+        # if entity_nm is not in namespaces then it must just be part of some URI in the triple
+        # so just add it as a prov.Identifier
+        if not found_uri:
+            prov_object.add_attributes(
+                {
+                    pm.QualifiedName(
+                        provNamespace(entity_nm, entity_term), ""
+                    ): get_RDFliteral_type(value)
+                }
+            )
+        else:
+            prov_object.add_attributes(
+                {pm.QualifiedName(found_nm, entity_term): get_RDFliteral_type(value)}
+            )
+
+        # for prefix, namespace in cde.namespaces():
+        #    # if namespace == URIRef(entity_id.rsplit("/", 1)[0] + "/"):
+        #    if namespace == URIRef(entity_nm):
+        #        cde_prefix = prefix
+        #        # this basically stores the row_data with the predicate being the cde id from above.
+        #        prov_object.add_attributes(
+        #            {
+        #                QualifiedName(
+        #                    provNamespace(prefix=cde_prefix, uri=namespace),
+        #                    entity_term,
+        #                ): get_RDFliteral_type(value)
+        #
+        #            }
+        #        )
+        #        # prov_object.add_attributes({QualifiedName(Constants.NIIRI,entity_id):value})
+        #        break
 
 
 def addDataladDatasetUUID(project_uuid, bidsroot_directory, graph):
@@ -3001,3 +3113,124 @@ def validate_uuid(uuid_string):
         return False
 
     return True
+
+
+def csv_dd_to_json_dd(csv_file):
+    """
+    This function will take the supplied csv_df dataframe, expecting column names:
+        source_variable	label	description	valueType	measureOf	isAbout	unitCode	minValue	maxValue
+
+    For multiple isAbout entries, use a ';' to separate them in a single column within the csv file dataframe
+
+    It will then iterate over the rows and store the various metadata as a json-formatted data dictionary consistent
+    with NIDM and ReproSchema data dictionaries and return it
+
+            {
+           "global_signal": {
+              "label": "global_signal",
+              "description": "Global signal: the average signal within the brain mask.",
+              "valueType": "http://uri.interlex.org/ilx_0794754",
+              "measureOf": "http://uri.interlex.org/ilx_0105536",
+              "isAbout": [
+                {
+                    "@id":"http://uri.interlex.org/ilx_0101431"
+                }
+              ],
+              "unitCode": "",
+              "minValue": null,
+              "maxValue": null
+           },
+    :param csv_df: pandas dataframe of a properly formatted (see above)
+    :return: json formatted data dictionary or -1 if error
+
+    """
+
+    # open csv_file
+    csv_df = pd.read_csv(csv_file)
+
+    # first check the required columns are in this csv_df or else return error
+    required_cols = [
+        "source_variable",
+        "label",
+        "description",
+        "valueType",
+        "measureOf",
+        "isAbout",
+        "unitCode",
+        "minValue",
+        "maxValue",
+    ]
+
+    for col in required_cols:
+        if col not in csv_df.columns:
+            print(f"Required column: {col} not in supplied csv data dictionary.")
+            return -1
+
+    # create empty json data dictionary
+    json_dd = {}
+
+    # iterate over rows and store in NIDM file
+    for _, csv_row in csv_df.iterrows():
+        # create entry for this source_variable
+        # make sure key has quotes around it and prevent double quotes if original data contained
+        # quotes
+        # var = csv_row['source_variable'].lstrip('"').rstrip('"')
+        # key = f"DD(source={os.path.basename(csv_file)}, variable={var})"
+        key = csv_row["source_variable"].strip('"')
+
+        json_dd[key] = {}
+
+        # store rest of metadata if value isn't null
+        if isinstance(csv_row["label"], str):
+            if not csv_row["label"] == "":
+                json_dd[key]["label"] = csv_row["label"].strip('"')
+            elif not np.nan(float(csv_row["label"])):
+                json_dd[key]["label"] = csv_row["label"]
+
+        if isinstance(csv_row["description"], str):
+            if not csv_row["description"] == "":
+                json_dd[key]["description"] = csv_row["description"].strip('"')
+            elif not np.nan(float(csv_row["description"])):
+                json_dd[key]["description"] = csv_row["description"]
+
+        if isinstance(csv_row["valueType"], str):
+            if not csv_row["valueType"] == "":
+                json_dd[key]["valueType"] = csv_row["valueType"].strip('"')
+            elif not np.nan(float(csv_row["valueType"])):
+                json_dd[key]["valueType"] = csv_row["valueType"]
+
+        if isinstance(csv_row["measureOf"], str):
+            if not csv_row["measureOf"] == "":
+                json_dd[key]["measureOf"] = csv_row["measureOf"].strip('"')
+            elif not np.nan(float(csv_row["measureOf"])):
+                json_dd[key]["measureOf"] = csv_row["measureOf"]
+
+        if isinstance(csv_row["unitCode"], str):
+            if not csv_row["unitCode"] == "":
+                json_dd[key]["unitCode"] = csv_row["unitCode"].strip('"')
+            elif not np.nan(float(csv_row["unitCode"])):
+                json_dd[key]["unitCode"] = csv_row["unitCode"]
+
+        if isinstance(csv_row["minValue"], str):
+            if not csv_row["minValue"] == "":
+                json_dd[key]["minValue"] = csv_row["minValue"].strip('"')
+            elif not np.nan(float(csv_row["minValue"])):
+                json_dd[key]["minValue"] = csv_row["minValue"]
+
+        if isinstance(csv_row["maxValue"], str):
+            if not csv_row["maxValue"] == "":
+                json_dd[key]["maxValue"] = csv_row["maxValue"].strip('"')
+            elif not np.nan(float(csv_row["maxValue"])):
+                json_dd[key]["maxValue"] = csv_row["maxValue"]
+
+        if isinstance(csv_row["isAbout"], str):
+            if not csv_row["isAbout"] == "":
+                # now iterate over isAbout terms which could be 1 or more, separated with a ';'
+                isabout_terms = csv_row["isAbout"]
+
+                # set up isAbout list
+                json_dd[key]["isAbout"] = []
+                for term in isabout_terms.split(";"):
+                    json_dd[key]["isAbout"].append({"@id": term.strip()})
+
+    return json_dd

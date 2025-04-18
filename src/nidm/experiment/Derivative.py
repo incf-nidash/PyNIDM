@@ -25,6 +25,10 @@ class Derivative(pm.ProvActivity, Core):
         :param attributes: optional dictionary of attributes to add qname:value
 
         """
+
+        # carry graph object around
+        self.graph = project.graph
+
         if uuid is None:
             self._uuid = getUUID()
 
@@ -38,16 +42,30 @@ class Derivative(pm.ProvActivity, Core):
             )
         else:
             self._uuid = uuid
-            super().__init__(project.graph, pm.Identifier(uuid), attributes)
+
+            # check if niiri namespace is already defined
+            niiri_ns = self.find_namespace_with_uri(uri=str(Constants.NIIRI))
+
+            if niiri_ns is False:
+                super().__init__(
+                    project.graph,
+                    pm.QualifiedName(
+                        pm.Namespace("niiri", Constants.NIIRI), self.get_uuid()
+                    ),
+                    attributes,
+                )
+            else:
+                super().__init__(
+                    project.graph,
+                    pm.QualifiedName(niiri_ns, self.get_uuid()),
+                    attributes,
+                )
 
         project.graph._add_record(self)
 
         # list to store acquisition objects associated with this activity
         self._derivative_objects = []
         # if constructor is called with a session object then add this acquisition to the session
-
-        # carry graph object around
-        self.graph = project.graph
 
         project.add_derivatives(self)
 

@@ -25,6 +25,10 @@ class Acquisition(pm.ProvActivity, Core):
         :param attributes: optional dictionary of attributes to add qname:value
 
         """
+
+        # carry graph object around
+        self.graph = session.graph
+
         if uuid is None:
             self._uuid = getUUID()
 
@@ -37,14 +41,24 @@ class Acquisition(pm.ProvActivity, Core):
                 attributes,
             )
         else:
+            # check if niiri namespace is already defined
+            niiri_ns = self.find_namespace_with_uri(uri=str(Constants.NIIRI))
             self._uuid = uuid
-            super().__init__(
-                session.graph,
-                pm.QualifiedName(
-                    pm.Namespace("niiri", Constants.NIIRI), self.get_uuid()
-                ),
-                attributes,
-            )
+
+            if niiri_ns is False:
+                super().__init__(
+                    session.graph,
+                    pm.QualifiedName(
+                        pm.Namespace("niiri", Constants.NIIRI), self.get_uuid()
+                    ),
+                    attributes,
+                )
+            else:
+                super().__init__(
+                    session.graph,
+                    pm.QualifiedName(niiri_ns, self.get_uuid()),
+                    attributes,
+                )
 
         session.graph._add_record(self)
 
@@ -55,9 +69,6 @@ class Acquisition(pm.ProvActivity, Core):
         # list to store acquisition objects associated with this activity
         self._acquisition_objects = []
         # if constructor is called with a session object then add this acquisition to the session
-
-        # carry graph object around
-        self.graph = session.graph
 
         # add acquisition to session
         session.add_acquisition(self)

@@ -23,7 +23,7 @@ def brain_vol(brain_vol_files: list[str]) -> ProjectData:
 def openneuro(tmp_path_factory: pytest.TempPathFactory) -> ProjectData:
     tmp_path = tmp_path_factory.mktemp("openneuro")
     urlretrieve(
-        "https://raw.githubusercontent.com/dbkeator/simple2_NIDM_examples/master/datasets.datalad.org/openneuro/ds000110/nidm.ttl",
+        "https://raw.githubusercontent.com/ReproNim/simple2_NIDM_examples/refs/heads/master/datasets.datalad.org/openneuro/ds000110/nidm.ttl",
         tmp_path / "ds000110.nidm.ttl",
     )
     files = [str(tmp_path / "ds000110.nidm.ttl")]
