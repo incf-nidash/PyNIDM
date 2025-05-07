@@ -993,7 +993,7 @@ def csv2nidm_main(args=None):
                 # add metadata to der_entity
 
                 # store other data from row with columns_to_term mappings
-                for row_variable, row_data in csv_row.iteritems():
+                for row_variable, row_data in csv_row.items():
                     # check if row_variable is subject id, if so skip it
                     if (row_variable == id_field) or (
                         row_variable in ["ses", "task", "run"]
@@ -1001,11 +1001,7 @@ def csv2nidm_main(args=None):
                         continue
                     elif row_variable == "source_url":
                         der_entity.add_attributes(
-                            {
-                                Constants.PROV["Location"]: Identifier(
-                                    row_data["source_url"]
-                                )
-                            }
+                            {Constants.PROV["Location"]: Identifier(row_data)}
                         )
                     if str(row_data) != "nan":
                         # add data for this variable to derivative entity
