@@ -528,15 +528,19 @@ def read_nidm(nidmDoc):
 
 
 def get_RDFliteral_type(rdf_literal):
-    if (rdf_literal.datatype == XSD["integer"]) or (rdf_literal.datatype == XSD["int"]):
-        # return (int(rdf_literal))
-        return pm.Literal(rdf_literal, datatype=pm.XSD["integer"])
-    elif rdf_literal.datatype in (XSD["float"], XSD["double"]):
-        # return(float(rdf_literal))
-        return pm.Literal(rdf_literal, datatype=pm.XSD["float"])
+    # If it's not already an rdflib Literal, convert it
+    if not isinstance(rdf_literal, Literal):
+        rdf_literal = Literal(rdf_literal)
+
+    # Now check the datatype
+    if rdf_literal.datatype in (XSD.integer, XSD.int):
+        return pm.Literal(int(rdf_literal), datatype=pm.XSD["integer"])
+    elif rdf_literal.datatype in (XSD.float, XSD.double):
+        return pm.Literal(float(rdf_literal), datatype=pm.XSD["float"])
+    elif rdf_literal.datatype == XSD.boolean:
+        return pm.Literal(bool(rdf_literal), datatype=pm.XSD["boolean"])
     else:
-        # return (str(rdf_literal))
-        return pm.Literal(rdf_literal, datatype=pm.XSD["string"])
+        return pm.Literal(str(rdf_literal), datatype=pm.XSD["string"])
 
 
 def find_in_namespaces(search_uri, namespaces):
