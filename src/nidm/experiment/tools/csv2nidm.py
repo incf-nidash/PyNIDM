@@ -1188,7 +1188,12 @@ def csv2nidm_main(args=None):
             logging.info("Writing NIDM file....")
         else:
             print("Writing NIDM file....")
-        rdf_graph.serialize(destination=args.output_file, format="turtle")
+        # 5/7/25: added to accommodate the situation where user doesn't put .ttl at the end of the -out filename
+        if ".ttl" not in args.output_file:
+            output_file = args.output_file + ".ttl"
+        else:
+            output_file = args.output_file
+        rdf_graph.serialize(destination=output_file, format="turtle")
 
 
 if __name__ == "__main__":
