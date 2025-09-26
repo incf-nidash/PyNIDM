@@ -36,18 +36,22 @@ from nidm.experiment.Utils import (
 )
 
 
-def getRelPathToBIDS(filepath, bids_root):
+def getRelPathToBIDS(filepath, bids_root, bidsuri_format=False):
     """
     This function returns a relative file link that is relative to the BIDS root directory.
 
     :param filename: absolute path + file
     :param bids_root: absolute path to BIDS directory
+    :param bidsuri_format: if True, BIDS URI format is created with bids:: prefix
     :return: relative path to file, relative to BIDS root
     """
     path, file = os.path.split(filepath)
 
     relpath = path.replace(bids_root, "")
-    return os.path.join(relpath, file)
+    file_relpath = os.path.join(relpath, file)
+    if bidsuri_format:
+        file_relpath = f'bids::{file_relpath.lstrip("/")}'
+    return file_relpath
 
 
 def getsha512(filename):
@@ -311,7 +315,7 @@ def addimagingsessions(
             acq_obj.add_attributes(
                 {
                     Constants.NIDM_FILENAME: getRelPathToBIDS(
-                        join(file_tpl.dirname, file_tpl.filename), directory
+                        join(file_tpl.dirname, file_tpl.filename), directory, bidsuri_format=True
                     )
                 }
             )
@@ -458,7 +462,7 @@ def addimagingsessions(
             acq_obj.add_attributes(
                 {
                     Constants.NIDM_FILENAME: getRelPathToBIDS(
-                        join(file_tpl.dirname, file_tpl.filename), directory
+                        join(file_tpl.dirname, file_tpl.filename), directory, bidsuri_format=True
                     )
                 }
             )
@@ -554,7 +558,7 @@ def addimagingsessions(
                         PROV_TYPE: Constants.NIDM_MRI_BOLD_EVENTS,
                         BIDS_Constants.json_keys["TaskName"]: json_data["TaskName"],
                         Constants.NIDM_FILENAME: getRelPathToBIDS(
-                            events_file[0].filename, directory
+                            events_file[0].filename, directory, bidsuri_format=True
                         ),
                     }
                 )
@@ -661,7 +665,7 @@ def addimagingsessions(
             acq_obj.add_attributes(
                 {
                     Constants.NIDM_FILENAME: getRelPathToBIDS(
-                        join(file_tpl.dirname, file_tpl.filename), directory
+                        join(file_tpl.dirname, file_tpl.filename), directory, bidsuri_format=True
                     )
                 }
             )
@@ -765,7 +769,7 @@ def addimagingsessions(
             acq_obj.add_attributes(
                 {
                     Constants.NIDM_FILENAME: getRelPathToBIDS(
-                        join(file_tpl.dirname, file_tpl.filename), directory
+                        join(file_tpl.dirname, file_tpl.filename), directory, bidsuri_format=True
                     )
                 }
             )
@@ -845,7 +849,7 @@ def addimagingsessions(
                                 join(file_tpl.dirname, file_tpl.filename)
                             ),
                         ),
-                        directory,
+                        directory, bidsuri_format=True
                     )
                 }
             )
@@ -904,7 +908,7 @@ def addimagingsessions(
                                 join(file_tpl.dirname, file_tpl.filename)
                             ),
                         ),
-                        directory,
+                        directory, bidsuri_format=True
                     )
                 }
             )
@@ -1114,7 +1118,7 @@ def bidsmri2project(directory, args):
                 acq_entity.add_attributes(
                     {
                         Constants.NIDM_FILENAME: getRelPathToBIDS(
-                            os.path.join(directory, "participants.tsv"), directory
+                            os.path.join(directory, "participants.tsv"), directory, bidsuri_format=True
                         )
                     }
                 )
@@ -1153,7 +1157,7 @@ def bidsmri2project(directory, args):
                                 Namespace("bids", Constants.BIDS), "sidecar_file"
                             ),
                             Constants.NIDM_FILENAME: getRelPathToBIDS(
-                                os.path.join(directory, "participants.json"), directory
+                                os.path.join(directory, "participants.json"), directory, bidsuri_format=True
                             ),
                         }
                     )
@@ -1376,7 +1380,7 @@ def bidsmri2project(directory, args):
 
                 # link TSV file
                 acq_entity.add_attributes(
-                    {Constants.NIDM_FILENAME: getRelPathToBIDS(tsv_file, directory)}
+                    {Constants.NIDM_FILENAME: getRelPathToBIDS(tsv_file, directory, bidsuri_format=True)}
                 )
 
                 # if there are git annex sources for participants.tsv file then add them
@@ -1408,7 +1412,7 @@ def bidsmri2project(directory, args):
                         {
                             PROV_TYPE: Constants.BIDS["sidecar_file"],
                             Constants.NIDM_FILENAME: getRelPathToBIDS(
-                                data_dict, directory
+                                data_dict, directory, bidsuri_format=True
                             ),
                         }
                     )
