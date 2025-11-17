@@ -3071,9 +3071,9 @@ def addGitAnnexSources(obj, bids_root, filepath=None):
             obj.add_attributes({Constants.PROV["Location"]: URIRef(source)})
 
         return len(sources)
-    except Exception:
-        # if "No annex found at" not in str(e):
-        #    print("Warning, error with AnnexRepo (Utils.py, addGitAnnexSources):", e)
+    except Exception as e:
+        if "No annex found at" not in str(e):
+            print("Warning, error with AnnexRepo (Utils.py, addGitAnnexSources):", e)
         return 0
 
 
