@@ -1019,10 +1019,11 @@ def bidsmri2project(directory, args):
                     {BIDS_Constants.dataset_description[key]: "".join(dataset[key])}
                 )
             elif isinstance(dataset[key], list):
-                # 7/22/23 - modified to add attributes to collection of acquisition objects
-                collection.add_attributes(
-                    {BIDS_Constants.dataset_description[key]: "".join(dataset[key])}
-                )
+                for entry in dataset[key]:
+                    # 7/22/23 - modified to add attributes to collection of acquisition objects
+                    collection.add_attributes(
+                        {BIDS_Constants.dataset_description[key]: entry}
+                    )
             else:
                 # 7/22/23 - modified to add attributes to collection of acquisition objects
                 collection.add_attributes(
