@@ -52,7 +52,7 @@ def main():
 
     # test add session to graph and associate with project
     session = Session(project)
-    session.add_attributes({Constants.NIDM: "test"})
+    session.add_attributes({Constants.NIDM["test"]: "test"})
     # project.add_sessions(session)
 
     # test add MR acquisition activity / entity to graph and associate with session

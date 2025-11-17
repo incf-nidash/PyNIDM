@@ -993,7 +993,7 @@ def csv2nidm_main(args=None):
                 # add metadata to der_entity
 
                 # store other data from row with columns_to_term mappings
-                for row_variable, row_data in csv_row.iteritems():
+                for row_variable, row_data in csv_row.items():
                     # check if row_variable is subject id, if so skip it
                     if (row_variable == id_field) or (
                         row_variable in ["ses", "task", "run"]
@@ -1001,11 +1001,7 @@ def csv2nidm_main(args=None):
                         continue
                     elif row_variable == "source_url":
                         der_entity.add_attributes(
-                            {
-                                Constants.PROV["Location"]: Identifier(
-                                    row_data["source_url"]
-                                )
-                            }
+                            {Constants.PROV["Location"]: Identifier(row_data)}
                         )
                     if str(row_data) != "nan":
                         # add data for this variable to derivative entity
@@ -1192,7 +1188,12 @@ def csv2nidm_main(args=None):
             logging.info("Writing NIDM file....")
         else:
             print("Writing NIDM file....")
-        rdf_graph.serialize(destination=args.output_file, format="turtle")
+        # 5/7/25: added to accommodate the situation where user doesn't put .ttl at the end of the -out filename
+        if ".ttl" not in args.output_file:
+            output_file = args.output_file + ".ttl"
+        else:
+            output_file = args.output_file
+        rdf_graph.serialize(destination=output_file, format="turtle")
 
 
 if __name__ == "__main__":
