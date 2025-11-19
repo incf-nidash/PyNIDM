@@ -27,7 +27,6 @@ from .Acquisition import Acquisition
 from .AcquisitionObject import AcquisitionObject
 from .AssessmentAcquisition import AssessmentAcquisition
 from .AssessmentObject import AssessmentObject
-from .Core import getUUID
 from .DataElement import DataElement
 from .Derivative import Derivative
 from .DerivativeObject import DerivativeObject
@@ -1491,7 +1490,6 @@ def map_variables_to_terms(
     bids=False,
     owl_file="nidm",
     associate_concepts=True,
-    dataset_identifier=None,
     cde_namespace=None,
 ):
     """
@@ -2180,7 +2178,6 @@ def map_variables_to_terms(
     # get CDEs for data dictionary and NIDM graph entity of data
     cde = DD_to_nidm(
         column_to_terms,
-        dataset_identifier=dataset_identifier,
         cde_namespace=cde_namespace,
     )
 
@@ -2738,63 +2735,49 @@ def annotate_data_element(source_variable, current_tuple, source_variable_annota
     print("-" * 87)
 
 
-def DD_UUID(element, dd_struct, dataset_identifier=None, cde_namespace=None):
+def DD_UUID(element, dd_struct, cde_namespace=None):
     """
-    This function will produce a hash of the data dictionary (personal data element) properties defined
-    by the user for use as a UUID.  The data dictionary key is a tuple identifying the file and variable
-    name within that file to be encoded with a UUID.  The idea is that if the data dictionaries for a
-    personal data element precisely match then the same UUID will be generated.
-    :param element: element in dd_struct to create UUID for within the dd_struct
-    :param dd_struct: data dictionary json structure
-    :dataset_identifier:
-    :param: cde_namespace: Dictionary where key is prefix and value is URL for namespace to use for data elements found
-            in supplied dataframe and optional json_source data dictionary.
-    :return: hash of
+    Create a deterministic UUID for a data-dictionary element based *only* on
+    the content of the data dictionary entry.
+
+    Same dd_struct[element] => same UUID, regardless of dataset_identifier.
+
+    UUID format: <source_variable>_<crc32_base32>
     """
 
-    # evaluate the compound data dictionary key and loop over the properties
+    # element is a string representation of a tuple key; keep your existing logic
     key_tuple = eval(element)
+    entry = dd_struct[str(key_tuple)]
 
-    # added getUUID to property string to solve problem where all openneuro datasets that have the same
-    # source variable name and properties don't end up having the same UUID as they are sometimes not
-    # the same and end up being added to the same entity when merging graphs across all openneuro projects
-    # if a dataset identifier is not provided then we use a random UUID
-    if dataset_identifier is not None:
-        property_string = dataset_identifier
-    else:
-        property_string = getUUID()
-    for key, value in dd_struct[str(key_tuple)].items():
-        if key == "label":
-            property_string = property_string + str(value)
-        # added to support 'reponseOptions' reproschema format
-        if key == "responseOptions":
-            for subkey, subvalue in dd_struct[str(key_tuple)][
-                "responseOptions"
-            ].items():
-                if subkey in ("levels", "Levels", "choices"):
-                    property_string += str(subvalue)
-                if subkey == "valueType":
-                    property_string += str(subvalue)
-                if subkey in ("hasUnit", "unitCode"):
-                    property_string += str(subvalue)
-        if key == "source_variable":
-            variable_name = value
+    # Get the source variable name (used as prefix in the UUID)
+    variable_name = entry.get("source_variable", "unknown_var")
 
-    crc32hash = base_repr(crc32(str(property_string).encode()), 32).lower()
+    # Canonicalize the data dictionary entry so key order doesn't matter
+    # This includes everything in the dict: label, description, responseOptions, etc.
+    canonical_str = json.dumps(
+        entry, sort_keys=True, separators=(",", ":"), ensure_ascii=True
+    )
+
+    # Compute unsigned crc32
+    crc_val = crc32(canonical_str.encode("utf-8")) & 0xFFFFFFFF
+
+    # Base-32 representation (lowercase), like you were doing
+    crc32hash = base_repr(crc_val, 32).lower()
+
+    # Build the URI
     niiri_ns = Namespace(Constants.NIIRI)
-    # if user provided a namespace for CDEs, use it...
-    if cde_namespace is not None:
-        # get URL from cde_namespace dictionary and use for elements
-        cde_ns = [elem for elem in cde_namespace.values()][0]
 
-    if cde_namespace is None:
-        cde_id = URIRef(niiri_ns + safe_string(variable_name) + "_" + str(crc32hash))
+    if cde_namespace is not None:
+        # take the first provided namespace URL
+        cde_ns = list(cde_namespace.values())[0]
+        cde_id = URIRef(cde_ns + safe_string(variable_name) + "_" + crc32hash)
     else:
-        cde_id = URIRef(cde_ns + safe_string(variable_name) + "_" + str(crc32hash))
+        cde_id = URIRef(niiri_ns + safe_string(variable_name) + "_" + crc32hash)
+
     return cde_id
 
 
-def DD_to_nidm(dd_struct, dataset_identifier=None, cde_namespace=None):
+def DD_to_nidm(dd_struct, cde_namespace=None):
     """
 
     Takes a DD json structure and returns nidm CDE-style graph to be added to NIDM documents
@@ -2843,19 +2826,9 @@ def DD_to_nidm(dd_struct, dataset_identifier=None, cde_namespace=None):
 
         for subkey in key_tuple._asdict().keys():
             if subkey == "variable":
-                # item_ns = Namespace(dd_struct[str(key_tuple)]["url"]+"/")
-                # g.bind(prefix=safe_string(item), namespace=item_ns)
-
-                # cde_id = item_ns[str(key_num).zfill(4)]
-
-                # hash the key_tuple (e.g. DD(source=[FILENAME],variable=[VARNAME]))
-                # crc32hash = base_repr(crc32(str(key).encode()),32).lower()
-                # md5hash = hashlib.md5(str(key).encode()).hexdigest()
-
                 cde_id = DD_UUID(
                     element=key,
                     dd_struct=dd_struct,
-                    dataset_identifier=dataset_identifier,
                     cde_namespace=cde_namespace,
                 )
                 # cde_id = URIRef(niiri_ns + safe_string(item) + "_" + str(crc32hash))
@@ -2882,7 +2855,6 @@ def DD_to_nidm(dd_struct, dataset_identifier=None, cde_namespace=None):
             elif key == "label":
                 g.add((cde_id, Constants.RDFS["label"], Literal(value)))
             elif key in ("levels", "Levels", "responseOptions"):
-                print(value)
                 if "choices" in value.keys():
                     if isinstance(value["choices"], dict):
                         for level_label, level_code in value["choices"].items():
@@ -2895,14 +2867,8 @@ def DD_to_nidm(dd_struct, dataset_identifier=None, cde_namespace=None):
                     elif isinstance(value["choices"], list):
                         for val in value["choices"]:
                             g.add((cde_id, reproschema_ns.choices, Literal(val)))
-                        # g.add((choice, RDFS.label, Literal(value["choices"])))
-
-                        # for level_label in value["choices"]:
-                        #    choice = BNode()
-                        #    g.add((resp_opts, reproschema_ns.choices, choice))
-                        #    g.add((choice, RDFS.label, Literal(level_label)))
                     else:
-                        g.add((choice, reproschema_ns.choices, Literal(value)))
+                        g.add((cde_id, reproschema_ns.choices, Literal(value)))
             elif key == "source_variable":
                 g.add((cde_id, Constants.NIDM["sourceVariable"], Literal(value)))
             elif key == "isAbout":
