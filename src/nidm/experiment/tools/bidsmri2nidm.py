@@ -1030,17 +1030,6 @@ def bidsmri2project(directory, args):
                     {BIDS_Constants.dataset_description[key]: dataset[key]}
                 )
 
-            # added special case to include DOI of project in hash for data element UUIDs to prevent collisions with
-            # similar data elements from other projects and make the bids2nidm conversion deterministic in the sense
-            # that if you re-convert the same dataset to NIDM, the data element UUIDs will remain the same.
-            if key == "DatasetDOI":
-                if dataset[key] == "":
-                    dataset_doi = None
-                else:
-                    dataset_doi = dataset[key]
-            else:
-                dataset_doi = None
-
     # get BIDS layout
     bids.config.set_option("extension_initial_dot", True)
     bids_layout = bids.BIDSLayout(directory)
@@ -1084,7 +1073,6 @@ def bidsmri2project(directory, args):
                             output_file=os.path.join(directory, "participants.json"),
                             bids=True,
                             associate_concepts=False,
-                            dataset_identifier=dataset_doi,
                         )
                     # create data dictionary with concept mapping
                     else:
@@ -1094,7 +1082,6 @@ def bidsmri2project(directory, args):
                             df=temp,
                             output_file=os.path.join(directory, "participants.json"),
                             bids=True,
-                            dataset_identifier=dataset_doi,
                         )
                 else:
                     # temporary data frame of variables we need to create data dictionaries for
@@ -1109,7 +1096,6 @@ def bidsmri2project(directory, args):
                             json_source=os.path.join(directory, "participants.json"),
                             bids=True,
                             associate_concepts=False,
-                            dataset_identifier=dataset_doi,
                         )
                     # create data dictionary with concept mapping
                     else:
@@ -1120,7 +1106,6 @@ def bidsmri2project(directory, args):
                             output_file=os.path.join(directory, "participants.json"),
                             json_source=os.path.join(directory, "participants.json"),
                             bids=True,
-                            dataset_identifier=dataset_doi,
                         )
             # if user supplied a JSON data dictionary then use it
             else:
@@ -1136,7 +1121,6 @@ def bidsmri2project(directory, args):
                         json_source=args.json_map,
                         bids=True,
                         associate_concepts=False,
-                        dataset_identifier=dataset_doi,
                     )
                 # create data dictionary with concept mapping
                 else:
@@ -1147,7 +1131,6 @@ def bidsmri2project(directory, args):
                         output_file=os.path.join(directory, "participants.json"),
                         json_source=args.json_map,
                         bids=True,
-                        dataset_identifier=dataset_doi,
                     )
 
             # iterate over rows in participants.tsv file and create NIDM objects for sessions and acquisitions
