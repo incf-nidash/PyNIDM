@@ -2855,20 +2855,57 @@ def DD_to_nidm(dd_struct, cde_namespace=None):
             elif key == "label":
                 g.add((cde_id, Constants.RDFS["label"], Literal(value)))
             elif key in ("levels", "Levels", "responseOptions"):
-                if "choices" in value.keys():
-                    if isinstance(value["choices"], dict):
-                        for level_label, level_code in value["choices"].items():
-                            choice = BNode()
-                            g.add((cde_id, reproschema_ns.choices, choice))
-                            # g.add((resp_opts, reproschema_ns.choices, choice))
-                            g.add((choice, reproschema_ns.value, Literal(level_code)))
-                            g.add((choice, RDFS.label, Literal(level_label)))
+                # if responseOptions or levels is a dictionary then iterate
+                # over dict
+                if isinstance(value, dict):
+                    for response_key, response_value in value.items():
+                        if response_key == "valueType":
+                            g.add(
+                                (
+                                    cde_id,
+                                    Constants.NIDM["valueType"],
+                                    URIRef(response_value),
+                                )
+                            )
+                        elif response_key in ("minValue", "minimumValue"):
+                            g.add(
+                                (
+                                    cde_id,
+                                    Constants.NIDM["minValue"],
+                                    Literal(response_value),
+                                )
+                            )
+                        elif response_key in ("maxValue", "maximumValue"):
+                            g.add(
+                                (
+                                    cde_id,
+                                    Constants.NIDM["maxValue"],
+                                    Literal(response_value),
+                                )
+                            )
 
-                    elif isinstance(value["choices"], list):
-                        for val in value["choices"]:
-                            g.add((cde_id, reproschema_ns.choices, Literal(val)))
-                    else:
-                        g.add((cde_id, reproschema_ns.choices, Literal(value)))
+                        elif response_key == "choices":
+                            if isinstance(response_value, dict):
+                                for level_label, level_code in response_value.items():
+                                    choice = BNode()
+                                    g.add((cde_id, reproschema_ns.choices, choice))
+                                    # g.add((resp_opts, reproschema_ns.choices, choice))
+                                    g.add(
+                                        (
+                                            choice,
+                                            reproschema_ns.value,
+                                            Literal(level_code),
+                                        )
+                                    )
+                                    g.add((choice, RDFS.label, Literal(level_label)))
+
+                            elif isinstance(value["choices"], list):
+                                for val in value["choices"]:
+                                    g.add(
+                                        (cde_id, reproschema_ns.choices, Literal(val))
+                                    )
+                            else:
+                                g.add((cde_id, reproschema_ns.choices, Literal(value)))
             elif key == "source_variable":
                 g.add((cde_id, Constants.NIDM["sourceVariable"], Literal(value)))
             elif key == "isAbout":
