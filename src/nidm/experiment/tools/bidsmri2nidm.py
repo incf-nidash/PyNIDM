@@ -36,18 +36,22 @@ from nidm.experiment.Utils import (
 )
 
 
-def getRelPathToBIDS(filepath, bids_root):
+def getRelPathToBIDS(filepath, bids_root, bidsuri_format=False):
     """
     This function returns a relative file link that is relative to the BIDS root directory.
 
     :param filename: absolute path + file
     :param bids_root: absolute path to BIDS directory
+    :param bidsuri_format: if True, BIDS URI format is created with bids:: prefix
     :return: relative path to file, relative to BIDS root
     """
     path, file = os.path.split(filepath)
 
     relpath = path.replace(bids_root, "")
-    return os.path.join(relpath, file)
+    file_relpath = os.path.join(relpath, file)
+    if bidsuri_format:
+        file_relpath = f'bids::{file_relpath.lstrip("/")}'
+    return file_relpath
 
 
 def getsha512(filename):
@@ -167,36 +171,20 @@ and API Keys.  Then set the environment variable INTERLEX_API_KEY with your key.
 
     # if args.outputfile was defined by user then use it else use default which is args.directory/nidm.ttl
     if args.outputfile == "nidm.ttl":
-        # if we're choosing json-ld, make sure file extension is .json
-        # if args.jsonld:
-        #     outputfile=os.path.join(directory,os.path.splitext(args.outputfile)[0]+".json")
-        # if flag set to add to .bidsignore then add
-        #     if (args.bidsignore):
-        #         addbidsignore(directory,os.path.splitext(args.outputfile)[0]+".json")
-
         outputfile = os.path.join(directory, args.outputfile)
-        if args.bidsignore:
-            addbidsignore(directory, args.outputfile)
-        rdf_graph.serialize(destination=outputfile, format="turtle")
-
-        # else:
-        #     outputfile=os.path.join(directory,args.outputfile)
-        #     if (args.bidsignore):
-        #         addbidsignore(directory,args.outputfile)
     else:
-        # if we're choosing json-ld, make sure file extension is .json
-        # if args.jsonld:
-        #     outputfile = os.path.splitext(args.outputfile)[0]+".json"
-        #     if (args.bidsignore):
-        #         addbidsignore(directory,os.path.splitext(args.outputfile)[0]+".json")
-        #  else:
-        #     outputfile = args.outputfile
-        #     if (args.bidsignore):
-        #         addbidsignore(directory,args.outputfile)
         outputfile = args.outputfile
-        if args.bidsignore:
-            addbidsignore(directory, args.outputfile)
-        rdf_graph.serialize(destination=outputfile, format="turtle")
+
+    # if we're choosing json-ld, make sure file extension is .json
+    # if args.jsonld:
+    #     outputfile=os.path.join(directory,os.path.splitext(args.outputfile)[0]+".json")
+    # if flag set to add to .bidsignore then add
+    #     if (args.bidsignore):
+    #         addbidsignore(directory,os.path.splitext(args.outputfile)[0]+".json")
+
+    if args.bidsignore:
+        addbidsignore(directory, args.outputfile)
+    rdf_graph.serialize(destination=outputfile, format="turtle")
 
     # serialize NIDM file
     # with open(outputfile,'w', encoding="utf-8") as f:
@@ -327,7 +315,9 @@ def addimagingsessions(
             acq_obj.add_attributes(
                 {
                     Constants.NIDM_FILENAME: getRelPathToBIDS(
-                        join(file_tpl.dirname, file_tpl.filename), directory
+                        join(file_tpl.dirname, file_tpl.filename),
+                        directory,
+                        bidsuri_format=True,
                     )
                 }
             )
@@ -474,7 +464,9 @@ def addimagingsessions(
             acq_obj.add_attributes(
                 {
                     Constants.NIDM_FILENAME: getRelPathToBIDS(
-                        join(file_tpl.dirname, file_tpl.filename), directory
+                        join(file_tpl.dirname, file_tpl.filename),
+                        directory,
+                        bidsuri_format=True,
                     )
                 }
             )
@@ -570,7 +562,7 @@ def addimagingsessions(
                         PROV_TYPE: Constants.NIDM_MRI_BOLD_EVENTS,
                         BIDS_Constants.json_keys["TaskName"]: json_data["TaskName"],
                         Constants.NIDM_FILENAME: getRelPathToBIDS(
-                            events_file[0].filename, directory
+                            events_file[0].filename, directory, bidsuri_format=True
                         ),
                     }
                 )
@@ -677,7 +669,9 @@ def addimagingsessions(
             acq_obj.add_attributes(
                 {
                     Constants.NIDM_FILENAME: getRelPathToBIDS(
-                        join(file_tpl.dirname, file_tpl.filename), directory
+                        join(file_tpl.dirname, file_tpl.filename),
+                        directory,
+                        bidsuri_format=True,
                     )
                 }
             )
@@ -781,7 +775,9 @@ def addimagingsessions(
             acq_obj.add_attributes(
                 {
                     Constants.NIDM_FILENAME: getRelPathToBIDS(
-                        join(file_tpl.dirname, file_tpl.filename), directory
+                        join(file_tpl.dirname, file_tpl.filename),
+                        directory,
+                        bidsuri_format=True,
                     )
                 }
             )
@@ -862,6 +858,7 @@ def addimagingsessions(
                             ),
                         ),
                         directory,
+                        bidsuri_format=True,
                     )
                 }
             )
@@ -921,6 +918,7 @@ def addimagingsessions(
                             ),
                         ),
                         directory,
+                        bidsuri_format=True,
                     )
                 }
             )
@@ -1062,76 +1060,30 @@ def bidsmri2project(directory, args):
                 # defaults to participants.json because here we're mapping the participants.tsv file variables to terms
                 # if participants.json file doesn't exist then run without json mapping file
                 if not os.path.isfile(os.path.join(directory, "participants.json")):
-                    # temporary data frame of variables we need to create data dictionaries for
-                    temp = DataFrame(columns=mapping_list)
-                    # create data dictionary without concept mapping
-                    if args.no_concepts:
-                        column_to_terms, cde = map_variables_to_terms(
-                            directory=directory,
-                            assessment_name="participants.tsv",
-                            df=temp,
-                            output_file=os.path.join(directory, "participants.json"),
-                            bids=True,
-                            associate_concepts=False,
-                        )
-                    # create data dictionary with concept mapping
-                    else:
-                        column_to_terms, cde = map_variables_to_terms(
-                            directory=directory,
-                            assessment_name="participants.tsv",
-                            df=temp,
-                            output_file=os.path.join(directory, "participants.json"),
-                            bids=True,
-                        )
+                    json_source = None
                 else:
-                    # temporary data frame of variables we need to create data dictionaries for
-                    temp = DataFrame(columns=mapping_list)
-                    # create data dictionary without concept mapping
-                    if args.no_concepts:
-                        column_to_terms, cde = map_variables_to_terms(
-                            directory=directory,
-                            assessment_name="participants.tsv",
-                            df=temp,
-                            output_file=os.path.join(directory, "participants.json"),
-                            json_source=os.path.join(directory, "participants.json"),
-                            bids=True,
-                            associate_concepts=False,
-                        )
-                    # create data dictionary with concept mapping
-                    else:
-                        column_to_terms, cde = map_variables_to_terms(
-                            directory=directory,
-                            assessment_name="participants.tsv",
-                            df=temp,
-                            output_file=os.path.join(directory, "participants.json"),
-                            json_source=os.path.join(directory, "participants.json"),
-                            bids=True,
-                        )
-            # if user supplied a JSON data dictionary then use it
-            else:
-                # temporary data frame of variables we need to create data dictionaries for
-                temp = DataFrame(columns=mapping_list)
-                # create data dictionary without concept mapping
-                if args.no_concepts:
-                    column_to_terms, cde = map_variables_to_terms(
-                        directory=directory,
-                        assessment_name="participants.tsv",
-                        df=temp,
-                        output_file=os.path.join(directory, "participants.json"),
-                        json_source=args.json_map,
-                        bids=True,
-                        associate_concepts=False,
-                    )
-                # create data dictionary with concept mapping
-                else:
-                    column_to_terms, cde = map_variables_to_terms(
-                        directory=directory,
-                        assessment_name="participants.tsv",
-                        df=temp,
-                        output_file=os.path.join(directory, "participants.json"),
-                        json_source=args.json_map,
-                        bids=True,
-                    )
+                    json_source = os.path.join(directory, "participants.json")
+            else:  # if user supplied a JSON data dictionary then use it
+                json_source = args.json_map
+            # create data dictionary without concept mapping
+            if args.no_concepts:
+                associate_concepts = False
+            else:  # create data dictionary with concept mapping
+                associate_concepts = True
+
+            # temporary data frame of variables we need to create data dictionaries for
+            temp = DataFrame(columns=mapping_list)
+
+            column_to_terms, cde = map_variables_to_terms(
+                directory=directory,
+                assessment_name="participants.tsv",
+                df=temp,
+                output_file=os.path.join(directory, "participants.json"),
+                json_source=json_source,
+                bids=True,
+                associate_concepts=associate_concepts,
+                dataset_identifier=dataset_doi,
+            )
 
             # iterate over rows in participants.tsv file and create NIDM objects for sessions and acquisitions
             for row in participants_data:
@@ -1166,7 +1118,9 @@ def bidsmri2project(directory, args):
                 acq_entity.add_attributes(
                     {
                         Constants.NIDM_FILENAME: getRelPathToBIDS(
-                            os.path.join(directory, "participants.tsv"), directory
+                            os.path.join(directory, "participants.tsv"),
+                            directory,
+                            bidsuri_format=True,
                         )
                     }
                 )
@@ -1205,7 +1159,9 @@ def bidsmri2project(directory, args):
                                 Namespace("bids", Constants.BIDS), "sidecar_file"
                             ),
                             Constants.NIDM_FILENAME: getRelPathToBIDS(
-                                os.path.join(directory, "participants.json"), directory
+                                os.path.join(directory, "participants.json"),
+                                directory,
+                                bidsuri_format=True,
                             ),
                         }
                     )
@@ -1370,76 +1326,33 @@ def bidsmri2project(directory, args):
                     # add column to list for column_to_terms mapping
                     mapping_list.append(field)
 
-            # if user didn't supply a json data dictionary file
-            # create an empty one for column_to_terms to use
+            # if user didn't supply a json data dictionary file but we're doing some variable-term mapping create an empty one
+            # for column_to_terms to use
             if args.json_map is False:
                 # defaults to participants.json because here we're mapping the participants.tsv file variables to terms
                 # if participants.json file doesn't exist then run without json mapping file
                 if not os.path.isfile(os.path.splitext(tsv_file)[0] + ".json"):
-                    # maps variables in CSV file to terms
-                    temp = DataFrame(columns=mapping_list)
-                    if args.no_concepts:
-                        column_to_terms_pheno, cde_tmp = map_variables_to_terms(
-                            directory=directory,
-                            assessment_name=tsv_file,
-                            df=temp,
-                            output_file=os.path.splitext(tsv_file)[0] + ".json",
-                            bids=True,
-                            associate_concepts=False,
-                        )
-                    else:
-                        column_to_terms_pheno, cde_tmp = map_variables_to_terms(
-                            directory=directory,
-                            assessment_name=tsv_file,
-                            df=temp,
-                            output_file=os.path.splitext(tsv_file)[0] + ".json",
-                            bids=True,
-                        )
+                    json_source = None
                 else:
-                    # maps variables in CSV file to terms
-                    temp = DataFrame(columns=mapping_list)
-                    if args.no_concepts:
-                        column_to_terms_pheno, cde_tmp = map_variables_to_terms(
-                            directory=directory,
-                            assessment_name=tsv_file,
-                            df=temp,
-                            output_file=os.path.splitext(tsv_file)[0] + ".json",
-                            json_source=os.path.splitext(tsv_file)[0] + ".json",
-                            bids=True,
-                            associate_concepts=False,
-                        )
-                    else:
-                        column_to_terms_pheno, cde_tmp = map_variables_to_terms(
-                            directory=directory,
-                            assessment_name=tsv_file,
-                            df=temp,
-                            output_file=os.path.splitext(tsv_file)[0] + ".json",
-                            json_source=os.path.splitext(tsv_file)[0] + ".json",
-                            bids=True,
-                        )
-            # else user did supply a json data dictionary so use it
-            else:
-                # maps variables in CSV file to terms
-                temp = DataFrame(columns=mapping_list)
-                if args.no_concepts:
-                    column_to_terms_pheno, cde_tmp = map_variables_to_terms(
-                        directory=directory,
-                        assessment_name=tsv_file,
-                        df=temp,
-                        output_file=os.path.splitext(tsv_file)[0] + ".json",
-                        json_source=args.json_map,
-                        bids=True,
-                        associate_concepts=False,
-                    )
-                else:
-                    column_to_terms_pheno, cde_tmp = map_variables_to_terms(
-                        directory=directory,
-                        assessment_name=tsv_file,
-                        df=temp,
-                        output_file=os.path.splitext(tsv_file)[0] + ".json",
-                        json_source=args.json_map,
-                        bids=True,
-                    )
+                    json_source = os.path.splitext(tsv_file)[0] + ".json"
+            else:  # if user supplied a JSON data dictionary then use it
+                json_source = args.json_map
+            # create data dictionary without concept mapping
+            if args.no_concepts:
+                associate_concepts = False
+            else:  # create data dictionary with concept mapping
+                associate_concepts = True
+            # maps variables in CSV file to terms
+            temp = DataFrame(columns=mapping_list)
+            column_to_terms_pheno, cde_tmp = map_variables_to_terms(
+                directory=directory,
+                assessment_name=tsv_file,
+                df=temp,
+                output_file=os.path.splitext(tsv_file)[0] + ".json",
+                json_source=json_source,
+                bids=True,
+                associate_concepts=associate_concepts,
+            )
 
             for row in pheno_data:
                 subjid = row["participant_id"].split("-")
@@ -1471,7 +1384,11 @@ def bidsmri2project(directory, args):
 
                 # link TSV file
                 acq_entity.add_attributes(
-                    {Constants.NIDM_FILENAME: getRelPathToBIDS(tsv_file, directory)}
+                    {
+                        Constants.NIDM_FILENAME: getRelPathToBIDS(
+                            tsv_file, directory, bidsuri_format=True
+                        )
+                    }
                 )
 
                 # if there are git annex sources for participants.tsv file then add them
@@ -1503,7 +1420,7 @@ def bidsmri2project(directory, args):
                         {
                             PROV_TYPE: Constants.BIDS["sidecar_file"],
                             Constants.NIDM_FILENAME: getRelPathToBIDS(
-                                data_dict, directory
+                                data_dict, directory, bidsuri_format=True
                             ),
                         }
                     )
