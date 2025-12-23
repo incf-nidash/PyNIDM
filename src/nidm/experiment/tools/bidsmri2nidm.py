@@ -1082,7 +1082,6 @@ def bidsmri2project(directory, args):
                 json_source=json_source,
                 bids=True,
                 associate_concepts=associate_concepts,
-                dataset_identifier=dataset_doi,
             )
 
             # iterate over rows in participants.tsv file and create NIDM objects for sessions and acquisitions
