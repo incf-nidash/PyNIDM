@@ -1028,17 +1028,6 @@ def bidsmri2project(directory, args):
                     {BIDS_Constants.dataset_description[key]: dataset[key]}
                 )
 
-            # added special case to include DOI of project in hash for data element UUIDs to prevent collisions with
-            # similar data elements from other projects and make the bids2nidm conversion deterministic in the sense
-            # that if you re-convert the same dataset to NIDM, the data element UUIDs will remain the same.
-            if key == "DatasetDOI":
-                if dataset[key] == "":
-                    dataset_doi = None
-                else:
-                    dataset_doi = dataset[key]
-            else:
-                dataset_doi = None
-
     # get BIDS layout
     bids.config.set_option("extension_initial_dot", True)
     bids_layout = bids.BIDSLayout(directory)
@@ -1093,7 +1082,6 @@ def bidsmri2project(directory, args):
                 json_source=json_source,
                 bids=True,
                 associate_concepts=associate_concepts,
-                dataset_identifier=dataset_doi,
             )
 
             # iterate over rows in participants.tsv file and create NIDM objects for sessions and acquisitions
