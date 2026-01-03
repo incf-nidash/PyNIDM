@@ -67,6 +67,7 @@ def getsha512(filename):
             sha512_hash.update(byte_block)
     return sha512_hash.hexdigest()
 
+
 def check_encoding(filename):
     import chardet
     with open(filename, "rb") as f:
