@@ -269,7 +269,7 @@ def test_map_vars_to_terms_BIDS(setup: Setup, tmp_path: Path) -> None:
     for row in qres:
         results.append(list(row))
 
-    assert len(results) == 20
+    assert len(results) == 29
 
 
 def test_map_vars_to_terms_BIDS_simple(setup: Setup, tmp_path: Path) -> None:
@@ -332,7 +332,7 @@ def test_map_vars_to_terms_BIDS_simple(setup: Setup, tmp_path: Path) -> None:
     for row in qres:
         results.append(list(row))
 
-    assert len(results) == 16
+    assert len(results) == 17
 
 
 def test_map_vars_to_terms_reproschema(setup: Setup, tmp_path: Path) -> None:
@@ -472,4 +472,4 @@ def test_map_vars_to_terms_reproschema(setup: Setup, tmp_path: Path) -> None:
     for row in qres:
         results.append(list(row))
 
-    assert len(results) == 20
+    assert len(results) == 29

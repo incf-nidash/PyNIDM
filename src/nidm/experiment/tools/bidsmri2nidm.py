@@ -321,7 +321,9 @@ def addimagingsessions(
             acq_obj.add_attributes(
                 {
                     Constants.NIDM_FILENAME: getRelPathToBIDS(
-                        join(file_tpl.dirname, file_tpl.filename), directory, bidsuri_format=True
+                        join(file_tpl.dirname, file_tpl.filename),
+                        directory,
+                        bidsuri_format=True,
                     )
                 }
             )
@@ -468,7 +470,9 @@ def addimagingsessions(
             acq_obj.add_attributes(
                 {
                     Constants.NIDM_FILENAME: getRelPathToBIDS(
-                        join(file_tpl.dirname, file_tpl.filename), directory, bidsuri_format=True
+                        join(file_tpl.dirname, file_tpl.filename),
+                        directory,
+                        bidsuri_format=True,
                     )
                 }
             )
@@ -671,7 +675,9 @@ def addimagingsessions(
             acq_obj.add_attributes(
                 {
                     Constants.NIDM_FILENAME: getRelPathToBIDS(
-                        join(file_tpl.dirname, file_tpl.filename), directory, bidsuri_format=True
+                        join(file_tpl.dirname, file_tpl.filename),
+                        directory,
+                        bidsuri_format=True,
                     )
                 }
             )
@@ -775,7 +781,9 @@ def addimagingsessions(
             acq_obj.add_attributes(
                 {
                     Constants.NIDM_FILENAME: getRelPathToBIDS(
-                        join(file_tpl.dirname, file_tpl.filename), directory, bidsuri_format=True
+                        join(file_tpl.dirname, file_tpl.filename),
+                        directory,
+                        bidsuri_format=True,
                     )
                 }
             )
@@ -855,7 +863,8 @@ def addimagingsessions(
                                 join(file_tpl.dirname, file_tpl.filename)
                             ),
                         ),
-                        directory, bidsuri_format=True
+                        directory,
+                        bidsuri_format=True,
                     )
                 }
             )
@@ -914,7 +923,8 @@ def addimagingsessions(
                                 join(file_tpl.dirname, file_tpl.filename)
                             ),
                         ),
-                        directory, bidsuri_format=True
+                        directory,
+                        bidsuri_format=True,
                     )
                 }
             )
@@ -1013,26 +1023,16 @@ def bidsmri2project(directory, args):
                     {BIDS_Constants.dataset_description[key]: "".join(dataset[key])}
                 )
             elif isinstance(dataset[key], list):
-                # 7/22/23 - modified to add attributes to collection of acquisition objects
-                collection.add_attributes(
-                    {BIDS_Constants.dataset_description[key]: "".join(dataset[key])}
-                )
+                for entry in dataset[key]:
+                    # 7/22/23 - modified to add attributes to collection of acquisition objects
+                    collection.add_attributes(
+                        {BIDS_Constants.dataset_description[key]: entry}
+                    )
             else:
                 # 7/22/23 - modified to add attributes to collection of acquisition objects
                 collection.add_attributes(
                     {BIDS_Constants.dataset_description[key]: dataset[key]}
                 )
-
-            # added special case to include DOI of project in hash for data element UUIDs to prevent collisions with
-            # similar data elements from other projects and make the bids2nidm conversion deterministic in the sense
-            # that if you re-convert the same dataset to NIDM, the data element UUIDs will remain the same.
-            if key == "DatasetDOI":
-                if dataset[key] == "":
-                    dataset_doi = None
-                else:
-                    dataset_doi = dataset[key]
-            else:
-                dataset_doi = None
 
     # get BIDS layout
     bids.config.set_option("extension_initial_dot", True)
@@ -1089,7 +1089,6 @@ def bidsmri2project(directory, args):
                 json_source=json_source,
                 bids=True,
                 associate_concepts=associate_concepts,
-                dataset_identifier=dataset_doi,
             )
 
             # iterate over rows in participants.tsv file and create NIDM objects for sessions and acquisitions
@@ -1123,7 +1122,9 @@ def bidsmri2project(directory, args):
                 acq_entity.add_attributes(
                     {
                         Constants.NIDM_FILENAME: getRelPathToBIDS(
-                            os.path.join(directory, "participants.tsv"), directory, bidsuri_format=True
+                            os.path.join(directory, "participants.tsv"),
+                            directory,
+                            bidsuri_format=True,
                         )
                     }
                 )
@@ -1162,7 +1163,9 @@ def bidsmri2project(directory, args):
                                 Namespace("bids", Constants.BIDS), "sidecar_file"
                             ),
                             Constants.NIDM_FILENAME: getRelPathToBIDS(
-                                os.path.join(directory, "participants.json"), directory, bidsuri_format=True
+                                os.path.join(directory, "participants.json"),
+                                directory,
+                                bidsuri_format=True,
                             ),
                         }
                     )
@@ -1385,7 +1388,11 @@ def bidsmri2project(directory, args):
 
                 # link TSV file
                 acq_entity.add_attributes(
-                    {Constants.NIDM_FILENAME: getRelPathToBIDS(tsv_file, directory, bidsuri_format=True)}
+                    {
+                        Constants.NIDM_FILENAME: getRelPathToBIDS(
+                            tsv_file, directory, bidsuri_format=True
+                        )
+                    }
                 )
 
                 # if there are git annex sources for participants.tsv file then add them

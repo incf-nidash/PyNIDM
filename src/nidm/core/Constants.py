@@ -64,6 +64,7 @@ ONLI = Namespace("http://neurolog.unice.fr/ontoneurolog/v3.0/instrument.owl#")
 PATO = Namespace("http://purl.obolibrary.org/obo/pato#")
 DATALAD = Namespace("http://datasets.datalad.org/")
 INTERLEX = Namespace("http://uri.interlex.org/")
+REPROSCHEMA = Namespace("http://schema.repronim.org/")
 EDAM = Namespace("https://bioportal.bioontology.org/ontologies/EDAM")
 
 namespaces = {
@@ -100,6 +101,7 @@ namespaces = {
     "datalad": DATALAD,
     "ilx": INTERLEX,
     "edam": EDAM,
+    "reproschema": REPROSCHEMA,
 }
 
 # Empty graph used to compute qnames
