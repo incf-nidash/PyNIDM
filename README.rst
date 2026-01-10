@@ -389,6 +389,12 @@ You can find details on the REST API at the `SwaggerHub API Documentation
 specification file is part of the Github repository in
 'docs/REST_API_definition.openapi.yaml'
 
+.. note::
+
+   The SwaggerHub API documentation may not always reflect the latest REST API.
+   The canonical OpenAPI specification is the ``docs/REST_API_definition.openapi.yaml``
+   file in this repository.
+
 Here is a list of the current operations. See the SwaggerHub page for more
 details and return formats.
 
