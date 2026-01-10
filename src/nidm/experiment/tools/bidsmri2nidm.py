@@ -68,6 +68,13 @@ def getsha512(filename):
     return sha512_hash.hexdigest()
 
 
+def check_encoding(filename):
+    import chardet
+    with open(filename, "rb") as f:
+        result = chardet.detect(f.read())
+    return result["encoding"]
+
+
 def main():
     parser = ArgumentParser(
         description="""This program will represent a BIDS MRI dataset as a NIDM RDF document and provide user with opportunity to annotate
@@ -1037,8 +1044,9 @@ def bidsmri2project(directory, args):
     participant = {}
     # Parse participants.tsv file in BIDS directory and create study and acquisition objects
     if os.path.isfile(os.path.join(directory, "participants.tsv")):
+        encoding = check_encoding(os.path.join(directory, "participants.tsv"))
         with open(
-            os.path.join(directory, "participants.tsv"), encoding="utf-8"
+            os.path.join(directory, "participants.tsv"), encoding=encoding
         ) as csvfile:
             participants_data = csv.DictReader(csvfile, delimiter="\t")
 
@@ -1095,14 +1103,12 @@ def bidsmri2project(directory, args):
                 else:
                     subjid = temp[0]
                 logging.info(subjid)
-
                 # add session and keep track if it for later using subjid
                 session[subjid] = Session(project)
                 # add acquisition activity
                 acq = AssessmentAcquisition(session=session[subjid])
                 # add acquisition entity
                 acq_entity = AssessmentObject(acquisition=acq)
-
                 # Modified 7/22/23 to add acq_entity to collection
                 provgraph.hadMember(collection, acq_entity)
 
@@ -1187,7 +1193,6 @@ def bidsmri2project(directory, args):
                     acq_entity.add_attributes(
                         {Constants.PROV["wasInfluencedBy"]: json_sidecar}
                     )
-
                 for key, value in row.items():
                     if not value:
                         continue
@@ -1315,7 +1320,8 @@ def bidsmri2project(directory, args):
     for tsv_file in glob.glob(os.path.join(directory, "phenotype", "*.tsv")):
         # for now, open the TSV file, extract the row for this subject, store it in an acquisition object and link to
         # the associated JSON data dictionary file
-        with open(tsv_file, encoding="utf-8") as phenofile:
+        encoding = check_encoding(tsv_file)
+        with open(tsv_file, encoding=encoding) as phenofile:
             pheno_data = csv.DictReader(phenofile, delimiter="\t")
             mapping_list = []
             column_to_terms = {}
