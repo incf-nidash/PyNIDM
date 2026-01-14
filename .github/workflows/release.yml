@@ -11,15 +11,9 @@ jobs:
     if: "!contains(github.event.head_commit.message, 'ci skip') && !contains(github.event.head_commit.message, 'skip ci')"
     steps:
       - uses: actions/checkout@v6
-
-      - name: Prepare repository
-        # Fetch full git history and tags
-        run: git fetch --unshallow --tags
-
-      - name: Unset header
-        # checkout@v2 adds a header that makes branch protection report errors
-        # because the Github action bot is not a collaborator on the repo
-        run: git config --local --unset http.https://github.com/.extraheader
+        with:
+          persist-credentials: false
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
