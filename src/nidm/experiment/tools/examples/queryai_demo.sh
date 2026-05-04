@@ -21,6 +21,9 @@
 #   ./queryai_demo.sh 1            # run only query 1
 #   ./queryai_demo.sh 1 3          # run queries 1 and 3
 #
+# NOTE: Requires bash (not sh).  Use:  bash queryai_demo.sh
+#       or:  chmod +x queryai_demo.sh && ./queryai_demo.sh
+#
 # Data Sources:
 #   - NIDM file (KKI site, ABIDE dataset):
 #       https://github.com/ReproNim/simple2_NIDM_examples
@@ -93,13 +96,14 @@ divider() {
 }
 
 should_run() {
-    # If no arguments were given, run everything.  Otherwise check if
-    # the query number is in the argument list.
-    if [[ $# -eq 0 ]]; then
+    # Usage: should_run <query_number>
+    # If the user passed no filter arguments (ARGS is empty), run everything.
+    # Otherwise only run if the query number appears in ARGS.
+    local query_num="$1"
+    if [[ ${#ARGS[@]} -eq 0 ]]; then
         return 0
     fi
-    local query_num="$1"; shift
-    for arg in "$@"; do
+    for arg in "${ARGS[@]}"; do
         [[ "$arg" == "$query_num" ]] && return 0
     done
     return 1
@@ -150,7 +154,7 @@ echo ""
 # ---------------------------------------------------------------------------
 # Query 1: Count subjects
 # ---------------------------------------------------------------------------
-if should_run 1 "${ARGS[@]+"${ARGS[@]}"}"; then
+if should_run 1; then
     divider 1 "How many subjects are there?"
 
     pynidm queryai \
@@ -162,7 +166,7 @@ fi
 # ---------------------------------------------------------------------------
 # Query 2: List all subjects
 # ---------------------------------------------------------------------------
-if should_run 2 "${ARGS[@]+"${ARGS[@]}"}"; then
+if should_run 2; then
     divider 2 "List all subjects"
 
     pynidm queryai \
@@ -174,7 +178,7 @@ fi
 # ---------------------------------------------------------------------------
 # Query 3: Average age
 # ---------------------------------------------------------------------------
-if should_run 3 "${ARGS[@]+"${ARGS[@]}"}"; then
+if should_run 3; then
     divider 3 "What is the average age of all subjects?"
 
     pynidm queryai \
@@ -194,7 +198,7 @@ fi
 #   - 'a' for all matches
 #   - 0 to skip
 # ---------------------------------------------------------------------------
-if should_run 4 "${ARGS[@]+"${ARGS[@]}"}"; then
+if should_run 4; then
     divider 4 "Subject demographics + left hippocampus volume + software tool"
 
     pynidm queryai \
