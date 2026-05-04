@@ -4,6 +4,8 @@ It will parse phenotype information and simply store variables/values and link
 to the associated json data dictionary file.
 """
 
+__version__ = "1.0.0"
+
 from argparse import ArgumentParser, RawTextHelpFormatter
 import csv
 import glob
@@ -202,6 +204,7 @@ and API Keys.  Then set the environment variable INTERLEX_API_KEY with your key.
         collection=collection,
         outputfile=outputfile,
         pynidm_version=pynidm_version,
+        tool_version=__version__,
         script_name="bidsmri2nidm.py",
         activity_label="Create NIDM RDF from BIDS dataset",
         output_format="turtle",

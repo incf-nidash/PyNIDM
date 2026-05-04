@@ -6,6 +6,8 @@ pick a term to associate with the variable name.  The resulting annotated CSV
 data will then be written to a NIDM data file.
 """
 
+__version__ = "1.0.0"
+
 from argparse import ArgumentParser
 from io import StringIO
 import logging
@@ -909,6 +911,7 @@ def csv2nidm_main(args=None):
                 collection=project,
                 outputfile=args.nidm_file,
                 pynidm_version=pynidm_version,
+                tool_version=__version__,
                 script_name="csv2nidm.py",
                 activity_label="Add CSV data to NIDM file",
             )
@@ -1210,6 +1213,7 @@ def csv2nidm_main(args=None):
             collection=collection,
             outputfile=output_file,
             pynidm_version=pynidm_version,
+            tool_version=__version__,
             script_name="csv2nidm.py",
             activity_label="Create NIDM RDF from CSV data",
         )

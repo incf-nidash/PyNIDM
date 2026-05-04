@@ -786,6 +786,7 @@ def add_export_provenance(
     pynidm_version,
     script_name,
     activity_label,
+    tool_version=None,
     output_format="turtle",
 ):
     """Add provenance triples describing the tool run that produced this NIDM file.
@@ -796,10 +797,12 @@ def add_export_provenance(
     :param rdf_graph: rdflib.Graph to add provenance triples to
     :param collection: prov Collection / Entity that was used as input (or None)
     :param outputfile: path to the output file being written
-    :param pynidm_version: PyNIDM version string
+    :param pynidm_version: PyNIDM library version string (from nidm.__version__)
     :param script_name: name of the calling script (e.g. "csv2nidm.py")
     :param activity_label: human-readable label for the export activity
         (e.g. "Add CSV data to NIDM file")
+    :param tool_version: version of the calling tool/script (optional; if None,
+        falls back to pynidm_version for backwards compatibility)
     :param output_format: serialization format label (default "turtle")
     :return: the rdf_graph (modified in place)
     """
@@ -815,12 +818,14 @@ def add_export_provenance(
     nidm_ns = Namespace("http://purl.org/nidash/nidm#")
 
     export_activity = Constants.NIIRI[getUUID()]
-    software_agent = Constants.NIIRI[getUUID()]
+    tool_agent = Constants.NIIRI[getUUID()]  # the specific script (e.g. bidsmri2nidm)
+    library_agent = Constants.NIIRI[getUUID()]  # the PyNIDM library
     output_entity = Constants.NIIRI[getUUID()]
 
     timestamp = datetime.now(timezone.utc).isoformat()
     python_version = platform.python_version()
     output_basename = os.path.basename(outputfile)
+    tool_label = script_name.removesuffix(".py")  # e.g. "bidsmri2nidm"
 
     rdf_graph.add((export_activity, RDF.type, prov_ns["Activity"]))
     rdf_graph.add((export_activity, rdfs_ns["label"], Literal(activity_label)))
@@ -828,35 +833,35 @@ def add_export_provenance(
     rdf_graph.add((export_activity, prov_ns["endedAtTime"], Literal(timestamp)))
     rdf_graph.add((export_activity, nidm_ns["outputFormat"], Literal(output_format)))
 
-    rdf_graph.add((software_agent, RDF.type, prov_ns["SoftwareAgent"]))
+    # Tool agent: the specific script that was invoked
+    rdf_graph.add((tool_agent, RDF.type, prov_ns["SoftwareAgent"]))
+    rdf_graph.add((tool_agent, rdfs_ns["label"], Literal(tool_label)))
+    rdf_graph.add((tool_agent, nidm_ns["command"], Literal(script_name)))
     rdf_graph.add(
         (
-            software_agent,
-            rdfs_ns["label"],
-            Literal(f"PyNIDM {script_name}"),
-        )
-    )
-    rdf_graph.add((software_agent, schema_ns["name"], Literal("PyNIDM")))
-    rdf_graph.add(
-        (
-            software_agent,
+            tool_agent,
             schema_ns["softwareVersion"],
-            Literal(pynidm_version),
+            Literal(tool_version if tool_version is not None else pynidm_version),
         )
     )
     rdf_graph.add(
         (
-            software_agent,
-            nidm_ns["softwareVersion"],
-            Literal(pynidm_version),
-        )
-    )
-    rdf_graph.add((software_agent, nidm_ns["command"], Literal(script_name)))
-    rdf_graph.add(
-        (
-            software_agent,
+            tool_agent,
             schema_ns["runtimePlatform"],
             Literal(f"Python {python_version}"),
+        )
+    )
+    # schema:isPartOf links the tool to its parent library
+    rdf_graph.add((tool_agent, schema_ns["isPartOf"], library_agent))
+
+    # Library agent: the PyNIDM package that contains the tool
+    rdf_graph.add((library_agent, RDF.type, prov_ns["SoftwareAgent"]))
+    rdf_graph.add((library_agent, rdfs_ns["label"], Literal("PyNIDM")))
+    rdf_graph.add(
+        (
+            library_agent,
+            schema_ns["softwareVersion"],
+            Literal(pynidm_version),
         )
     )
 
@@ -867,7 +872,7 @@ def add_export_provenance(
     rdf_graph.add((output_entity, nidm_ns["outputFormat"], Literal(output_format)))
 
     rdf_graph.add((output_entity, prov_ns["wasGeneratedBy"], export_activity))
-    rdf_graph.add((export_activity, prov_ns["wasAssociatedWith"], software_agent))
+    rdf_graph.add((export_activity, prov_ns["wasAssociatedWith"], tool_agent))
 
     if collection is not None:
         collection_id = getattr(collection, "identifier", collection)
