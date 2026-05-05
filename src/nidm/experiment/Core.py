@@ -1,9 +1,14 @@
 from collections import OrderedDict
 from io import StringIO
 import json
+import os
+from pathlib import Path
 import random
 import re
+import shutil
 import string
+import subprocess
+import tempfile
 import uuid
 from prov.dot import prov_to_dot
 import prov.model as pm
@@ -514,98 +519,191 @@ class Core:
 
         return context
 
+    # Required imports at the top of Core.py:
+    # Required imports at the top of Core.py:
+    # Required imports at the top of Core.py:
+    # Required imports at the top of Core.py:
+    from io import StringIO
+    from pathlib import Path
+    from prov.dot import prov_to_dot
+    from pydot import Edge
+    from rdflib import Graph
+
     def save_DotGraph(self, filename, format=None):  # noqa: A002
+        """
+        Save provenance graph with manual isPartOf edges.
+
+        *format* can be ``"svg"`` (default), ``"png"``, or ``"pdf"``.
+        SVG is recommended for large graphs — it opens in any browser
+        with unlimited scroll and zoom.
+        """
+        from ..experiment.Utils import normalize_prov_graph_namespaces
+
+        normalize_prov_graph_namespaces(self.graph)
         dot = prov_to_dot(self.graph)
 
-        ISPARTOF = {
+        # Top-to-bottom layout: ranks stack downward, nodes within each rank
+        # spread horizontally → produces a wide, short graph that is easy to
+        # scroll left/right in a PDF viewer.
+        dot.set_rankdir("TB")
+        dot.set_ranksep("0.5")
+        dot.set_nodesep("0.15")
+        dot.set_overlap("false")
+        dot.set_splines("true")
+        dot.set_concentrate("false")
+        dot.set("outputorder", "edgesfirst")
+        dot.set("newrank", "true")
+        dot.set("center", "true")
+        dot.set("pad", "0.5")
+        dot.set("margin", "0.5")
+
+        for node in dot.get_nodes():
+            node.set_fontsize("9")
+
+        # Hide repeated wasGeneratedBy labels to reduce clutter
+        for edge in dot.get_edges():
+            edge.set_fontsize("7")
+            label = edge.get_label()
+            if label is None:
+                continue
+            label = str(label).strip('"')
+            if label == "wasGeneratedBy":
+                edge.set_color("gray70")
+                edge.set_fontcolor("gray50")
+
+        style = {
             "label": "isPartOf",
-            "fontsize": "10.0",
+            "fontsize": "9.0",
             "color": "darkgreen",
             "fontcolor": "darkgreen",
+            "penwidth": "2.0",
+            "arrowsize": "0.8",
+            "constraint": "true",
+            "minlen": "2",
         }
-        style = ISPARTOF
 
-        # query self.graph for Project uuids
-        # use RDFLib here for temporary graph making query easier
         rdf_graph = Graph()
         rdf_graph = rdf_graph.parse(
             source=StringIO(self.graph.serialize(None, format="rdf", rdf_format="ttl")),
             format="turtle",
         )
 
-        # SPARQL query to get project UUIDs
+        url_to_node = {}
+        for node_key, node_val in dot.obj_dict["nodes"].items():
+            url = str(node_val[0]["attributes"].get("URL", ""))
+            if url:
+                url_to_node[url] = node_key
+
         query = """
         PREFIX nidm:<http://purl.org/nidash/nidm#>
         PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
-        SELECT distinct ?uuid
-        Where {
-            {
-                ?uuid rdf:type nidm:Project
-            }
-
+        SELECT DISTINCT ?uuid
+        WHERE {
+            ?uuid rdf:type nidm:Project
         }
         """
+
+        project_nodes = []
         qres = rdf_graph.query(query)
         for row in qres:
-            print(f"project uuid = {row}")
-            # parse uuid from project URI
-            # project_uuid = str(row[0]).rsplit('/', 1)[-1]
             project_uuid = str(row[0])
-            # for each Project uuid search dot structure for Project uuid
-            project_node = None
-            for key, value in dot.obj_dict["nodes"].items():
-                # get node number in DOT graph for Project
-                if project_uuid in str(value[0]["attributes"].get("URL", "")):
-                    project_node = key
-                    break
+            project_node = url_to_node.get(project_uuid)
 
-        # for each Session in Project class self.sessions list, find node numbers in DOT graph
+            if project_node is None:
+                for url, node_key in url_to_node.items():
+                    if project_uuid in url:
+                        project_node = node_key
+                        break
 
-        for session in self.sessions:
-            print(session)
-            for key, value in dot.obj_dict["nodes"].items():
-                # get node number in DOT graph for Project
-                if session.identifier.uri in str(value[0]["attributes"].get("URL", "")):
-                    session_node = key
-                    # print(f"session node = {key}")
+            if project_node is not None:
+                project_nodes.append((project_uuid, project_node))
 
-                    # add to DOT structure edge between project_node and session_node
-                    dot.add_edge(Edge(session_node, project_node, **style))
+        added_edges = set()
 
-                    # for each Acquisition in Session class ._acquisitions list, find node numbers in DOT graph
-                    for acquisition in session.get_acquisitions():
-                        # search through the nodes again to figure out node number for acquisition
-                        for key, value in dot.obj_dict["nodes"].items():
-                            # get node number in DOT graph for Project
-                            if acquisition.identifier.uri in str(
-                                value[0]["attributes"].get("URL", "")
-                            ):
-                                acquisition_node = key
-                                # print(f"acquisition node = {key}")
+        def add_edge_if_found(src_node, dst_node):
+            if src_node is None or dst_node is None:
+                return
+            edge_key = (str(src_node), str(dst_node), "isPartOf")
+            if edge_key in added_edges:
+                return
+            dot.add_edge(Edge(src_node, dst_node, **style))
+            added_edges.add(edge_key)
 
-                                dot.add_edge(
-                                    Edge(acquisition_node, session_node, **style)
-                                )
-        # for each derivative activity, add edge to project for isPartOf
-        for derivative_activity in self._derivatives:
-            print(derivative_activity)
-            for key, value in dot.obj_dict["nodes"].items():
-                # get node number in DOT graph for Project
-                if derivative_activity.identifier.uri in str(
-                    value[0]["attributes"].get("URL", "")
-                ):
-                    derivative_activity_node = key
-                    # print(f"session node = {key}")
+        for _, project_node in project_nodes:
+            for session in self.sessions:
+                session_uri = str(session.identifier.uri)
+                session_node = url_to_node.get(session_uri)
 
-                    # add to DOT structure edge between project_node and session_node
-                    dot.add_edge(Edge(derivative_activity_node, project_node, **style))
+                if session_node is None:
+                    for url, node_key in url_to_node.items():
+                        if session_uri in url:
+                            session_node = node_key
+                            break
 
-        # add some logic to find nodes with dct:hasPart relation and add those edges to graph...prov_to_dot ignores these
-        if format != "None":
-            dot.write(filename, format=format)
-        else:
-            dot.write(filename, format="pdf")
+                add_edge_if_found(session_node, project_node)
+
+                for acquisition in session.get_acquisitions():
+                    acquisition_uri = str(acquisition.identifier.uri)
+                    acquisition_node = url_to_node.get(acquisition_uri)
+
+                    if acquisition_node is None:
+                        for url, node_key in url_to_node.items():
+                            if acquisition_uri in url:
+                                acquisition_node = node_key
+                                break
+
+                    add_edge_if_found(acquisition_node, session_node)
+
+        for _, project_node in project_nodes:
+            for derivative_activity in self._derivatives:
+                derivative_uri = str(derivative_activity.identifier.uri)
+                derivative_node = url_to_node.get(derivative_uri)
+
+                if derivative_node is None:
+                    for url, node_key in url_to_node.items():
+                        if derivative_uri in url:
+                            derivative_node = node_key
+                            break
+
+                add_edge_if_found(derivative_node, project_node)
+
+        out_path = Path(filename)
+        requested_format = format if format not in (None, "None") else "svg"
+
+        if requested_format == "svg":
+            svg_path = out_path.with_suffix(".svg")
+            dot.write(str(svg_path), format="svg")
+
+        elif requested_format == "png":
+            # High DPI for crisp raster output.
+            dot.set("dpi", "200")
+            png_path = out_path.with_suffix(".png")
+            dot.write(str(png_path), format="png")
+
+        elif requested_format == "pdf":
+            # Graphviz's direct PDF renderer is known to clip large graphs.
+            # The workaround is: render to EPS (which embeds a correct
+            # BoundingBox), then convert EPS → PDF with ps2pdf using
+            # -dEPSCrop so the PDF page matches the actual graph size.
+            # Note: very large graphs may still exceed PDF page-size
+            # limits in some viewers.  Use SVG for best results.
+            pdf_path = out_path.with_suffix(".pdf")
+            ps2pdf = shutil.which("ps2pdf")
+            if ps2pdf:
+                with tempfile.NamedTemporaryFile(suffix=".eps", delete=False) as tmp:
+                    tmp_eps = tmp.name
+                try:
+                    dot.write(tmp_eps, format="eps")
+                    subprocess.run(
+                        [ps2pdf, "-dEPSCrop", tmp_eps, str(pdf_path)],
+                        check=True,
+                    )
+                finally:
+                    os.unlink(tmp_eps)
+            else:
+                # Fallback: direct PDF (may clip on very large graphs).
+                dot.write(str(pdf_path), format="pdf")
 
     def prefix_to_context(self):
         """

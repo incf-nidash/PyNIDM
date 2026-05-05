@@ -125,12 +125,7 @@ def data_aggregation(reporter):  # all data from all the files is collected
                         "Interacting variables are not present in clustering models. They will be removed."
                     )
             variables = variables[0 : len(variables) - 1]
-            uri = (
-                "/projects/"
-                + project[0].toPython().split("/")[-1]
-                + "?fields="
-                + variables
-            )
+            uri = "/projects/" + str(project[0]).split("/")[-1] + "?fields=" + variables
             # get fields output from each file and concatenate
             df_list_holder[count].append(pd.DataFrame(restParser.run([nidm_file], uri)))
             # global dep_var

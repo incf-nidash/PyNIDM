@@ -1,0 +1,234 @@
+@prefix dcmitype: <http://purl.org/dc/dcmitype/> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix fmriprep: <https://fmriprep.org/en/stable/> .
+@prefix ndar: <https://ndar.nih.gov/api/datadictionary/v2/dataelement/> .
+@prefix nfo: <http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#> .
+@prefix nidm: <http://purl.org/nidash/nidm#> .
+@prefix niiri: <http://iri.nidash.org/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sio: <http://semanticscience.org/ontology/sio.owl#> .
+@prefix term_ilx_0101431: <http://uri.interlex.org/ilx_0101431> .
+@prefix term_ilx_0101997: <http://uri.interlex.org/ilx_0101997> .
+@prefix term_ilx_0104909: <http://uri.interlex.org/ilx_0104909> .
+@prefix term_ilx_0112630: <http://uri.interlex.org/ilx_0112630> .
+@prefix term_ilx_0794751: <http://uri.interlex.org/ilx_0794751> .
+@prefix term_ilx_0794752: <http://uri.interlex.org/ilx_0794752> .
+@prefix term_ilx_0794753: <http://uri.interlex.org/ilx_0794753> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+niiri:fddd37da-2ba4-11f0-9c78-acde48001122 a prov:Collection,
+        prov:Entity ;
+    nfo:filename "ABIDE_fmriprep_results_v2.csv"^^xsd:string .
+
+niiri:ff7d51ba-2ba4-11f0-9c78-acde48001122 a prov:Entity ;
+    rdfs:type nidm:DerivativeCollection ;
+    prov:Location "s3://fcp-indi/data/Projects/ABIDE/Outputs/fmriprep/fmriprep/sub-0050002"^^xsd:anyURI ;
+    prov:wasGeneratedBy niiri:ff7d34e6-2ba4-11f0-9c78-acde48001122 ;
+    fmriprep:csf_mean_11mk5ha "679.7342361"^^xsd:float ;
+    fmriprep:csf_std_fedbq8 "3.079522213"^^xsd:float ;
+    fmriprep:framewise_displacement_mean_nu5610 "0.161699237"^^xsd:float ;
+    fmriprep:framewise_displacement_std_hsgtbr "0.070927322"^^xsd:float ;
+    fmriprep:global_signal_mean_3on6fvi "524.9459633"^^xsd:float ;
+    fmriprep:global_signal_std_foamsv "1.390222252"^^xsd:float ;
+    fmriprep:motion_outliers_1saqjs5 0 ;
+    fmriprep:rot_x_mean_1ljfaft "-0.002847947"^^xsd:float ;
+    fmriprep:rot_x_std_24rftj1 "0.001918638"^^xsd:float ;
+    fmriprep:rot_y_mean_3un3nf9 "0.000184647"^^xsd:float ;
+    fmriprep:rot_y_std_2h6sckd "0.000618839"^^xsd:float ;
+    fmriprep:rot_z_mean_15prj3 "0.002515365"^^xsd:float ;
+    fmriprep:rot_z_std_2sbe1hp "0.003209772"^^xsd:float ;
+    fmriprep:trans_x_mean_qarqb0 "0.080058781"^^xsd:float ;
+    fmriprep:trans_x_std_100s6g3 "0.123116368"^^xsd:float ;
+    fmriprep:trans_y_mean_2vv3kuv "0.165905917"^^xsd:float ;
+    fmriprep:trans_y_std_2u4gt69 "0.152207391"^^xsd:float ;
+    fmriprep:trans_z_mean_lkj143 "0.2859958"^^xsd:float ;
+    fmriprep:trans_z_std_evngnd "0.176107831"^^xsd:float ;
+    fmriprep:white_matter_mean_nfoomu "568.2192117"^^xsd:float ;
+    fmriprep:white_matter_std_mguotm "1.26332457"^^xsd:float .
+
+fmriprep:csf_mean_11mk5ha a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "csf mean" ;
+    dct:description "Global signal: the average signal within anatomically-derived eroded CSF mask averaged over the run." ;
+    nidm:isAbout term_ilx_0101997: ;
+    nidm:sourceVariable "csf mean" .
+
+fmriprep:csf_std_fedbq8 a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "csf std" ;
+    dct:description "Global signal: the average signal within anatomically-derived eroded CSF mask standard deviation over the run." ;
+    nidm:isAbout term_ilx_0101997: ;
+    nidm:sourceVariable "csf std" .
+
+fmriprep:framewise_displacement_mean_nu5610 a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "framewise_displacement mean" ;
+    dct:description "A quantification of the estimated bulk-head motion calculated using formula proposed by [Power2012] averaged over the run." ;
+    nidm:isAbout term_ilx_0104909: ;
+    nidm:sourceVariable "framewise_displacement mean" .
+
+fmriprep:framewise_displacement_std_hsgtbr a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "framewise_displacement std" ;
+    dct:description "A quantification of the estimated bulk-head motion calculated using formula proposed by [Power2012] standard deviation over the run." ;
+    nidm:isAbout term_ilx_0104909: ;
+    nidm:sourceVariable "framewise_displacement std" .
+
+fmriprep:global_signal_mean_3on6fvi a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "global_signal mean" ;
+    dct:description "Global signal: the average signal within the brain mask averaged over the run." ;
+    nidm:isAbout term_ilx_0101431: ;
+    nidm:sourceVariable "global_signal mean" .
+
+fmriprep:global_signal_std_foamsv a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "global_signal std" ;
+    dct:description "Global signal: the average signal within the brain mask standard deviation over the run." ;
+    nidm:isAbout term_ilx_0101431: ;
+    nidm:sourceVariable "global_signal std" .
+
+fmriprep:motion_outliers_1saqjs5 a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "motion outliers" ;
+    dct:description "Count of frames within the run with sudden and large motion or intensity spikes." ;
+    nidm:isAbout term_ilx_0104909: ;
+    nidm:sourceVariable "motion outliers" .
+
+fmriprep:rot_x_mean_1ljfaft a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "rot_x mean" ;
+    dct:description "Estimated head-motion parameter: rotation about the 'x' axis averaged over the run." ;
+    nidm:isAbout term_ilx_0104909:,
+        term_ilx_0794751: ;
+    nidm:sourceVariable "rot_x mean" .
+
+fmriprep:rot_x_std_24rftj1 a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "rot_x std" ;
+    dct:description "Estimated head-motion parameter: rotation about the 'x' axis standard deviation over the run." ;
+    nidm:isAbout term_ilx_0104909:,
+        term_ilx_0794751: ;
+    nidm:sourceVariable "rot_x std" .
+
+fmriprep:rot_y_mean_3un3nf9 a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "rot_y mean" ;
+    dct:description "Estimated head-motion parameter: rotation about the 'y' axis averaged over the run." ;
+    nidm:isAbout term_ilx_0104909:,
+        term_ilx_0794752: ;
+    nidm:sourceVariable "rot_y mean" .
+
+fmriprep:rot_y_std_2h6sckd a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "rot_y std" ;
+    dct:description "Estimated head-motion parameter: rotation about the 'y' axis standard deviation over the run." ;
+    nidm:isAbout term_ilx_0104909:,
+        term_ilx_0794752: ;
+    nidm:sourceVariable "rot_y std" .
+
+fmriprep:rot_z_mean_15prj3 a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "rot_z mean" ;
+    dct:description "Estimated head-motion parameter: rotation about the 'z' axis averaged over the run." ;
+    nidm:isAbout term_ilx_0104909:,
+        term_ilx_0794753: ;
+    nidm:sourceVariable "rot_z mean" .
+
+fmriprep:rot_z_std_2sbe1hp a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "rot_z std" ;
+    dct:description "Estimated head-motion parameter: rotation about the 'z' axis standard deviation over the run." ;
+    nidm:isAbout term_ilx_0104909:,
+        term_ilx_0794753: ;
+    nidm:sourceVariable "rot_z std" .
+
+fmriprep:trans_x_mean_qarqb0 a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "trans_x mean" ;
+    dct:description "Estimated head-motion parameter: translation in the 'x' direction averaged over the run." ;
+    nidm:isAbout term_ilx_0104909:,
+        term_ilx_0794751: ;
+    nidm:sourceVariable "trans_x mean" .
+
+fmriprep:trans_x_std_100s6g3 a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "trans_x std" ;
+    dct:description "Estimated head-motion parameter: translation in the 'x' direction standard deviation over the run." ;
+    nidm:isAbout term_ilx_0104909:,
+        term_ilx_0794751: ;
+    nidm:sourceVariable "trans_x std" .
+
+fmriprep:trans_y_mean_2vv3kuv a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "trans_y mean" ;
+    dct:description "Estimated head-motion parameter: translation in the 'y' direction  averaged over the run." ;
+    nidm:isAbout term_ilx_0104909:,
+        term_ilx_0794752: ;
+    nidm:sourceVariable "trans_y mean" .
+
+fmriprep:trans_y_std_2u4gt69 a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "trans_y std" ;
+    dct:description "Estimated head-motion parameter: translation in the 'y' direction standard deviation over the run." ;
+    nidm:isAbout term_ilx_0104909:,
+        term_ilx_0794752: ;
+    nidm:sourceVariable "trans_y std" .
+
+fmriprep:trans_z_mean_lkj143 a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "trans_z mean" ;
+    dct:description "Estimated head-motion parameter: translation in the 'z' direction  averaged over the run." ;
+    nidm:isAbout term_ilx_0104909:,
+        term_ilx_0794753: ;
+    nidm:sourceVariable "trans_z mean" .
+
+fmriprep:trans_z_std_evngnd a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "trans_z std" ;
+    dct:description "Estimated head-motion parameter: translation in the 'z' direction standard deviation over the run." ;
+    nidm:isAbout term_ilx_0104909:,
+        term_ilx_0794753: ;
+    nidm:sourceVariable "trans_z std" .
+
+fmriprep:white_matter_mean_nfoomu a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "white_matter mean" ;
+    dct:description "Global signal: the average signal within the anatomically-derived eroded white matter masks averaged over the run." ;
+    nidm:isAbout term_ilx_0112630: ;
+    nidm:sourceVariable "white_matter mean" .
+
+fmriprep:white_matter_std_mguotm a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "white_matter std" ;
+    dct:description "Global signal: the average signal within the anatomically-derived eroded white matter masks standard deviation over the run." ;
+    nidm:isAbout term_ilx_0112630: ;
+    nidm:sourceVariable "white_matter std" .
+
+niiri:fddbba2c-2ba4-11f0-9c78-acde48001122 a nidm:Project,
+        prov:Activity .
+
+niiri:ff7d34e6-2ba4-11f0-9c78-acde48001122 a prov:Activity ;
+    dct:isPartOf niiri:fddbba2c-2ba4-11f0-9c78-acde48001122 ;
+    prov:qualifiedAssociation [ a prov:Association ;
+            prov:agent niiri:ff7d9382-2ba4-11f0-9c78-acde48001122 ;
+            prov:hadRole sio:Subject ],
+        [ a prov:Association ;
+            prov:agent niiri:ff7d94fe-2ba4-11f0-9c78-acde48001122 ;
+            prov:hadRole nidm:NIDM_0000164 ] ;
+    fmriprep:cmdline "/opt/conda/bin/nibabies /data /out participant ..."^^xsd:string ;
+    fmriprep:platform "NaN"^^xsd:string .
+
+niiri:ff7d9382-2ba4-11f0-9c78-acde48001122 a prov:Agent,
+        prov:Person ;
+    ndar:src_subject_id "50002"^^xsd:string .
+
+niiri:ff7d94fe-2ba4-11f0-9c78-acde48001122 a prov:Agent ;
+    dcmitype:title "fmriprep"^^xsd:string ;
+    dct:description "fMRIPrep is a NiPreps (NeuroImaging PREProcessi..."^^xsd:string ;
+    dct:hasVersion "23.0.0"^^xsd:string ;
+    sio:URL "https://fmriprep.org/en/stable/"^^xsd:string ;
+    rdfs:type nidm:SoftwareAgent .
+
+nidm:PersonalDataElement rdfs:subClassOf nidm:DataElement .

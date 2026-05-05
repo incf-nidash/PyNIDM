@@ -4,6 +4,7 @@ from nidm.experiment.tools import (  # noqa: F401
     nidm_linreg,
     nidm_merge,
     nidm_query,
+    nidm_queryai,
     nidm_version,
     nidm_visualize,
 )

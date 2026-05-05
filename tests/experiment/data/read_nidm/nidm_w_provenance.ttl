@@ -1,0 +1,190 @@
+@prefix bids: <http://bids.neuroimaging.io/> .
+@prefix crypto: <http://id.loc.gov/vocabulary/preservation/cryptographicHashFunctions#> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix dctypes: <http://purl.org/dc/dcmitype/> .
+@prefix ilx: <http://uri.interlex.org/> .
+@prefix ndar: <https://ndar.nih.gov/api/datadictionary/v2/dataelement/> .
+@prefix nfo: <http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#> .
+@prefix nidm: <http://purl.org/nidash/nidm#> .
+@prefix niiri: <http://iri.nidash.org/> .
+@prefix obo: <http://purl.obolibrary.org/obo/> .
+@prefix onli: <http://neurolog.unice.fr/ontoneurolog/v3.0/instrument.owl#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix reproschema: <http://schema.repronim.org/> .
+@prefix schema: <https://schema.org/> .
+@prefix sio: <http://semanticscience.org/ontology/sio.owl#> .
+@prefix term_Group: <http://purl.org/nidash/nidm#Group> .
+@prefix term_ilx_0738437: <http://uri.interlex.org/ilx_0738437> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+niiri:ed456ad0-24a3-11f1-991c-acde48001122 a nidm:Session,
+        prov:Activity ;
+    dct:isPartOf niiri:d6786900-24a3-11f1-991c-acde48001122 .
+
+niiri:ed567c62-24a3-11f1-991c-acde48001122 a prov:Entity ;
+    rdfs:label "NIDM RDF document" ;
+    dct:format "turtle" ;
+    nidm:outputFormat "turtle" ;
+    nfo:filename "nidm.ttl" ;
+    prov:wasGeneratedBy niiri:dd567abe-24a3-11f1-991c-acde48001122 .
+
+niiri:gender_q21qgi a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "gender" ;
+    dct:description "sex of participant" ;
+    nidm:isAbout term_ilx_0738437: ;
+    nidm:maxValue "NA" ;
+    nidm:minValue "NA" ;
+    nidm:sourceVariable "gender" ;
+    nidm:valueType xsd:complexType ;
+    reproschema:choices [ rdfs:label "male" ;
+            reproschema:value "1" ],
+        [ rdfs:label "female" ;
+            reproschema:value "2" ] ;
+    ilx:ilx_0739289 "NIDM" .
+
+niiri:group_31lr8t5 a nidm:PersonalDataElement,
+        prov:Entity ;
+    rdfs:label "group" ;
+    dct:description "weight group assignment" ;
+    nidm:isAbout term_Group: ;
+    nidm:maxValue "NA" ;
+    nidm:minValue "NA" ;
+    nidm:sourceVariable "group" ;
+    nidm:valueType xsd:complexType ;
+    reproschema:choices "normalweight",
+        "overweight" ;
+    ilx:ilx_0739289 "NIDM" .
+
+niiri:ad2c5252-24a3-11f1-991c-acde48001122 a nidm:b-value,
+        prov:Entity ;
+    crypto:sha512 "f8fc3adf97b656b02e695c4857498fcf14ea1bb5c719cf3a52db1af5968bb948338c83d5a3eb6c930d2271ab4d062bb4bad020a83e7e7557118d27501cf71734"^^xsd:string ;
+    nfo:filename "bids::sub-01/ses-1/dwi/sub-01_ses-1_run-1_dwi.bval"^^xsd:string ;
+    prov:wasGeneratedBy niiri:fd1e871c-24a3-11f1-991c-acde48001122 .
+
+niiri:bd143e1a-24a3-11f1-991c-acde48001122 a nidm:Session,
+        prov:Activity ;
+    dct:isPartOf niiri:d6786900-24a3-11f1-991c-acde48001122 .
+
+niiri:bd4544b0-24a3-11f1-991c-acde48001122 a nidm:b-vector,
+        prov:Entity ;
+    crypto:sha512 "93f2f317a5365df51da245d6f00a80a5f57d3d3be873f9d972c298a1405fdabc1460f21bc305354274ddec2ef24597cef25a582da967cbd0d459f869b6a61a6f"^^xsd:string ;
+    nfo:filename "bids::sub-01/ses-1/dwi/sub-01_ses-1_run-1_dwi.bvec_absolute"^^xsd:string ;
+    prov:wasGeneratedBy niiri:fd1e871c-24a3-11f1-991c-acde48001122 .
+
+niiri:cd18fdd8-24a3-11f1-991c-acde48001122 a nidm:Acquisition,
+        prov:Activity ;
+    dct:isPartOf niiri:dd17ab0e-24a3-11f1-991c-acde48001122 ;
+    prov:qualifiedAssociation [ a prov:Association ;
+            prov:agent niiri:dd144d38-24a3-11f1-991c-acde48001122 ;
+            prov:hadRole sio:Subject ] .
+
+niiri:cd1e8e10-24a3-11f1-991c-acde48001122 a nidm:AcquisitionObject,
+        prov:Entity ;
+    crypto:sha512 "f8fc3adf97b656b02e695c4857498fcf14ea1bb5c719cf3a52db1af5968bb948338c83d5a3eb6c930d2271ab4d062bb4bad020a83e7e7557118d27501cf71734"^^xsd:string ;
+    nidm:AcquisitionObject 1 ;
+    nidm:hadAcquisitionModality nidm:MagneticResonanceImaging ;
+    nidm:hadImageContrastType nidm:DiffusionWeighted ;
+    nidm:hadImageUsageType nidm:DiffusionTensor ;
+    nfo:filename "bids::sub-01/ses-1/dwi/sub-01_ses-1_run-1_dwi.nii.gz"^^xsd:string ;
+    prov:wasGeneratedBy niiri:fd1e871c-24a3-11f1-991c-acde48001122 .
+
+niiri:dd14457c-24a3-11f1-991c-acde48001122 a onli:assessment-instrument,
+        nidm:AcquisitionObject,
+        prov:Entity ;
+    niiri:gender_q21qgi "male"^^xsd:string ;
+    niiri:group_31lr8t5 "overweight"^^xsd:string ;
+    nfo:filename "bids::participants.tsv"^^xsd:string ;
+    prov:wasGeneratedBy niiri:ad14428e-24a3-11f1-991c-acde48001122 ;
+    prov:wasInfluencedBy niiri:cd146278-24a3-11f1-991c-acde48001122 .
+
+niiri:dd567abe-24a3-11f1-991c-acde48001122 a prov:Activity ;
+    rdfs:label "Create NIDM RDF from BIDS dataset" ;
+    nidm:outputFormat "turtle" ;
+    prov:endedAtTime "2026-03-20T21:24:55.254343+00:00" ;
+    prov:startedAtTime "2026-03-20T21:24:55.254343+00:00" ;
+    prov:used niiri:f6787350-24a3-11f1-991c-acde48001122 ;
+    prov:wasAssociatedWith niiri:fd567bf4-24a3-11f1-991c-acde48001122 .
+
+niiri:ed1903c8-24a3-11f1-991c-acde48001122 a nidm:AcquisitionObject,
+        prov:Entity ;
+    crypto:sha512 "143c2cdc876dd54da4f65218b64250876e1fe8e6e4cfbff30c2658969cd24c54c8a0049559aa5aee55eaed58b6c9d2666b5a9bd436b1f55fd217672886c6aeb2"^^xsd:string ;
+    nidm:hadAcquisitionModality nidm:MagneticResonanceImaging ;
+    nidm:hadImageContrastType nidm:T1Weighted ;
+    nidm:hadImageUsageType nidm:Anatomical ;
+    nfo:filename "bids::sub-01/ses-1/anat/sub-01_ses-1_run-1_T1w.nii.gz"^^xsd:string ;
+    prov:wasGeneratedBy niiri:cd18fdd8-24a3-11f1-991c-acde48001122 .
+
+niiri:ed364f46-24a3-11f1-991c-acde48001122 a nidm:b-vector,
+        prov:Entity ;
+    crypto:sha512 "f8fc3adf97b656b02e695c4857498fcf14ea1bb5c719cf3a52db1af5968bb948338c83d5a3eb6c930d2271ab4d062bb4bad020a83e7e7557118d27501cf71734"^^xsd:string ;
+    nfo:filename "bids::sub-01/ses-1/dwi/sub-01_ses-1_run-1_dwi.bvec_image"^^xsd:string ;
+    prov:wasGeneratedBy niiri:fd1e871c-24a3-11f1-991c-acde48001122 .
+
+niiri:f6787350-24a3-11f1-991c-acde48001122 a bids:Dataset,
+        prov:Collection,
+        prov:Entity ;
+    bids:BIDSVersion "1.0.0"^^xsd:string ;
+    obo:IAO_0000324 "This data was obtained from the OpenfMRI database. Its accession number is ds000213"^^xsd:string ;
+    obo:IAO_0000623 "Chinese National Natural Science Foundation (31100758), Central Universities Fundamental Research Funds (SWU1409116), Chongqing Health Bureau Foundation (2012-2-135), Chinese National NaturalScience Foundation (31170981)"^^xsd:string ;
+    dct:license "PDDL"^^xsd:string ;
+    dcat:author "Xiao GaoXiao DengXin WenYing ShePetra Corianne VinkeHong Chen"^^xsd:string ;
+    dcat:creator "https://www.ncbi.nlm.nih.gov/pubmed/27764116"^^xsd:string ;
+    prov:hadMember niiri:ad2c5252-24a3-11f1-991c-acde48001122,
+        niiri:bd4544b0-24a3-11f1-991c-acde48001122,
+        niiri:cd146278-24a3-11f1-991c-acde48001122,
+        niiri:cd1e8e10-24a3-11f1-991c-acde48001122,
+        niiri:dd14457c-24a3-11f1-991c-acde48001122,
+        niiri:ed1903c8-24a3-11f1-991c-acde48001122,
+        niiri:ed364f46-24a3-11f1-991c-acde48001122 .
+
+niiri:fd567bf4-24a3-11f1-991c-acde48001122 a prov:SoftwareAgent ;
+    rdfs:label "PyNIDM bidsmri2nidm.py" ;
+    nidm:command "bidsmri2nidm.py" ;
+    nidm:softwareVersion "4.2.4.post13+g2632d6c" ;
+    schema:name "PyNIDM" ;
+    schema:runtimePlatform "Python 3.9.23" ;
+    schema:softwareVersion "4.2.4.post13+g2632d6c" .
+
+term_Group: a prov:Entity ;
+    rdfs:label "Group" .
+
+term_ilx_0738437: a prov:Entity ;
+    rdfs:label "gender" .
+
+niiri:ad14428e-24a3-11f1-991c-acde48001122 a onli:instrument-based-assessment,
+        nidm:Acquisition,
+        prov:Activity ;
+    dct:isPartOf niiri:bd143e1a-24a3-11f1-991c-acde48001122 ;
+    prov:qualifiedAssociation [ a prov:Association ;
+            prov:agent niiri:dd144d38-24a3-11f1-991c-acde48001122 ;
+            prov:hadRole sio:Subject ] .
+
+niiri:cd146278-24a3-11f1-991c-acde48001122 a bids:sidecar_file,
+        prov:Entity ;
+    nfo:filename "bids::participants.json"^^xsd:string ;
+    prov:wasGeneratedBy niiri:ad14428e-24a3-11f1-991c-acde48001122 .
+
+niiri:dd17ab0e-24a3-11f1-991c-acde48001122 a nidm:Session,
+        prov:Activity ;
+    bids:session_number "1"^^xsd:string ;
+    dct:isPartOf niiri:d6786900-24a3-11f1-991c-acde48001122 .
+
+nidm:PersonalDataElement rdfs:subClassOf nidm:DataElement .
+
+niiri:d6786900-24a3-11f1-991c-acde48001122 a nidm:Project,
+        prov:Activity ;
+    dctypes:title "Neural mechanism underlying appearance social comparison"^^xsd:string .
+
+niiri:dd144d38-24a3-11f1-991c-acde48001122 a prov:Agent,
+        prov:Person ;
+    ndar:src_subject_id "sub-01"^^xsd:string .
+
+niiri:fd1e871c-24a3-11f1-991c-acde48001122 a nidm:Acquisition,
+        prov:Activity ;
+    dct:isPartOf niiri:dd17ab0e-24a3-11f1-991c-acde48001122 ;
+    prov:qualifiedAssociation [ a prov:Association ;
+            prov:agent niiri:dd144d38-24a3-11f1-991c-acde48001122 ;
+            prov:hadRole sio:Subject ] .

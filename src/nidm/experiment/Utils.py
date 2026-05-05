@@ -4,6 +4,7 @@ import json
 import logging
 import os
 import sys
+from types import MethodType
 from uuid import UUID
 from cognitiveatlas.api import get_concept, get_disorder
 from datalad.support.annexrepo import AnnexRepo
@@ -20,7 +21,6 @@ from rapidfuzz import fuzz
 from rdflib import RDF, RDFS, BNode, Graph, Literal, Namespace, URIRef, util
 from rdflib.namespace import XSD, split_uri
 from rdflib.resource import Resource
-from rdflib.util import from_n3
 import requests
 import validators
 from .Acquisition import Acquisition
@@ -71,6 +71,926 @@ def safe_string(s):
     )
 
 
+def _prov_bundle_for_obj(nidm_obj):
+    """Return owning PROV bundle for either a PyNIDM wrapper or a raw pyPROV record."""
+    return getattr(nidm_obj, "graph", getattr(nidm_obj, "_bundle", None))
+
+
+def _register_loaded_record(record_map, subject_uri, nidm_obj):
+    """Register a loaded wrapper/record by RDF subject URI and identifier."""
+    if record_map is None or subject_uri is None or nidm_obj is None:
+        return
+    record_map[str(subject_uri)] = nidm_obj
+    ident = getattr(nidm_obj, "identifier", None)
+    if ident is not None:
+        record_map.setdefault(str(ident), nidm_obj)
+
+
+def _prov_identifier_for_node(node, namespaces):
+    if isinstance(node, Literal):
+        return get_RDFliteral_type(node)
+    if isinstance(node, BNode):
+        return Identifier(str(node))
+    return _safe_qname_or_identifier(node, namespaces)
+
+
+def _has_structural_prov_edge(rdf_graph, subj):
+    structural_preds = (
+        URIRef(Constants.PROV["used"]),
+        URIRef(Constants.PROV["wasAssociatedWith"]),
+        URIRef(Constants.PROV["wasGeneratedBy"]),
+        URIRef(Constants.PROV["hadMember"]),
+        URIRef(Constants.PROV["qualifiedAssociation"]),
+        URIRef(Constants.PROV["wasAttributedTo"]),
+        URIRef(Constants.PROV["wasInfluencedBy"]),
+    )
+    for pred in structural_preds:
+        if any(True for _ in rdf_graph.objects(subj, pred)):
+            return True
+        if any(True for _ in rdf_graph.subjects(pred, subj)):
+            return True
+    return False
+
+
+def _type_closure_strings(rdf_graph, subj):
+    seen = set()
+    stack = [obj for obj in rdf_graph.objects(subj, RDF.type)]
+    while stack:
+        cur = stack.pop()
+        cur_s = str(cur)
+        if cur_s in seen:
+            continue
+        seen.add(cur_s)
+        for parent in rdf_graph.objects(cur, RDFS.subClassOf):
+            stack.append(parent)
+    return seen
+
+
+def _infer_generic_prov_kind(rdf_graph, subj):
+    type_uris = _type_closure_strings(rdf_graph, subj)
+
+    is_agent = any(
+        t in type_uris
+        for t in (
+            str(Constants.PROV["SoftwareAgent"]),
+            str(Constants.PROV["Person"]),
+            str(Constants.PROV["Agent"]),
+        )
+    )
+    is_collection = any(
+        t in type_uris
+        for t in (
+            str(Constants.PROV["Collection"]),
+            str(Constants.BIDS["Dataset"]),
+        )
+    )
+    is_activity = str(Constants.PROV["Activity"]) in type_uris
+    is_entity = str(Constants.PROV["Entity"]) in type_uris or is_collection
+
+    if any(True for _ in rdf_graph.objects(subj, URIRef(Constants.PROV["used"]))):
+        is_activity = True
+    if any(
+        True
+        for _ in rdf_graph.objects(subj, URIRef(Constants.PROV["wasAssociatedWith"]))
+    ):
+        is_activity = True
+    if any(
+        True for _ in rdf_graph.subjects(URIRef(Constants.PROV["wasGeneratedBy"]), subj)
+    ):
+        is_activity = True
+
+    if any(
+        True
+        for _ in rdf_graph.subjects(URIRef(Constants.PROV["wasAssociatedWith"]), subj)
+    ):
+        is_agent = True
+
+    if any(True for _ in rdf_graph.objects(subj, URIRef(Constants.PROV["hadMember"]))):
+        is_collection = True
+        is_entity = True
+
+    if any(
+        True for _ in rdf_graph.objects(subj, URIRef(Constants.PROV["wasGeneratedBy"]))
+    ):
+        is_entity = True
+    if any(
+        True for _ in rdf_graph.objects(subj, URIRef(Constants.PROV["wasAttributedTo"]))
+    ):
+        is_entity = True
+    if any(True for _ in rdf_graph.subjects(URIRef(Constants.PROV["used"]), subj)):
+        is_entity = True
+    if any(True for _ in rdf_graph.subjects(URIRef(Constants.PROV["hadMember"]), subj)):
+        is_entity = True
+
+    if is_agent:
+        return "agent", type_uris
+    if is_collection:
+        return "collection", type_uris
+    if is_activity:
+        return "activity", type_uris
+    if is_entity:
+        return "entity", type_uris
+    return None, type_uris
+
+
+def _copy_simple_attributes_for_subject(rdf_graph, subj, namespaces, prov_obj):
+    """
+    Copy non-structural RDF predicates from subj onto the created pyPROV object.
+    Skip core typing/edge predicates that we rebuild explicitly.
+    """
+    skip_preds = {
+        str(RDF.type),
+        str(Constants.PROV["used"]),
+        str(Constants.PROV["wasAssociatedWith"]),
+        str(Constants.PROV["wasGeneratedBy"]),
+        str(Constants.PROV["hadMember"]),
+        str(Constants.PROV["qualifiedAssociation"]),
+        str(Constants.DCT["isPartOf"]),
+    }
+
+    for pred, obj in rdf_graph.predicate_objects(subject=subj):
+        if str(pred) in skip_preds:
+            continue
+
+        pred_obj = _predicate_to_prov(pred, namespaces)
+
+        if isinstance(obj, BNode):
+            try:
+                prov_obj.add_attributes({pred_obj: Identifier(str(obj))})
+            except Exception:
+                pass
+            _copy_bnode_metadata(rdf_graph, obj, namespaces, prov_obj)
+            continue
+
+        obj_val = _object_to_prov_value(obj, namespaces)
+        if obj_val is None:
+            continue
+
+        try:
+            prov_obj.add_attributes({pred_obj: obj_val})
+        except Exception:
+            try:
+                prov_obj.add_attributes({Identifier(str(pred)): obj_val})
+            except Exception:
+                pass
+
+
+def _apply_extra_rdf_types_for_subject(
+    rdf_graph, subj, namespaces, prov_obj, type_uris=None
+):
+    """
+    Preserve extra rdf:type assertions not implied by the pyPROV constructor.
+    This is especially important for prov:SoftwareAgent and bids:Dataset.
+    """
+    if type_uris is None:
+        type_uris = {str(o) for o in rdf_graph.objects(subj, RDF.type)}
+
+    implied_types = set()
+    if str(Constants.PROV["Activity"]) in type_uris:
+        implied_types.add(str(Constants.PROV["Activity"]))
+    if (
+        str(Constants.PROV["Agent"]) in type_uris
+        or str(Constants.PROV["Person"]) in type_uris
+        or str(Constants.PROV["SoftwareAgent"]) in type_uris
+    ):
+        implied_types.add(str(Constants.PROV["Agent"]))
+    if (
+        str(Constants.PROV["Collection"]) in type_uris
+        or str(Constants.BIDS["Dataset"]) in type_uris
+    ):
+        implied_types.add(str(Constants.PROV["Entity"]))
+        implied_types.add(str(Constants.PROV["Collection"]))
+    if str(Constants.PROV["Entity"]) in type_uris:
+        implied_types.add(str(Constants.PROV["Entity"]))
+
+    for type_uri in rdf_graph.objects(subj, RDF.type):
+        type_str = str(type_uri)
+        if type_str in implied_types:
+            continue
+        try:
+            prov_obj.add_attributes(
+                {
+                    Identifier(str(RDF.type)): _safe_qname_or_identifier(
+                        type_uri, namespaces
+                    )
+                }
+            )
+        except Exception:
+            pass
+
+
+def _ensure_generic_prov_record(
+    project, rdf_graph, subj, namespaces, cache, record_map=None
+):
+    """
+    Create a generic pyPROV record for subjects not already instantiated by the
+    specialized read_nidm() logic.
+    """
+    sid = str(subj)
+
+    if record_map is not None and sid in record_map:
+        rec = record_map[sid]
+        try:
+            type_uris = {str(o) for o in rdf_graph.objects(subj, RDF.type)}
+            _copy_simple_attributes_for_subject(rdf_graph, subj, namespaces, rec)
+            _apply_extra_rdf_types_for_subject(
+                rdf_graph, subj, namespaces, rec, type_uris=type_uris
+            )
+        except Exception:
+            pass
+        return rec
+
+    if sid in cache:
+        rec = cache[sid]
+        try:
+            type_uris = {str(o) for o in rdf_graph.objects(subj, RDF.type)}
+            _copy_simple_attributes_for_subject(rdf_graph, subj, namespaces, rec)
+            _apply_extra_rdf_types_for_subject(
+                rdf_graph, subj, namespaces, rec, type_uris=type_uris
+            )
+        except Exception:
+            pass
+        return rec
+
+    prov_graph = project.graph
+
+    kind, type_uris = _infer_generic_prov_kind(rdf_graph, subj)
+
+    existing = _record_by_id(prov_graph, subj)
+    if existing is not None:
+        _copy_simple_attributes_for_subject(rdf_graph, subj, namespaces, existing)
+        _apply_extra_rdf_types_for_subject(
+            rdf_graph, subj, namespaces, existing, type_uris=type_uris
+        )
+        cache[sid] = existing
+        if record_map is not None:
+            record_map[sid] = existing
+        return existing
+
+    # Do not generically recreate things already handled by specialized readers.
+    skip_types = {
+        str(Constants.NIDM_PROJECT.uri),
+        str(Constants.NIDM_SESSION.uri),
+        str(Constants.NIDM_ACQUISITION_ACTIVITY.uri),
+        str(Constants.NIDM_ACQUISITION_ENTITY.uri),
+        str(Constants.NIDM_ASSESSMENT_ACQUISITION.uri),
+        str(Constants.NIDM_ASSESSMENT_ENTITY.uri),
+        str(Constants.NIDM_DEMOGRAPHICS_ENTITY.uri),
+        str(Constants.NIDM_DATAELEMENT.uri),
+    }
+    if type_uris & skip_types:
+        return None
+
+    ident = _safe_qname_or_identifier(subj, namespaces)
+
+    if kind == "agent":
+        rec = prov_graph.agent(ident)
+    elif kind == "collection":
+        try:
+            rec = prov_graph.collection(ident)
+        except Exception:
+            rec = prov_graph.entity(ident)
+    elif kind == "activity":
+        rec = prov_graph.activity(ident)
+    else:
+        rec = prov_graph.entity(ident)
+
+    _copy_simple_attributes_for_subject(rdf_graph, subj, namespaces, rec)
+    _apply_extra_rdf_types_for_subject(
+        rdf_graph, subj, namespaces, rec, type_uris=type_uris
+    )
+
+    cache[sid] = rec
+    if record_map is not None:
+        record_map[sid] = rec
+    return rec
+
+
+def _import_unmodeled_prov_branch(project, rdf_graph, record_map=None):
+    """
+    Import generic PROV nodes and edges that the specialized NIDM readers do not
+    reconstruct, such as export provenance from bidsmri2nidm.py.
+    """
+    namespaces = project.graph.namespaces
+    cache = {}
+
+    candidates = set()
+
+    # Seed candidates from typed subjects, labels, and structural PROV edges.
+    for subj in set(rdf_graph.subjects(predicate=RDF.type)):
+        kind, _ = _infer_generic_prov_kind(rdf_graph, subj)
+        if kind is not None:
+            candidates.add(subj)
+
+    for subj in set(rdf_graph.subjects(predicate=RDFS.label)) | set(
+        rdf_graph.subjects(predicate=URIRef(Constants.PROV["label"]))
+    ):
+        kind, _ = _infer_generic_prov_kind(rdf_graph, subj)
+        if kind is not None or _has_structural_prov_edge(rdf_graph, subj):
+            candidates.add(subj)
+
+    structural_preds = (
+        URIRef(Constants.PROV["used"]),
+        URIRef(Constants.PROV["wasAssociatedWith"]),
+        URIRef(Constants.PROV["wasGeneratedBy"]),
+        URIRef(Constants.PROV["hadMember"]),
+        URIRef(Constants.PROV["qualifiedAssociation"]),
+    )
+    for pred in structural_preds:
+        for subj, obj in rdf_graph.subject_objects(pred):
+            if not isinstance(subj, BNode):
+                candidates.add(subj)
+            if not isinstance(obj, BNode):
+                candidates.add(obj)
+
+    for subj in candidates:
+        _ensure_generic_prov_record(
+            project, rdf_graph, subj, namespaces, cache, record_map=record_map
+        )
+
+    prov_graph = project.graph
+
+    def _get(node):
+        if record_map is not None and str(node) in record_map:
+            return record_map[str(node)]
+        rec = _record_by_id(prov_graph, node)
+        if rec is None:
+            rec = _ensure_generic_prov_record(
+                project, rdf_graph, node, namespaces, cache, record_map=record_map
+            )
+        return rec
+
+    for subj in candidates:
+        subj_rec = _get(subj)
+        if subj_rec is None:
+            continue
+
+        for obj in rdf_graph.objects(subj, URIRef(Constants.PROV["used"])):
+            obj_rec = _get(obj)
+            if obj_rec is not None:
+                subj_id = getattr(subj_rec, "identifier", subj_rec)
+                obj_id = getattr(obj_rec, "identifier", obj_rec)
+                try:
+                    prov_graph.used(subj_id, obj_id)
+                except Exception as e:
+                    logger.warning(
+                        "generic PROV used() failed for %s -> %s: %s",
+                        subj_id,
+                        obj_id,
+                        e,
+                    )
+
+        for obj in rdf_graph.objects(subj, URIRef(Constants.PROV["wasAssociatedWith"])):
+            obj_rec = _get(obj)
+            if obj_rec is not None:
+                subj_id = getattr(subj_rec, "identifier", subj_rec)
+                obj_id = getattr(obj_rec, "identifier", obj_rec)
+                try:
+                    prov_graph.wasAssociatedWith(subj_id, obj_id)
+                except Exception as e:
+                    logger.warning(
+                        "generic PROV wasAssociatedWith() failed for %s -> %s: %s",
+                        subj_id,
+                        obj_id,
+                        e,
+                    )
+
+        for obj in rdf_graph.objects(subj, URIRef(Constants.PROV["hadMember"])):
+            obj_rec = _get(obj)
+            if obj_rec is not None:
+                subj_id = getattr(subj_rec, "identifier", subj_rec)
+                obj_id = getattr(obj_rec, "identifier", obj_rec)
+                try:
+                    prov_graph.hadMember(subj_id, obj_id)
+                except Exception as e:
+                    logger.warning(
+                        "generic PROV hadMember() failed for %s -> %s: %s",
+                        subj_id,
+                        obj_id,
+                        e,
+                    )
+
+        for obj in rdf_graph.objects(subj, URIRef(Constants.PROV["wasGeneratedBy"])):
+            obj_rec = _get(obj)
+            if obj_rec is not None:
+                subj_id = getattr(subj_rec, "identifier", subj_rec)
+                obj_id = getattr(obj_rec, "identifier", obj_rec)
+                try:
+                    prov_graph.wasGeneratedBy(subj_id, obj_id)
+                except Exception as e:
+                    logger.warning(
+                        "generic PROV wasGeneratedBy() failed for %s -> %s: %s",
+                        subj_id,
+                        obj_id,
+                        e,
+                    )
+
+
+def _record_by_id(prov_graph, identifier):
+    """Return the first PROV record with this identifier, or None."""
+    ident_str = str(identifier)
+    try:
+        for rec in prov_graph.get_records():
+            rec_id = getattr(rec, "identifier", None)
+            if rec_id is not None and str(rec_id) == ident_str:
+                return rec
+    except Exception:
+        pass
+    return None
+
+
+def _has_existing_qualified_association(nidm_obj, agent_identifier, role_value):
+    """
+    Return True if nidm_obj already has a qualifiedAssociation with the same
+    agent and role.
+    """
+    prov_bundle = getattr(nidm_obj, "graph", getattr(nidm_obj, "_bundle", None))
+    subj_id = getattr(nidm_obj, "identifier", None)
+
+    if prov_bundle is None or subj_id is None:
+        return False
+
+    # Work directly from existing RDF records on the object if available
+    try:
+        attrs = list(getattr(nidm_obj, "attributes", []))
+        # If this object already directly stores the same agent/role pair in a way
+        # that add_qualified_association would duplicate, skip it.
+        has_agent = False
+        has_role = False
+        for attr_name, attr_val in attrs:
+            if str(attr_name) == str(Constants.PROV["agent"]) and str(attr_val) == str(
+                agent_identifier
+            ):
+                has_agent = True
+            if str(attr_name) == str(Constants.PROV["hadRole"]) and str(
+                attr_val
+            ) == str(role_value):
+                has_role = True
+        if has_agent and has_role:
+            return True
+    except Exception:
+        pass
+
+    # Conservative deduplication: inspect existing serialized provenance around the subject
+    try:
+        for rec in prov_bundle.get_records():
+            rec_id = getattr(rec, "identifier", None)
+            if rec_id is None:
+                continue
+            if str(rec_id) != str(subj_id):
+                continue
+
+            attrs = list(getattr(rec, "attributes", []))
+            has_agent = False
+            has_role = False
+            for attr_name, attr_val in attrs:
+                if str(attr_name) == str(Constants.PROV["agent"]) and str(
+                    attr_val
+                ) == str(agent_identifier):
+                    has_agent = True
+                if str(attr_name) == str(Constants.PROV["hadRole"]) and str(
+                    attr_val
+                ) == str(role_value):
+                    has_role = True
+            if has_agent and has_role:
+                return True
+    except Exception:
+        pass
+
+    # Last resort: if object already has a qualifiedAssociation method and a cached
+    # association list, try to inspect it. Keep this best-effort and non-fatal.
+    for attr_name in (
+        "qualified_associations",
+        "_qualified_associations",
+        "associations",
+        "_associations",
+    ):
+        try:
+            existing = getattr(nidm_obj, attr_name, None)
+            if not existing:
+                continue
+            for assoc in existing:
+                try:
+                    agent = getattr(assoc, "person", getattr(assoc, "agent", None))
+                    role = getattr(assoc, "role", None)
+                    agent_id = getattr(agent, "identifier", agent)
+                    if str(agent_id) == str(agent_identifier) and str(role) == str(
+                        role_value
+                    ):
+                        return True
+                except Exception:
+                    continue
+        except Exception:
+            continue
+
+    return False
+
+
+def _safe_role_value(role_identifier, namespaces):
+    try:
+        obj_nm, obj_term = split_uri(role_identifier)
+        found_uri, found_nm = find_in_namespaces(
+            search_uri=URIRef(obj_nm), namespaces=namespaces
+        )
+        if found_uri:
+            return pm.QualifiedName(found_nm, obj_term)
+    except Exception:
+        pass
+
+    try:
+        found_uri, found_nm = find_in_namespaces(
+            search_uri=URIRef(str(role_identifier)), namespaces=namespaces
+        )
+        if found_uri:
+            return pm.QualifiedName(found_nm, "")
+    except Exception:
+        pass
+
+    return Identifier(str(role_identifier))
+
+
+def _safe_qname_or_identifier(value, namespaces):
+    try:
+        nm, term = split_uri(value)
+        found_uri, found_nm = find_in_namespaces(
+            search_uri=URIRef(nm), namespaces=namespaces
+        )
+        if found_uri:
+            return pm.QualifiedName(found_nm, term)
+    except Exception:
+        pass
+
+    try:
+        found_uri, found_nm = find_in_namespaces(
+            search_uri=URIRef(str(value)), namespaces=namespaces
+        )
+        if found_uri:
+            return pm.QualifiedName(found_nm, "")
+    except Exception:
+        pass
+
+    return Identifier(str(value))
+
+
+def _predicate_to_prov(predicate, namespaces):
+    try:
+        pred_nm, pred_term = split_uri(predicate)
+
+        if str(pred_nm) == str(Constants.PROV):
+            return QualifiedName(
+                localpart=pred_term,
+                namespace=provNamespace("prov", str(Constants.PROV)),
+            )
+
+        found_uri, found_nm = find_in_namespaces(
+            search_uri=URIRef(pred_nm), namespaces=namespaces
+        )
+        if found_uri:
+            return pm.QualifiedName(found_nm, pred_term)
+    except Exception:
+        pass
+
+    return Identifier(str(predicate))
+
+
+def _object_to_prov_value(objects, namespaces):
+    if str(objects) in (
+        str(Constants.PROV["Activity"]),
+        str(Constants.PROV["Agent"]),
+        str(Constants.PROV["Entity"]),
+    ):
+        return None
+
+    if isinstance(objects, Literal):
+        return get_RDFliteral_type(objects)
+
+    if isinstance(objects, URIRef):
+        return _safe_qname_or_identifier(objects, namespaces)
+
+    if isinstance(objects, BNode):
+        return Identifier(str(objects))
+
+    if validators.url(str(objects)):
+        return Identifier(str(objects))
+
+    return get_RDFliteral_type(objects)
+
+
+def _copy_bnode_metadata(rdf_graph, bnode, namespaces, nidm_obj, seen=None):
+    """
+    Recursively copy metadata hanging off a blank node onto nidm_obj.
+    This preserves those values in the object model for querying, while the
+    original blank-node RDF structure is preserved losslessly by the serializer.
+    """
+    if seen is None:
+        seen = set()
+
+    bkey = str(bnode)
+    if bkey in seen:
+        return
+    seen.add(bkey)
+
+    for pred, obj in rdf_graph.predicate_objects(subject=bnode):
+        pred_obj = _predicate_to_prov(pred, namespaces)
+
+        if isinstance(obj, BNode):
+            try:
+                nidm_obj.add_attributes({pred_obj: Identifier(str(obj))})
+            except Exception:
+                pass
+            _copy_bnode_metadata(rdf_graph, obj, namespaces, nidm_obj, seen=seen)
+        else:
+            obj_val = _object_to_prov_value(obj, namespaces)
+            if obj_val is None:
+                continue
+            try:
+                nidm_obj.add_attributes({pred_obj: obj_val})
+            except Exception:
+                try:
+                    nidm_obj.add_attributes({Identifier(str(pred)): obj_val})
+                except Exception:
+                    pass
+
+
+def _rdflib_graph_from_prov_graph(prov_graph, rdf_format="ttl"):
+    """
+    Serialize a pyPROV graph to an RDFLib graph.
+    """
+    g = Graph()
+    try:
+        data = prov_graph._prov_serialize_original(
+            None, format="rdf", rdf_format=rdf_format
+        )
+    except AttributeError:
+        data = prov_graph.serialize(None, format="rdf", rdf_format=rdf_format)
+    g.parse(data=data, format=rdf_format)
+
+    try:
+        for subj, obj in list(g.subject_objects(URIRef(Constants.PROV["label"]))):
+            if (subj, RDFS.label, obj) not in g:
+                g.add((subj, RDFS.label, obj))
+    except Exception:
+        pass
+
+    return g
+
+
+def normalize_prov_graph_namespaces(prov_graph):
+    """
+    Compatibility helper used by Core.save_DotGraph().
+
+    Ensure namespace records on the pyPROV graph are normalized/deduplicated so
+    downstream visualization code can render QName-style identifiers reliably.
+
+    This is intentionally conservative: it preserves the graph and only
+    re-adds namespace bindings in a stable way when possible.
+    """
+    try:
+        seen = set()
+        normalized = []
+
+        for ns in getattr(prov_graph, "namespaces", []):
+            try:
+                key = (str(ns.prefix), str(ns.uri))
+                if key not in seen:
+                    seen.add(key)
+                    normalized.append(ns)
+            except Exception:
+                continue
+
+        # If pyPROV stores namespaces as a mutable list, replace with deduped copy.
+        try:
+            prov_graph.namespaces = normalized
+        except Exception:
+            pass
+
+        # Also try to re-register them through the graph API if available.
+        for ns in normalized:
+            try:
+                prov_graph.add_namespace(ns.prefix, ns.uri)
+            except Exception:
+                pass
+
+    except Exception:
+        # Visualization should not fail just because namespace normalization
+        # could not be applied.
+        pass
+
+    return prov_graph
+
+
+def add_export_provenance(
+    rdf_graph,
+    collection,
+    outputfile,
+    pynidm_version,
+    script_name,
+    activity_label,
+    tool_version=None,
+    output_format="turtle",
+):
+    """Add provenance triples describing the tool run that produced this NIDM file.
+
+    This is a shared utility used by bidsmri2nidm, csv2nidm, and any other
+    PyNIDM tool that writes NIDM RDF.
+
+    :param rdf_graph: rdflib.Graph to add provenance triples to
+    :param collection: prov Collection / Entity that was used as input (or None)
+    :param outputfile: path to the output file being written
+    :param pynidm_version: PyNIDM library version string (from nidm.__version__)
+    :param script_name: name of the calling script (e.g. "csv2nidm.py")
+    :param activity_label: human-readable label for the export activity
+        (e.g. "Add CSV data to NIDM file")
+    :param tool_version: version of the calling tool/script (optional; if None,
+        falls back to pynidm_version for backwards compatibility)
+    :param output_format: serialization format label (default "turtle")
+    :return: the rdf_graph (modified in place)
+    """
+    from datetime import datetime, timezone
+    import platform
+    from nidm.experiment.Core import getUUID
+
+    prov_ns = Namespace("http://www.w3.org/ns/prov#")
+    rdfs_ns = Namespace("http://www.w3.org/2000/01/rdf-schema#")
+    dct_ns = Namespace("http://purl.org/dc/terms/")
+    schema_ns = Namespace("https://schema.org/")
+    nfo_ns = Namespace("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#")
+    nidm_ns = Namespace("http://purl.org/nidash/nidm#")
+
+    export_activity = Constants.NIIRI[getUUID()]
+    tool_agent = Constants.NIIRI[getUUID()]  # the specific script (e.g. bidsmri2nidm)
+    library_agent = Constants.NIIRI[getUUID()]  # the PyNIDM library
+    output_entity = Constants.NIIRI[getUUID()]
+
+    timestamp = datetime.now(timezone.utc).isoformat()
+    python_version = platform.python_version()
+    output_basename = os.path.basename(outputfile)
+    tool_label = script_name.removesuffix(".py")  # e.g. "bidsmri2nidm"
+
+    rdf_graph.add((export_activity, RDF.type, prov_ns["Activity"]))
+    rdf_graph.add((export_activity, rdfs_ns["label"], Literal(activity_label)))
+    rdf_graph.add((export_activity, prov_ns["startedAtTime"], Literal(timestamp)))
+    rdf_graph.add((export_activity, prov_ns["endedAtTime"], Literal(timestamp)))
+    rdf_graph.add((export_activity, nidm_ns["outputFormat"], Literal(output_format)))
+
+    # Tool agent: the specific script that was invoked
+    rdf_graph.add((tool_agent, RDF.type, prov_ns["SoftwareAgent"]))
+    rdf_graph.add((tool_agent, rdfs_ns["label"], Literal(tool_label)))
+    rdf_graph.add((tool_agent, nidm_ns["command"], Literal(script_name)))
+    rdf_graph.add(
+        (
+            tool_agent,
+            schema_ns["softwareVersion"],
+            Literal(tool_version if tool_version is not None else pynidm_version),
+        )
+    )
+    rdf_graph.add(
+        (
+            tool_agent,
+            schema_ns["runtimePlatform"],
+            Literal(f"Python {python_version}"),
+        )
+    )
+    # schema:isPartOf links the tool to its parent library
+    rdf_graph.add((tool_agent, schema_ns["isPartOf"], library_agent))
+
+    # Library agent: the PyNIDM package that contains the tool
+    rdf_graph.add((library_agent, RDF.type, prov_ns["SoftwareAgent"]))
+    rdf_graph.add((library_agent, rdfs_ns["label"], Literal("PyNIDM")))
+    rdf_graph.add(
+        (
+            library_agent,
+            schema_ns["softwareVersion"],
+            Literal(pynidm_version),
+        )
+    )
+
+    rdf_graph.add((output_entity, RDF.type, prov_ns["Entity"]))
+    rdf_graph.add((output_entity, rdfs_ns["label"], Literal("NIDM RDF document")))
+    rdf_graph.add((output_entity, nfo_ns["filename"], Literal(output_basename)))
+    rdf_graph.add((output_entity, dct_ns["format"], Literal(output_format)))
+    rdf_graph.add((output_entity, nidm_ns["outputFormat"], Literal(output_format)))
+
+    rdf_graph.add((output_entity, prov_ns["wasGeneratedBy"], export_activity))
+    rdf_graph.add((export_activity, prov_ns["wasAssociatedWith"], tool_agent))
+
+    if collection is not None:
+        collection_id = getattr(collection, "identifier", collection)
+        if isinstance(collection_id, (URIRef, BNode, Literal)):
+            collection_node = collection_id
+        else:
+            collection_str = str(collection_id)
+            if collection_str.startswith("niiri:"):
+                collection_node = Constants.NIIRI[collection_str.split(":", 1)[1]]
+            else:
+                collection_node = URIRef(collection_str)
+        rdf_graph.add((export_activity, prov_ns["used"], collection_node))
+
+    return rdf_graph
+
+
+def _install_lossless_serialize(
+    prov_graph, original_rdf_graph, original_text=None, original_format="turtle"
+):
+    """
+    Make prov_graph.serialize(format='rdf', rdf_format='ttl') as lossless as possible.
+
+    Behavior:
+    - If there are no post-read modifications relative to the baseline object graph,
+      return the ORIGINAL Turtle text byte-for-byte (preserves qnames, prefix names,
+      blank-node labels, angle-bracket rendering, etc.).
+    - If there are modifications, start from the ORIGINAL parsed RDF graph and apply
+      only the delta between the current object-generated graph and the baseline graph.
+      Reuse the original namespace bindings/order when serializing.
+    """
+    if getattr(prov_graph, "_lossless_serialize_installed", False):
+        return prov_graph
+
+    prov_graph._prov_serialize_original = prov_graph.serialize
+    prov_graph._original_rdf_graph = Graph()
+    for t in original_rdf_graph:
+        prov_graph._original_rdf_graph.add(t)
+
+    prov_graph._original_namespaces = list(original_rdf_graph.namespaces())
+    prov_graph._original_text = original_text
+    prov_graph._original_format = original_format
+
+    # Capture baseline object-generated graph after read_nidm() construction is complete
+    try:
+        prov_graph._baseline_rdf_graph = _rdflib_graph_from_prov_graph(prov_graph)
+    except Exception:
+        prov_graph._baseline_rdf_graph = Graph()
+
+    def _serialize_lossless(
+        self, destination=None, serialization_format="rdf", rdf_format="ttl", **kwargs
+    ):
+        # Only intercept RDF serialization; defer everything else to pyPROV.
+        if serialization_format != "rdf":
+            return self._prov_serialize_original(
+                destination,
+                format=serialization_format,
+                rdf_format=rdf_format,
+                **kwargs,
+            )
+
+        try:
+            current_graph = _rdflib_graph_from_prov_graph(self, rdf_format=rdf_format)
+        except Exception:
+            current_graph = Graph()
+
+        baseline = getattr(self, "_baseline_rdf_graph", Graph())
+        current_triples = set(current_graph)
+        baseline_triples = set(baseline)
+
+        delta_added = current_triples - baseline_triples
+        delta_removed = baseline_triples - current_triples
+
+        # If nothing changed after read_nidm(), return original text exactly.
+        if not delta_added and not delta_removed:
+            original_text_local = getattr(self, "_original_text", None)
+            if original_text_local is not None and str(rdf_format).lower() in (
+                "ttl",
+                "turtle",
+            ):
+                if destination is None:
+                    return original_text_local
+                with open(destination, "w", encoding="utf-8") as f:
+                    f.write(original_text_local)
+                return None
+
+        # Otherwise: start from the original parsed graph and apply only the object-model delta.
+        merged = Graph()
+
+        # Preserve original namespace bindings/order as much as RDFLib allows.
+        for prefix, ns in getattr(self, "_original_namespaces", []):
+            try:
+                if prefix is not None:
+                    merged.bind(prefix, ns, override=True, replace=True)
+            except Exception:
+                pass
+
+        for t in self._original_rdf_graph:
+            merged.add(t)
+
+        for t in delta_removed:
+            try:
+                merged.remove(t)
+            except Exception:
+                pass
+
+        for t in delta_added:
+            merged.add(t)
+
+        if destination is None:
+            return merged.serialize(format=rdf_format)
+        merged.serialize(destination=destination, format=rdf_format)
+        return None
+
+    prov_graph.serialize = MethodType(_serialize_lossless, prov_graph)
+    prov_graph._lossless_serialize_installed = True
+    return prov_graph
+
+
 def read_nidm(nidmDoc):
     """
     Loads nidmDoc file into NIDM-Experiment structures and returns objects
@@ -81,9 +1001,21 @@ def read_nidm(nidmDoc):
 
     """
 
+    original_guess_format = util.guess_format(nidmDoc)
+    original_text = None
+    if str(original_guess_format).lower() in ("ttl", "turtle"):
+        try:
+            with open(nidmDoc, "r", encoding="utf-8") as f:
+                original_text = f.read()
+        except Exception:
+            original_text = None
+
     # read RDF file into temporary graph
     rdf_graph = Graph()
-    rdf_graph_parse = rdf_graph.parse(nidmDoc, format=util.guess_format(nidmDoc))
+    rdf_graph_parse = rdf_graph.parse(nidmDoc, format=original_guess_format)
+
+    # registry of RDF subject URI -> loaded wrapper/record
+    record_map = {}
 
     # Query graph for project metadata and create project level objects
     # Get subject URI for project
@@ -127,6 +1059,7 @@ def read_nidm(nidmDoc):
         add_metadata_for_subject(
             rdf_graph_parse, proj_id, project.graph.namespaces, project
         )
+        _register_loaded_record(record_map, proj_id, project)
 
     # Query graph for sessions, instantiate session objects, and add to project._session list
     # Get subject URI for sessions
@@ -149,6 +1082,7 @@ def read_nidm(nidmDoc):
         # now get remaining metadata in session object and add to session
         # Cycle through Session metadata adding to prov graph
         add_metadata_for_subject(rdf_graph_parse, s, project.graph.namespaces, session)
+        _register_loaded_record(record_map, s, session)
 
         # Query graph for acquisitions dct:isPartOf the session
         for acq in rdf_graph_parse.subjects(
@@ -193,6 +1127,7 @@ def read_nidm(nidmDoc):
                                     project.graph.namespaces,
                                     acquisition,
                                 )
+                                _register_loaded_record(record_map, acq, acquisition)
 
                             # and add acquisition object
                             acquisition_obj = MRObject(
@@ -207,6 +1142,9 @@ def read_nidm(nidmDoc):
                                 acq_obj,
                                 project.graph.namespaces,
                                 acquisition_obj,
+                            )
+                            _register_loaded_record(
+                                record_map, acq_obj, acquisition_obj
                             )
 
                             # MRI acquisitions may have an associated stimulus file so let's see if there is an entity
@@ -238,6 +1176,9 @@ def read_nidm(nidmDoc):
                                         project.graph.namespaces,
                                         events_obj,
                                     )
+                                    _register_loaded_record(
+                                        record_map, assoc_acq, events_obj
+                                    )
 
                         elif (
                             acq_obj,
@@ -256,6 +1197,7 @@ def read_nidm(nidmDoc):
                                     project.graph.namespaces,
                                     acquisition,
                                 )
+                                _register_loaded_record(record_map, acq, acquisition)
 
                             # and add acquisition object
                             acquisition_obj = AcquisitionObject(
@@ -268,6 +1210,9 @@ def read_nidm(nidmDoc):
                                 acq_obj,
                                 project.graph.namespaces,
                                 acquisition_obj,
+                            )
+                            _register_loaded_record(
+                                record_map, acq_obj, acquisition_obj
                             )
 
                         # check if this is a PET acquisition object
@@ -286,6 +1231,7 @@ def read_nidm(nidmDoc):
                                     project.graph.namespaces,
                                     acquisition,
                                 )
+                                _register_loaded_record(record_map, acq, acquisition)
 
                             # and add acquisition object
                             acquisition_obj = PETObject(
@@ -300,6 +1246,9 @@ def read_nidm(nidmDoc):
                                 acq_obj,
                                 project.graph.namespaces,
                                 acquisition_obj,
+                            )
+                            _register_loaded_record(
+                                record_map, acq_obj, acquisition_obj
                             )
 
                         # query whether this is an assessment acquisition by way of looking at the generated entity and determining
@@ -336,6 +1285,9 @@ def read_nidm(nidmDoc):
                                 project.graph.namespaces,
                                 acquisition_obj,
                             )
+                            _register_loaded_record(
+                                record_map, acq_obj, acquisition_obj
+                            )
                         # if this is a DWI scan then we could have b-value and b-vector files associated
                         elif (
                             (
@@ -363,6 +1315,7 @@ def read_nidm(nidmDoc):
                                     project.graph.namespaces,
                                     acquisition,
                                 )
+                                _register_loaded_record(record_map, acq, acquisition)
 
                             # and add acquisition object
                             acquisition_obj = AcquisitionObject(
@@ -375,6 +1328,9 @@ def read_nidm(nidmDoc):
                                 acq_obj,
                                 project.graph.namespaces,
                                 acquisition_obj,
+                            )
+                            _register_loaded_record(
+                                record_map, acq_obj, acquisition_obj
                             )
 
                 # This skips rdf_type PROV['Activity']
@@ -398,11 +1354,37 @@ def read_nidm(nidmDoc):
         # print(f"Reading data element: {row}")
         # instantiate a data element class assigning it the existing uuid
         obj_nm, obj_term = split_uri(row["uuid"])
-        de = DataElement(project=project, uuid=obj_term, add_default_type=False)
+
+        # Resolve the original namespace so the DataElement identifier is
+        # lossless (e.g. fmriprep:csf_mean stays fmriprep:, not niiri:).
+        de_ns = None
+        if str(obj_nm) != str(Constants.NIIRI):
+            found_uri, found_nm = find_in_namespaces(
+                search_uri=URIRef(obj_nm), namespaces=project.graph.namespaces
+            )
+            if found_uri:
+                de_ns = found_nm
+            else:
+                # Namespace not yet registered — create one from the prefix
+                # used in the RDF file.
+                for prefix, ns_uri in rdf_graph_parse.namespaces():
+                    if str(ns_uri) == str(obj_nm):
+                        de_ns = pm.Namespace(prefix, str(obj_nm))
+                        break
+                if de_ns is None:
+                    de_ns = pm.Namespace("ns_" + obj_term, str(obj_nm))
+
+        de = DataElement(
+            project=project,
+            uuid=obj_term,
+            add_default_type=False,
+            namespace=de_ns,
+        )
         # get the rest of the attributes for this data element and store
         add_metadata_for_subject(
             rdf_graph_parse, row["uuid"], project.graph.namespaces, de
         )
+        _register_loaded_record(record_map, row["uuid"], de)
 
         # now we need to check if there are labels for data element isAbout entries, if so add them.
         query2 = f"""
@@ -508,6 +1490,7 @@ def read_nidm(nidmDoc):
             add_metadata_for_subject(
                 rdf_graph_parse, row["parent_act"], project.graph.namespaces, deriv_act
             )
+            _register_loaded_record(record_map, row["parent_act"], deriv_act)
         else:
             for d in project.get_derivatives:
                 if row["parent_act"] == d.get_uuid():
@@ -522,6 +1505,32 @@ def read_nidm(nidmDoc):
         add_metadata_for_subject(
             rdf_graph_parse, row["uuid"], project.graph.namespaces, deriv_obj
         )
+        _register_loaded_record(record_map, row["uuid"], deriv_obj)
+
+    # Import generic PROV records not covered by the specialized NIDM object readers.
+    try:
+        _import_unmodeled_prov_branch(project, rdf_graph_parse, record_map=record_map)
+    except Exception as e:
+        logger.warning("Failed importing generic PROV branch for visualization: %s", e)
+
+    _install_lossless_serialize(
+        project.graph,
+        rdf_graph_parse,
+        original_text=original_text,
+        original_format=original_guess_format,
+    )
+
+    # Make project.serializeTurtle() use the lossless graph serializer too.
+    try:
+
+        def _project_serialize_turtle_lossless(self):
+            return self.graph.serialize(None, format="rdf", rdf_format="ttl")
+
+        project.serializeTurtle = MethodType(
+            _project_serialize_turtle_lossless, project
+        )
+    except Exception:
+        pass
 
     return project
 
@@ -557,215 +1566,77 @@ def find_in_namespaces(search_uri, namespaces):
 
 def add_metadata_for_subject(rdf_graph, subject_uri, namespaces, nidm_obj):
     """
-    Cycles through triples for a particular subject and adds them to the nidm_obj
-
-    :param rdf_graph: RDF graph object
-    :param subject_uri: URI of subject to query for additional metadata
-    :param namespaces: Namespaces in input graph
-    :param nidm_obj: NIDM object to add metadata
-    :return: None
-
+    Cycles through triples for a particular subject and adds them to the nidm_obj.
+    This preserves metadata in the object model while leaving lossless RDF tuple
+    fidelity to the serializer installed by read_nidm().
     """
-    # Cycle through remaining metadata and add attributes
     for predicate, objects in rdf_graph.predicate_objects(subject=subject_uri):
-        # if this isn't a qualified association, add triples
-        if predicate != URIRef(Constants.PROV["qualifiedAssociation"]):
-            # make predicate a qualified name
-            pred_nm, pred_term = split_uri(predicate)
-            found_uri, found_nm = find_in_namespaces(
-                search_uri=URIRef(pred_nm), namespaces=namespaces
-            )
-            # if obj_nm is not in namespaces then it must just be part of some URI in the triple
-            # so just add it as a prov.Identifier..note, prov and xsd namespaces automatically added from
-            # inheritance of provDocument
-            if (
-                (not found_uri)
-                and (pred_nm != Constants.PROV)
-                and (pred_nm != Constants.XSD)
-            ):
-                predicate = pm.QualifiedName(
-                    namespace=Namespace(str(predicate)), localpart=""
-                )
-            # else add as explicit prov.QualifiedName because it's easier to read
-            # else:
-            #    predicate = Identifier(predicate)
-            if (validators.url(objects)) and (predicate != Constants.PROV["Location"]):
-                # try to split the URI to namespace and local parts, if fails just use the entire URI.
+        if predicate == URIRef(Constants.PROV["qualifiedAssociation"]):
+            continue
+
+        pred_obj = _predicate_to_prov(predicate, namespaces)
+
+        if isinstance(objects, BNode):
+            try:
+                nidm_obj.add_attributes({pred_obj: Identifier(str(objects))})
+            except Exception:
                 try:
-                    # create qualified names for objects
-                    obj_nm, obj_term = split_uri(objects)
-
-                    # added because PyNIDM agent, activity, and entity classes already add the type
-                    if objects in (
-                        Constants.PROV["Activity"],
-                        Constants.PROV["Agent"],
-                        Constants.PROV["Entity"],
-                    ):
-                        continue
-                    # special case if obj_nm is prov, xsd, namespaces.  These are added
-                    # automatically by provDocument so they aren't accessible via the namespaces list
-                    # so we check explicitly here
-                    if obj_nm == str(Constants.PROV):
-                        nidm_obj.add_attributes(
-                            {
-                                predicate: QualifiedName(
-                                    localpart=obj_term,
-                                    namespace=provNamespace(
-                                        "prov", str(Constants.PROV)
-                                    ),
-                                )
-                            }
-                        )
-
-                    else:
-                        found_uri, found_nm = find_in_namespaces(
-                            search_uri=URIRef(obj_nm), namespaces=namespaces
-                        )
-                        # if obj_nm is not in namespaces then it must just be part of some URI in the triple
-                        # so just add it as a prov.Identifier
-                        if not found_uri:
-                            nidm_obj.add_attributes(
-                                {
-                                    predicate: pm.QualifiedName(
-                                        provNamespace(
-                                            "term_" + obj_term, URIRef(objects)
-                                        ),
-                                        "",
-                                    )
-                                }
-                            )
-                            # nidm_obj.add_attributes({predicate: Identifier(objects)})
-                            # nidm_obj.add_attributes({predicate: URIRef(objects)})
-                            # nidm_obj.add_attributes({predicate: objects})
-                        # else add as explicit prov.QualifiedName because it's easier to read
-                        else:
-                            nidm_obj.add_attributes(
-                                {predicate: pm.QualifiedName(found_nm, obj_term)}
-                            )
-                except Exception:
-                    # this happens when the object can't be split into a namespace and term because there isn't a
-                    # separation so we just use the url as the qualified name without localpart
-                    # in some cases this str(objects) might already be in a namespace so we need to check and if so
-                    # use it, otherwise just use the str(objects) with no prefix as the qname
-                    found_uri, found_nm = find_in_namespaces(
-                        search_uri=URIRef(str(objects)), namespaces=namespaces
+                    nidm_obj.add_attributes(
+                        {Identifier(str(predicate)): Identifier(str(objects))}
                     )
-                    if found_uri:
-                        nidm_obj.add_attributes(
-                            {predicate: pm.QualifiedName(found_nm, "")}
-                        )
+                except Exception:
+                    pass
+            _copy_bnode_metadata(
+                rdf_graph=rdf_graph,
+                bnode=objects,
+                namespaces=namespaces,
+                nidm_obj=nidm_obj,
+            )
+            continue
 
-                    else:
-                        nidm_obj.add_attributes(
-                            {
-                                predicate: pm.QualifiedName(
-                                    provNamespace(None, str(objects)), ""
-                                )
-                            }
-                        )
-            else:
-                # check if this is a qname and if so expand it
-                # added to handle when a value is a qname.  this should expand it....
-                if (":" in objects) and isinstance(objects, URIRef):
-                    objects = from_n3(objects)
-                # check if objects is a url and if so store it as a URIRef else a Literal
-                if validators.url(objects):
-                    obj_nm, obj_term = split_uri(objects)
-                    nidm_obj.add_attributes({predicate: Identifier(objects)})
-                else:
-                    nidm_obj.add_attributes({predicate: get_RDFliteral_type(objects)})
+        obj_val = _object_to_prov_value(objects, namespaces)
+        if obj_val is None:
+            continue
 
-    # now find qualified associations
+        try:
+            nidm_obj.add_attributes({pred_obj: obj_val})
+        except Exception:
+            try:
+                nidm_obj.add_attributes({Identifier(str(predicate)): obj_val})
+            except Exception:
+                pass
+
+    # Preserve qualifiedAssociation semantics in the object model
+    # NOTE:
+    # We intentionally do NOT call nidm_obj.add_qualified_association() during read_nidm().
+    #
+    # Why:
+    # - the original RDF graph already contains the qualifiedAssociation blank-node subgraph
+    # - rebuilding it into the class model causes duplicate associations on write-out
+    # - for lossless roundtrip, the original RDF is the source of truth
+    #
+    # We still traverse the structure so agent nodes can be instantiated if needed,
+    # but we do not add a second association to the object model.
     for bnode in rdf_graph.objects(
         subject=subject_uri, predicate=Constants.PROV["qualifiedAssociation"]
     ):
-        # create temporary resource for this bnode
         r = Resource(rdf_graph, bnode)
-        # get the object for this bnode with predicate Constants.PROV['hadRole']
-        for r_obj in r.objects(predicate=Constants.PROV["hadRole"]):
-            # if this is a qualified association with a participant then create the prov:Person agent
-            if r_obj.identifier == URIRef(Constants.NIDM_PARTICIPANT.uri):
-                # get identifier for prov:agent part of the blank node
-                for agent_obj in r.objects(predicate=Constants.PROV["agent"]):
-                    # check if agent exists already in graph, if not create it
-                    if agent_obj.identifier not in nidm_obj.graph.get_records():
-                        obj_nm, obj_term = split_uri(agent_obj.identifier)
-                        person = nidm_obj.add_person(
-                            uuid=obj_term, add_default_type=False
-                        )
-                        # add rest of metadata about person
-                        add_metadata_for_subject(
-                            rdf_graph=rdf_graph,
-                            subject_uri=agent_obj.identifier,
-                            namespaces=namespaces,
-                            nidm_obj=person,
-                        )
-                    else:
-                        # we need the NIDM object here with uuid agent_obj.identifier and store it in person
-                        for obj in nidm_obj.graph.get_records():
-                            if agent_obj.identifier == obj.identifier:
-                                person = obj
-                    # create qualified names for objects
-                    obj_nm, obj_term = split_uri(r_obj.identifier)
-                    found_uri, found_nm = find_in_namespaces(
-                        search_uri=URIRef(obj_nm), namespaces=namespaces
-                    )
-                    # if obj_nm is not in namespaces then it must just be part of some URI in the triple
-                    # so just add it as a prov.Identifier
-                    if not found_uri:
-                        # nidm_obj.add_qualified_association(person=person, role=pm.Identifier(r_obj.identifier))
-                        nidm_obj.add_qualified_association(
-                            person=person,
-                            role=pm.QualifiedName(Namespace(obj_nm), obj_term),
-                        )
-                    else:
-                        nidm_obj.add_qualified_association(
-                            person=person, role=pm.QualifiedName(found_nm, obj_term)
-                        )
+        prov_bundle = _prov_bundle_for_obj(nidm_obj)
 
-            # else it's an association with another agent which isn't a participant
-            else:
-                # get identifier for the prov:agent part of the blank node
-                for agent_obj in r.objects(predicate=Constants.PROV["agent"]):
-                    # check if the agent exists in the graph else add it
-                    if agent_obj.identifier not in nidm_obj.graph.get_records():
-                        generic_agent = nidm_obj.graph.agent(
-                            identifier=agent_obj.identifier
-                        )
+        for agent_obj in r.objects(predicate=Constants.PROV["agent"]):
+            if prov_bundle is None:
+                continue
 
-                        # add rest of metadata about the agent
-                        add_metadata_for_subject(
-                            rdf_graph=rdf_graph,
-                            subject_uri=agent_obj.identifier,
-                            namespaces=namespaces,
-                            nidm_obj=generic_agent,
-                        )
-                    # try and split uri into namespace and local parts, if fails just use entire URI
-                    try:
-                        # create qualified names for objects
-                        obj_nm, obj_term = split_uri(r_obj.identifier)
+            generic_agent = _record_by_id(prov_bundle, agent_obj.identifier)
 
-                        found_uri, found_nm = find_in_namespaces(
-                            search_uri=URIRef(obj_nm), namespaces=namespaces
-                        )
-                        # if obj_nm is not in namespaces then it must just be part of some URI in the triple
-                        # so just add it as a prov.Identifier
-                        if not found_uri:
-                            nidm_obj.add_qualified_association(
-                                person=generic_agent,
-                                role=pm.QualifiedName(Namespace(obj_nm), obj_term),
-                            )
-                        else:
-                            nidm_obj.add_qualified_association(
-                                person=generic_agent,
-                                role=pm.QualifiedName(found_nm, obj_term),
-                            )
-
-                    except Exception:
-                        nidm_obj.add_qualified_association(
-                            person=generic_agent,
-                            role=pm.QualifiedName(Namespace(r_obj.identifier), ""),
-                        )
+            if generic_agent is None:
+                generic_agent = prov_bundle.agent(identifier=agent_obj.identifier)
+                add_metadata_for_subject(
+                    rdf_graph=rdf_graph,
+                    subject_uri=agent_obj.identifier,
+                    namespaces=namespaces,
+                    nidm_obj=generic_agent,
+                )
 
 
 def QuerySciCrunchElasticSearch(
@@ -3091,9 +3962,11 @@ def addGitAnnexSources(obj, bids_root, filepath=None):
         else:
             sources = repo.get_urls(bids_root)
 
-        for source in sources:
+        matches = [s for s in sources if os.path.basename(filepath) in s]
+
+        for match in matches:
             # add to graph uuid
-            obj.add_attributes({Constants.PROV["Location"]: URIRef(source)})
+            obj.add_attributes({Constants.PROV["Location"]: URIRef(match)})
 
         return len(sources)
     except Exception as e:

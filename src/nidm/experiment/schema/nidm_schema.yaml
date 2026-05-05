@@ -1,0 +1,626 @@
+id: https://purl.org/nidash/nidm/schema
+name: nidm-experiment
+title: NIDM-Experiment Schema
+description: >-
+  Schema describing the structure of NIDM (Neuroimaging Data Model) RDF graphs.
+  NIDM files use the W3C PROV data model to represent neuroimaging study
+  provenance, metadata, and derived data.  This schema is used by AI-assisted
+  SPARQL query generation to understand the graph structure.
+
+license: Apache-2.0
+version: 0.1.0
+
+prefixes:
+  linkml: https://w3id.org/linkml/
+  rdf:    http://www.w3.org/1999/02/22-rdf-syntax-ns#
+  rdfs:   http://www.w3.org/2000/01/rdf-schema#
+  xsd:    http://www.w3.org/2001/XMLSchema#
+  prov:   http://www.w3.org/ns/prov#
+  dct:    http://purl.org/dc/terms/
+  dctypes: http://purl.org/dc/dcmitype/
+  nidm:   http://purl.org/nidash/nidm#
+  niiri:  http://iri.nidash.org/
+  nfo:    http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#
+  crypto: http://id.loc.gov/vocabulary/preservation/cryptographicHashFunctions#
+  sio:    http://semanticscience.org/ontology/sio.owl#
+  obo:    http://purl.obolibrary.org/obo/
+  onli:   http://neurolog.unice.fr/ontoneurolog/v3.0/instrument.owl#
+  bids:   http://bids.neuroimaging.io/
+  ndar:   https://ndar.nih.gov/api/datadictionary/v2/dataelement/
+  ilx:    http://uri.interlex.org/
+  dicom:  http://uri.interlex.org/dicom/uris/terms/
+  dcat:   http://www.w3.org/ns/dcat#
+  schema: http://schema.org/
+  reproschema: http://schema.repronim.org/
+  fsl:    http://purl.org/nidash/fsl#
+  freesurfer: https://surfer.nmr.mgh.harvard.edu/
+  ants:   http://stnava.github.io/ANTs/
+
+default_range: string
+
+imports:
+  - linkml:types
+
+# ---------------------------------------------------------------------------
+# Enumerations
+# ---------------------------------------------------------------------------
+enums:
+  AcquisitionModalityEnum:
+    description: Imaging acquisition modality types
+    permissible_values:
+      MagneticResonanceImaging:
+        meaning: nidm:MagneticResonanceImaging
+      PositronEmissionTomography:
+        meaning: nidm:PositronEmissionTomography
+
+  ImageContrastTypeEnum:
+    description: MRI image contrast types
+    permissible_values:
+      T1Weighted:
+        meaning: nidm:T1Weighted
+      T2Weighted:
+        meaning: nidm:T2Weighted
+      T2StarWeighted:
+        meaning: nidm:T2StarWeighted
+      DiffusionWeighted:
+        meaning: nidm:DiffusionWeighted
+      DiffusionTensor:
+        meaning: nidm:DiffusionTensor
+      FlowWeighted:
+        meaning: nidm:FlowWeighted
+      ArterialSpinLabeling:
+        meaning: nidm:ArterialSpinLabeling
+
+  ImageUsageTypeEnum:
+    description: Intended usage of an acquired image
+    permissible_values:
+      Anatomical:
+        meaning: nidm:Anatomical
+      Functional:
+        meaning: nidm:Functional
+      DiffusionWeighted:
+        meaning: nidm:DiffusionWeighted
+
+# ---------------------------------------------------------------------------
+# Classes
+# ---------------------------------------------------------------------------
+classes:
+
+  # -- Top-level provenance classes ----------------------------------------
+
+  Project:
+    class_uri: nidm:Project
+    description: >-
+      Top-level container for a research project or study.  Every NIDM graph
+      has at least one Project.  A Project is also a prov:Activity.
+    comments:
+      - "RDF types: nidm:Project, prov:Activity"
+      - "Children are linked back to the Project via dct:isPartOf"
+    attributes:
+      identifier:
+        range: uriorcurie
+        identifier: true
+        description: URI of this Project (typically niiri:<uuid>)
+      title:
+        slot_uri: dctypes:title
+        range: string
+        description: Project or study name
+      description:
+        slot_uri: dct:description
+        range: string
+        description: Project description
+      license:
+        slot_uri: dct:license
+        range: string
+        description: Data license
+      funding:
+        slot_uri: obo:IAO_0000623
+        range: string
+        description: Funding information
+      acknowledgments:
+        slot_uri: obo:IAO_0000324
+        range: string
+        description: Acknowledgments
+      project_identifier:
+        slot_uri: sio:Identifier
+        range: string
+        description: Project version or identifier
+      author:
+        slot_uri: dcat:author
+        range: string
+        description: Dataset author(s)
+      version:
+        slot_uri: dct:hasVersion
+        range: string
+        description: Dataset version
+      sessions:
+        range: Session
+        multivalued: true
+        inlined_as_list: true
+        description: Sessions belonging to this project
+      data_elements:
+        range: DataElement
+        multivalued: true
+        inlined_as_list: true
+        description: DataElement definitions for this project
+      derivatives:
+        range: Derivative
+        multivalued: true
+        inlined_as_list: true
+        description: Derivative processing activities
+
+  Session:
+    class_uri: nidm:Session
+    description: >-
+      A study session, typically one per participant visit.  Contains
+      acquisition activities.  A Session is also a prov:Activity.
+    comments:
+      - "RDF types: nidm:Session, prov:Activity"
+      - "Linked to Project via dct:isPartOf"
+    attributes:
+      identifier:
+        range: uriorcurie
+        identifier: true
+      is_part_of:
+        slot_uri: dct:isPartOf
+        range: Project
+        description: The Project this Session belongs to
+      session_number:
+        slot_uri: bids:session_number
+        range: string
+        description: Session number within the study
+      acquisitions:
+        range: Acquisition
+        multivalued: true
+        inlined_as_list: true
+        description: Acquisition activities in this session
+
+  Acquisition:
+    class_uri: nidm:Acquisition
+    description: >-
+      An acquisition activity such as an MRI scan or questionnaire
+      administration.  Produces AcquisitionObjects.  Also a prov:Activity.
+    comments:
+      - "RDF types: nidm:Acquisition, prov:Activity"
+      - "Linked to Session via dct:isPartOf"
+      - "May also carry onli:instrument-based-assessment type for assessments"
+      - >-
+        Participant linkage: Acquisition -> prov:qualifiedAssociation ->
+        prov:Association (with prov:agent -> Person, prov:hadRole -> sio:Subject)
+    attributes:
+      identifier:
+        range: uriorcurie
+        identifier: true
+      is_part_of:
+        slot_uri: dct:isPartOf
+        range: Session
+        description: The Session this Acquisition belongs to
+      qualified_association:
+        slot_uri: prov:qualifiedAssociation
+        range: Association
+        multivalued: true
+        description: Association(s) linking this activity to agents (participants)
+      acquisition_objects:
+        range: AcquisitionObject
+        multivalued: true
+        inlined_as_list: true
+        description: Entities generated by this acquisition
+
+  AcquisitionObject:
+    class_uri: nidm:AcquisitionObject
+    description: >-
+      A data entity produced by an Acquisition.  Can represent imaging data,
+      assessment/questionnaire results, or demographic data.  Also a
+      prov:Entity.
+    comments:
+      - "RDF types: nidm:AcquisitionObject, prov:Entity"
+      - "May additionally have type onli:assessment-instrument for assessments"
+      - "Linked to its Acquisition via prov:wasGeneratedBy"
+      - >-
+        Assessment and demographic values are stored as extra properties on this
+        object, using DataElement URIs as predicates with literal values.
+    attributes:
+      identifier:
+        range: uriorcurie
+        identifier: true
+      was_generated_by:
+        slot_uri: prov:wasGeneratedBy
+        range: Acquisition
+        description: The Acquisition that produced this object
+      acquisition_modality:
+        slot_uri: nidm:hadAcquisitionModality
+        range: AcquisitionModalityEnum
+        description: Imaging modality (MRI, PET)
+      image_contrast_type:
+        slot_uri: nidm:hadImageContrastType
+        range: ImageContrastTypeEnum
+        description: Image contrast type (T1, T2, DWI, etc.)
+      image_usage_type:
+        slot_uri: nidm:hadImageUsageType
+        range: ImageUsageTypeEnum
+        description: Intended image usage (Anatomical, Functional, DWI)
+      task:
+        slot_uri: nidm:Task
+        range: string
+        description: Task name for functional MRI
+      filename:
+        slot_uri: nfo:filename
+        range: string
+        description: >-
+          File path, often in BIDS format (e.g. bids::sub-XX/anat/sub-XX_T1w.nii.gz)
+      sha512:
+        slot_uri: crypto:sha512
+        range: string
+        description: SHA-512 hash of the file
+      location:
+        slot_uri: prov:Location
+        range: string
+        description: URL or file path location
+
+  # -- Data Elements -------------------------------------------------------
+
+  DataElement:
+    class_uri: nidm:DataElement
+    description: >-
+      Metadata describing a measured variable.  Defines the semantics, data
+      type, units, and ontology mapping for a column/variable in the study
+      data.  Also a prov:Entity.
+    comments:
+      - "RDF types: nidm:DataElement, prov:Entity"
+      - >-
+        DataElement URIs serve a DUAL PURPOSE: (1) as subjects carrying
+        metadata (label, description, isAbout), and (2) as predicates on
+        AcquisitionObjects to store actual measurement values.
+      - >-
+        DataElements from processing pipelines (FreeSurfer, FSL, ANTs) may use
+        pipeline-specific namespaces (freesurfer:, fsl:, ants:) instead of
+        niiri: for their URIs.
+    attributes:
+      identifier:
+        range: uriorcurie
+        identifier: true
+        description: >-
+          URI of this DataElement.  May use niiri:, freesurfer:, fsl:, or ants:
+          namespace depending on origin.
+      label:
+        slot_uri: rdfs:label
+        range: string
+        description: Human-readable variable label
+      description:
+        slot_uri: dct:description
+        range: string
+        description: Variable description
+      is_about:
+        slot_uri: nidm:isAbout
+        range: uriorcurie
+        description: >-
+          Ontology concept this variable measures (typically ilx:, obo:, or
+          dicom: URI)
+      source_variable:
+        slot_uri: nidm:sourceVariable
+        range: string
+        description: Original variable name in source data
+      value_type:
+        slot_uri: nidm:valueType
+        range: uriorcurie
+        description: XSD data type (xsd:string, xsd:float, xsd:integer)
+      min_value:
+        slot_uri: nidm:minValue
+        range: string
+        description: Minimum allowed value
+      max_value:
+        slot_uri: nidm:maxValue
+        range: string
+        description: Maximum allowed value
+      measure_of:
+        slot_uri: nidm:measureOf
+        range: uriorcurie
+        description: Brain structure or region measured
+      datum_type:
+        slot_uri: nidm:datumType
+        range: uriorcurie
+        description: Type of measurement (e.g. anatomical volume)
+      has_unit:
+        slot_uri: nidm:hasUnit
+        range: string
+        description: Unit of measurement (e.g. mm^3)
+      has_laterality:
+        slot_uri: nidm:hasLaterality
+        range: string
+        description: Brain laterality (Left, Right, Bilateral)
+      choices:
+        slot_uri: reproschema:choices
+        range: string
+        description: Valid categorical choices for this variable
+
+  PersonalDataElement:
+    class_uri: nidm:PersonalDataElement
+    is_a: DataElement
+    description: >-
+      A DataElement for personal or demographic data (age, sex, handedness,
+      diagnosis, etc.).  Subclass of nidm:DataElement.
+    comments:
+      - "RDF types: nidm:PersonalDataElement, prov:Entity"
+      - "nidm:PersonalDataElement rdfs:subClassOf nidm:DataElement"
+
+  # -- Derivatives ---------------------------------------------------------
+
+  Derivative:
+    class_uri: nidm:Derivative
+    description: >-
+      A processing or analysis activity that produces derived data (e.g. brain
+      volume measurements from FreeSurfer, FSL, ANTs).  Also a prov:Activity.
+    comments:
+      - "RDF types: nidm:Derivative, prov:Activity"
+      - "Linked to Project via dct:isPartOf"
+    attributes:
+      identifier:
+        range: uriorcurie
+        identifier: true
+      is_part_of:
+        slot_uri: dct:isPartOf
+        range: Project
+      used:
+        slot_uri: prov:used
+        range: uriorcurie
+        description: Source entity consumed by this derivative activity
+
+  DerivativeObject:
+    class_uri: nidm:DerivativeObject
+    description: >-
+      An entity produced by a Derivative processing activity.  Contains
+      derived measurements.  Also a prov:Entity.
+    comments:
+      - "RDF types: nidm:DerivativeObject, prov:Entity"
+      - >-
+        Like AcquisitionObject, derived measurement values are stored as
+        properties using DataElement URIs as predicates.
+    attributes:
+      identifier:
+        range: uriorcurie
+        identifier: true
+      was_generated_by:
+        slot_uri: prov:wasGeneratedBy
+        range: Derivative
+        description: The Derivative activity that produced this object
+
+  # -- Agents --------------------------------------------------------------
+
+  Person:
+    class_uri: prov:Person
+    description: >-
+      A research participant or subject.  Also a prov:Agent.
+    comments:
+      - "RDF types: prov:Person, prov:Agent"
+      - >-
+        Linked to Acquisitions via prov:qualifiedAssociation ->
+        prov:Association (with prov:hadRole sio:Subject)
+    attributes:
+      identifier:
+        range: uriorcurie
+        identifier: true
+      subject_id:
+        slot_uri: ndar:src_subject_id
+        range: string
+        description: >-
+          Subject ID in the study (e.g. 'sub-0050002').  This is the primary
+          human-readable identifier for participants.
+
+  SoftwareAgent:
+    class_uri: prov:SoftwareAgent
+    description: >-
+      Software that produced or processed data (e.g. bidsmri2nidm.py,
+      csv2nidm.py, FreeSurfer).  Also a prov:Agent.
+    comments:
+      - "RDF types: prov:SoftwareAgent, prov:Agent"
+    attributes:
+      identifier:
+        range: uriorcurie
+        identifier: true
+      label:
+        slot_uri: rdfs:label
+        range: string
+        description: Display name (e.g. 'PyNIDM bidsmri2nidm.py')
+      name:
+        slot_uri: schema:name
+        range: string
+        description: Software name (e.g. 'PyNIDM')
+      software_version:
+        slot_uri: schema:softwareVersion
+        range: string
+        description: Software version string
+      command:
+        slot_uri: nidm:command
+        range: string
+        description: Command or script name
+      runtime_platform:
+        slot_uri: schema:runtimePlatform
+        range: string
+        description: Runtime environment (e.g. 'Python 3.9.23')
+
+  # -- Provenance structures -----------------------------------------------
+
+  Association:
+    class_uri: prov:Association
+    description: >-
+      Links an Acquisition activity to an agent (participant) with a specific
+      role.  Typically connects to a Person with role sio:Subject.
+    comments:
+      - "RDF type: prov:Association"
+      - "Created as a blank node in the graph"
+    attributes:
+      agent:
+        slot_uri: prov:agent
+        range: Person
+        description: The agent (participant) involved
+      had_role:
+        slot_uri: prov:hadRole
+        range: uriorcurie
+        description: Role of the agent (typically sio:Subject)
+
+  Collection:
+    class_uri: prov:Collection
+    description: >-
+      A collection of entities (e.g. a BIDS dataset, a FreeSurfer stats
+      collection).  Also a prov:Entity.
+    comments:
+      - "RDF types: prov:Collection, prov:Entity"
+      - >-
+        May additionally have type bids:Dataset, nidm:FSStatsCollection,
+        nidm:FSLStatsCollection, or nidm:ANTSStatsCollection
+    attributes:
+      identifier:
+        range: uriorcurie
+        identifier: true
+      bids_version:
+        slot_uri: bids:BIDSVersion
+        range: string
+        description: BIDS standard version
+      license:
+        slot_uri: dct:license
+        range: string
+      members:
+        slot_uri: prov:hadMember
+        range: uriorcurie
+        multivalued: true
+        description: Member entities of this collection
+
+  ExportActivity:
+    class_uri: prov:Activity
+    description: >-
+      An export activity recording which tool created or modified the NIDM
+      file.  Part of the export provenance pattern.
+    comments:
+      - "RDF type: prov:Activity"
+      - >-
+        Pattern: ExportActivity -> prov:wasAssociatedWith -> SoftwareAgent;
+        output Entity -> prov:wasGeneratedBy -> ExportActivity;
+        ExportActivity -> prov:used -> input Collection or Project
+    attributes:
+      identifier:
+        range: uriorcurie
+        identifier: true
+      label:
+        slot_uri: rdfs:label
+        range: string
+        description: >-
+          Human-readable label (e.g. 'Create NIDM RDF from BIDS dataset',
+          'Add CSV data to NIDM file')
+      output_format:
+        slot_uri: nidm:outputFormat
+        range: string
+        description: Output format (e.g. 'turtle')
+      started_at_time:
+        slot_uri: prov:startedAtTime
+        range: datetime
+      ended_at_time:
+        slot_uri: prov:endedAtTime
+        range: datetime
+      was_associated_with:
+        slot_uri: prov:wasAssociatedWith
+        range: SoftwareAgent
+      used:
+        slot_uri: prov:used
+        range: uriorcurie
+        description: Input entity (Collection or Project) that was used
+
+# ---------------------------------------------------------------------------
+# SPARQL query patterns (stored as structured annotations for AI context)
+# ---------------------------------------------------------------------------
+# These are not part of the LinkML model per se, but provide example SPARQL
+# patterns that an AI can use to understand how to query NIDM graphs.
+
+annotations:
+  graph_hierarchy: >-
+    Project (nidm:Project, prov:Activity)
+      -> Session (nidm:Session, prov:Activity)  [via dct:isPartOf]
+        -> Acquisition (nidm:Acquisition, prov:Activity)  [via dct:isPartOf]
+          -> AcquisitionObject (nidm:AcquisitionObject, prov:Entity)  [via prov:wasGeneratedBy]
+      -> DataElement (nidm:DataElement, prov:Entity)
+      -> Derivative (nidm:Derivative, prov:Activity)  [via dct:isPartOf]
+        -> DerivativeObject (prov:Entity)  [via prov:wasGeneratedBy]
+
+  sparql_get_all_projects: >-
+    SELECT ?project ?title WHERE {
+      ?project rdf:type nidm:Project .
+      OPTIONAL { ?project dctypes:title ?title }
+    }
+
+  sparql_get_sessions_for_project: >-
+    SELECT ?session WHERE {
+      ?session rdf:type nidm:Session ;
+               dct:isPartOf ?project .
+      ?project rdf:type nidm:Project .
+    }
+
+  sparql_get_subjects_and_ids: >-
+    SELECT ?person ?subject_id WHERE {
+      ?person rdf:type prov:Person ;
+              ndar:src_subject_id ?subject_id .
+    }
+
+  sparql_get_subject_data: >-
+    SELECT ?acq_obj ?predicate ?value WHERE {
+      ?person ndar:src_subject_id "SUB_ID"^^xsd:string .
+      ?assoc prov:agent ?person .
+      ?acq prov:qualifiedAssociation ?assoc .
+      ?acq_obj prov:wasGeneratedBy ?acq ;
+               ?predicate ?value .
+    }
+
+  sparql_get_data_elements: >-
+    SELECT ?de ?label ?description WHERE {
+      { ?de rdf:type nidm:DataElement }
+      UNION
+      { ?de rdf:type nidm:PersonalDataElement }
+      OPTIONAL { ?de rdfs:label ?label }
+      OPTIONAL { ?de dct:description ?description }
+    }
+
+  sparql_get_values_for_variable: >-
+    SELECT ?subject_id ?value WHERE {
+      ?de rdfs:label "VARIABLE_LABEL" .
+      ?acq_obj ?de ?value ;
+               prov:wasGeneratedBy ?acq .
+      ?acq prov:qualifiedAssociation ?assoc .
+      ?assoc prov:agent ?person .
+      ?person ndar:src_subject_id ?subject_id .
+    }
+
+  sparql_get_imaging_acquisitions: >-
+    SELECT ?acq_obj ?modality ?contrast ?filename WHERE {
+      ?acq_obj rdf:type nidm:AcquisitionObject ;
+               nidm:hadAcquisitionModality ?modality ;
+               nidm:hadImageContrastType ?contrast .
+      OPTIONAL { ?acq_obj nfo:filename ?filename }
+    }
+
+  sparql_get_export_provenance: >-
+    SELECT ?activity ?label ?software ?version ?time WHERE {
+      ?entity prov:wasGeneratedBy ?activity .
+      ?activity prov:wasAssociatedWith ?agent ;
+                rdfs:label ?label ;
+                prov:startedAtTime ?time .
+      ?agent rdf:type prov:SoftwareAgent ;
+             rdfs:label ?software ;
+             schema:softwareVersion ?version .
+    }
+
+  important_notes: >-
+    (1) All instance identifiers typically use the niiri: namespace with UUIDs
+    (e.g. niiri:abc123-def456).
+    (2) DataElement URIs serve a DUAL PURPOSE: as RDF subjects carrying
+    metadata (label, description, isAbout), AND as RDF predicates on
+    AcquisitionObjects to store actual measurement values.
+    (3) DataElements from processing pipelines (FreeSurfer, FSL, ANTs) may use
+    pipeline-specific namespaces (freesurfer:, fsl:, ants:) instead of niiri:.
+    (4) Subject data is accessed through the prov:qualifiedAssociation chain:
+    Acquisition -> prov:qualifiedAssociation -> Association -> prov:agent ->
+    Person.  The Person carries ndar:src_subject_id.
+    (5) Assessment/questionnaire and demographic data are stored as properties
+    on AcquisitionObjects, using DataElement URIs as predicates with literal
+    values.
+    (6) Literal values are often typed as xsd:string even for numeric data.
+    Check the DataElement's nidm:valueType for the intended type.
+    (7) Multiple NIDM files can describe data from different sites or projects
+    but share the same schema structure.

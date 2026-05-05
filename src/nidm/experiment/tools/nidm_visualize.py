@@ -12,27 +12,52 @@ from nidm.experiment.tools.click_base import cli
     "--nidm_file_list",
     "-nl",
     required=True,
-    help="A comma separated list of NIDM files with full path",
+    help="A comma-separated list of NIDM files with full path. "
+    "Example: /data/project1/nidm.ttl,/data/project2/nidm.ttl",
 )
-def visualize(nidm_file_list):
-    """
-    This command will produce a visualization(pdf) of the supplied NIDM files named the same as the input files and
-    stored in the same directories.
+@click.option(
+    "--format",
+    "-fmt",
+    type=click.Choice(["svg", "png", "pdf"], case_sensitive=False),
+    default="svg",
+    show_default=True,
+    help="Output format: svg (default, opens in any web browser with "
+    "unlimited scroll and zoom), png (high-resolution raster image), "
+    "or pdf (vector, but may clip very large graphs due to page-size "
+    "limits in PDF viewers).",
+)
+def visualize(nidm_file_list, format):  # noqa: A002
+    """Visualize NIDM provenance graphs.
+
+    Reads one or more NIDM turtle (.ttl) files, renders each as a directed
+    graph showing all PROV entities, activities, and agents with their
+    relationships, and writes the output to the same directory as the input
+    file(s).
+
+    \b
+    Output files are named after the input file with the appropriate extension:
+      nidm.ttl  -->  nidm.svg  (default)
+      nidm.ttl  -->  nidm.png  (with -fmt png)
+      nidm.ttl  -->  nidm.pdf  (with -fmt pdf)
+
+    \b
+    Examples:
+      nidm_visualize -nl /data/project/nidm.ttl
+      nidm_visualize -nl /data/project/nidm.ttl -fmt png
+      nidm_visualize -nl /data/p1/nidm.ttl,/data/p2/nidm.ttl
     """
 
-    for nidm_file in nidm_file_list.split(","):
+    for nidm_file in [f.strip() for f in nidm_file_list.split(",") if f.strip()]:
         # read in nidm file
         project = read_nidm(nidm_file)
 
         # split path and filename for output file writing
         file_parts = os.path.split(nidm_file)
+        base_path = os.path.join(file_parts[0], os.path.splitext(file_parts[1])[0])
 
-        # write graph as nidm filename + .pdf
         project.save_DotGraph(
-            filename=os.path.join(
-                file_parts[0], os.path.splitext(file_parts[1])[0] + ".pdf"
-            ),
-            format="pdf",
+            filename=base_path,
+            format=format,
         )
 
 

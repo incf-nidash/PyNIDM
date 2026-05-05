@@ -16,13 +16,19 @@ class DataElement(pm.ProvEntity, Core):
     """
 
     # constructor
-    def __init__(self, project, attributes=None, uuid=None, add_default_type=True):
+    def __init__(
+        self, project, attributes=None, uuid=None, add_default_type=True, namespace=None
+    ):
         """
         Default constructor, creates an acquisition object and links to acquisition activity object
 
         :param project: NIDM project to add data element entity to.\
         :param attributes: optional attributes to add to entity
         :param uuid: optional uuid...used mostly for reading in existing NIDM document
+        :param namespace: optional prov.model.Namespace for the identifier. When
+            reading back an existing document whose DataElements live outside the
+            default niiri: namespace (e.g. fmriprep:, freesurfer:) pass the
+            original namespace here so the URI is preserved losslessly.
         :return: none
 
         """
@@ -38,23 +44,31 @@ class DataElement(pm.ProvEntity, Core):
         else:
             self._uuid = uuid
 
-            # check if niiri namespace is already defined
-            niiri_ns = self.find_namespace_with_uri(uri=str(Constants.NIIRI))
-
-            if niiri_ns is False:
+            if namespace is not None:
+                # Use the caller-supplied namespace to preserve the original URI.
                 super().__init__(
                     project.graph,
-                    pm.QualifiedName(
-                        pm.Namespace("niiri", Constants.NIIRI), self.get_uuid()
-                    ),
+                    pm.QualifiedName(namespace, self.get_uuid()),
                     attributes,
                 )
             else:
-                super().__init__(
-                    project.graph,
-                    pm.QualifiedName(niiri_ns, self.get_uuid()),
-                    attributes,
-                )
+                # check if niiri namespace is already defined
+                niiri_ns = self.find_namespace_with_uri(uri=str(Constants.NIIRI))
+
+                if niiri_ns is False:
+                    super().__init__(
+                        project.graph,
+                        pm.QualifiedName(
+                            pm.Namespace("niiri", Constants.NIIRI), self.get_uuid()
+                        ),
+                        attributes,
+                    )
+                else:
+                    super().__init__(
+                        project.graph,
+                        pm.QualifiedName(niiri_ns, self.get_uuid()),
+                        attributes,
+                    )
         project.graph._add_record(self)
 
         if add_default_type:

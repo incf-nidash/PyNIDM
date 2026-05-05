@@ -137,7 +137,10 @@ def GetProjectsUUID(nidm_file_list, output_file=None):
     """
     df = sparql_query_nidm(nidm_file_list, query, output_file=output_file)
 
-    return df["uuid"] if isinstance(df["uuid"], list) else df["uuid"].tolist()
+    uuids = df["uuid"] if isinstance(df["uuid"], list) else df["uuid"].tolist()
+    # pandas ≥3.0 infers string dtype by default, stripping rdflib URIRef
+    # subclass info.  Ensure callers always receive URIRef objects.
+    return [URIRef(str(u)) if not isinstance(u, URIRef) else u for u in uuids]
 
 
 def GetProjectLocation(nidm_file_list, project_uuid, output_file=None):  # noqa: U100
@@ -907,9 +910,12 @@ def GetParticipantUUIDsForProjectCached(
 
     # if this isn't already a URI, make it one.
     # calls from the REST api don't include the URI
-    project = project_id
     if project_id.find("http") < 0:
         project = Constants.NIIRI[project_id]
+    else:
+        # Ensure it's a proper URIRef (pandas >=3.0 may convert URIRef
+        # to plain str via string dtype inference, breaking triple matching).
+        project = URIRef(str(project_id))
 
     ### added by DBK changed to dictionary to support subject ids along with uuids
     # participants = []
@@ -1087,9 +1093,12 @@ def GetProjectDataElements(nidm_file_list, project_id):
 
     # if this isn't already a URI, make it one.
     # calls from the REST api don't include the URI
-    project = project_id
     if project_id.find("http") < 0:
         project = Constants.NIIRI[project_id]
+    else:
+        # Ensure it's a proper URIRef (pandas >=3.0 may convert URIRef
+        # to plain str via string dtype inference, breaking triple matching).
+        project = URIRef(str(project_id))
 
     for file in nidm_file_list:
         rdf_graph = OpenGraph(file)

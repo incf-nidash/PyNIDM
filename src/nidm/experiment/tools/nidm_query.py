@@ -215,10 +215,7 @@ def query(
             # get project UUID
             project = GetProjectsUUID([nidm_file])
             uri = (
-                "/projects/"
-                + project[0].toPython().split("/")[-1]
-                + "?fields="
-                + get_fields
+                "/projects/" + str(project[0]).split("/")[-1] + "?fields=" + get_fields
             )
             # get fields output from each file and concatenate
             if output_file is None:
@@ -267,7 +264,9 @@ def query(
         else:
             print(brainvol.to_string())
     elif query_file:
-        df = sparql_query_nidm(nidm_file_list.split(","), query_file, output_file)
+        df = sparql_query_nidm(
+            nidm_file_list.split(","), query_file.read(), output_file
+        )
 
         if (output_file) is None:
             print(df.to_string())

@@ -160,7 +160,7 @@ def data_aggregation(reporter):  # all data from all the files is collected
             ind_vars = ind_vars[0 : len(ind_vars) - 1]
             uri = (
                 "/projects/"
-                + project[0].toPython().split("/")[-1]
+                + str(project[0]).split("/")[-1]
                 + "?fields="
                 + ind_vars
                 + ","
