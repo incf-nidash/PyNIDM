@@ -1125,7 +1125,6 @@ def GetBrainVolumeDataElements(nidm_file_list):
         row["element_id"] = re.search(r"(.*)/(.*)", tmp).group(2)
     return df
 
-
 def GetBrainVolumes(nidm_file_list):
     query = """
         # This query simply returns the brain volume data without dependencies on other demographics/assessment measures.

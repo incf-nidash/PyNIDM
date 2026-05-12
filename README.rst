@@ -268,6 +268,12 @@ This function provides query support for NIDM graphs.
       -bv, --get_brainvols            Parameter, if set, will return all brain
                                       volume data elements and values along with
                                       participant IDs in NIDM file
+      -bt, --get_brainthickness       Parameter, if set, will return all brain
+                                      thickness data elements and values along with
+                                      participant IDs in NIDM file
+      -bsa, --get_brainsurfacearea    Parameter, if set, will return all brain
+                                      surface area data elements and values along with
+                                      participant IDs in NIDM file
       -o, --output_file TEXT          Optional output file (CSV) to store results
                                       of query
       -u, --uri TEXT                  A REST API URI query
