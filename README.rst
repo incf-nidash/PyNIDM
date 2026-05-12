@@ -369,8 +369,15 @@ API key for your account.
 
    $ bidsmri2nidm -d [ROOT BIDS DIRECT] -bidsignore
 
+   # Write one NIDM file per subject (sub-<id>_nidm.ttl) into the BIDS directory:
+   $ bidsmri2nidm -d [ROOT BIDS DIRECT] --per_subject
+
+   # Or direct the per-subject files to a different output directory:
+   $ bidsmri2nidm -d [ROOT BIDS DIRECT] --per_subject -o [OUTPUT DIRECTORY]
+
    usage: bidsmri2nidm [-h] -d DIRECTORY [-jsonld] [-bidsignore] [-no_concepts]
                     [-json_map JSON_MAP] [-log LOGFILE] [-o OUTPUTFILE]
+                    [-per_subject]
 
    This program will represent a BIDS MRI dataset as a NIDM RDF document and provide user with opportunity to annotate
    the dataset (i.e. create sidecar files) and associate selected variables with broader concepts to make datasets more
@@ -389,7 +396,15 @@ API key for your account.
                         If flag set, tool will no do concept mapping
      -log LOGFILE, --log LOGFILE
                         Full path to directory to save log file. Log file name is bidsmri2nidm_[basename(args.directory)].log
-     -o OUTPUTFILE         Outputs turtle file called nidm.ttl in BIDS directory by default..or whatever path/filename is set here
+     -o OUTPUTFILE         Outputs turtle file called nidm.ttl in BIDS directory by default..or whatever path/filename is set here.
+                           In ``--per_subject`` mode this argument is interpreted as an output **directory** (created if missing)
+                           into which one ``sub-<id>_nidm.ttl`` file is written per subject.
+     -per_subject, --per_subject
+                        If flag set, a separate NIDM turtle file will be written for each subject in the BIDS directory,
+                        named ``sub-<id>_nidm.ttl``.  By default these are placed in the BIDS directory; use ``-o`` to
+                        specify a different output directory.  When combined with ``-bidsignore``, each per-subject file
+                        is appended to the BIDS dataset's ``.bidsignore`` file (only when the output directory lies
+                        inside the BIDS tree).
 
    map variables to terms arguments:
      -json_map JSON_MAP, --json_map JSON_MAP
