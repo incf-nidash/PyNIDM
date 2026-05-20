@@ -199,13 +199,22 @@ and API Keys.  Then set the environment variable INTERLEX_API_KEY with your key.
                 directory,
             )
 
+        # Pre-generate shared identifiers so every per-subject file references
+        # the same nidm:Project activity and the same bids:Dataset collection.
+        shared_project_uuid = getUUID()
+        shared_dataset_uuid = getUUID()
+
         subjects = bids.BIDSLayout(directory).get_subjects()
         for subj in subjects:
             if subj.startswith("."):
                 continue
             logging.info("Building NIDM file for subject %s", subj)
             project, collection, cde, cde_pheno = bidsmri2project(
-                directory, args, subject_filter=subj
+                directory,
+                args,
+                subject_filter=subj,
+                project_uuid=shared_project_uuid,
+                dataset_uuid=shared_dataset_uuid,
             )
             outputfile = os.path.join(out_dir, "sub-" + subj + "_nidm.ttl")
 
@@ -1028,7 +1037,16 @@ def _write_nidm_graph(
     rdf_graph.serialize(destination=outputfile, format="turtle")
 
 
-def bidsmri2project(directory, args, subject_filter=None):
+def bidsmri2project(
+    directory, args, subject_filter=None, project_uuid=None, dataset_uuid=None
+):
+    """Build a NIDM Project and BIDS Dataset collection from a BIDS directory.
+
+    When ``project_uuid`` and/or ``dataset_uuid`` are provided, the corresponding
+    UUIDs are used instead of newly generated ones.  This is used by
+    ``--per_subject`` mode so that every per-subject NIDM file references the
+    same ``nidm:Project`` activity and the same ``bids:Dataset`` collection.
+    """
     # initialize empty cde graph...it may get replaced if we're doing variable to term mapping or not
     cde = Graph()
 
@@ -1051,13 +1069,19 @@ def bidsmri2project(directory, args, subject_filter=None):
         sys.exit(-1)
 
     # create project / nidm-exp doc
-    project = Project()
+    # reuse caller-supplied UUID if provided (used by --per_subject mode so all
+    # per-subject files reference the same nidm:Project)
+    project = Project(uuid=project_uuid) if project_uuid is not None else Project()
 
     # 7/22/23 - Modified to create collection of AcquisitionObjects (prov:Entity) to
     # essentially model the BIDS dataset that we're using to convert data into the
     # NIDM representation
     provgraph = project.getGraph()
-    collection = provgraph.collection(Constants.NIIRI[getUUID()])
+    # reuse caller-supplied UUID if provided so the bids:Dataset is the same
+    # across per-subject files
+    collection = provgraph.collection(
+        Constants.NIIRI[dataset_uuid if dataset_uuid is not None else getUUID()]
+    )
     # 7/22/23 add type as bids:Dataset
     collection.add_attributes(
         {PROV_TYPE: QualifiedName(Namespace("bids", Constants.BIDS), "Dataset")}

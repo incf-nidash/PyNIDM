@@ -6,7 +6,11 @@ from pathlib import Path
 import subprocess
 import sys
 import pytest
-from rdflib import Graph
+from rdflib import RDF, Graph
+from rdflib.namespace import Namespace
+
+NIDM = Namespace("http://purl.org/nidash/nidm#")
+BIDS = Namespace("http://bids.neuroimaging.io/")
 
 
 def _make_minimal_bids(root: Path, subjects: list[str]) -> None:
@@ -149,3 +153,46 @@ def test_per_subject_creates_missing_output_directory(
     assert result.returncode == 0, f"bidsmri2nidm failed:\n{result.stderr}"
     assert out_dir.is_dir()
     assert len(list(out_dir.glob("sub-*_nidm.ttl"))) == 3
+
+
+def test_per_subject_files_share_project_and_dataset_uris(
+    tmp_path: Path, minimal_bids: Path
+) -> None:
+    """All per-subject NIDM files should reference the same nidm:Project and
+    bids:Dataset URIs so that cross-file SPARQL queries can recognize the
+    files as belonging to the same study and dataset."""
+    out_dir = tmp_path / "nidm_out"
+    out_dir.mkdir()
+
+    result = _run_bidsmri2nidm(
+        [
+            "-d",
+            str(minimal_bids),
+            "--per_subject",
+            "-o",
+            str(out_dir),
+            "--no_concepts",
+        ]
+    )
+    assert result.returncode == 0, f"bidsmri2nidm failed:\n{result.stderr}"
+
+    project_uris: set = set()
+    dataset_uris: set = set()
+    for ttl in sorted(out_dir.glob("sub-*_nidm.ttl")):
+        g = Graph()
+        g.parse(ttl, format="turtle")
+        # nidm:Project — the project activity
+        projects = set(g.subjects(RDF.type, NIDM.Project))
+        assert projects, f"no nidm:Project found in {ttl.name}"
+        project_uris.update(projects)
+        # bids:Dataset — the collection that holds the BIDS-side entities
+        datasets = set(g.subjects(RDF.type, BIDS.Dataset))
+        assert datasets, f"no bids:Dataset found in {ttl.name}"
+        dataset_uris.update(datasets)
+
+    assert (
+        len(project_uris) == 1
+    ), f"per-subject files reference {len(project_uris)} distinct nidm:Project URIs; expected 1"
+    assert (
+        len(dataset_uris) == 1
+    ), f"per-subject files reference {len(dataset_uris)} distinct bids:Dataset URIs; expected 1"
