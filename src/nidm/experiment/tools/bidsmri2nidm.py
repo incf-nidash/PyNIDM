@@ -1129,6 +1129,11 @@ def bidsmri2project(
             os.path.join(directory, "participants.tsv"), encoding=encoding
         ) as csvfile:
             participants_data = csv.DictReader(csvfile, delimiter="\t")
+            # Strip leading/trailing whitespace from column names to handle TSV files
+            # where headers have accidental surrounding spaces (e.g. "age_at_scan ").
+            participants_data.fieldnames = [
+                f.strip() for f in participants_data.fieldnames
+            ]
 
             # logic to create data dictionaries for variables and/or use them if they already exist.
             # first iterate over variables in dataframe and check which ones are already mapped as BIDS constants
@@ -1394,6 +1399,8 @@ def bidsmri2project(
         encoding = check_encoding(tsv_file)
         with open(tsv_file, encoding=encoding) as phenofile:
             pheno_data = csv.DictReader(phenofile, delimiter="\t")
+            # Strip leading/trailing whitespace from column names (same defence as participants.tsv).
+            pheno_data.fieldnames = [f.strip() for f in pheno_data.fieldnames]
             mapping_list = []
             column_to_terms = {}
             for field in pheno_data.fieldnames:
