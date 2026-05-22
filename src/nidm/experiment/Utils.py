@@ -825,7 +825,8 @@ def add_export_provenance(
     timestamp = datetime.now(timezone.utc).isoformat()
     python_version = platform.python_version()
     output_basename = os.path.basename(outputfile)
-    tool_label = script_name.removesuffix(".py")  # e.g. "bidsmri2nidm"
+    # str.removesuffix() is Python 3.9+; use a compatible alternative for 3.8 support
+    tool_label = script_name[:-3] if script_name.endswith(".py") else script_name
 
     rdf_graph.add((export_activity, RDF.type, prov_ns["Activity"]))
     rdf_graph.add((export_activity, rdfs_ns["label"], Literal(activity_label)))

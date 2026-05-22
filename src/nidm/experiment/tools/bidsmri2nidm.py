@@ -145,6 +145,15 @@ and API Keys.  Then set the environment variable INTERLEX_API_KEY with your key.
         default="nidm.ttl",
         help="Outputs turtle file called nidm.ttl in BIDS directory by default..or whatever path/filename is set here",
     )
+    parser.add_argument(
+        "-per_subject",
+        "--per_subject",
+        action="store_true",
+        default=False,
+        help="If flag set, a separate NIDM turtle file will be written for each subject in the BIDS "
+        "directory, named sub-<id>_nidm.ttl.  By default these are written into the BIDS directory; "
+        "use -o to specify a different output directory (it will be created if it does not exist).",
+    )
 
     args = parser.parse_args()
     directory = args.directory
@@ -165,52 +174,84 @@ and API Keys.  Then set the environment variable INTERLEX_API_KEY with your key.
     # importlib.reload(sys)
     # sys.setdefaultencoding('utf8')
 
-    project, collection, cde, cde_pheno = bidsmri2project(directory, args)
+    if args.per_subject:
+        # discover subjects from BIDS layout and write one NIDM file per subject
+        bids.config.set_option("extension_initial_dot", True)
 
-    #  convert to rdflib Graph and add CDEs
-    rdf_graph = Graph()
-    rdf_graph.parse(source=StringIO(project.serializeTurtle()), format="turtle")
-    rdf_graph = rdf_graph + cde
+        # determine output directory: default to BIDS directory, else use -o as a directory
+        if args.outputfile == "nidm.ttl":
+            out_dir = directory
+        else:
+            out_dir = args.outputfile
+            if not os.path.isdir(out_dir):
+                os.makedirs(out_dir, exist_ok=True)
 
-    # add rest of phenotype CDEs
-    for entry in cde_pheno:
-        rdf_graph = rdf_graph + entry
+        # .bidsignore entries are paths relative to the BIDS root; only meaningful
+        # when output goes into the BIDS tree
+        abs_bids = os.path.abspath(directory)
+        abs_out = os.path.abspath(out_dir)
+        out_inside_bids = abs_out == abs_bids or abs_out.startswith(abs_bids + os.sep)
+        if args.bidsignore and not out_inside_bids:
+            logging.warning(
+                "Output directory %s is outside BIDS directory %s; per-subject "
+                "files will not be added to .bidsignore",
+                out_dir,
+                directory,
+            )
 
-    logging.info("Writing NIDM file....")
+        # Pre-generate shared identifiers so every per-subject file references
+        # the same nidm:Project activity and the same bids:Dataset collection.
+        shared_project_uuid = getUUID()
+        shared_dataset_uuid = getUUID()
 
-    #  logging.info(project.serializeTurtle())
+        subjects = bids.BIDSLayout(directory).get_subjects()
+        for subj in subjects:
+            if subj.startswith("."):
+                continue
+            logging.info("Building NIDM file for subject %s", subj)
+            project, collection, cde, cde_pheno = bidsmri2project(
+                directory,
+                args,
+                subject_filter=subj,
+                project_uuid=shared_project_uuid,
+                dataset_uuid=shared_dataset_uuid,
+            )
+            outputfile = os.path.join(out_dir, "sub-" + subj + "_nidm.ttl")
 
-    logging.info("Serializing NIDM graph and creating graph visualization..")
-    # serialize graph
+            if args.bidsignore and out_inside_bids:
+                bidsignore_name = os.path.relpath(os.path.abspath(outputfile), abs_bids)
+            else:
+                bidsignore_name = None
 
-    # if args.outputfile was defined by user then use it else use default which is args.directory/nidm.ttl
-    if args.outputfile == "nidm.ttl":
-        outputfile = os.path.join(directory, args.outputfile)
+            _write_nidm_graph(
+                project=project,
+                collection=collection,
+                cde=cde,
+                cde_pheno=cde_pheno,
+                outputfile=outputfile,
+                bidsignore=bidsignore_name is not None,
+                directory=directory,
+                bidsignore_name=bidsignore_name,
+            )
     else:
-        outputfile = args.outputfile
+        project, collection, cde, cde_pheno = bidsmri2project(directory, args)
 
-    # if we're choosing json-ld, make sure file extension is .json
-    # if args.jsonld:
-    #     outputfile=os.path.join(directory,os.path.splitext(args.outputfile)[0]+".json")
-    # if flag set to add to .bidsignore then add
-    #     if (args.bidsignore):
-    #         addbidsignore(directory,os.path.splitext(args.outputfile)[0]+".json")
+        # if args.outputfile was defined by user then use it else use default which is args.directory/nidm.ttl
+        if args.outputfile == "nidm.ttl":
+            outputfile = os.path.join(directory, args.outputfile)
+        else:
+            outputfile = args.outputfile
 
-    if args.bidsignore:
-        addbidsignore(directory, args.outputfile)
-
-    rdf_graph = add_export_provenance(
-        rdf_graph=rdf_graph,
-        collection=collection,
-        outputfile=outputfile,
-        pynidm_version=pynidm_version,
-        tool_version=__version__,
-        script_name="bidsmri2nidm.py",
-        activity_label="Create NIDM RDF from BIDS dataset",
-        output_format="turtle",
-    )
-
-    rdf_graph.serialize(destination=outputfile, format="turtle")
+        _write_nidm_graph(
+            project=project,
+            collection=collection,
+            cde=cde,
+            cde_pheno=cde_pheno,
+            outputfile=outputfile,
+            bidsignore=args.bidsignore,
+            directory=directory,
+            bidsignore_name=args.outputfile,
+        )
 
     # serialize NIDM file
     # with open(outputfile,'w', encoding="utf-8") as f:
@@ -960,7 +1001,52 @@ def addimagingsessions(
             # link bval and bvec acquisition object entities together or is their association with DWI scan...
 
 
-def bidsmri2project(directory, args):
+def _write_nidm_graph(
+    project,
+    collection,
+    cde,
+    cde_pheno,
+    outputfile,
+    bidsignore,
+    directory,
+    bidsignore_name=None,
+):
+    """Build the rdflib Graph from the project/CDEs, add export provenance, and serialize to outputfile."""
+    rdf_graph = Graph()
+    rdf_graph.parse(source=StringIO(project.serializeTurtle()), format="turtle")
+    rdf_graph = rdf_graph + cde
+    for entry in cde_pheno:
+        rdf_graph = rdf_graph + entry
+
+    logging.info("Writing NIDM file %s ....", outputfile)
+
+    if bidsignore:
+        addbidsignore(directory, bidsignore_name or os.path.basename(outputfile))
+
+    rdf_graph = add_export_provenance(
+        rdf_graph=rdf_graph,
+        collection=collection,
+        outputfile=outputfile,
+        pynidm_version=pynidm_version,
+        tool_version=__version__,
+        script_name="bidsmri2nidm.py",
+        activity_label="Create NIDM RDF from BIDS dataset",
+        output_format="turtle",
+    )
+
+    rdf_graph.serialize(destination=outputfile, format="turtle")
+
+
+def bidsmri2project(
+    directory, args, subject_filter=None, project_uuid=None, dataset_uuid=None
+):
+    """Build a NIDM Project and BIDS Dataset collection from a BIDS directory.
+
+    When ``project_uuid`` and/or ``dataset_uuid`` are provided, the corresponding
+    UUIDs are used instead of newly generated ones.  This is used by
+    ``--per_subject`` mode so that every per-subject NIDM file references the
+    same ``nidm:Project`` activity and the same ``bids:Dataset`` collection.
+    """
     # initialize empty cde graph...it may get replaced if we're doing variable to term mapping or not
     cde = Graph()
 
@@ -983,13 +1069,19 @@ def bidsmri2project(directory, args):
         sys.exit(-1)
 
     # create project / nidm-exp doc
-    project = Project()
+    # reuse caller-supplied UUID if provided (used by --per_subject mode so all
+    # per-subject files reference the same nidm:Project)
+    project = Project(uuid=project_uuid) if project_uuid is not None else Project()
 
     # 7/22/23 - Modified to create collection of AcquisitionObjects (prov:Entity) to
     # essentially model the BIDS dataset that we're using to convert data into the
     # NIDM representation
     provgraph = project.getGraph()
-    collection = provgraph.collection(Constants.NIIRI[getUUID()])
+    # reuse caller-supplied UUID if provided so the bids:Dataset is the same
+    # across per-subject files
+    collection = provgraph.collection(
+        Constants.NIIRI[dataset_uuid if dataset_uuid is not None else getUUID()]
+    )
     # 7/22/23 add type as bids:Dataset
     collection.add_attributes(
         {PROV_TYPE: QualifiedName(Namespace("bids", Constants.BIDS), "Dataset")}
@@ -1037,6 +1129,11 @@ def bidsmri2project(directory, args):
             os.path.join(directory, "participants.tsv"), encoding=encoding
         ) as csvfile:
             participants_data = csv.DictReader(csvfile, delimiter="\t")
+            # Strip leading/trailing whitespace from column names to handle TSV files
+            # where headers have accidental surrounding spaces (e.g. "age_at_scan ").
+            participants_data.fieldnames = [
+                f.strip() for f in participants_data.fieldnames
+            ]
 
             # logic to create data dictionaries for variables and/or use them if they already exist.
             # first iterate over variables in dataframe and check which ones are already mapped as BIDS constants
@@ -1090,6 +1187,9 @@ def bidsmri2project(directory, args):
                     subjid = temp[1]
                 else:
                     subjid = temp[0]
+                # when per-subject mode is in use, skip rows for other subjects
+                if subject_filter is not None and subjid != subject_filter:
+                    continue
                 logging.info(subjid)
                 # add session and keep track if it for later using subjid
                 session[subjid] = Session(project)
@@ -1245,8 +1345,12 @@ def bidsmri2project(directory, args):
                         )
 
     # create acquisition objects for each scan for each subject
-    # loop through all subjects in dataset
-    for subject_id in bids_layout.get_subjects():
+    # loop through all subjects in dataset (or only the requested one in per-subject mode)
+    if subject_filter is not None:
+        subjects_to_process = [subject_filter]
+    else:
+        subjects_to_process = bids_layout.get_subjects()
+    for subject_id in subjects_to_process:
         logging.info("Converting subject: %s", subject_id)
         # skip .git directories...added to support datalad datasets
         if subject_id.startswith("."):
@@ -1295,6 +1399,8 @@ def bidsmri2project(directory, args):
         encoding = check_encoding(tsv_file)
         with open(tsv_file, encoding=encoding) as phenofile:
             pheno_data = csv.DictReader(phenofile, delimiter="\t")
+            # Strip leading/trailing whitespace from column names (same defence as participants.tsv).
+            pheno_data.fieldnames = [f.strip() for f in pheno_data.fieldnames]
             mapping_list = []
             column_to_terms = {}
             for field in pheno_data.fieldnames:
@@ -1333,6 +1439,9 @@ def bidsmri2project(directory, args):
 
             for row in pheno_data:
                 subjid = row["participant_id"].split("-")
+                # when per-subject mode is in use, skip phenotype rows for other subjects
+                if subject_filter is not None and subjid[1] != subject_filter:
+                    continue
                 # add acquisition object
                 acq = AssessmentAcquisition(session=session[subjid[1]])
                 # add qualified association with person
