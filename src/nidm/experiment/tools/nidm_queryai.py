@@ -522,6 +522,13 @@ def _get_provider():
     return None
 
 
+# Anthropic model used for queryai.  Defaults to the current Claude
+# Sonnet (4.6); override via the PYNIDM_ANTHROPIC_MODEL env var so a
+# model deprecation doesn't require a code change.  (The previous
+# hard-coded "claude-sonnet-4-20250514" was retired and now 404s.)
+_ANTHROPIC_MODEL = os.environ.get("PYNIDM_ANTHROPIC_MODEL", "claude-sonnet-4-6")
+
+
 def _query_anthropic(system_prompt, user_question, api_key):
     """Send a query to the Anthropic API and return the response text."""
     try:
@@ -536,7 +543,7 @@ def _query_anthropic(system_prompt, user_question, api_key):
 
     client = anthropic.Anthropic(api_key=api_key)
     message = client.messages.create(
-        model="claude-sonnet-4-20250514",
+        model=_ANTHROPIC_MODEL,
         max_tokens=4096,
         system=system_prompt,
         messages=[{"role": "user", "content": user_question}],
@@ -618,6 +625,31 @@ def _extract_sparql(ai_response):
         return "\n".join(sparql_lines).strip()
 
     return None
+
+
+def _ensure_prefixes(sparql_query, prefixes):
+    """Prepend ``PREFIX`` declarations for any prefix used in
+    *sparql_query* but not already declared, so the query is
+    self-contained / portable to external SPARQL engines (e.g. Stardog).
+
+    rdflib resolves undeclared prefixes from the graph's namespace
+    bindings at execution time, so queries run inside pynidm even without
+    a PREFIX block -- but they aren't portable.  *prefixes* is the
+    ``{prefix: uri}`` map from :func:`_extract_namespace_prefixes`.
+    """
+    declared = set(
+        re.findall(r"(?im)^\s*PREFIX\s+([A-Za-z][\w.\-]*)\s*:", sparql_query)
+    )
+    missing = [
+        p
+        for p, uri in prefixes.items()
+        if p not in declared
+        and re.search(rf"(?<![<\w]){re.escape(p)}:", sparql_query)
+    ]
+    if not missing:
+        return sparql_query
+    header = "\n".join(f"PREFIX {p}: <{prefixes[p]}>" for p in sorted(missing))
+    return header + "\n\n" + sparql_query
 
 
 def _execute_sparql(nidm_files, sparql_query):
@@ -866,6 +898,10 @@ def queryai(nidm_file_list, question, output_file, show_query):
             )
             click.echo(f"AI response:\n{ai_response}", err=True)
             return
+
+        # Make the query self-contained: prepend any PREFIX declarations
+        # the AI omitted, so the shown/executed SPARQL is portable.
+        sparql_query = _ensure_prefixes(sparql_query, prefixes)
 
         if show_query:
             click.echo(f"\nGenerated SPARQL:\n{sparql_query}\n", err=True)
