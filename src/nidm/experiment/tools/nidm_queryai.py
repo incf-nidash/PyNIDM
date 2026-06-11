@@ -522,6 +522,13 @@ def _get_provider():
     return None
 
 
+# Anthropic model used for queryai.  Defaults to the current Claude
+# Sonnet (4.6); override via the PYNIDM_ANTHROPIC_MODEL env var so a
+# model deprecation doesn't require a code change.  (The previous
+# hard-coded "claude-sonnet-4-20250514" was retired and now 404s.)
+_ANTHROPIC_MODEL = os.environ.get("PYNIDM_ANTHROPIC_MODEL", "claude-sonnet-4-6")
+
+
 def _query_anthropic(system_prompt, user_question, api_key):
     """Send a query to the Anthropic API and return the response text."""
     try:
@@ -536,7 +543,7 @@ def _query_anthropic(system_prompt, user_question, api_key):
 
     client = anthropic.Anthropic(api_key=api_key)
     message = client.messages.create(
-        model="claude-sonnet-4-20250514",
+        model=_ANTHROPIC_MODEL,
         max_tokens=4096,
         system=system_prompt,
         messages=[{"role": "user", "content": user_question}],
