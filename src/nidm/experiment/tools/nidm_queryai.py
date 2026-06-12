@@ -82,6 +82,19 @@ def _extract_data_elements(nidm_files):
         for dt in g.objects(de, NIDM["datumType"]):
             entry["datum_type"] = str(dt)
 
+        # Pipeline DataElements (fsl:, freesurfer:, ants:, ...) describe the
+        # measured region/quantity with namespace-specific "structure" and
+        # "measure" predicates rather than nidm:sourceVariable.  Capture them so
+        # concept resolution can match phrasing like "left hippocampus volume"
+        # (structure="Left-Hippocampus", measure="Volume").  Matched generically
+        # by predicate local-name so it works across pipeline namespaces.
+        for p, o in g.predicate_objects(de):
+            plocal = str(p).rsplit("/", 1)[-1].rsplit("#", 1)[-1].lower()
+            if plocal == "structure" and "structure" not in entry:
+                entry["structure"] = str(o)
+            elif plocal == "measure" and "measure" not in entry:
+                entry["measure"] = str(o)
+
         data_elements.append(entry)
 
     return data_elements, g
@@ -173,9 +186,14 @@ def _resolve_concept(concept_name, data_elements, concept_hints=None):
         label = de.get("label", "").lower()
         src_var = de.get("source_variable", "").lower()
         is_about = de.get("is_about", "").lower()
+        # Pipeline DataElements carry the region/quantity in structure/measure
+        # (e.g. "Left-Hippocampus" / "Volume") instead of a sourceVariable, so
+        # include them so phrases like "left hippocampus volume" resolve.
+        structure = de.get("structure", "").lower()
+        measure = de.get("measure", "").lower()
 
-        # Check label and source_variable for keyword matches
-        text = f"{label} {src_var} {is_about}"
+        # Check label, source_variable, isAbout, structure and measure
+        text = f"{label} {src_var} {is_about} {structure} {measure}"
         if all(kw in text for kw in keywords):
             # If laterality is specified, filter on it
             if laterality:

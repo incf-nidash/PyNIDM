@@ -374,3 +374,54 @@ def test_custom_data_types():
     assert str(valuetype3["label"]) == "age"
     assert str(valuetype3["description"]) == "Age of participant at scan"
     assert str(valuetype3["isAbout"]) == str(Constants.NIIRI["24d78sq"])
+
+
+def test_sparql_query_nidm_merges_files_for_cross_file_join(tmp_path: Path) -> None:
+    """Regression test: sparql_query_nidm must union all supplied files into a
+    single graph so that a query whose pattern spans more than one file (e.g. a
+    measurement value in one file joined to its DataElement definition in a
+    separate CDE file) resolves.  Previously each file was queried in isolation
+    and the row results concatenated, so such cross-file joins returned nothing.
+    """
+    # File 1: a measurement value attached to an entity (no DataElement def).
+    values_ttl = (
+        "@prefix prov: <http://www.w3.org/ns/prov#> .\n"
+        "@prefix ex: <http://example.org/de#> .\n"
+        "@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n\n"
+        "<http://example.org/entity1> a prov:Entity ;\n"
+        '    ex:de_0001 "4235.0"^^xsd:float .\n'
+    )
+    # File 2: the DataElement definition only (no values).
+    defs_ttl = (
+        "@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n"
+        "@prefix nidm: <http://purl.org/nidash/nidm#> .\n"
+        "@prefix ex: <http://example.org/de#> .\n\n"
+        "ex:de_0001 a nidm:DataElement ;\n"
+        '    rdfs:label "Test Volume" .\n'
+    )
+    values_file = tmp_path / "values.ttl"
+    defs_file = tmp_path / "defs.ttl"
+    values_file.write_text(values_ttl, encoding="utf-8")
+    defs_file.write_text(defs_ttl, encoding="utf-8")
+
+    # Join spans both files: the value lives in values.ttl, the type+label of
+    # the predicate (DataElement) lives in defs.ttl.
+    query = """
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+        PREFIX nidm: <http://purl.org/nidash/nidm#>
+        SELECT ?label ?value WHERE {
+            ?entity ?de ?value .
+            ?de a nidm:DataElement ;
+                rdfs:label ?label .
+        }
+    """
+
+    # Neither file alone can satisfy the full pattern.
+    assert len(Query.sparql_query_nidm([str(values_file)], query)) == 0
+    assert len(Query.sparql_query_nidm([str(defs_file)], query)) == 0
+
+    # The merged graph does: one row with the label and value joined together.
+    df = Query.sparql_query_nidm([str(values_file), str(defs_file)], query)
+    assert len(df) == 1
+    assert str(df.iloc[0]["label"]) == "Test Volume"
+    assert float(df.iloc[0]["value"]) == 4235.0
