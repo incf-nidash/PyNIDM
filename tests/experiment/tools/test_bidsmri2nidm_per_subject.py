@@ -29,11 +29,14 @@ def _make_minimal_bids(root: Path, subjects: list[str]) -> None:
         (anat / f"sub-{s}_T1w.nii.gz").write_bytes(b"")
 
 
-def _run_bidsmri2nidm(args: list[str]) -> subprocess.CompletedProcess:
+def _run_bidsmri2nidm(
+    args: list[str], cwd: str | None = None
+) -> subprocess.CompletedProcess:
     return subprocess.run(
         [sys.executable, "-m", "nidm.experiment.tools.bidsmri2nidm", *args],
         capture_output=True,
         text=True,
+        cwd=cwd,
     )
 
 
@@ -201,3 +204,26 @@ def test_per_subject_files_share_project_and_dataset_uris(
     assert (
         len(dataset_uris) == 1
     ), f"per-subject files reference {len(dataset_uris)} distinct bids:Dataset URIs; expected 1"
+
+
+def test_relative_output_path_is_resolved_and_created(
+    tmp_path: Path, minimal_bids: Path
+) -> None:
+    """-o accepts a relative path: it resolves against the current working
+    directory and creates any missing parent directories (previously only an
+    absolute path with an existing parent reliably worked)."""
+    run_cwd = tmp_path / "run_here"
+    run_cwd.mkdir()
+
+    # relative path with a not-yet-existing parent directory
+    result = _run_bidsmri2nidm(
+        ["-d", str(minimal_bids), "-o", "nested/out.ttl", "--no_concepts"],
+        cwd=str(run_cwd),
+    )
+    assert result.returncode == 0, f"bidsmri2nidm failed:\n{result.stderr}"
+
+    produced = run_cwd / "nested" / "out.ttl"
+    assert produced.is_file(), "relative -o path was not resolved/created under cwd"
+    g = Graph()
+    g.parse(produced, format="turtle")
+    assert len(g) > 0

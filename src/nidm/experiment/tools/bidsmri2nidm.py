@@ -143,7 +143,10 @@ and API Keys.  Then set the environment variable INTERLEX_API_KEY with your key.
         dest="outputfile",
         required=False,
         default="nidm.ttl",
-        help="Outputs turtle file called nidm.ttl in BIDS directory by default..or whatever path/filename is set here",
+        help="Output turtle file path.  Defaults to nidm.ttl in the BIDS directory.  "
+        "Accepts an absolute OR relative path (relative paths resolve against the "
+        "current working directory, ~ is expanded, and missing parent directories "
+        "are created).",
     )
     parser.add_argument(
         "-per_subject",
@@ -184,7 +187,9 @@ and API Keys.  Then set the environment variable INTERLEX_API_KEY with your key.
         if args.outputfile == "nidm.ttl":
             out_dir = directory
         else:
-            out_dir = args.outputfile
+            # Support relative -o paths (and ~): resolve against the current
+            # working directory and create it if needed.
+            out_dir = os.path.abspath(os.path.expanduser(args.outputfile))
             if not os.path.isdir(out_dir):
                 os.makedirs(out_dir, exist_ok=True)
 
@@ -247,8 +252,21 @@ and API Keys.  Then set the environment variable INTERLEX_API_KEY with your key.
         # if args.outputfile was defined by user then use it else use default which is args.directory/nidm.ttl
         if args.outputfile == "nidm.ttl":
             outputfile = os.path.join(directory, args.outputfile)
+            bidsignore_name = args.outputfile
         else:
-            outputfile = args.outputfile
+            # Support relative -o paths (and ~): resolve against the current
+            # working directory and create the parent directory if needed.
+            outputfile = os.path.abspath(os.path.expanduser(args.outputfile))
+            parent = os.path.dirname(outputfile)
+            if parent:
+                os.makedirs(parent, exist_ok=True)
+            # .bidsignore entries are relative to the BIDS root; use that when
+            # the output lands inside the BIDS tree, otherwise just the filename.
+            abs_bids = os.path.abspath(directory)
+            if outputfile == abs_bids or outputfile.startswith(abs_bids + os.sep):
+                bidsignore_name = os.path.relpath(outputfile, abs_bids)
+            else:
+                bidsignore_name = os.path.basename(outputfile)
 
         _write_nidm_graph(
             project=project,
@@ -258,7 +276,7 @@ and API Keys.  Then set the environment variable INTERLEX_API_KEY with your key.
             outputfile=outputfile,
             bidsignore=args.bidsignore,
             directory=directory,
-            bidsignore_name=args.outputfile,
+            bidsignore_name=bidsignore_name,
         )
 
     # serialize NIDM file
