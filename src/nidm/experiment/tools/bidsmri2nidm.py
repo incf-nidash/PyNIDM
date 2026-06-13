@@ -150,9 +150,11 @@ and API Keys.  Then set the environment variable INTERLEX_API_KEY with your key.
         "--per_subject",
         action="store_true",
         default=False,
-        help="If flag set, a separate NIDM turtle file will be written for each subject in the BIDS "
-        "directory, named sub-<id>_nidm.ttl.  By default these are written into the BIDS directory; "
-        "use -o to specify a different output directory (it will be created if it does not exist).",
+        help="If flag set, a separate NIDM turtle file named nidm.ttl will be written into each subject's "
+        "BIDS directory, i.e. BIDS_ROOT/sub-<id>/nidm.ttl.  By default these are written beneath the BIDS "
+        "directory; use -o to specify a different base output directory (sub-<id>/nidm.ttl is created "
+        "beneath it).  When combined with -bidsignore, each sub-<id>/nidm.ttl path is added to .bidsignore "
+        "so the dataset remains BIDS-valid.",
     )
 
     args = parser.parse_args()
@@ -216,9 +218,15 @@ and API Keys.  Then set the environment variable INTERLEX_API_KEY with your key.
                 project_uuid=shared_project_uuid,
                 dataset_uuid=shared_dataset_uuid,
             )
-            outputfile = os.path.join(out_dir, "sub-" + subj + "_nidm.ttl")
+            # BIDS-friendly layout: write each subject's NIDM file into that
+            # subject's directory as nidm.ttl (i.e. BIDS_ROOT/sub-<id>/nidm.ttl)
+            # rather than a flat sub-<id>_nidm.ttl in the output root.
+            subj_dir = os.path.join(out_dir, "sub-" + subj)
+            os.makedirs(subj_dir, exist_ok=True)
+            outputfile = os.path.join(subj_dir, "nidm.ttl")
 
             if args.bidsignore and out_inside_bids:
+                # path relative to BIDS root, e.g. "sub-<id>/nidm.ttl"
                 bidsignore_name = os.path.relpath(os.path.abspath(outputfile), abs_bids)
             else:
                 bidsignore_name = None

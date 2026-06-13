@@ -63,11 +63,13 @@ def test_per_subject_writes_one_file_per_subject(
     )
     assert result.returncode == 0, f"bidsmri2nidm failed:\n{result.stderr}"
 
-    produced = sorted(p.name for p in out_dir.glob("sub-*_nidm.ttl"))
+    produced = sorted(
+        p.relative_to(out_dir).as_posix() for p in out_dir.glob("sub-*/nidm.ttl")
+    )
     assert produced == [
-        "sub-01_nidm.ttl",
-        "sub-02_nidm.ttl",
-        "sub-03_nidm.ttl",
+        "sub-01/nidm.ttl",
+        "sub-02/nidm.ttl",
+        "sub-03/nidm.ttl",
     ]
 
 
@@ -91,10 +93,10 @@ def test_per_subject_files_parse_and_isolate_subject_ids(
 
     subjects = ["01", "02", "03"]
     for sid in subjects:
-        ttl = out_dir / f"sub-{sid}_nidm.ttl"
+        ttl = out_dir / f"sub-{sid}" / "nidm.ttl"
         g = Graph()
         g.parse(ttl, format="turtle")
-        assert len(g) > 0, f"sub-{sid}_nidm.ttl parsed but contains no triples"
+        assert len(g) > 0, f"sub-{sid}/nidm.ttl parsed but contains no triples"
 
         text = ttl.read_text(encoding="utf-8")
         assert f"sub-{sid}" in text, f"sub-{sid} missing from its own NIDM file"
@@ -103,7 +105,7 @@ def test_per_subject_files_parse_and_isolate_subject_ids(
                 continue
             assert (
                 f"sub-{other}" not in text
-            ), f"sub-{sid}_nidm.ttl unexpectedly references sub-{other}"
+            ), f"sub-{sid}/nidm.ttl unexpectedly references sub-{other}"
 
 
 def test_per_subject_defaults_to_bids_directory_and_updates_bidsignore(
@@ -122,16 +124,19 @@ def test_per_subject_defaults_to_bids_directory_and_updates_bidsignore(
     )
     assert result.returncode == 0, f"bidsmri2nidm failed:\n{result.stderr}"
 
-    produced = sorted(p.name for p in minimal_bids.glob("sub-*_nidm.ttl"))
+    produced = sorted(
+        p.relative_to(minimal_bids).as_posix()
+        for p in minimal_bids.glob("sub-*/nidm.ttl")
+    )
     assert produced == [
-        "sub-01_nidm.ttl",
-        "sub-02_nidm.ttl",
-        "sub-03_nidm.ttl",
+        "sub-01/nidm.ttl",
+        "sub-02/nidm.ttl",
+        "sub-03/nidm.ttl",
     ]
 
     bidsignore = (minimal_bids / ".bidsignore").read_text(encoding="utf-8")
     for sid in ("01", "02", "03"):
-        assert f"sub-{sid}_nidm.ttl" in bidsignore
+        assert f"sub-{sid}/nidm.ttl" in bidsignore
 
 
 def test_per_subject_creates_missing_output_directory(
@@ -152,7 +157,7 @@ def test_per_subject_creates_missing_output_directory(
     )
     assert result.returncode == 0, f"bidsmri2nidm failed:\n{result.stderr}"
     assert out_dir.is_dir()
-    assert len(list(out_dir.glob("sub-*_nidm.ttl"))) == 3
+    assert len(list(out_dir.glob("sub-*/nidm.ttl"))) == 3
 
 
 def test_per_subject_files_share_project_and_dataset_uris(
@@ -178,7 +183,7 @@ def test_per_subject_files_share_project_and_dataset_uris(
 
     project_uris: set = set()
     dataset_uris: set = set()
-    for ttl in sorted(out_dir.glob("sub-*_nidm.ttl")):
+    for ttl in sorted(out_dir.glob("sub-*/nidm.ttl")):
         g = Graph()
         g.parse(ttl, format="turtle")
         # nidm:Project — the project activity

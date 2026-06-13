@@ -66,44 +66,31 @@ def sparql_query_nidm(nidm_file_list, query, output_file=None, return_graph=Fals
 
     logging.info("Query: %s", query)
 
-    first_file = True
-    # cycle through NIDM files, adding query result to list
+    # Merge all supplied NIDM files into a single graph and run the query once.
+    #
+    # Previously each file was opened and queried in isolation and the row
+    # results were concatenated.  That silently dropped any match whose graph
+    # pattern spanned more than one file -- e.g. measurement values stored in a
+    # NIDM file joined against the DataElement definitions (rdfs:label,
+    # nidm:measureOf, nidm:datumType, rdfs:subClassOf) stored in a separate CDE
+    # file.  Such queries (GetBrainVolumes / -bv, cross-file -q, etc.) returned
+    # nothing because neither file satisfied the full pattern on its own.
+    # Unioning the files first makes those cross-file joins resolve while
+    # leaving single-file and independent-per-file queries unchanged.
+    rdf_graph_parse = Graph()
     for nidm_file in nidm_file_list:
-        # project=read_nidm(nidm_file)
-        # read RDF file into temporary graph
-        # rdf_graph = Graph()
-        # rdf_graph_parse = rdf_graph.parse(nidm_file,format=util.guess_format(nidm_file))
-        rdf_graph_parse = OpenGraph(nidm_file)
+        rdf_graph_parse += OpenGraph(nidm_file)
 
-        if not return_graph:
-            # execute query
-            qres = rdf_graph_parse.query(query)
-
-            # if this is the first file then grab the SPARQL bound variable names from query result for column headings of query result
-            if first_file:
-                # format query result as dataframe and return
-                # for dicts in qres._get_bindings():
-                columns = [str(var) for var in qres.vars]
-                first_file = False
-                #    break
-
-            # append result as row to result list
-            for row in qres:
-                results.append(list(row))
-        else:
-            # execute query
-            qres = rdf_graph_parse.query(query)
-
-            if first_file:
-                # create graph
-                # WIP: qres_graph = Graph().parse(data=qres.serialize(format='turtle'))
-                qres_graph = qres.serialize(format="turtle")
-                first_file = False
-            else:
-                # WIP qres_graph = qres_graph + Graph().parse(data=qres.serialize(format='turtle'))
-                qres_graph = qres_graph + qres.serialize(format="turtle")
+    qres = rdf_graph_parse.query(query)
 
     if not return_graph:
+        # grab the SPARQL bound variable names for the dataframe column headings
+        columns = [str(var) for var in qres.vars]
+
+        # append each result row to the result list
+        for row in qres:
+            results.append(list(row))
+
         # convert results list to Pandas DataFrame and return
         df = pd.DataFrame(results, columns=columns)
 
@@ -112,7 +99,7 @@ def sparql_query_nidm(nidm_file_list, query, output_file=None, return_graph=Fals
             df.to_csv(output_file)
         return df
     else:
-        return qres_graph
+        return qres.serialize(format="turtle")
 
 
 def GetProjectsUUID(nidm_file_list, output_file=None):
