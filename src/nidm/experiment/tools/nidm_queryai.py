@@ -14,7 +14,7 @@ from pathlib import Path
 import re
 import sys
 import click
-from rdflib import Graph, Namespace
+from rdflib import Graph, Literal, Namespace
 from nidm.experiment.tools.click_base import cli
 
 # ---------------------------------------------------------------------------
@@ -25,6 +25,11 @@ NIDM = Namespace("http://purl.org/nidash/nidm#")
 RDFS = Namespace("http://www.w3.org/2000/01/rdf-schema#")
 DCT = Namespace("http://purl.org/dc/terms/")
 RDF_NS = Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#")
+# NIDM encodes a DataElement's value levels (coded value -> human label) as
+# reproschema:choices -> bnode(reproschema:value, rdfs:label).  Namespace is
+# http://schema.repronim.org/ (NOT the ".../reproschema#" form models tend to
+# guess).
+REPROSCHEMA = Namespace("http://schema.repronim.org/")
 
 _SCHEMA_PATH = Path(__file__).resolve().parent.parent / "schema" / "nidm_schema.json"
 
@@ -94,6 +99,22 @@ def _extract_data_elements(nidm_files):
                 entry["structure"] = str(o)
             elif plocal == "measure" and "measure" not in entry:
                 entry["measure"] = str(o)
+
+        # Value levels (coded value -> human label), when defined in the data.
+        # NIDM stores these as reproschema:choices -> bnode(reproschema:value,
+        # rdfs:label).  Only captured when BOTH a value and a label are present;
+        # this is the ONLY thing that licenses queryai to translate coded values
+        # (e.g. sex "1" -> "Male").  Absent here => no mapping is possible.
+        levels = {}
+        for choice in g.objects(de, REPROSCHEMA["choices"]):
+            if isinstance(choice, Literal):
+                continue  # bare enumerated value, no value->label pair
+            val = next(g.objects(choice, REPROSCHEMA["value"]), None)
+            lab = next(g.objects(choice, RDFS["label"]), None)
+            if val is not None and lab is not None:
+                levels[str(val)] = str(lab)
+        if levels:
+            entry["levels"] = levels
 
         data_elements.append(entry)
 
@@ -497,6 +518,16 @@ def _build_sparql_prompt(resolved_vars, prefixes, projects):
             var_block += f"    Laterality: {v['laterality']}\n"
         if v.get("unit"):
             var_block += f"    Unit: {v['unit']}\n"
+        if v.get("levels"):
+            var_block += (
+                f"    Value levels (coded -> label, the ONLY permitted "
+                f"mapping for this variable): {v['levels']}\n"
+            )
+        else:
+            var_block += (
+                "    Value levels: NONE in the data — do NOT translate this "
+                "variable's coded values; return them raw.\n"
+            )
 
     return f"""\
 You are a SPARQL query generator for NIDM (Neuroimaging Data Model) RDF graphs.
@@ -555,6 +586,22 @@ You MUST use the exact URIs listed below — do NOT substitute or invent URIs.
    Do NOT invent, guess, or modify any URI. If a variable has no resolved
    URI (role is identifier/aggregate/software), follow the schema patterns
    instead.  NEVER use placeholders like <YOUR_URI_HERE>.
+
+8. **NEVER invent value mappings — this is critical.**
+   A coded value (e.g. sex "1"/"2", diagnosis "1"/"2") may be translated to a
+   human-readable label ONLY when that variable lists "Value levels" in
+   RESOLVED VARIABLES above.
+   - If levels ARE listed: map using EXACTLY those coded->label pairs (a BIND
+     or inline VALUES table), and nothing else.
+   - If a variable's "Value levels" is NONE: return its RAW value unchanged.
+     Do NOT translate it from outside/domain knowledge (dataset conventions,
+     ABIDE coding, "1 usually means male", etc.), and do NOT emit a no-op
+     `reproschema:choices` (or similar) triple to disguise a hardcoded guess.
+   It is far better to return the raw coded value than a fabricated label.
+   When the user asked for a mapping you cannot perform (no levels in the
+   data), add a top-level SPARQL comment line for each such variable:
+   `# NOTE: no value-level definitions for <var> in the data; returning raw values`
+   and select the raw value.
 
 ## Available Prefixes
 ```sparql
