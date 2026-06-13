@@ -1213,9 +1213,26 @@ def bidsmri2project(
                     subjid = temp[1]
                 else:
                     subjid = temp[0]
-                # when per-subject mode is in use, skip rows for other subjects
+                # when per-subject mode is in use, skip rows for other subjects.
+                # Tolerate the common (older-BIDS / ABIDE) case where
+                # participants.tsv ids are not zero-padded but the subject
+                # directories are (e.g. "50792" vs "sub-0050792") by comparing
+                # with leading zeros stripped.  The imaging path
+                # (addimagingsessions) already reconciles the two via
+                # subject_id.lstrip("0").
                 if subject_filter is not None and subjid != subject_filter:
-                    continue
+                    if subjid.lstrip("0") == subject_filter.lstrip("0"):
+                        logging.warning(
+                            "participants.tsv participant_id '%s' does not match "
+                            "BIDS subject directory 'sub-%s' exactly; matched "
+                            "after normalizing leading zeros. For BIDS "
+                            "compliance, participant_id should be 'sub-%s'.",
+                            row["participant_id"],
+                            subject_filter,
+                            subject_filter,
+                        )
+                    else:
+                        continue
                 logging.info(subjid)
                 # add session and keep track if it for later using subjid
                 session[subjid] = Session(project)
@@ -1464,15 +1481,23 @@ def bidsmri2project(
             )
 
             for row in pheno_data:
-                subjid = row["participant_id"].split("-")
-                # when per-subject mode is in use, skip phenotype rows for other subjects
-                if subject_filter is not None and subjid[1] != subject_filter:
+                # parse subject id tolerantly: participant_id may be "sub-XXXX"
+                # or a bare "XXXX" (older BIDS / non-compliant datasets)
+                temp = row["participant_id"].split("-")
+                sid = temp[1] if len(temp) > 1 else temp[0]
+                # when per-subject mode is in use, skip phenotype rows for other
+                # subjects (compare with leading zeros stripped, matching the
+                # participants.tsv handling above)
+                if (
+                    subject_filter is not None
+                    and sid.lstrip("0") != subject_filter.lstrip("0")
+                ):
                     continue
                 # add acquisition object
-                acq = AssessmentAcquisition(session=session[subjid[1]])
+                acq = AssessmentAcquisition(session=session[sid])
                 # add qualified association with person
                 acq.add_qualified_association(
-                    person=participant[subjid[1]]["person"],
+                    person=participant[sid]["person"],
                     role=Constants.NIDM_PARTICIPANT,
                 )
                 # add acquisition entity and associate it with the acquisition activity

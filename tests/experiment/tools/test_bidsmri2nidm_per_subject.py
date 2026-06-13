@@ -6,7 +6,7 @@ from pathlib import Path
 import subprocess
 import sys
 import pytest
-from rdflib import RDF, Graph
+from rdflib import RDF, Graph, Literal
 from rdflib.namespace import Namespace
 
 NIDM = Namespace("http://purl.org/nidash/nidm#")
@@ -227,3 +227,65 @@ def test_relative_output_path_is_resolved_and_created(
     g = Graph()
     g.parse(produced, format="turtle")
     assert len(g) > 0
+
+
+def _make_bids_zero_stripped(root: Path, subjects: list[str]) -> None:
+    """BIDS dataset where subject directories are zero-padded (``sub-00xx``)
+    but participants.tsv ``participant_id`` values are NOT (the ABIDE /
+    older-BIDS quirk).  Includes an ``age`` column so there is a demographic
+    value to attach."""
+    (root / "dataset_description.json").write_text(
+        json.dumps({"Name": "zero-strip test", "BIDSVersion": "1.8.0"})
+    )
+    header = "participant_id\tage\n"
+    rows = "".join(f"{s.lstrip('0')}\t{20 + i}\n" for i, s in enumerate(subjects))
+    (root / "participants.tsv").write_text(header + rows)
+    # Pre-written sidecar so map_variables_to_terms annotates `age` without
+    # prompting interactively (no network / no stdin needed).
+    (root / "participants.json").write_text(
+        json.dumps(
+            {
+                "age": {
+                    "description": "Age in years",
+                    "source_variable": "age",
+                    "associatedWith": "NIDM",
+                    "valueType": "http://www.w3.org/2001/XMLSchema#integer",
+                }
+            }
+        )
+    )
+    for s in subjects:
+        anat = root / f"sub-{s}" / "anat"
+        anat.mkdir(parents=True)
+        (anat / f"sub-{s}_T1w.nii.gz").write_bytes(b"")
+
+
+def test_per_subject_demographics_with_zero_stripped_participant_ids(
+    tmp_path: Path,
+) -> None:
+    """Regression: when participants.tsv ids are zero-stripped (``50772``) but
+    the subject directories are zero-padded (``sub-0050772``), --per_subject
+    must still write the demographics.  Previously the per-subject filter
+    skipped the row on a strict string compare, yielding CDE definitions but no
+    values."""
+    bids = tmp_path / "bids"
+    bids.mkdir()
+    _make_bids_zero_stripped(bids, ["0050772", "0050773"])
+    out_dir = tmp_path / "out"
+    out_dir.mkdir()
+
+    result = _run_bidsmri2nidm(
+        ["-d", str(bids), "--per_subject", "-o", str(out_dir), "--no_concepts"]
+    )
+    assert result.returncode == 0, f"bidsmri2nidm failed:\n{result.stderr}"
+
+    ttl = out_dir / "sub-0050772" / "nidm.ttl"
+    assert ttl.is_file()
+    g = Graph()
+    g.parse(ttl, format="turtle")
+    # the age value (20 for the first subject) must be present; before the fix
+    # the participants row was skipped so no demographic value was written.
+    literals = {str(o) for (_s, _p, o) in g if isinstance(o, Literal)}
+    assert (
+        "20" in literals
+    ), "demographic age value not written for zero-stripped participant_id"
