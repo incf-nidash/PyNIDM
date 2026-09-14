@@ -4,7 +4,7 @@ It will parse phenotype information and simply store variables/values and link
 to the associated json data dictionary file.
 """
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 
 from argparse import ArgumentParser, RawTextHelpFormatter
 import csv
@@ -69,7 +69,7 @@ def getRelPathToBIDS(filepath, bids_root, bidsuri_format=False):
     relpath = path.replace(bids_root, "")
     file_relpath = os.path.join(relpath, file)
     if bidsuri_format:
-        file_relpath = f'bids::{file_relpath.lstrip("/")}'
+        file_relpath = f'bids::{file_relpath.lstrip("/")}'  # noqa: E231
     return file_relpath
 
 
@@ -355,6 +355,26 @@ def _read_scan_sidecar(directory, file_tpl):
         return {}
 
 
+def _scan_metadata(bids_layout, directory, file_tpl):
+    """Return BIDS-inheritance-merged sidecar metadata for *file_tpl*.
+
+    Uses pybids ``BIDSLayout.get_metadata`` -- the BIDS inheritance
+    principle (dataset-root + session + scan level merged, for any
+    suffix/task/session) -- replacing the per-scan sidecar read plus the
+    hardcoded ``T1w.json`` / ``task-rest_bold.json`` root descent (which
+    only covered T1w anat + rest func and did not apply scan-over-root
+    precedence).  Falls back to a direct sidecar read when pybids returns
+    nothing (e.g. a file not in the layout index).
+    """
+    try:
+        metadata = bids_layout.get_metadata(file_tpl.path) or {}
+    except Exception:  # pragma: no cover -- pybids version/edge-case guard
+        metadata = {}
+    if not metadata:
+        metadata = _read_scan_sidecar(directory, file_tpl)
+    return metadata
+
+
 def addimagingsessions(
     bids_layout,
     subject_id,
@@ -454,7 +474,7 @@ def addimagingsessions(
                 acq_obj.add_attributes(
                     {BIDS_Constants.json_keys["run"]: file_tpl.tags["run"].value}
                 )
-            json_data = _read_scan_sidecar(directory, file_tpl)
+            json_data = _scan_metadata(bids_layout, directory, file_tpl)
             if len(json_data) > 0:
                 for key, value in json_data.items():
                     normalized_key = key.replace(" ", "_")
@@ -548,9 +568,8 @@ def addimagingsessions(
                 acq_obj.add_attributes(
                     {BIDS_Constants.json_keys["run"]: file_tpl.tags["run"].value}
                 )
-            # get associated JSON file if exists
-            # There is T1w.json file with information
-            json_data = _read_scan_sidecar(directory, file_tpl)
+            # BIDS-inheritance-merged sidecar metadata (pybids get_metadata)
+            json_data = _scan_metadata(bids_layout, directory, file_tpl)
             if len(json_data) > 0:
                 for key, value in json_data.items():
                     normalized_key = key.replace(" ", "_")
@@ -567,53 +586,6 @@ def addimagingsessions(
                             acq_obj.add_attributes(
                                 {BIDS_Constants.json_keys[normalized_key]: value}
                             )
-
-            # Parse T1w.json file in BIDS directory to add the attributes contained inside
-            if os.path.isdir(os.path.join(directory)):
-                try:
-                    with open(
-                        os.path.join(directory, "T1w.json"), encoding="utf-8"
-                    ) as data_file:
-                        dataset = json.load(data_file)
-                except OSError:
-                    logging.warning(
-                        "Cannot find T1w.json file...looking for session-specific one"
-                    )
-                    try:
-                        if img_session is not None:
-                            with open(
-                                os.path.join(
-                                    directory, "ses-" + img_session + "_T1w.json"
-                                ),
-                                encoding="utf-8",
-                            ) as data_file:
-                                dataset = json.load(data_file)
-                        else:
-                            dataset = {}
-                    except OSError:
-                        logging.warning(
-                            "Cannot find session-specific T1w.json file which is required in the BIDS spec..continuing anyway"
-                        )
-                        dataset = {}
-
-            else:
-                logging.critical(
-                    "Error: BIDS directory %s does not exist!", os.path.join(directory)
-                )
-                sys.exit(-1)
-
-            # add various attributes if they exist in BIDS dataset
-            for key in dataset:
-                # if key from T1w.json file is mapped to term in BIDS_Constants.py then add to NIDM object
-                if key in BIDS_Constants.json_keys:
-                    if isinstance(dataset[key], list):
-                        acq_obj.add_attributes(
-                            {BIDS_Constants.json_keys[key]: "".join(dataset[key])}
-                        )
-                    else:
-                        acq_obj.add_attributes(
-                            {BIDS_Constants.json_keys[key]: dataset[key]}
-                        )
 
         elif file_tpl.entities["datatype"] == "func":
             # do something with functionals
@@ -690,7 +662,7 @@ def addimagingsessions(
                 )
 
             # get associated JSON file if exists
-            json_data = _read_scan_sidecar(directory, file_tpl)
+            json_data = _scan_metadata(bids_layout, directory, file_tpl)
 
             if len(json_data) > 0:
                 for key, value in json_data.items():
@@ -768,57 +740,6 @@ def addimagingsessions(
                         {Constants.PROV["Location"]: "file:/" + events_file[0].path}
                     )
 
-            # Parse task-rest_bold.json file in BIDS directory to add the attributes contained inside
-            if os.path.isdir(os.path.join(directory)):
-                try:
-                    with open(
-                        os.path.join(directory, "task-rest_bold.json"), encoding="utf-8"
-                    ) as data_file:
-                        dataset = json.load(data_file)
-                except OSError:
-                    logging.warning(
-                        "Cannot find task-rest_bold.json file looking for session-specific one"
-                    )
-                    try:
-                        if img_session is not None:
-                            with open(
-                                os.path.join(
-                                    directory,
-                                    "ses-" + img_session + "_task-rest_bold.json",
-                                ),
-                                encoding="utf-8",
-                            ) as data_file:
-                                dataset = json.load(data_file)
-                        else:
-                            dataset = {}
-                    except OSError:
-                        logging.warning(
-                            "Cannot find session-specific task-rest_bold.json file which is required in the BIDS spec..continuing anyway"
-                        )
-                        dataset = {}
-            else:
-                logging.critical(
-                    "Error: BIDS directory %s does not exist!", os.path.join(directory)
-                )
-                sys.exit(-1)
-
-            # add various attributes if they exist in BIDS dataset
-            for key in dataset:
-                # if key from task-rest_bold.json file is mapped to term in BIDS_Constants.py then add to NIDM object
-                if key in BIDS_Constants.json_keys:
-                    if isinstance(dataset[key], list):
-                        acq_obj.add_attributes(
-                            {
-                                BIDS_Constants.json_keys[key]: ",".join(
-                                    map(str, dataset[key])
-                                )
-                            }
-                        )
-                    else:
-                        acq_obj.add_attributes(
-                            {BIDS_Constants.json_keys[key]: dataset[key]}
-                        )
-
         # DBK added for ASL support 3/16/21
         # WIP: Waiting for pybids > 0.12.4 to support perfusion scans
         elif file_tpl.entities["datatype"] == "perf":
@@ -887,7 +808,7 @@ def addimagingsessions(
                 acq_obj.add_attributes({BIDS_Constants.json_keys["run"]: file_tpl.run})
 
             # get associated JSON file if exists
-            json_data = _read_scan_sidecar(directory, file_tpl)
+            json_data = _scan_metadata(bids_layout, directory, file_tpl)
 
             if len(json_data) > 0:
                 for key, value in json_data.items():
@@ -986,7 +907,7 @@ def addimagingsessions(
                 )
 
             # get associated JSON file if exists
-            json_data = _read_scan_sidecar(directory, file_tpl)
+            json_data = _scan_metadata(bids_layout, directory, file_tpl)
 
             if len(json_data) > 0:
                 for key, value in json_data.items():
