@@ -888,7 +888,7 @@ def _query_anthropic(system_prompt, user_question, api_key):
     except ImportError:
         click.echo(
             "Error: anthropic package not installed. "
-            "Install with: pip install anthropic",
+            'Install with: pip install "pynidm[ai]"',
             err=True,
         )
         sys.exit(1)

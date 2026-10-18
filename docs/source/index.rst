@@ -679,6 +679,7 @@ provider is auto-detected from whichever of the variables below is present.
 
 .. code:: bash
 
+   pip install "pynidm[ai]"   # installs the anthropic client
    export ANTHROPIC_API_KEY=sk-ant-...
 
 *OpenAI (GPT):*
