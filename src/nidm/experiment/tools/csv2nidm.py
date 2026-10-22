@@ -16,7 +16,7 @@ from os.path import basename, dirname, join
 from shutil import copy2
 import sys
 import pandas as pd
-from prov.model import Identifier, QualifiedName
+from prov.model import PROV, PROV_TYPE, Identifier, QualifiedName
 from rdflib import RDF, Graph, Literal
 from rdflib.namespace import split_uri
 from nidm import __version__ as pynidm_version
@@ -243,6 +243,19 @@ def match_acquistion_task_run_from_session(
                     break
 
     return derivative_acq_entity, acquisition_act
+
+
+def software_agent_types(nidm_ns):
+    """rdf:type values for the agent of a derivative activity.
+
+    prov:SoftwareAgent is what Query.getSoftwareAgents (and so
+    GetDerivativesDataForSubject) looks for; nidm:SoftwareAgent is kept for
+    readers that match on it. PROV_TYPE serializes as rdf:type.
+    """
+    return [
+        (PROV_TYPE, PROV["SoftwareAgent"]),
+        (PROV_TYPE, QualifiedName(nidm_ns, "SoftwareAgent")),
+    ]
 
 
 def csv2nidm_main(args=None):
@@ -532,10 +545,6 @@ def csv2nidm_main(args=None):
         # with open("/Users/dkeator/Downloads/test.ttl", "w", encoding="utf-8") as f:
         #    f.write(project.serializeTurtle())
 
-        # get rdfs namespace for later use
-        rdfs_ns = project.find_namespace_with_uri(
-            uri="http://www.w3.org/2000/01/rdf-schema#"
-        )
         # get nidm namespace for later use
         nidm_ns = project.find_namespace_with_uri(uri="http://purl.org/nidash/nidm#")
 
@@ -745,9 +754,7 @@ def csv2nidm_main(args=None):
                     nidm_ns = project.find_namespace_with_uri(str(Constants.NIDM))
 
                     software_agent = project.add_person(
-                        attributes={
-                            RDF["type"]: QualifiedName(nidm_ns, "SoftwareAgent")
-                        },
+                        attributes=software_agent_types(nidm_ns),
                         add_default_type=False,
                     )
 
@@ -984,9 +991,6 @@ def csv2nidm_main(args=None):
             )
 
         # get namespaces from document for use later....
-        rdfs_ns = project.find_namespace_with_uri(
-            "http://www.w3.org/2000/01/rdf-schema#"
-        )
         nidm_ns = project.find_namespace_with_uri(str(Constants.NIDM))
         sio_ns = project.find_namespace_with_uri(str(Constants.SIO))
 
@@ -1009,11 +1013,7 @@ def csv2nidm_main(args=None):
                 # create a derivative entity
                 der_entity = DerivativeObject(derivative=der)
                 der_entity.add_attributes(
-                    {
-                        QualifiedName(rdfs_ns, "type"): QualifiedName(
-                            nidm_ns, "DerivativeCollection"
-                        )
-                    }
+                    {PROV_TYPE: QualifiedName(nidm_ns, "DerivativeCollection")}
                 )
 
                 # add metadata to der_entity
@@ -1070,11 +1070,7 @@ def csv2nidm_main(args=None):
 
                 # create software metadata agent
                 software_agent = project.add_person(
-                    attributes={
-                        QualifiedName(rdfs_ns, "type"): QualifiedName(
-                            nidm_ns, "SoftwareAgent"
-                        )
-                    },
+                    attributes=software_agent_types(nidm_ns),
                     add_default_type=False,
                 )
 
