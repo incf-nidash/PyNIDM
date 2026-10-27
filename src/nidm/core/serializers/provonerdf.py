@@ -242,7 +242,7 @@ class ProvONERDFSerializer(Serializer):
                     ):
                         formal_qualifiers = True
                 has_qualifiers = len(record.extra_attributes) > 0 or formal_qualifiers
-                for idx, (attr, value) in enumerate(all_attributes):
+                for _idx, (attr, value) in enumerate(all_attributes):
                     if record.is_relation():
                         if rec_type.namespace.prefix == "prov":
                             pred = URIRef(PROV[PROV_N_MAP[rec_type]].uri)
@@ -251,10 +251,12 @@ class ProvONERDFSerializer(Serializer):
                         # create bnode relation
                         if bnode is None:
                             valid_formal_indices = set()
-                            for idx, (key, val) in enumerate(record.formal_attributes):
+                            for f_idx, (key, val) in enumerate(
+                                record.formal_attributes
+                            ):
                                 formal_objects.append(key)
                                 if val:
-                                    valid_formal_indices.add(idx)
+                                    valid_formal_indices.add(f_idx)
                             used_objects = [record.formal_attributes[0][0]]
                             subj = None
                             if record.formal_attributes[0][1]:
