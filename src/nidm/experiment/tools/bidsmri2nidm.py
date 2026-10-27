@@ -482,7 +482,7 @@ def addimagingsessions(
                         if isinstance(value, list):
                             acq_obj.add_attributes(
                                 {
-                                    BIDS_Constants.json_keys[normalized_key]: "".join(
+                                    BIDS_Constants.json_keys[normalized_key]: ",".join(
                                         str(e) for e in value
                                     )
                                 }
@@ -577,7 +577,7 @@ def addimagingsessions(
                         if isinstance(value, list):
                             acq_obj.add_attributes(
                                 {
-                                    BIDS_Constants.json_keys[normalized_key]: "".join(
+                                    BIDS_Constants.json_keys[normalized_key]: ",".join(
                                         str(e) for e in value
                                     )
                                 }
@@ -671,7 +671,7 @@ def addimagingsessions(
                         if isinstance(value, list):
                             acq_obj.add_attributes(
                                 {
-                                    BIDS_Constants.json_keys[normalized_key]: "".join(
+                                    BIDS_Constants.json_keys[normalized_key]: ",".join(
                                         str(e) for e in value
                                     )
                                 }
@@ -817,7 +817,7 @@ def addimagingsessions(
                         if isinstance(value, list):
                             acq_obj.add_attributes(
                                 {
-                                    BIDS_Constants.json_keys[normalized_key]: "".join(
+                                    BIDS_Constants.json_keys[normalized_key]: ",".join(
                                         str(e) for e in value
                                     )
                                 }
@@ -916,7 +916,7 @@ def addimagingsessions(
                         if isinstance(value, list):
                             acq_obj.add_attributes(
                                 {
-                                    BIDS_Constants.json_keys[normalized_key]: "".join(
+                                    BIDS_Constants.json_keys[normalized_key]: ",".join(
                                         str(e) for e in value
                                     )
                                 }
