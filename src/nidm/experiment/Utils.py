@@ -3717,16 +3717,16 @@ def DD_to_nidm(dd_struct, cde_namespace=None):
                 )
 
         # this code adds the properties about the particular CDE into NIDM document
-        for key, value in dd_struct[str(key_tuple)].items():
-            if key == "definition":
+        for cde_key, value in dd_struct[str(key_tuple)].items():
+            if cde_key == "definition":
                 g.add((cde_id, RDFS["comment"], Literal(value)))
-            elif key == "description":
+            elif cde_key == "description":
                 g.add((cde_id, Constants.DCT["description"], Literal(value)))
-            elif key == "url":
+            elif cde_key == "url":
                 g.add((cde_id, Constants.NIDM["url"], URIRef(value)))
-            elif key == "label":
+            elif cde_key == "label":
                 g.add((cde_id, Constants.RDFS["label"], Literal(value)))
-            elif key in ("levels", "Levels", "responseOptions"):
+            elif cde_key in ("levels", "Levels", "responseOptions"):
                 # if responseOptions or levels is a dictionary then iterate
                 # over dict
                 if isinstance(value, dict):
@@ -3778,9 +3778,9 @@ def DD_to_nidm(dd_struct, cde_namespace=None):
                                     )
                             else:
                                 g.add((cde_id, reproschema_ns.choices, Literal(value)))
-            elif key == "source_variable":
+            elif cde_key == "source_variable":
                 g.add((cde_id, Constants.NIDM["sourceVariable"], Literal(value)))
-            elif key == "isAbout":
+            elif cde_key == "isAbout":
                 # dct_ns = Namespace(Constants.DCT)
                 # g.bind(prefix='dct', namespace=dct_ns)
                 # added by DBK for multiple isAbout URLs and storing the labels along with URLs
@@ -3867,19 +3867,19 @@ def DD_to_nidm(dd_struct, cde_namespace=None):
                                 )
                             )
 
-            elif key == "valueType":
+            elif cde_key == "valueType":
                 g.add((cde_id, Constants.NIDM["valueType"], URIRef(value)))
-            elif key in ("minValue", "minimumValue"):
+            elif cde_key in ("minValue", "minimumValue"):
                 g.add((cde_id, Constants.NIDM["minValue"], Literal(value)))
-            elif key in ("maxValue", "maximumValue"):
+            elif cde_key in ("maxValue", "maximumValue"):
                 g.add((cde_id, Constants.NIDM["maxValue"], Literal(value)))
-            elif key == "hasUnit":
+            elif cde_key == "hasUnit":
                 g.add((cde_id, Constants.NIDM["unitCode"], Literal(value)))
-            elif key == "sameAs":
+            elif cde_key == "sameAs":
                 g.add((cde_id, Constants.NIDM["sameAs"], URIRef(value)))
-            elif key == "associatedWith":
+            elif cde_key == "associatedWith":
                 g.add((cde_id, Constants.INTERLEX["ilx_0739289"], Literal(value)))
-            elif key == "allowableValues":
+            elif cde_key == "allowableValues":
                 g.add((cde_id, Constants.BIDS["allowableValues"], Literal(value)))
             # testing
             # g.serialize(destination="/Users/dbkeator/Downloads/csv2nidm_cde.ttl", format='turtle')
