@@ -209,7 +209,7 @@ than hard-coded per wrapper, the wrappers stay in lockstep with the schema.
 Specialization pattern
 ----------------------
 
-Subclasses add per-instance ``rdf:type`` triples without re-declaring slots, via
+Subclasses add per-instance ``rdf:type`` triples without redeclaring slots, via
 the ``extra_types`` kwarg:
 
 .. code-block:: python
