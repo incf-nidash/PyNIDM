@@ -360,18 +360,39 @@ def add_git_annex_sources(obj, bids_root, filepath: Optional[str] = None) -> int
         _dl_logger = logging.getLogger("datalad")
         _dl_prev_level = _dl_logger.level
         _dl_logger.setLevel(logging.CRITICAL)
+
+        def _get_urls_stable(target, attempts=3):
+            # datalad's batched `git annex whereis` can intermittently drop a
+            # source URL when a whereis response arrives chunked (the
+            # "undecodable JSON output remain" case noted above), which makes
+            # source-URL capture nondeterministic across runs -- two conversions
+            # of the same dataset could differ by one prov:Location triple.
+            # Call the lookup a few times and UNION the results so a transient
+            # drop in one attempt is recovered by another; the union is stable
+            # run-to-run.  A per-attempt error is non-fatal (other attempts and
+            # the outer handler cover it).
+            seen = set()
+            for _ in range(attempts):
+                try:
+                    seen.update(repo.get_urls(target) or [])
+                except Exception:
+                    continue
+            return seen
+
         try:
             repo = AnnexRepo(bids_root, create=False)
+            target = filepath if filepath is not None else bids_root
+            sources = _get_urls_stable(target)
             if filepath is not None:
-                sources = repo.get_urls(filepath)
-                matches = [s for s in sources if os.path.basename(filepath) in s]
+                matches = {s for s in sources if os.path.basename(filepath) in s}
             else:
-                sources = repo.get_urls(bids_root)
-                matches = sources
+                matches = set(sources)
         finally:
             _dl_logger.setLevel(_dl_prev_level)
 
-        for match in matches:
+        # Emit sorted + de-duplicated so repeat conversions of the same dataset
+        # produce byte-identical prov:Location triples (deterministic output).
+        for match in sorted(matches):
             # Emit the source URL as an xsd:string LITERAL (not a URIRef) to
             # match legacy addGitAnnexSources: legacy passes a URIRef through
             # prov-toolbox, which serializes it as an xsd:string literal, and the
