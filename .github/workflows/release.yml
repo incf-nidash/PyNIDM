@@ -8,11 +8,13 @@ on:
 jobs:
   auto-release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     if: "!contains(github.event.head_commit.message, 'ci skip') && !contains(github.event.head_commit.message, 'skip ci')"
     steps:
       - uses: actions/checkout@v6
         with:
-          persist-credentials: false
+          persist-credentials: true
           fetch-depth: 0
 
       - name: Set up Python
