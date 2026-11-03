@@ -1,0 +1,16 @@
+PREFIX ndar: <https://ndar.nih.gov/api/datadictionary/v2/dataelement/>
+PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+
+# Default parity query: list every subject id in the file(s).
+# Deliberately minimal and mapping-agnostic -- it depends only on the
+# ndar:src_subject_id predicate every Person carries, so it returns rows on any
+# NIDM-Experiment file (phenotype or derivative) while still exercising the
+# engine's subject-id handling.  Pass your own richer query with --sparql to
+# test more joins.
+SELECT DISTINCT ?agent ?src_subject_id
+WHERE {
+    ?agent rdf:type prov:Person ;
+           ndar:src_subject_id ?src_subject_id .
+}
+ORDER BY ?src_subject_id

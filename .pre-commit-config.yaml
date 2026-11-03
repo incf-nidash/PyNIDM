@@ -19,17 +19,40 @@ repos:
     rev: 23.3.0
     hooks:
       - id: black
+        exclude: ^src/nidm/linkml/generated/
 
   - repo: https://github.com/PyCQA/isort
     rev: 5.12.0
     hooks:
       - id: isort
+        exclude: ^src/nidm/linkml/generated/
 
   - repo: https://github.com/PyCQA/flake8
-    rev: 6.0.0
+    rev: 7.1.1
     hooks:
       - id: flake8
+        exclude: ^src/nidm/linkml/generated/
         additional_dependencies:
           - flake8-bugbear
           - flake8-builtins
           - flake8-unused-arguments
+
+  # Full-tree lint that mirrors CI's `tox -e lint` (flake8 src tests).
+  # The hook above only lints files in the commit, so pre-existing errors
+  # in untouched files slip through to CI; this runs the whole tree.
+  # Scoped to pre-push so it doesn't slow every commit.  Deps are left
+  # unpinned to stay in lockstep with the unpinned tox lint env.
+  - repo: local
+    hooks:
+      - id: flake8-full-tree
+        name: flake8 (full tree, matches CI tox -e lint)
+        entry: flake8 src tests
+        language: python
+        additional_dependencies:
+          - flake8
+          - flake8-bugbear
+          - flake8-builtins
+          - flake8-unused-arguments
+        pass_filenames: false
+        always_run: true
+        stages: [pre-push]

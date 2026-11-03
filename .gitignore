@@ -18,3 +18,8 @@ docs/build/
 htmlcov/*
 pytest-of-root/*
 test.ttl
+
+# Opt-in local stress-test fixtures for test_parity.py.  Personal
+# NIDM .ttl files dropped here get picked up automatically without
+# polluting the repo-tracked fixture set.
+tests/linkml/local_fixtures/

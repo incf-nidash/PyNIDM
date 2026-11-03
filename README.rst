@@ -18,6 +18,29 @@ A Python library to manipulate the `Neuroimaging Data Model <http://nidm.nidash.
 .. contents::
 .. section-numbering::
 
+Documentation
+=============
+
+Full documentation is published on `ReadTheDocs
+<https://pynidm.readthedocs.io/en/latest/>`_ and built from the reStructuredText
+sources under ``docs/source/`` (the single source of truth):
+
+* **User Manual** — https://pynidm.readthedocs.io/en/latest/ — installation, the
+  NIDM data model (graph hierarchy, participant linkage, data elements), and
+  every ``pynidm`` command-line tool (converting data, querying with SPARQL and
+  the AI-assisted ``queryai``, visualization, merging, and linear regression),
+  with worked examples.  Source: ``docs/source/index.rst``.
+* **Developer Manual** —
+  https://pynidm.readthedocs.io/en/latest/developer_manual.html — the
+  schema-driven, RDFLib-native architecture: how the LinkML schema generates the
+  code, the package layout, how to change the model or add a CLI tool, testing,
+  and migrating from the legacy prov-toolbox API.  Source:
+  ``docs/source/developer_manual.rst``.
+
+The ``USER_MANUAL.md`` and ``DEVELOPER_MANUAL.md`` files at the repository root
+are short pointers to these two manuals — edit the ``.rst`` sources under
+``docs/source/`` rather than the stubs.
+
 Dependencies
 ============
 * `Git-annex <https://git-annex.branchable.com/install/>`_
@@ -32,6 +55,51 @@ Installation
 .. code:: bash
 
 	$ pip install pynidm
+
+This installs the LinkML implementation (``nidm.linkml``), which backs all of
+the ``pynidm`` command-line tools and is built directly on `rdflib
+<https://rdflib.readthedocs.io>`_ -- it no longer depends on the ``prov``
+toolbox. Everything is imported from ``nidm.linkml``: graph construction from
+``nidm.linkml.experiment``, and the query, navigation, CDE, and REST layers
+from ``nidm.linkml.experiment`` / ``nidm.linkml.experiment.tools``.
+
+The original prov-toolbox implementation -- the ``nidm.experiment`` and
+``nidm.core`` wrapper classes from PyNIDM 4.x -- is **not** part of this
+release. Workflows that still depend on it can continue to install the 4.x
+line:
+
+.. code:: bash
+
+	$ pip install "pynidm<5"
+
+New code should target ``nidm.linkml.experiment``.
+
+Architecture at a glance
+========================
+
+PyNIDM is **schema-driven**: the NIDM-Experiment data model is described once, in
+a `LinkML <https://linkml.io>`_ schema, and everything else is derived from it::
+
+   LinkML schema (nidm_schema.yaml)            <- single source of truth
+     |  python scripts/regen_schema.py
+   Generated Pydantic classes                  (src/nidm/linkml/generated/)
+     |  wrapped by
+   Wrapper classes (Project, Session, ...)     (src/nidm/linkml/experiment/)
+     |  used by
+   CLI tools (pynidm query, csv2nidm, ...)     (src/nidm/linkml/experiment/tools/)
+
+The maintained implementation lives under ``src/nidm/linkml/`` and is built
+directly on `rdflib <https://rdflib.readthedocs.io>`_: the wrapper classes emit a
+plain ``rdflib.Graph``, so the graph *is* the data — there is no separate document
+model to keep in sync, and a class, its slot, and the RDF predicate it maps to are
+all declared once in the schema.  New code should target
+``nidm.linkml.experiment``; the earlier prov-toolbox implementation is a
+separate release line (PyNIDM 4.x), installable via ``pip install "pynidm<5"``.
+
+For the full walkthrough — the wrapper engine, the query layer, how to change the
+model or add a CLI tool, testing, and the legacy-migration guide — see the
+`Developer Manual
+<https://pynidm.readthedocs.io/en/latest/developer_manual.html>`_.
 
 Contributing to the Software
 =============================
@@ -364,20 +432,26 @@ Interlex API key you visit `SciCrunch <http://scicrunch.org/nidm-terms>`_,
 register for an account, then click on "MyAccount" and "API Keys" to add a new
 API key for your account.
 
+The recommended invocation is the ``pynidm bids2nidm`` subcommand, which keeps a
+uniform interface with the other ``pynidm`` tools.  The standalone
+``bidsmri2nidm`` command remains available for backward compatibility and takes
+exactly the same flags — in any example below you may substitute
+``bidsmri2nidm`` for ``pynidm bids2nidm``.
+
 
 .. code:: text
 
-   $ bidsmri2nidm -d [ROOT BIDS DIRECT] -bidsignore
+   $ pynidm bids2nidm -d [ROOT BIDS DIRECT] -bidsignore
 
    # Write one NIDM file per subject as BIDS_ROOT/sub-<id>/nidm.ttl:
-   $ bidsmri2nidm -d [ROOT BIDS DIRECT] --per_subject
+   $ pynidm bids2nidm -d [ROOT BIDS DIRECT] --per_subject
 
    # Or direct the per-subject files under a different base output directory:
-   $ bidsmri2nidm -d [ROOT BIDS DIRECT] --per_subject -o [OUTPUT DIRECTORY]
+   $ pynidm bids2nidm -d [ROOT BIDS DIRECT] --per_subject -o [OUTPUT DIRECTORY]
 
-   usage: bidsmri2nidm [-h] -d DIRECTORY [-jsonld] [-bidsignore] [-no_concepts]
-                    [-json_map JSON_MAP] [-log LOGFILE] [-o OUTPUTFILE]
-                    [-per_subject]
+   usage: pynidm bids2nidm [-h] -d DIRECTORY [-jsonld] [-bidsignore]
+                           [-no_concepts] [-json_map JSON_MAP] [-log LOGFILE]
+                           [-o OUTPUTFILE] [-per_subject]
 
    This program will represent a BIDS MRI dataset as a NIDM RDF document and provide user with opportunity to annotate
    the dataset (i.e. create sidecar files) and associate selected variables with broader concepts to make datasets more
@@ -424,12 +498,18 @@ API key.  To get an Interlex API key you visit `SciCrunch
 <http://scicrunch.org/nidm-terms>`_, register for an account, then click on
 "MyAccount" and "API Keys" to add a new API key for your account.
 
+The recommended invocation is the ``pynidm csv2nidm`` subcommand, which keeps a
+uniform interface with the other ``pynidm`` tools (e.g. ``pynidm csv2nidm -csv
+data.csv -json_map map.json -out out.ttl``).  The standalone ``csv2nidm`` command
+remains available for backward compatibility and takes exactly the same flags.
+
 .. code:: bash
 
-  usage: csv2nidm [-h] -csv CSV_FILE [-json_map JSON_MAP | -csv_map CSV_MAP | -redcap REDCAP]
-                  [-nidm NIDM_FILE] [-no_concepts] [-log LOGFILE]
-                  [-dataset_id DATASET_ID] [-derivative DERIVATIVE_METADATA]
-                  [-out OUTPUT_FILE]
+  usage: pynidm csv2nidm [-h] -csv CSV_FILE
+                         [-json_map JSON_MAP | -csv_map CSV_MAP | -redcap REDCAP]
+                         [-nidm NIDM_FILE] [-no_concepts] [-log LOGFILE]
+                         [-dataset_id DATASET_ID] [-derivative DERIVATIVE_METADATA]
+                         [-out OUTPUT_FILE]
 
   This program will load in a CSV file and iterate over the header variable
   names performing an elastic search of https://scicrunch.org/ for NIDM-ReproNim
@@ -675,11 +755,17 @@ environment variable (``anthropic`` | ``openai`` | ``llama``, case-insensitive);
 if it is unset the provider is auto-detected from whichever of the variables
 below is present.
 
+The cloud backends need their client libraries, installed via the ``queryai``
+extra:
+
+.. code:: bash
+
+   pip install "pynidm[queryai]"   # installs the anthropic + openai clients
+
 *Anthropic (Claude):*
 
 .. code:: bash
 
-   pip install "pynidm[ai]"   # installs the anthropic client
    export ANTHROPIC_API_KEY=sk-ant-...
 
 *OpenAI (GPT):*
