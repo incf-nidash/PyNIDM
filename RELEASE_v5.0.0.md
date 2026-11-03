@@ -87,7 +87,7 @@ strict, datatype-sensitive term matching are aware:
 - **The legacy prov-toolbox converter is not part of v5.** The `nidm.experiment`
   and `nidm.core` packages — and the `prov` dependency — have been removed; v5 is
   LinkML-only. Code that needs the legacy converter should pin
-  `pip install "pynidm<5"` (the 4.5.4 release) or use the `legacy-4.x` branch.
+  `pip install "pynidm<5"` (the final 4.5.x release) or use the `legacy-4.x` branch.
 - **`pydantic>=2` is now a runtime dependency** (the generated LinkML models use
   Pydantic v2). It installs automatically with `pip install pynidm`.
 - The `pynidm` CLI is backed by the LinkML core. Command surface and query
