@@ -17,10 +17,9 @@ Usage
     python scripts/smoketest_generated.py
 """
 from __future__ import annotations
-
+from pathlib import Path
 import sys
 import traceback
-from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT / "src"))
@@ -38,15 +37,26 @@ def main() -> int:
 
     # Inventory the classes we expect to see.
     expected = {
-        "Project", "Session", "Acquisition", "AcquisitionObject",
-        "DataElement", "PersonalDataElement", "Derivative",
-        "DerivativeObject", "Person", "SoftwareAgent", "Association",
-        "Collection", "ExportActivity",
+        "Project",
+        "Session",
+        "Acquisition",
+        "AcquisitionObject",
+        "DataElement",
+        "PersonalDataElement",
+        "Derivative",
+        "DerivativeObject",
+        "Person",
+        "SoftwareAgent",
+        "Association",
+        "Collection",
+        "ExportActivity",
     }
     missing = expected - set(dir(gen))
     if missing:
-        print(f"FAIL: generated module is missing classes: {sorted(missing)}",
-              file=sys.stderr)
+        print(
+            f"FAIL: generated module is missing classes: {sorted(missing)}",
+            file=sys.stderr,
+        )
         return 1
     print(f"  [ok] all {len(expected)} expected classes present")
 
@@ -66,11 +76,15 @@ def main() -> int:
             identifier="niiri:acq-0001",
             is_part_of="niiri:sess-0001",
         )
-        print(f"  [ok] built Project={project.identifier}, "
-              f"Session={session.identifier}, Acquisition={acq.identifier}")
+        print(
+            f"  [ok] built Project={project.identifier}, "
+            f"Session={session.identifier}, Acquisition={acq.identifier}"
+        )
     except Exception:
-        print("FAIL: could not build minimal Project/Session/Acquisition:",
-              file=sys.stderr)
+        print(
+            "FAIL: could not build minimal Project/Session/Acquisition:",
+            file=sys.stderr,
+        )
         traceback.print_exc()
         return 1
 
@@ -80,8 +94,7 @@ def main() -> int:
     except Exception as exc:
         print(f"  [ok] missing-identifier raises: {type(exc).__name__}")
     else:
-        print("FAIL: Project() with no identifier should have raised",
-              file=sys.stderr)
+        print("FAIL: Project() with no identifier should have raised", file=sys.stderr)
         return 1
 
     # Enum smoke test, if the enum is exposed.
@@ -120,7 +133,9 @@ def main() -> int:
             continue
         annots = meta["annotations"]
         if "additional_rdf_types" not in annots:
-            failures.append(f"    {cls_name}: annotations has no 'additional_rdf_types'")
+            failures.append(
+                f"    {cls_name}: annotations has no 'additional_rdf_types'"
+            )
             continue
         # gen-pydantic emits annotations as {'tag': ..., 'value': ...} dicts.
         raw = annots["additional_rdf_types"]
@@ -133,8 +148,11 @@ def main() -> int:
         print("FAIL: additional_rdf_types annotation checks failed:", file=sys.stderr)
         for f in failures:
             print(f, file=sys.stderr)
-        print("\nDid you re-run `python scripts/regen_schema.py` after the "
-              "schema was updated?", file=sys.stderr)
+        print(
+            "\nDid you re-run `python scripts/regen_schema.py` after the "
+            "schema was updated?",
+            file=sys.stderr,
+        )
         return 1
 
     # And confirm Association / ExportActivity do NOT carry the annotation
@@ -143,8 +161,10 @@ def main() -> int:
         cls = getattr(gen, cls_name)
         meta = cls.linkml_meta
         if "annotations" in meta and "additional_rdf_types" in meta["annotations"]:
-            print(f"FAIL: {cls_name} should NOT have additional_rdf_types",
-                  file=sys.stderr)
+            print(
+                f"FAIL: {cls_name} should NOT have additional_rdf_types",
+                file=sys.stderr,
+            )
             return 1
         print(f"    [ok] {cls_name} correctly has no additional_rdf_types")
 
